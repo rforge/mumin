@@ -21,5 +21,3 @@ function (model) UseMethod("coeffs")
 
 `coeffs.spautolm` <-
 function(model) { model$fit$coefficients}
-
-

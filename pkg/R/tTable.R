@@ -48,5 +48,3 @@ function (model, ...) {
 function(model, ...) {
 return(summary(model)$Coef)
 }
-
-

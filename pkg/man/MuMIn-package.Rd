@@ -1,17 +1,17 @@
-\name{dRedging-package}
-\alias{dRedging-package}
-\alias{dRedging}
+\name{MuMIn-package}
+\alias{MuMIn-package}
+\alias{MuMIn}
 \docType{package}
 \encoding{utf-8}
 \title{
 Data dredging and model averaging
 }
 \description{
-This package contains functions for `data dredging' (which is generally not a good practice, but migth be justified in some cases) and AICc-based model averaging.
+This package contains functions for model selection and model averaging, based on information criteria (AIC alike).
 }
 \details{
 \tabular{ll}{
-Package: \tab dRedging\cr
+Package: \tab MuMIn\cr
 Type: \tab Package\cr
 License: \tab GPL\cr
 }
@@ -23,7 +23,6 @@ User-level functions:
 \item{\code{AICc}}{calculates second-order Akaike information criterion for one or several fitted model objects.}
 
 }
-
 
 \author{ Kamil Bartoń \email{kbarton@zbs.bialowieza.pl}}
 
