@@ -10,17 +10,18 @@ Data dredging and model averaging
 This package contains functions for model selection and model averaging, based on information criteria (AIC alike).
 }
 \details{
+
 \tabular{ll}{
-Package: \tab MuMIn\cr
-Type: \tab Package\cr
-License: \tab GPL\cr
+	Package: \tab MuMIn\cr
+	Type: \tab Package\cr
+	License: \tab GPL\cr
 }
 
 User-level functions:
-\item{\code{dredge}}{runs models with all (valid) combinations of terms of the supplied model.}
-\item{\code{get.models}}{evaluates models from the table returned by dredge.}
-\item{\code{model.avg}}{does model averaging.}
-\item{\code{AICc}}{calculates second-order Akaike information criterion for one or several fitted model objects.}
+	\item{\code{dredge}}{runs models with all (valid) combinations of terms of the supplied model.}
+	\item{\code{get.models}}{evaluates models from the table returned by dredge.}
+	\item{\code{model.avg}}{does model averaging.}
+	\item{\code{AICc}}{calculates second-order Akaike information criterion for one or several fitted model objects.}
 
 }
 
@@ -68,7 +69,5 @@ dd3 <- dredge(fm3)
 # Get top-most models, but fitted by REML:
 (top.models.3 <- get.models(dd3, subset = delta < 4, REML=TRUE))
 # use: method = "REML" for older versions of lme4
-
-
 
 }

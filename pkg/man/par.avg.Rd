@@ -23,7 +23,7 @@ par.avg (x, se, npar, weight, alpha = 0.05)
   par.avg returns a vector with named elements:
   \item{Coefficient}{model coefficients}
   \item{Variance}{unconditional variance of coefficients}
-  \item{Unconditional SE}
+  \item{Unconditional SE}{ }
   \item{Lower CI, Upper CI}{relative variable importances}
 }
 
