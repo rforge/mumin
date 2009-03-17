@@ -47,12 +47,13 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc", ...) {
 
 	all.comb <- try(expand.grid(split(c(1:n.vars, rep(0, n.vars)), all.terms)))
 
-	if (inherits(all.comb, "try-error") {
+	if (inherits(all.comb, "try-error")) {
 		stop (gettext("Too many combinations of variables"))
 	}
-	
 
-	formulas <- apply(all.comb, 1, function(.x) as.formula(paste(". ~", paste(c(1, all.terms[.x]), sep=" ", collapse=" + "))))
+
+	#formulas <- apply(all.comb, 1, function(.x) as.formula(paste(". ~", paste(c(1, all.terms[.x]), sep=" ", collapse=" + "))))
+	formulas <- apply(all.comb, 1, function(.x) reformulate(c("1", all.terms[.x]), response = "." ))
 
 	ss <- sapply(formulas, formulaAllowed)
 
@@ -68,7 +69,6 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc", ...) {
 		return(formulas)
 	}
 
-
 	###
 	for(b in seq(NROW(all.comb))) {
           cterms <- all.terms[unlist(all.comb[b,])]
@@ -83,9 +83,7 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc", ...) {
 
 		cmod <- try(eval(cl, parent.frame()))
 		if (inherits(cmod, "try-error")) {
-			print(formulas[[as.character(b)]])
 			formulas[[as.character(b)]] <- NA
-
 			next;
 		}
 		mod.coef <- c(na.omit(match(all.terms, names(coeffs(cmod)))))
