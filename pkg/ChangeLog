@@ -1,0 +1,10 @@
+MuMIn package changelog:
+
+Version 0.1.1 (2009-03-17)
+Fixed: par.avg: Variance estimate corrected (previous estimate was square root of variance). 
+	Thanks to Mick Wu.
+Fixed: dredge: Apparently "expand.grid" cannot handle too many combinations, so now dredge stops with a more explanatory message
+
+Version 0.1.0
+dRedging (0.11.2) moved to R-Forge.
+Since model averaging is now the main focus of the package, its name changed to MuMIn - MUltiModelINference.

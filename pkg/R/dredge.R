@@ -45,7 +45,12 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc", ...) {
 	has.rsq <- "r.squared" %in% names(summary(global.model))
 	has.dev <- !is.null(deviance(global.model))
 
-	all.comb <- expand.grid(split(c(1:n.vars, rep(0, n.vars)), all.terms))
+	all.comb <- try(expand.grid(split(c(1:n.vars, rep(0, n.vars)), all.terms)))
+
+	if (inherits(all.comb, "try-error") {
+		stop (gettext("Too many combinations of variables"))
+	}
+	
 
 	formulas <- apply(all.comb, 1, function(.x) as.formula(paste(". ~", paste(c(1, all.terms[.x]), sep=" ", collapse=" + "))))
 
@@ -166,4 +171,3 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc", ...) {
 
 	return(ms.tbl)
 }
-

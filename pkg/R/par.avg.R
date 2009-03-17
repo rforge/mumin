@@ -5,7 +5,7 @@ function(x, se, npar, weight, alpha = 0.05) {
 	x.sqdiff <- (x - wx)^2
 
 	xvar <- se^2
-	avar <- weighted.mean(xvar + x.sqdiff, weight)
+	avar <- weighted.mean(xvar + x.sqdiff, weight)^2
 	ase <- weighted.mean(sqrt(xvar + x.sqdiff), weight)
 
 	z <- c((qt(1 - (alpha / 2), npar) / qnorm(1 - (alpha / 2)))^2)
@@ -16,4 +16,3 @@ function(x, se, npar, weight, alpha = 0.05) {
 
 	return(c(`Coefficient` = wx, `Variance` = avar,  `SE` = ase, `Unconditional SE` = use, `Lower CI` = wx - ci, `Upper CI` = wx + ci))
 }
-
