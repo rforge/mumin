@@ -1,5 +1,6 @@
 `dredge` <-
-function(global.model, beta = FALSE, eval = TRUE, rank = "AICc", ...) {
+function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
+		 fixed = NULL, m.max = NA, ...) {
 
 	rankFn <- match.fun(rank)
 	if (is.function(rank)) {
@@ -45,19 +46,48 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc", ...) {
 	has.rsq <- "r.squared" %in% names(summary(global.model))
 	has.dev <- !is.null(deviance(global.model))
 
-	all.comb <- try(expand.grid(split(c(1:n.vars, rep(0, n.vars)), all.terms)))
 
-	if (inherits(all.comb, "try-error")) {
-		stop (gettext("Too many combinations of variables"))
+	if (missing(m.max)) {
+		m.max <- n.vars
 	}
 
+	# fixed variables:
+	if (!missing(fixed)) {
+		if (inherits(fixed, "formula")) {
+			if (fixed[[1]] != "~")
+				warning(sQuote("fixed"), " formula should be of form ", dQuote("~ a + b + c"))
+			fixed <- c(getAllTerms(fixed))
+		} else if (!is.character(fixed)) {
+			stop (sQuote("fixed"), " should be either a character vector with names of variables or a one-sided formula")
+		}
+		if (!all(fixed %in% all.terms)) {
+			warning("Not all terms of ", sQuote("fixed"), " exist in ", sQuote("global.model"))
+			fixed <- fixed[fixed %in% all.terms]
+		}
+		m.max <- m.max - length(fixed)
+	}
 
-	#formulas <- apply(all.comb, 1, function(.x) as.formula(paste(". ~", paste(c(1, all.terms[.x]), sep=" ", collapse=" + "))))
-	formulas <- apply(all.comb, 1, function(.x) reformulate(c("1", all.terms[.x]), response = "." ))
+	if (m.max > 0) {
+		num.opt.vars <- 1:n.vars
+		if (!is.null(fixed))
+			num.opt.vars <- num.opt.vars[!(all.terms %in% fixed)]
+
+		all.comb <- lapply(seq(m.max), combn, x = num.opt.vars)
+		all.comb <- unlist(lapply(all.comb, function(.x) split(.x, col(.x))), recursive = FALSE)
+		all.comb <- c(`0` = list(0), all.comb)
+
+	} else {
+		all.comb <- list (0)
+	}
+
+	if (!is.null(fixed))
+		all.comb <- lapply(all.comb, append, (1:n.vars)[all.terms %in% fixed])
+
+	formulas <- lapply(all.comb, function(.x) reformulate(c("1", all.terms[.x]), response = "." ))
 
 	ss <- sapply(formulas, formulaAllowed)
 
-	all.comb <- as.matrix(all.comb[ss, ])
+	all.comb <- all.comb[ss]
 	formulas <- formulas[ss]
 	names(formulas) <- seq(formulas)
 
@@ -70,8 +100,8 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc", ...) {
 	}
 
 	###
-	for(b in seq(NROW(all.comb))) {
-          cterms <- all.terms[unlist(all.comb[b,])]
+	for(b in seq(length(all.comb))) {
+        cterms <- all.terms[all.comb[[b]]]
 
 		frm <- formulas[[b]]
 

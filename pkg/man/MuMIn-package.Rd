@@ -4,24 +4,22 @@
 \docType{package}
 \encoding{utf-8}
 \title{
-Data dredging and model averaging
+Multi model inference
 }
 \description{
-This package contains functions for model selection and model averaging, based on information criteria (AIC alike).
+The \code{MuMIn} contains functions for model selection and model averaging, based on information criteria (AIC alike).
 }
 \details{
 
-\tabular{ll}{
-	Package: \tab MuMIn\cr
-	Type: \tab Package\cr
-	License: \tab GPL\cr
-}
+Function \code{dredge} provides estimates and statistics of all possible combinations of terms of the supplied model. 
+This may be useful for initial insight into the data, but may cause purely spurious effects to tom, due to model selection bias.
 
-User-level functions:
-	\item{\code{dredge}}{runs models with all (valid) combinations of terms of the supplied model.}
-	\item{\code{get.models}}{evaluates models from the table returned by dredge.}
-	\item{\code{model.avg}}{does model averaging.}
-	\item{\code{AICc}}{calculates second-order Akaike information criterion for one or several fitted model objects.}
+...
+ model selection bias, so sohuld be used with due caution.
+
+\code{get.models} - evaluates models from the table returned by dredge.\cr
+\code{model.avg} - does model averaging.\cr
+\code{AICc} - calculates second-order Akaike information criterion for one or several fitted model objects.\cr
 
 }
 

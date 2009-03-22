@@ -8,14 +8,17 @@
 runs models with all possible combinations of the explanatory variables in the supplied model.
 }
 \usage{
-dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc", ...)
+dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
+		 fixed = NULL, m.max = NA, ...)
 }
 
 \arguments{
   \item{global.model}{a fitted \sQuote{global} model object. Currently, it can be a \code{lm}, \code{glm}, \code{gam}, \code{lme}, \code{lmer}, \code{sarlm} or \code{spautolm}.}
-  \item{beta}{ logical should standardized coefficients be returned rather than normal ones?}
-  \item{eval}{ whether to evaluate and rank the models. If set to FALSE only a list of all possible model formulas is returned}
+  \item{beta}{logical should standardized coefficients be returned rather than normal ones?}
+  \item{eval}{whether to evaluate and rank the models. If set to FALSE only a list of all possible model formulas is returned}
   \item{rank}{custom rank function (information criterion) to use instead AICc, e.g. \code{QAIC} or \code{BIC}, See \sQuote{Details}}
+  \item{fixed}{optional, either a single sided formula or a character vector giving names of terms to be included in all models}
+  \item{m.max}{maximum number of terms to be included in single model, defaults to the number of terms in \code{global.model}}
   \item{\dots}{optional arguments for the \code{rank} function}
 }
 
@@ -33,7 +36,7 @@ Function \code{rank} must be able to accept model as a first argument and must a
 }
 
 \references{
-Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel inference: a practical information-theoretic approach}. 2nd ed. 
+Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel inference: a practical information-theoretic approach}. 2nd ed.
 }
 
 \author{Kamil Bartoń}

@@ -1,5 +1,8 @@
 MuMIn package changelog:
 
+Version 0.1.1 (2009-03-22)
+Modified: dredge: added "fixed" and "m.max" arguments.
+
 Version 0.1.1 (2009-03-17)
 Fixed: par.avg: Variance estimate corrected (previous estimate was square root of variance). 
 	Thanks to Mick Wu.
