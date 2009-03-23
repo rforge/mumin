@@ -11,14 +11,10 @@ The \code{MuMIn} contains functions for model selection and model averaging, bas
 }
 \details{
 
-Function \code{dredge} provides estimates and statistics of all possible combinations of terms of the supplied model. 
-This may be useful for initial insight into the data, but may cause purely spurious effects to tom, due to model selection bias.
-
-...
- model selection bias, so sohuld be used with due caution.
-
-\code{get.models} - evaluates models from the table returned by dredge.\cr
+User level functions include:\cr
 \code{model.avg} - does model averaging.\cr
+\code{get.models} - evaluates models from the table returned by dredge.\cr
+\code{dredge} - runs models with combinations of terms of the supplied \sQuote{global} model.\cr
 \code{AICc} - calculates second-order Akaike information criterion for one or several fitted model objects.\cr
 
 }
@@ -28,7 +24,7 @@ This may be useful for initial insight into the data, but may cause purely spuri
 \references{
 Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel inference: a practical information-theoretic approach}. 2nd ed. 
 }
-\keyword{ package }
+\keyword{package}
 \keyword{models}
 
 

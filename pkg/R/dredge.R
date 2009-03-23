@@ -49,12 +49,15 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 	if (missing(m.max)) {
 		m.max <- n.vars
+	} else {
+		m.max <- min(n.vars, m.max)
 	}
 
+
 	# fixed variables:
-	if (!missing(fixed)) {
+	if (!is.null(fixed)) {
 		if (inherits(fixed, "formula")) {
-			if (fixed[[1]] != "~")
+			if (fixed[[1]] != "~" || length(fixed) != 2)
 				warning(sQuote("fixed"), " formula should be of form ", dQuote("~ a + b + c"))
 			fixed <- c(getAllTerms(fixed))
 		} else if (!is.character(fixed)) {
