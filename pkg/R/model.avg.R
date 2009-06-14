@@ -73,9 +73,13 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 	all.par <- unique(unlist(lapply(models, function(m) names(coeffs(m)))))
 
 	all.terms <- unique(unlist(lapply(models, getAllTerms)))
-	all.terms <- all.terms[order(sapply(gregexpr(":", all.terms), function(x) if(x[1] == -1) 0 else length(x)), all.terms)]
+	all.terms <- all.terms[order(sapply(gregexpr(":", all.terms),
+										function(x) if(x[1] == -1) 0 else length(x)), all.terms
+								 )]
 
-	all.par <- all.par[order(sapply(gregexpr(":", all.par), function(x) if(x[1] == -1) 0 else length(x)), all.par)]
+	all.par <- all.par[order(sapply(gregexpr(":", all.par),
+									function(x) if(x[1] == -1) 0 else length(x)), all.par
+							 )]
 
 	all.coef <- all.var <- all.df <- numeric(0)
 
@@ -126,7 +130,8 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 		all.var[is.na(all.var)] <- 0
 	}
 
-	avg.model <- t(sapply(seq_along(all.par), function(i) par.avg(all.coef[,i], all.var[,i], all.df, weight)))
+	avg.model <- t(sapply(seq_along(all.par), 
+		function(i) par.avg(all.coef[,i], all.var[,i], all.df, weight, alpha)))
 
 	all.coef[all.coef == 0] <- NA
 	all.var[all.var == 0] <- NA
@@ -157,4 +162,3 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 	class(ret) <- "averaging"
 	return(ret)
 }
-
