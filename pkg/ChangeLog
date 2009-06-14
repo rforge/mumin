@@ -1,5 +1,7 @@
 MuMIn package changelog:
 
+Version: 0.12.2 (2009-06-14)
+fixed: alpha in model.avg was not passed to par.avg
 
 Version: 0.12.1 (2009-04-20)
 fixed: method="NA" in model.avg, par.avg now accepts NA's in 'weight'
