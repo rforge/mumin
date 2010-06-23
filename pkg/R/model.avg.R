@@ -10,8 +10,6 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 		rank.call <- as.call(c(as.name(substitute(rank)), NA, rank.args))
 		rank <- substitute(rank)
 
-		#cat("rank call:", rank.call, "\n")
-
 	} else if (!is.null(attr(m1, "rank.call"))) {
 		rank.call <- attr(m1, "rank.call")
 		rank.args <- as.list(attr(m1, "rank.call"))[-(1:2)]
@@ -123,8 +121,6 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 	}
 	##
 
-#browser()
-
 	rownames(all.var) <- rownames(all.coef) <- rownames(selection.table) <- all.model.names
 
 	if (method == "0") {
@@ -170,7 +166,7 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 		weights = weight,
 		beta = beta,
 		terms = all.par,
-		model = mx,
+		model.matrix = mx,
 		residuals = residuals,
 		formula = frm
 	)
@@ -204,13 +200,14 @@ function(object, newdata = NULL, se.fit = NULL, interval = NULL, type = NULL, ..
 		frm <- formula(object)
 
 		tt <- delete.response(terms(frm))
-		X <- object$model
+		X <- object$model.matrix
+
 		if (missing(newdata) || is.null(newdata)) {
 			Xnew <- X
 		} else {
 			Xnew <- model.matrix(tt, data = newdata)
 		}
-		Xnew <- Xnew[,colnames(Xnew) %in% names(coeff)]
+		Xnew <- Xnew[, match( names(coeff),colnames(Xnew), nomatch = 0)]
 		ny <- (Xnew %*% coeff)[, 1]
 
 		#if (se.fit) {
@@ -226,49 +223,6 @@ function(object, newdata = NULL, se.fit = NULL, interval = NULL, type = NULL, ..
 
 	return(ny)
 }
-
-
-#
-#trms = terms object for model formula (how the model formula would look like,
-#	if it was a single model)
-#
-#$variable.codes = a list of all terms in the avgd model,
-#	to print all the components as raw list add "[]" after the name in R
-#	(e.g. "my.avgd.model[]").
-#
-#X = design matrix for the real data (inclusion of response does not chenge
-#	its form, so we can remove it beforehand)
-#
-#X2 = design matrix for the data for which to predict (it may be new data, or
-#	the fitting data)
-#
-#solve(t(X) %*% X) = covariance matrix (compare with summary(lm)$cov.unscaled)
-
-# SE is calculated in lm in the following way:
-# (sqrt was indeed missing in the previous code):
-# se <- sqrt(diag(Xnew %*% solve(t(X) %*% X)%*% t(Xnew))) * residual.scale
-# again, in averaged model we do not have model's df to get residual.scale
-# (see body(predict.lm))
-
-
-# #Continuing example(model.avg)
-# glm1 <- glm(formula = y ~ ., data = Cement)
-
-# # predict from lm:
-# predict.lm(lm1, se=T)
-
-# # For comparison, use predict.averaging:
-# predict.averaging(lm1, se=T, scale=summary(lm1)$sigma^2)
-# predict.averaging(lm1, se=T, scale=sum(resid(lm1)^2 * (if (is.null(lm1$weights)) 1 else lm)) / lm1$df)
-
-# # and from glm
-# glm1 <- glm(formula = y ~ ., data = Cement)
-# predict.averaging(glm1, se=T, scale=as.vector(summary(glm1)$dispersion))
-
-# # Finally, for the averaged model:
-# averaging1 <- model.avg(top.models)
-# predict.averaging(averaging1, data=Cement, se=T, scale=NA)
-
 
 
 `summary.averaging` <-
