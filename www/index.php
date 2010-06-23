@@ -45,7 +45,7 @@ echo $contents; } ?>
 
 <p><a href="MuMIn-manual.pdf">Package manual in PDF</a></p>
 <p><b><a href="http://r-forge.r-project.org/R/?group_id=346">Download</a></b></p>
-<p><a href="MuMIn_0.12.2.zip">Windows zip package (0.12.2)</a> (in case the official build is broken)</p>
+<p><a href="MuMIn_0.12.4.zip">Windows zip package (0.12.4)</a> (in case the official build is broken)</p>
 
 <p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
 
