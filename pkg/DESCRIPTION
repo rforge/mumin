@@ -1,12 +1,12 @@
 Package: MuMIn
 Type: Package
 Title: Multi-model inference
-Version: 0.12.2
-Date: 2009-06-14
+Version: 0.12.4
+Date: 2010-06-21
 Encoding: UTF-8
 Author: Kamil Bartoń
-Maintainer: Kamil Bartoń <kbarton@zbs.bialowieza.pl>
-Description: This package contains functions for model selection and model averaging based on information criteria (AICc and alikes).
+Maintainer: Kamil Bartoń <kamil.barton@go2.pl>
+Description: Functions for model selection and model averaging based on information criteria (AICc and alikes).
 License: GPL
 Suggests: lme4
 LazyLoad: yes

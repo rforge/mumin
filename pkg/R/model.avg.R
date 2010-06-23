@@ -2,8 +2,6 @@
 function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = NULL,
 		alpha = 0.05
 ) {
-
-
 	method <- match.arg(method)
 
 	if (!is.null(rank)) {
@@ -49,7 +47,9 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 		#aicc <- do.call("sapply", list(models, rankFn, rank.args), quote = T)
 
 	}
-	if (!is.null(deviance(models[[1]])))
+
+	if (!is.null(tryCatch(deviance(models[[1]]), error = function(...)
+	NULL)))
 		dev <- sapply (models, deviance)
 	else
 		dev <- NULL
@@ -64,7 +64,7 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 	models <- models[model.order]
 	dev <- dev[model.order]
 
-	selection.table <- data.frame (AICc = aicc, Delta = delta, Weight = weight)
+	selection.table <- data.frame(AICc = aicc, Delta = delta, Weight = weight)
 
 	if (!is.null(dev)) {
           selection.table <- cbind(Deviance = dev, selection.table)
@@ -87,7 +87,7 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 
  	for (m in models) {
 		m.tTable <- tTable(m)
-		n <- length(resid(m))
+		n <- NROW(residuals(m))
 		m.coef <- m.tTable[,1]
 		m.var <- m.tTable[,2]
  		m.df <- n - length(m.coef)
@@ -123,6 +123,8 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 	}
 	##
 
+#browser()
+
 	rownames(all.var) <- rownames(all.coef) <- rownames(selection.table) <- all.model.names
 
 	if (method == "0") {
@@ -130,7 +132,7 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 		all.var[is.na(all.var)] <- 0
 	}
 
-	avg.model <- t(sapply(seq_along(all.par), 
+	avg.model <- t(sapply(seq_along(all.par),
 		function(i) par.avg(all.coef[,i], all.var[,i], all.df, weight, alpha)))
 
 	all.coef[all.coef == 0] <- NA
@@ -139,12 +141,24 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 	importance <- sort(importance, decreasing=T)
 	colnames(all.coef) <- colnames(all.var) <- rownames(avg.model) <-  all.par
 
-     names(all.terms) <- seq_along(all.terms)
-
+    names(all.terms) <- seq_along(all.terms)
 
 	if (!is.null(rank)) {
 		colnames(selection.table)[2] <- as.character(rank)
 	}
+
+
+	mmxs <- lapply(models, model.matrix)
+	mx <- mmxs[[1]];
+	for (i in mmxs[-1])
+		mx <- cbind(mx, i[,!(colnames(i) %in% colnames(mx)), drop=FALSE])
+
+	# residuals averaged with brute force
+	residuals <- apply(sapply(models, residuals), 1, weighted.mean, w=weight)
+
+	trm <- terms(models[[1]])
+	frm <- reformulate(all.terms,
+				response = attr(trm, "variables")[-1][[attr(trm, "response")]])
 
 	ret <- list(
 		summary = selection.table,
@@ -155,10 +169,123 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 		relative.importance = importance,
 		weights = weight,
 		beta = beta,
-		terms = all.par
-
+		terms = all.par,
+		model = mx,
+		residuals = residuals,
+		formula = frm
 	)
+
+	attr(ret, "mList") <- models
 
 	class(ret) <- "averaging"
 	return(ret)
+}
+
+`coef.averaging` <-
+function(object, ...) object$avg.model[,1]
+
+
+`predict.averaging` <-
+function(object, newdata = NULL, se.fit = NULL, interval = NULL, type = NULL, ...) {
+
+	#if(("type" %in% names(match.call())) && type != "link") {
+	if(!missing("type") && type != "link") {
+		warning("Only predictions on the link scale are allowed. Argument ",
+				dQuote("type"), " ignored")
+	}
+	if (!missing(se.fit)) .NotYetUsed("se.fit", error = FALSE)
+	if (!missing(interval)) .NotYetUsed("interval", error = FALSE)
+
+	models <- attr(object, "mList")
+
+	# If all models inherit from lm:
+	if (all(sapply(models, inherits, what="lm"))) {
+		coeff <- coef(object)
+		frm <- formula(object)
+
+		tt <- delete.response(terms(frm))
+		X <- object$model
+		if (missing(newdata) || is.null(newdata)) {
+			Xnew <- X
+		} else {
+			Xnew <- model.matrix(tt, data = newdata)
+		}
+		Xnew <- Xnew[,colnames(Xnew) %in% names(coeff)]
+		ny <- (Xnew %*% coeff)[, 1]
+
+		#if (se.fit) {
+		#	covmx <- solve(t(X) %*% X)
+		#	se <- sqrt(diag(Xnew %*% covmx %*% t(Xnew))) * sqrt(scale)
+		#	return(list(fit = y, se.fit = se))
+		#}
+	} else {
+		# otherwise, use brute force:
+		ny <- sapply(models, predict, newdata = newdata, ...)
+		ny <- apply(ny, 1, weighted.mean, w = object$weight)
+	}
+
+	return(ny)
+}
+
+
+#
+#trms = terms object for model formula (how the model formula would look like,
+#	if it was a single model)
+#
+#$variable.codes = a list of all terms in the avgd model,
+#	to print all the components as raw list add "[]" after the name in R
+#	(e.g. "my.avgd.model[]").
+#
+#X = design matrix for the real data (inclusion of response does not chenge
+#	its form, so we can remove it beforehand)
+#
+#X2 = design matrix for the data for which to predict (it may be new data, or
+#	the fitting data)
+#
+#solve(t(X) %*% X) = covariance matrix (compare with summary(lm)$cov.unscaled)
+
+# SE is calculated in lm in the following way:
+# (sqrt was indeed missing in the previous code):
+# se <- sqrt(diag(Xnew %*% solve(t(X) %*% X)%*% t(Xnew))) * residual.scale
+# again, in averaged model we do not have model's df to get residual.scale
+# (see body(predict.lm))
+
+
+# #Continuing example(model.avg)
+# glm1 <- glm(formula = y ~ ., data = Cement)
+
+# # predict from lm:
+# predict.lm(lm1, se=T)
+
+# # For comparison, use predict.averaging:
+# predict.averaging(lm1, se=T, scale=summary(lm1)$sigma^2)
+# predict.averaging(lm1, se=T, scale=sum(resid(lm1)^2 * (if (is.null(lm1$weights)) 1 else lm)) / lm1$df)
+
+# # and from glm
+# glm1 <- glm(formula = y ~ ., data = Cement)
+# predict.averaging(glm1, se=T, scale=as.vector(summary(glm1)$dispersion))
+
+# # Finally, for the averaged model:
+# averaging1 <- model.avg(top.models)
+# predict.averaging(averaging1, data=Cement, se=T, scale=NA)
+
+
+
+`summary.averaging` <-
+function (object, ...) print.averaging(object)
+
+
+`print.averaging` <-
+function(x, ...) {
+	cat("\nModel summary:\n")
+	print(round(x$summary,1))
+
+	cat("\nVariables:\n")
+	print(x$variable.codes, quote= F)
+
+	cat("\nAveraged model parameters:\n")
+	print(signif(x$avg.model, 3))
+
+	cat("\nRelative variable importance:\n")
+	print(round(x$relative.importance, 2))
 }

@@ -76,7 +76,8 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 			num.opt.vars <- num.opt.vars[!(all.terms %in% fixed)]
 
 		all.comb <- lapply(seq(m.max), combn, x = num.opt.vars)
-		all.comb <- unlist(lapply(all.comb, function(.x) split(.x, col(.x))), recursive = FALSE)
+		all.comb <- unlist(lapply(all.comb, function(.x) split(.x, col(.x))),
+						   recursive = FALSE)
 		all.comb <- c(`0` = list(0), all.comb)
 
 	} else {
@@ -86,7 +87,8 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	if (!is.null(fixed))
 		all.comb <- lapply(all.comb, append, (1:n.vars)[all.terms %in% fixed])
 
-	formulas <- lapply(all.comb, function(.x) reformulate(c("1", all.terms[.x]), response = "." ))
+	formulas <- lapply(all.comb, function(.x) reformulate(c("1", all.terms[.x]),
+														  response = "." ))
 
 	ss <- sapply(formulas, formulaAllowed)
 
@@ -104,13 +106,13 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 	###
 	for(b in seq(length(all.comb))) {
+		# print(all.comb[[b]])
         cterms <- all.terms[all.comb[[b]]]
 
 		frm <- formulas[[b]]
 
 		c.row <- rep(NA, n.vars)
 		c.row[match(cterms, all.terms)] <- rep(1, length(cterms))
-
 
 		cl <- call("update", substitute(global.model), frm)
 
@@ -121,7 +123,8 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		}
 		mod.coef <- c(na.omit(match(all.terms, names(coeffs(cmod)))))
 
-          icept <- if (attr(all.terms, "intercept")) coeffs(cmod)["(Intercept)"] else NA
+		icept <- if (attr(all.terms, "intercept")) coeffs(cmod)[intercept]
+			else NA
 
 	     cmod.all.coef <- if (beta) beta.weights(cmod)[,3] else coeffs(cmod)
 
@@ -188,7 +191,7 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 	attr(ms.tbl, "formulas") <- formulas[o]
 	attr(ms.tbl, "global") <- global.model
-	attr(ms.tbl, "terms") <- c("(Intercept)", all.terms)
+	attr(ms.tbl, "terms") <- c(intercept, all.terms)
 
 	if (rank != "AICc") {
 		rankFnCall[[1]] <- as.name(rank)

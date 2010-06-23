@@ -24,15 +24,31 @@ dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 
 \details{
-\code{rank} is found by a call to \code{match.fun} and typically is specified as a function or a symbol (e.g. a backquoted name) or a character string specifying a function to be searched for from the environment of the call to lapply. \cr
 
-Function \code{rank} must be able to accept model as a first argument and must always return a scalar.
+Models are run one by one by calling \code{\link{update}} with modified
+\code{formula} argument. This method, while robust in that it can be applied to
+a variety of different models, is not very efficient, so may be time (and
+memory) consuming.
+
+Handling interactions, \code{dredge} respects marginality constraints, so
+\dQuote{all possible combinations} do not include models containing interactions
+without their respective main effects.
+
+\code{rank} is found by a call to \code{match.fun} and typically is specified as
+a function or a symbol (e.g. a backquoted name) or a character string specifying
+a function to be searched for from the environment of the call to lapply. \cr
+
+Function \code{rank} must be able to accept model as a first argument and must
+always return a scalar.
 }
 
 
 \value{
-\code{dredge} returns a \code{\link{data.frame}} of class \code{model.selection} with models' coefficients, k, deviance/RSS, r-squared, AIC, AICc, etc. This depends on a type of model. Models are ordered according to \code{\link{AICc}} (lowest on top), or by \code{rank} function if specified. It has also a \code{formulas} attribute - a list containing all the model formulas.
-  ...
+\code{dredge} returns a \code{\link{data.frame}} of class \code{model.selection}
+with models' coefficients, k, deviance/RSS, r-squared, AIC, AICc, etc. This
+depends on a type of model. Models are ordered according to \code{\link{AICc}}
+(lowest on top), or by \code{rank} function if specified. It has also a
+\code{formulas} attribute - a list containing all the model formulas.
 }
 
 \references{
@@ -43,11 +59,15 @@ Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel in
 
 
 \note{
-Use the \code{lmer} from \pkg{lme4} library rather than the old \code{lmer} from \pkg{Matrix} package.
-Complex expressions (like \code{log(y)}) cannot be used as the response variable, the response must be specified as simple variable name. They may be used on the right side of the formula, though.
-Make sure there is no a \code{na.action} set to \code{na.omit} in \code{global.model}. This can result with models fitted to different data sets, if there are NA's present.
-\code{dredge} cannot handle nested model designs (formulas such as \code{y ~ a/b}).
-}
+
+Use the \code{lmer} from \pkg{lme4} library rather than the old \code{lmer} from
+\pkg{Matrix} package. Complex expressions (like \code{log(y)}) cannot be used as
+the response variable, the response must be specified as simple variable name.
+They may be used on the right side of the formula, though. Make sure there is no
+a \code{na.action} set to \code{na.omit} in \code{global.model}. This can result
+with models fitted to different data sets, if there are NA's present.
+\code{dredge} cannot handle nested model designs (formulas such as \code{y ~
+a/b}). }
 
 \seealso{
 \code{\link{get.models}}, \code{\link{model.avg}}.

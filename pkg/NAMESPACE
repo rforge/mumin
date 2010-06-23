@@ -1,13 +1,15 @@
 export(
-AICc, beta.weights, coeffs, coeffs.default, coeffs.glmer, coeffs.gls, coeffs.lme, coeffs.lmer, coeffs.mer, coeffs.spautolm,  dredge, get.models, getAllTerms, getAllTerms.default, getAllTerms.formula, getAllTerms.glmer, getAllTerms.lme, getAllTerms.lmer, getAllTerms.mer, model.avg, par.avg, print.averaging, print.model.selection,
-tTable, tTable.default, 
-#tTable.gam, tTable.glmer, tTable.gls, tTable.lme, tTable.lmer, tTable.mer, tTable.spautolm, 
- QAIC
+	AICc, beta.weights, coeffs, coeffs.default, coeffs.glmer, coeffs.gls,
+	coeffs.lme, coeffs.lmer, coeffs.mer, coeffs.spautolm, dredge, get.models,
+	getAllTerms, getAllTerms.default, getAllTerms.formula, getAllTerms.glmer,
+	getAllTerms.lme, getAllTerms.lmer, getAllTerms.mer, model.avg, par.avg,
+	print.averaging, print.model.selection, tTable, tTable.default, QAIC
 )
 
-
-
 S3method(print, averaging)
+S3method(summary, averaging)
+S3method(predict, averaging)
+S3Method(coef, averaging)
 S3method(print, model.selection)
 
 S3Method(tTable, default)

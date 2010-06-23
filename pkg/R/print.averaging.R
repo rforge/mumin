@@ -1,7 +1,7 @@
 `print.averaging` <-
 function(x, ...) {
 	cat("\nModel summary:\n")
-	print(signif(x$summary,3))
+	print(round(x$summary,1))
 
 	cat("\nVariables:\n")
 	print(x$variable.codes, quote= F)
@@ -12,4 +12,3 @@ function(x, ...) {
 	cat("\nRelative variable importance:\n")
 	print(round(x$relative.importance, 2))
 }
-

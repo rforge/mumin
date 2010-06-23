@@ -7,7 +7,7 @@
 Multi model inference
 }
 \description{
-The \code{MuMIn} contains functions for model selection and model averaging, based on information criteria (AIC alike).
+The package \code{MuMIn} contains functions for model selection and model averaging, based on information criteria (AIC alike).
 }
 \details{
 
@@ -19,10 +19,10 @@ User level functions include:\cr
 
 }
 
-\author{ Kamil Bartoń \email{kbarton@zbs.bialowieza.pl}}
+\author{ Kamil Bartoń \email{kamil.barton@go2.pl}}
 
 \references{
-Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel inference: a practical information-theoretic approach}. 2nd ed. 
+Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel inference: a practical information-theoretic approach}. 2nd ed.
 }
 \keyword{package}
 \keyword{models}
