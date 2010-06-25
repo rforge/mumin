@@ -3,8 +3,9 @@
 \encoding{utf-8}
 \title{Quasi AIC}
 \description{
-Calculates \dQuote{quasi AIC} for one or several fitted model objects. This function is provided just as an example of custom rank function for use with \code{\link{model.avg}} and \code{\link{dredge}}
-}
+Calculates \dQuote{quasi AIC} for one or several fitted model objects. This
+function is provided just as an example of custom rank function for use with
+\code{\link{model.avg}} and \code{\link{dredge}} }
 
 \usage{
 QAIC(object, ..., chat)
@@ -17,14 +18,16 @@ QAIC(object, ..., chat)
 }
 
 \value{
-	If just one object is provided, returns a numeric value with the corresponding QAIC; 
+	If just one object is provided, returns a numeric value with the corresponding QAIC;
 	if more than one object are provided, returns a data.frame with rows corresponding to the objects.
 }
 
 \details{
-\code{rank} is specified as a function or a symbol (e.g. a backquoted name) or a character string specifying a function.
+\code{rank} is specified as a function or a symbol (e.g. a backquoted name) or a
+character string specifying a function.
 
-Function \code{rank} must be able to accept model as a first argument and must always return a scalar.
+Function \code{rank} must be able to accept model as a first argument and must
+always return a scalar.
 }
 
 

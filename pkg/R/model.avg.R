@@ -143,13 +143,20 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 		colnames(selection.table)[2] <- as.character(rank)
 	}
 
+	#global.mm <- model.matrix(fit)
+	#cnmmxx2 <- unique(unlist(lapply(gm, function(x) names(coef(x)))))
+	#mmx <- gmm[, cnmmxx[match(colnames(gmm), cnmmxx, nomatch = 0)]]
 
-	mmxs <- lapply(models, model.matrix)
-	mx <- mmxs[[1]];
-	for (i in mmxs[-1])
-		mx <- cbind(mx, i[,!(colnames(i) %in% colnames(mx)), drop=FALSE])
 
-	# residuals averaged with brute force
+	mmxs <- cbindDataFrameList(lapply(models, model.matrix))
+
+	# Far less efficient:
+	#mmxs <- lapply(models, model.matrix)
+	#mx <- mmxs[[1]];
+	#for (i in mmxs[-1])
+	#	mx <- cbind(mx, i[,!(colnames(i) %in% colnames(mx)), drop=FALSE])
+
+	# residuals averaged (with brute force)
 	residuals <- apply(sapply(models, residuals), 1, weighted.mean, w=weight)
 
 	trm <- terms(models[[1]])
@@ -165,16 +172,26 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 		relative.importance = importance,
 		weights = weight,
 		beta = beta,
-		terms = all.par,
-		model.matrix = mx,
+		term.names = all.par,
+		x = mmxs,
 		residuals = residuals,
-		formula = frm
+		formula = frm,
+		call = match.call()
 	)
 
 	attr(ret, "mList") <- models
 
 	class(ret) <- "averaging"
 	return(ret)
+}
+
+# cbind list of data.frames omitting duplicated column (names)
+cbindDataFrameList <- function(dfl) {
+	dfnames <- unlist(lapply(dfl, colnames))
+	uq <- !duplicated(dfnames)
+	res <- do.call("cbind", dfl)[,uq]
+	colnames(res) <- dfnames[uq]
+	return(res)
 }
 
 `coef.averaging` <-
@@ -195,18 +212,25 @@ function(object, newdata = NULL, se.fit = NULL, interval = NULL, type = NULL, ..
 	models <- attr(object, "mList")
 
 	# If all models inherit from lm:
-	if (all(sapply(models, inherits, what="lm"))) {
+	if (all(sapply(models, inherits, what="lm"))
+		&& !any(sapply(models, inherits, what="gam"))
+		) {
 		coeff <- coef(object)
 		frm <- formula(object)
 
 		tt <- delete.response(terms(frm))
-		X <- object$model.matrix
+		X <- object$x
 
 		if (missing(newdata) || is.null(newdata)) {
 			Xnew <- X
 		} else {
-			Xnew <- model.matrix(tt, data = newdata)
+			xlev <- unlist(unname(lapply(models, "[[", "xlevels")),
+						   recursive = FALSE, use.names = TRUE)
+
+			Xnew <- model.matrix(tt, data = newdata, xlev = xlev)
+
 		}
+
 		Xnew <- Xnew[, match( names(coeff),colnames(Xnew), nomatch = 0)]
 		ny <- (Xnew %*% coeff)[, 1]
 
@@ -224,10 +248,14 @@ function(object, newdata = NULL, se.fit = NULL, interval = NULL, type = NULL, ..
 	return(ny)
 }
 
+`fitted.averaging` <-
+function (object, ...) predict.averaging(object)
+
+`model.matrix.averaging` <-
+function (object, ...) object$x
 
 `summary.averaging` <-
 function (object, ...) print.averaging(object)
-
 
 `print.averaging` <-
 function(x, ...) {

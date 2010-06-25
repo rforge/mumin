@@ -13,12 +13,25 @@ dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 }
 
 \arguments{
-  \item{global.model}{a fitted \sQuote{global} model object. Currently, it can be a \code{lm}, \code{glm}, \code{gam}, \code{lme}, \code{lmer}, \code{sarlm} or \code{spautolm}.}
-  \item{beta}{logical should standardized coefficients be returned rather than normal ones?}
-  \item{eval}{whether to evaluate and rank the models. If set to FALSE only a list of all possible model formulas is returned}
-  \item{rank}{custom rank function (information criterion) to use instead AICc, e.g. \code{QAIC} or \code{BIC}, See \sQuote{Details}}
-  \item{fixed}{optional, either a single sided formula or a character vector giving names of terms to be included in all models}
-  \item{m.max}{maximum number of terms to be included in single model, defaults to the number of terms in \code{global.model}}
+  \item{global.model}{a fitted \sQuote{global} model object. Currently, it can be
+	a \code{lm}, \code{glm}, \code{gam}, \code{lme}, \code{lmer}, \code{sarlm}
+	or \code{spautolm}, but also other types are likely to work (untested). }
+
+  \item{beta}{logical should standardized coefficients be returned rather than
+  normal ones?}
+
+  \item{eval}{whether to evaluate and rank the models. If FALSE, a list of all
+  possible model formulas is returned}
+
+  \item{rank}{optional custom rank function (information criterion) to be used
+  instead AICc, e.g. \code{QAIC} or \code{BIC}, See \sQuote{Details}}
+
+  \item{fixed}{optional, either a single sided formula or a character vector
+  giving names of terms to be included in all models}
+
+  \item{m.max}{optional, maximum number of terms to be included in single model,
+  defaults to the number of terms in \code{global.model}}
+
   \item{\dots}{optional arguments for the \code{rank} function}
 }
 
@@ -36,7 +49,7 @@ without their respective main effects.
 
 \code{rank} is found by a call to \code{match.fun} and typically is specified as
 a function or a symbol (e.g. a backquoted name) or a character string specifying
-a function to be searched for from the environment of the call to lapply. \cr
+a function to be searched for from the environment of the call to lapply.
 
 Function \code{rank} must be able to accept model as a first argument and must
 always return a scalar.
@@ -52,8 +65,8 @@ depends on a type of model. Models are ordered according to \code{\link{AICc}}
 }
 
 \references{
-Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel inference: a practical information-theoretic approach}. 2nd ed.
-}
+Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel
+inference: a practical information-theoretic approach}. 2nd ed. }
 
 \author{Kamil Bartoń}
 
