@@ -185,18 +185,8 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 	return(ret)
 }
 
-# cbind list of data.frames omitting duplicated column (names)
-cbindDataFrameList <- function(dfl) {
-	dfnames <- unlist(lapply(dfl, colnames))
-	uq <- !duplicated(dfnames)
-	res <- do.call("cbind", dfl)[,uq]
-	colnames(res) <- dfnames[uq]
-	return(res)
-}
-
 `coef.averaging` <-
 function(object, ...) object$avg.model[,1]
-
 
 `predict.averaging` <-
 function(object, newdata = NULL, se.fit = NULL, interval = NULL, type = NULL, ...) {
@@ -271,3 +261,4 @@ function(x, ...) {
 	cat("\nRelative variable importance:\n")
 	print(round(x$relative.importance, 2))
 }
+

@@ -90,6 +90,9 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	formulas <- lapply(all.comb, function(.x) reformulate(c("1", all.terms[.x]),
 														  response = "." ))
 
+	formulas <- lapply(formulas, `attr<-`, ".Environment",
+				 attr(formula(global.model), ".Environment"))
+
 	ss <- sapply(formulas, formulaAllowed)
 
 	all.comb <- all.comb[ss]
@@ -100,15 +103,13 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
           formulas <- lapply(formulas, update, attr(all.terms, "random"))
 	}
 
-	if (!eval) {
-		return(formulas)
-	}
+	if (!eval) 	return(formulas)
+
 
 	###
 	for(b in seq(length(all.comb))) {
 		# print(all.comb[[b]])
         cterms <- all.terms[all.comb[[b]]]
-
 		frm <- formulas[[b]]
 
 		c.row <- rep(NA, n.vars)
@@ -126,7 +127,7 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		icept <- if (attr(all.terms, "intercept")) coeffs(cmod)[intercept]
 			else NA
 
-	     cmod.all.coef <- if (beta) beta.weights(cmod)[,3] else coeffs(cmod)
+	    cmod.all.coef <- if (beta) beta.weights(cmod)[,3] else coeffs(cmod)
 
 		mod.coef <- cmod.all.coef[mod.coef]
 		mod.coef.names <- names(mod.coef)
@@ -166,12 +167,11 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 
 	cnames <- c("(int.)", all.terms, "k")
-	if (has.rsq) {
+	if (has.rsq)
 		cnames <- append(cnames, c("R.sq", "Adj.R.sq"))
-	}
-	if (has.dev) {
+
+	if (has.dev)
 		cnames <- append(cnames, ifelse (is.lm, "RSS", "Dev."))
-	}
 
 	if (rank == "AICc") {
 		cnames <- append(cnames, c("AIC", "AICc"))

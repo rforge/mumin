@@ -1,5 +1,8 @@
 MuMIn package changelog:
 
+Version: 0.12.6 (2010-06-26)
+Tidying up the code, small changes.
+
 Version: 0.12.4 (2010-06-21)
 added: predict.averaging and coef.averaging, averaging object contains additional elements, so that several default methods work with it.
 

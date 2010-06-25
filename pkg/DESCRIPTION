@@ -6,7 +6,7 @@ Date: 2010-06-25
 Encoding: UTF-8
 Author: Kamil Bartoń
 Maintainer: Kamil Bartoń <kamil.barton@go2.pl>
-Description: Functions for model selection and model averaging based on information criteria (AICc and alikes).
+Description: Model selection and model averaging based on information criteria (AICc and alikes).
 License: GPL
 Suggests: lme4
 LazyLoad: yes

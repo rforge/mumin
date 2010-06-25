@@ -4,26 +4,42 @@
 \docType{package}
 \encoding{utf-8}
 \title{
-Multi model inference
+Multi-model inference
 }
 \description{
-The package \code{MuMIn} contains functions for model selection and model averaging, based on information criteria (AIC alike).
+
+The package \code{MuMIn} contains functions for (automated) model selection and
+model averaging based on information criteria (AIC alike).
+
 }
+
+
 \details{
 
-User level functions include:\cr
-\code{model.avg} - does model averaging.\cr
-\code{get.models} - evaluates models from the table returned by dredge.\cr
-\code{dredge} - runs models with combinations of terms of the supplied \sQuote{global} model.\cr
-\code{AICc} - calculates second-order Akaike information criterion for one or several fitted model objects.\cr
+User level functions include:
+
+\code{model.avg} - does model averaging.
+
+\code{get.models} - evaluates models from the table returned by dredge.
+
+\code{dredge} - runs models with combinations of terms of the supplied
+\sQuote{global} model.
+
+\code{AICc} - calculates second-order Akaike
+information criterion for one or several fitted model objects.
+
 
 }
 
 \author{ Kamil Bartoń \email{kamil.barton@go2.pl}}
 
 \references{
-Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel inference: a practical information-theoretic approach}. 2nd ed.
+
+Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel
+inference: a practical information-theoretic approach}. 2nd ed.
 }
+
+
 \keyword{package}
 \keyword{models}
 
