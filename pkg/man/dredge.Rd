@@ -3,7 +3,7 @@
 \alias{print.model.selection}
 
 \encoding{utf-8}
-\title{data dredging}
+\title{'Data dredging'}
 \description{
 runs models with all possible combinations of the explanatory variables in the supplied model.
 }
