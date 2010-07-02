@@ -3,13 +3,13 @@
 \alias{print.model.selection}
 
 \encoding{utf-8}
-\title{'Data dredging'}
+\title{Evaluate "all possible" models}
 \description{
-runs models with all possible combinations of the explanatory variables in the supplied model.
-}
-\usage{
-dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
-		 fixed = NULL, m.max = NA, ...)
+runs models with all possible combinations of the explanatory variables in the
+supplied model. }
+
+\usage{ dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
+	fixed = NULL, m.max = NA, ...)
 }
 
 \arguments{
@@ -74,13 +74,10 @@ inference: a practical information-theoretic approach}. 2nd ed. }
 \note{
 
 Use the \code{lmer} from \pkg{lme4} library rather than the old \code{lmer} from
-\pkg{Matrix} package. Complex expressions (like \code{log(y)}) cannot be used as
-the response variable, the response must be specified as simple variable name.
-They may be used on the right side of the formula, though. Make sure there is no
-a \code{na.action} set to \code{na.omit} in \code{global.model}. This can result
-with models fitted to different data sets, if there are NA's present.
-\code{dredge} cannot handle nested model designs (formulas such as \code{y ~
-a/b}). }
+\pkg{Matrix} package. Make sure there is no a \code{na.action} set to
+\code{na.omit} in \code{global.model}. This can result with models fitted to
+different data sets, if there are NA's present. \code{dredge} cannot handle
+nested model designs (formulas such as \code{y ~ a/b}) properly. }
 
 \seealso{
 \code{\link{get.models}}, \code{\link{model.avg}}.
