@@ -68,7 +68,8 @@ model.avg(top.models.2) # get averaged coefficients
 data(Orthodont, package="nlme")
 
 require(nlme)
-fm2 <- lme(distance ~ age + Sex, data = Orthodont, random = ~ 1 | Subject, method="ML")
+fm2 <- lme(distance ~ age + Sex, data = Orthodont, random = ~ 1 | Subject,
+	method="ML")
 dredge(fm2)
 
 

@@ -18,8 +18,9 @@ QAIC(object, ..., chat)
 }
 
 \value{
-	If just one object is provided, returns a numeric value with the corresponding QAIC;
-	if more than one object are provided, returns a data.frame with rows corresponding to the objects.
+	If just one object is provided, returns a numeric value with the
+	corresponding QAIC; if more than one object are provided, returns a
+	data.frame with rows corresponding to the objects.
 }
 
 \details{
@@ -34,11 +35,15 @@ always return a scalar.
 \author{ Kamil Bartoń}
 
 \examples{
-budworm <- data.frame(ldose = rep(0:5, 2), numdead = c(1, 4, 9, 13, 18, 20, 0, 2, 6, 10, 12, 16), sex = factor(rep(c("M", "F"), c(6, 6))))
+budworm <- data.frame(ldose = rep(0:5, 2), numdead = c(1, 4, 9, 13, 18, 20, 0,
+	2, 6, 10, 12, 16), sex = factor(rep(c("M", "F"), c(6, 6))))
+
 budworm$SF <- cbind(budworm$numdead, 20 - budworm$numdead)
+
 budworm.qlg <- glm(SF ~ sex*ldose, family = quasibinomial, data = budworm)
 
-dd1 <- dredge(budworm.qlg, rank = "QAIC", chat = summary(budworm.qlg)$dispersion)
+dd1 <- dredge(budworm.qlg, rank = "QAIC",
+	chat = summary(budworm.qlg)$dispersion)
 gm1 <- get.models(dd1, 1:4)
 
 model.avg(gm1)

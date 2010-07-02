@@ -14,15 +14,15 @@ AICc(object, ..., k = 2)
   \item{object}{a fitted model object}
   \item{\dots}{optionally more fitted model objects}
   \item{k}{the \dQuote{penalty} per parameter to be used; the default \code{k} =
-  2 is the classical \code{\link[stats]{AIC}}}
+	2 is the classical \code{\link[stats]{AIC}}}
 }
 
 
 \value{
 	If just one object is provided, returns a numeric value with the
 	corresponding AICc; if more than one object are provided, returns a
-	\code{data.frame} with rows corresponding to the objects and columns representing
-	the number of parameters in the model (df), AICc and the
+	\code{data.frame} with rows corresponding to the objects and columns
+	representing the number of parameters in the model (df), AICc and the
 	\code{\link[stats]{AIC}}.
 
 }

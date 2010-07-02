@@ -7,11 +7,12 @@
 
 \title{Model averaging}
 \description{
-averages models according to an information criterion
+Model averaging based on an information criterion.
 }
 
 \usage{
-model.avg(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = NULL, alpha = 0.05)
+model.avg(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
+	rank.args = NULL, alpha = 0.05)
 
 \method{coef}{averaging}(object, ...)
 
@@ -22,12 +23,14 @@ model.avg(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args =
 
 \arguments{
 	\item{m1}{A fitted model object or a list of such objects.}
-	\item{beta}{Logical, should standardized coefficients be returned rather than normal ones?}
-	\item{method}{If set to "0" (default), terms missing in one model are assumed to be 0's,
-		otherwise they are omitted from the weighted average.}
+	\item{beta}{Logical, should standardized coefficients be returned rather
+		than normal ones?}
+	\item{method}{If set to \dQuote{0} (default), terms missing in one model are
+		assumed to be 0's, otherwise they are omitted from the weighted
+		average.}
 	\item{rank}{Custom rank function (information criterion) to use instead of
-	\code{AICc}, e.g. \code{QAIC} or \code{BIC}, may be omitted if \code{m1} is a
-		list returned by \code{dredge}. See \sQuote{Details}.}
+	\code{AICc}, e.g. \code{QAIC} or \code{BIC}, may be omitted if \code{m1} is
+		a list returned by \code{dredge}. See \sQuote{Details}.}
 	\item{rank.args}{Optional \code{list} of arguments for the \code{rank}
 		function.}
 	\item{alpha}{Significance level for calculatinq confidence intervals.}
@@ -37,8 +40,9 @@ model.avg(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args =
 	\item{se.fit,interval}{Currently not used.}
 	\item{type}{Ignored. Only predictions on the link scale are allowed.
 		Warning is given if user tries something else here. }
-	\item{\dots}{ for \code{model.avg} - more fitted model objects, for \code{predict} - arguments
-		to be passed to respective \code{predict} method }
+	\item{\dots}{ for \code{model.avg} - more fitted model objects, for
+		\code{predict} - arguments to be passed to respective \code{predict}
+		method }
 
 }
 
@@ -74,8 +78,8 @@ Apart from \code{predict} and \code{coef}, other default methods, such as
 }
 
 \references{
-Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel inference: a practical information-theoretic approach}. 2nd ed.
-}
+Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel
+inference: a practical information-theoretic approach}. 2nd ed. }
 
 \author{Kamil Bartoń}
 
@@ -102,17 +106,16 @@ model.avg(top.models) # get averaged coefficients
 #topmost model:
 top.models[[1]]
 
-## Not run:
+\dontrun{
 # using BIC (Schwarz's Bayesian criterion) to rank the models
 BIC <- function(x) AIC(x, k = log(length(residuals(x))))
 mav <- model.avg(top.models, rank=BIC)
-## End(Not run)
+}
 
 
 # Predicted values
-
-nseq <-
-function(x, len=length(x)) seq(min(x, na.rm=TRUE), max(x, na.rm=TRUE), length=len)
+nseq <- function(x, len=length(x)) seq(min(x, na.rm=TRUE), max(x, na.rm=TRUE),
+	length=len)
 
 # New predictors: X1 along the range of original data, other variables held
 #	constant at their means
@@ -128,8 +131,6 @@ matplot(x = newdata$X1, y = pred, type="l", lwd=c(rep(1,ncol(pred)-1), 2))
 
 legend("topleft", legend=c(lapply(top.models, formula), "Averaged model"),
 	   col=seq(ncol(pred)), lty=1:5, lwd=c(rep(1,ncol(pred)-1), 2))
-
-
 
 }
 

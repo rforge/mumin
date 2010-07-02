@@ -4,7 +4,7 @@ function(object, ..., chat) {
 
 	`getQAIC` <- function(object, chat) {
 		mLogLik <- logLik(object)
-		N <- length(resid(object))
+		N <- length(residuals(object))
 		k <- attr(mLogLik, "df") + 1
 		ret <- (deviance(object) / chat) + 2 * k
 		return (ret)

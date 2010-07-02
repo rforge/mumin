@@ -27,7 +27,7 @@ function(object, k = 2) {
 	#} else {	}
 
 	mLogLik <- logLik(object)
-	N <- length(resid(object))
+	N <- length(residuals(object))
 
 	mK <- attr(mLogLik, "df")
 	mAIC <- -2 * c(mLogLik) + k * mK

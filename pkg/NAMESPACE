@@ -1,10 +1,16 @@
 export(
-	AICc, beta.weights, coeffs, dredge, get.models,
-	getAllTerms, getAllTerms.default, model.avg, par.avg,
-	print.averaging, print.model.selection, tTable, tTable.default, QAIC
+	AICc, beta.weights, dredge, get.models, model.avg, par.avg, QAIC
 )
 
+exportPattern("^getAllTerms")
+exportPattern("^coeffs")
+exportPattern("^tTable")
 
+#export(getAllTerms, coeffs, tTable)
+
+importsFrom(stats, AIC, as.formula, coef, delete.response, deviance, fitted,
+formula, logLik, model.frame, model.matrix, na.omit, predict, qnorm, qt,
+reformulate, residuals, sd, terms, update, weighted.mean)
 
 S3method(print, averaging)
 S3method(summary, averaging)

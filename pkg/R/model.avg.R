@@ -253,7 +253,7 @@ function(x, ...) {
 	print(round(x$summary,1))
 
 	cat("\nVariables:\n")
-	print(x$variable.codes, quote= F)
+	print(x$variable.codes, quote=F)
 
 	cat("\nAveraged model parameters:\n")
 	print(signif(x$avg.model, 3))
