@@ -47,7 +47,7 @@ model.avg(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 }
 
 \value{
-	\code{model.avg} returns a list with elements:
+	Ann object of class \code{averaging}, which is a list with elements:
 
 	\item{summary}{Model table with deviance, AICc, Delta and weight.}
 	\item{coefficients}{the model coefficients}

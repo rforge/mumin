@@ -95,4 +95,4 @@ function(x, ...) {
 }
 
 `getAllTerms` <-
-function (x, ...) UseMethod("getAllTerms")
+function(x, ...) UseMethod("getAllTerms")

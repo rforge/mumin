@@ -1,5 +1,8 @@
 MuMIn package changelog:
 
+Version: 0.12.9 (2010-07-03)
+Finally fixed problems with variable exporting and hidden methods
+
 Version: 0.12.7-8 (2010-07-02)
 Small changes in namespace and documentation
 
