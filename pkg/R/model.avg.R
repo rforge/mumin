@@ -180,7 +180,6 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 	)
 
 	attr(ret, "mList") <- models
-
 	class(ret) <- "averaging"
 	return(ret)
 }
@@ -216,9 +215,7 @@ function(object, newdata = NULL, se.fit = NULL, interval = NULL, type = NULL, ..
 		} else {
 			xlev <- unlist(unname(lapply(models, "[[", "xlevels")),
 						   recursive = FALSE, use.names = TRUE)
-
 			Xnew <- model.matrix(tt, data = newdata, xlev = xlev)
-
 		}
 
 		Xnew <- Xnew[, match( names(coeff),colnames(Xnew), nomatch = 0)]
@@ -231,7 +228,12 @@ function(object, newdata = NULL, se.fit = NULL, interval = NULL, type = NULL, ..
 		#}
 	} else {
 		# otherwise, use brute force:
-		ny <- sapply(models, predict, newdata = newdata, ...)
+
+		ny <- if(!missing(newdata))
+			sapply(models, predict, newdata = newdata, ...)
+		else
+			sapply(models, predict, ...)
+
 		ny <- apply(ny, 1, weighted.mean, w = object$weight)
 	}
 
@@ -261,4 +263,3 @@ function(x, ...) {
 	cat("\nRelative variable importance:\n")
 	print(round(x$relative.importance, 2))
 }
-

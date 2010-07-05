@@ -8,7 +8,8 @@
 runs models with all possible combinations of the explanatory variables in the
 supplied model. }
 
-\usage{ dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
+\usage{ 
+dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	fixed = NULL, m.max = NA, ...)
 }
 

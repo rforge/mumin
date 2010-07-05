@@ -6,6 +6,7 @@ function(x, ...) {
 `getAllTerms.formula` <-
 function(x, ...) {
 	mTerms <- terms(x)
+	intercept <- attr(mTerms, "intercept")
 	if (!is.null(attr(mTerms, "offset"))){
 		offs <-
 		sapply(as.list(attr(mTerms,"variables")[-1])[attr(mTerms,"offset")],
@@ -23,7 +24,7 @@ function(x, ...) {
 		ret <- attr(mTerms, "term.labels")
 	}
 
-	attr(ret, "intercept") <- attr(mTerms, "intercept")
+	attr(ret, "intercept") <- intercept
 
 	if (!is.null(offs[1]))
 		attr(ret, "offset") <- offs

@@ -105,7 +105,6 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 	if (!eval) 	return(formulas)
 
-
 	###
 	for(b in seq(length(all.comb))) {
 		# print(all.comb[[b]])
@@ -145,8 +144,6 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		if (has.dev)
 			c.row <- c(c.row, deviance(cmod))
 
-
-		# TODO:
 		if (rank != "AICc") {
 			rankFnCall[[2]] <- cmod
 			ic <- eval(rankFnCall)
@@ -156,15 +153,15 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		} else {
 		     c.row <- c(c.row, AIC=aic, AICc=aicc)
 		}
-
-
 		ms.tbl <- rbind(ms.tbl, c.row)
-
 	}
 
 	formulas[is.na(formulas)] <- NULL
 	ms.tbl <- data.frame(ms.tbl, row.names=1:NROW(ms.tbl))
 
+	# Convert columns with presence/absence of terms to factors
+	tfac <- which(c(FALSE, !(all.terms %in% names(coeffs(global.model)))))
+	ms.tbl[, tfac] <- lapply(ms.tbl[,tfac], factor, levels=1, labels="+")
 
 	cnames <- c("(int.)", all.terms, "k")
 	if (has.rsq)
@@ -182,7 +179,6 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	colnames(ms.tbl) <- cnames
 
 	o <- order(ms.tbl[, rank], decreasing = FALSE)
-
 	ms.tbl <- ms.tbl[o,]
 	ms.tbl$delta <- ms.tbl[, rank] - min(ms.tbl[, rank])
 	ms.tbl$weight <- exp(-ms.tbl$delta / 2) / sum(exp(-ms.tbl$delta / 2))
@@ -204,4 +200,27 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		attr(ms.tbl, "random.terms") <- attr(all.terms, "random.terms")
 
 	return(ms.tbl)
+}
+
+`print.model.selection` <-
+function(x, ...) {
+
+	if(!is.null(x$weight))
+		x$weight <- round(x$weight, 3)
+
+	nn <- attr(x, "terms")
+
+	if(is.null(nn)) {
+		print.data.frame(x, ...)
+	} else {
+		names(x)[seq(along=nn)] <- sapply( strsplit(nn, ":"), function(xx) paste(sapply(xx, abbreviate, 6 )  , collapse=":") )
+
+		cat ("Model selection table", "\n")
+		i <- sapply(x, is.numeric)
+		x[,i] <- signif(x[,i], 4)
+		print.default(as.matrix(x), na.print="", quote=FALSE)
+		if (!is.null(attr(x, "random.terms"))) {
+			cat("Random terms:", paste(attr(x, "random.terms"), collapse=", "), "\n")
+		}
+	}
 }

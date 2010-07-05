@@ -1,5 +1,9 @@
 MuMIn package changelog:
 
+Version: 0.12.10 (2010-07-05)
+Fixed "predict.averaging" for missing 'newdata' handling; Table returned by "dredge" now has factors
+for terms with more than one level (they were previously shown as '1')
+
 Version: 0.12.9 (2010-07-03)
 Finally fixed problems with variable exporting and hidden methods
 
