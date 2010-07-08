@@ -27,7 +27,7 @@ model.avg(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 		than normal ones?}
 	\item{method}{If set to \dQuote{0} (default), terms missing in one model are
 		assumed to be 0's, otherwise they are omitted from the weighted
-		average.}
+		average. See \sQuote{Details}.}
 	\item{rank}{Custom rank function (information criterion) to use instead of
 	\code{AICc}, e.g. \code{QAIC} or \code{BIC}, may be omitted if \code{m1} is
 		a list returned by \code{dredge}. See \sQuote{Details}.}
@@ -70,9 +70,17 @@ model.avg(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 \details{
 \code{rank} is found by a call to \code{match.fun} and typically is specified as
 a function or a symbol (e.g. a backquoted name) or a character string specifying
-a function to be searched for from the environment of the call to lapply.\cr
+a function to be searched for from the environment of the call to lapply.
+
 Function \code{rank} must be able to accept model as a first argument and must
-always return a scalar. \\
+always return a scalar.
+
+\code{predict.averaging} supports method="NA" only for linear, fixed effect
+models. In other cases (e.g. nonlinear or mixed models), prediction is obtained
+using \dQuote{brute force}, i.e. by calling \code{predict} on each component
+model and weighted averaging the results, which is equivalent to assuming that
+missing coefficients equal zero (method="0").
+
 Apart from \code{predict} and \code{coef}, other default methods, such as
  \code{formula} and \code{residuals} may be used.
 }
@@ -108,7 +116,7 @@ top.models[[1]]
 
 \dontrun{
 # using BIC (Schwarz's Bayesian criterion) to rank the models
-BIC <- function(x) AIC(x, k = log(length(residuals(x))))
+BIC <- function(x) AIC(x, k=log(length(residuals(x))))
 mav <- model.avg(top.models, rank=BIC)
 }
 
@@ -120,17 +128,56 @@ nseq <- function(x, len=length(x)) seq(min(x, na.rm=TRUE), max(x, na.rm=TRUE),
 # New predictors: X1 along the range of original data, other variables held
 #	constant at their means
 newdata <- as.data.frame(lapply(lapply(Cement[1:5], mean), rep, 25))
-newdata$X1 <- nseq(Cement$X1, 25)
+newdata$X1 <- nseq(Cement$X1, nrow(newdata))
 
 # Predictions from each of the models in a set:
 pred <- sapply(top.models, predict, newdata=newdata)
-# Add predictions from the averaged model:
-pred <- cbind(pred, averaged=predict(model.avg(top.models), newdata))
+# Add predictions from the models averaged using two methods:
+pred <- cbind(pred,
+	averaged.0=predict(model.avg(top.models, method="0"), newdata),
+	averaged.NA=predict(model.avg(top.models, method="NA"), newdata)
+	)
 
-matplot(x = newdata$X1, y = pred, type="l", lwd=c(rep(1,ncol(pred)-1), 2))
+matplot(x=newdata$X1, y=pred, type="l", lwd=c(rep(1,ncol(pred)-2), 2, 2),
+	xlab="X1", ylab="y")
 
-legend("topleft", legend=c(lapply(top.models, formula), "Averaged model"),
-	   col=seq(ncol(pred)), lty=1:5, lwd=c(rep(1,ncol(pred)-1), 2))
+legend("topleft",
+	legend=c(lapply(top.models, formula),
+		paste("Averaged model (method=", c("0", "NA"), ")", sep="")),
+	col=1:6, lty=1:5, lwd=c(rep(1,ncol(pred)-2), 2, 2), cex = .75
+	)
+
+
+
+\dontrun{
+# Example with gam models (based on "example(gam)")
+require(mgcv)
+dat <- gamSim(1, n = 500, dist="poisson", scale=0.1)
+
+gam1 <- gam(y ~ s(x0) + s(x1) + s(x2) +  s(x3) + (x1+x2+x3)^2,
+	family = poisson, data = dat, method = "REML")
+
+cat(dQuote(getAllTerms(gam1)), "\n")
+
+# include only models with smooth OR linear term (but not both) for each variable:
+dd <- dredge(gam1, subset=(!`s(x1)` | !x1) & (!`s(x2)` | !x2) & (!`s(x3)` | !x3))
+# ...this may take a while.
+
+subset(dd, cumsum(weight) < .95)
+
+top.models <- get.models(dd, cumsum(weight) <= .95)
+
+newdata <- as.data.frame(lapply(lapply(dat, mean), rep, 50))
+newdata$x1 <- nseq(dat$x1, nrow(newdata))
+pred <- cbind(
+	sapply(top.models, predict, newdata=newdata),
+	averaged=predict(model.avg(top.models), newdata)
+)
+
+matplot(x=newdata$x1, y=pred, type="l", lwd=c(rep(1,ncol(pred)-2), 2, 2),
+	xlab="x1", ylab="y")
+}
+
 
 }
 

@@ -3,10 +3,6 @@ export(
 	getAllTerms, coeffs, tTable
 )
 
-#exportPattern("^getAllTerms")
-#exportPattern("^coeffs")
-#exportPattern("^tTable")
-
 importsFrom(stats, AIC, as.formula, coef, delete.response, deviance, fitted,
 formula, logLik, model.frame, model.matrix, na.omit, predict, qnorm, qt,
 reformulate, residuals, sd, terms, update, weighted.mean)
@@ -18,6 +14,8 @@ S3method(coef, averaging)
 S3method(fitted, averaging)
 S3method(model.matrix, averaging)
 S3method(print, model.selection)
+S3method(subset, model.selection)
+S3method("[", model.selection)
 S3method(getAllTerms, default)
 S3method(getAllTerms, formula)
 S3method(getAllTerms, glmer)
@@ -39,9 +37,3 @@ S3method(tTable, lme)
 S3method(tTable, lmer)
 S3method(tTable, mer)
 S3method(tTable, spautolm)
-
-
-
-
-
-

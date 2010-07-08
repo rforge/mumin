@@ -15,19 +15,15 @@ model averaging based on information criteria (AIC alike).
 
 
 \details{
-
 User level functions include:
-
-\code{model.avg} - does model averaging.
-
-\code{get.models} - evaluates models from the table returned by dredge.
-
-\code{dredge} - runs models with combinations of terms of the supplied
-\sQuote{global} model.
-
-\code{AICc} - calculates second-order Akaike
-information criterion for one or several fitted model objects.
-
+\enumerate{
+    \item \code{model.avg} - does model averaging.
+	\item \code{get.models} - evaluates models from the table returned by dredge.
+	\item \code{dredge} - runs models with combinations of terms of the supplied
+		\sQuote{global} model.
+	\item \code{AICc} - calculates second-order Akaike information criterion for
+		one or several fitted model objects.
+}
 
 }
 

@@ -1,5 +1,11 @@
 MuMIn package changelog:
 
+Version: 0.12.12 (2010-07-08)
+New in "dredge": Subsetting models a priori according to a formula
+
+Version: 0.12.11 (2010-07-07)
+Subset/extract methods for 'model.selection' object
+
 Version: 0.12.10 (2010-07-05)
 Fixed "predict.averaging" for missing 'newdata' handling; Table returned by "dredge" now has factors
 for terms with more than one level (they were previously shown as '1')
@@ -14,11 +20,11 @@ Version: 0.12.6 (2010-06-26)
 Tidying up the code, small changes.
 
 Version: 0.12.4 (2010-06-21)
-added: predict.averaging and coef.averaging, averaging object contains additional elements, so that 
-several default methods work with it.
+added: "predict.averaging" and "coef.averaging", 'averaging' object contains additional elements, so
+that several default methods work with it.
 
 Version: 0.12.2 (2009-06-14)
-fixed: alpha in model.avg was not passed to par.avg
+fixed: 'alpha' in "model.avg" was not passed to "par.avg"
 
 Version: 0.12.1 (2009-04-20)
 fixed: method="NA" in model.avg, par.avg now accepts NA's in 'weight'

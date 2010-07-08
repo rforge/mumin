@@ -157,7 +157,7 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 	#	mx <- cbind(mx, i[,!(colnames(i) %in% colnames(mx)), drop=FALSE])
 
 	# residuals averaged (with brute force)
-	residuals <- apply(sapply(models, residuals), 1, weighted.mean, w=weight)
+	rsd <- apply(sapply(models, residuals), 1, weighted.mean, w=weight)
 
 	trm <- terms(models[[1]])
 	frm <- reformulate(all.terms,
@@ -174,8 +174,9 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 		beta = beta,
 		term.names = all.par,
 		x = mmxs,
-		residuals = residuals,
+		residuals = rsd,
 		formula = frm,
+		method = method,
 		call = match.call()
 	)
 
@@ -218,7 +219,7 @@ function(object, newdata = NULL, se.fit = NULL, interval = NULL, type = NULL, ..
 			Xnew <- model.matrix(tt, data = newdata, xlev = xlev)
 		}
 
-		Xnew <- Xnew[, match( names(coeff),colnames(Xnew), nomatch = 0)]
+		Xnew <- Xnew[, match(names(coeff),colnames(Xnew), nomatch = 0)]
 		ny <- (Xnew %*% coeff)[, 1]
 
 		#if (se.fit) {
@@ -228,6 +229,10 @@ function(object, newdata = NULL, se.fit = NULL, interval = NULL, type = NULL, ..
 		#}
 	} else {
 		# otherwise, use brute force:
+
+		if(object$method == "NA")
+			warning("Prediction for this type of model assumes method=",
+			dQuote("0"))
 
 		ny <- if(!missing(newdata))
 			sapply(models, predict, newdata = newdata, ...)
