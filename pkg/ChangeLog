@@ -1,5 +1,9 @@
 MuMIn package changelog:
 
+Version: 0.12.13 (2010-07-09)
+'recalc.weights' argument added to "subset.model.selection". 
+Small bug fixed in dredge.
+
 Version: 0.12.12 (2010-07-08)
 New in "dredge": Subsetting models a priori according to a formula
 

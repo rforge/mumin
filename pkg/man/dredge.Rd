@@ -90,14 +90,14 @@ Make sure there is no a \code{na.action} set to \code{na.omit} in
 if there are NA's present. \code{dredge} cannot handle nested model designs
 (formulas such as \code{y ~ a/b}) properly.
 
-\code{subset} and "[" methods return a plain \code{data.frame} when columns are
-selected.
 
 }
 
 \seealso{
 \code{\link{get.models}}, \code{\link{model.avg}}.
 \code{\link{QAIC}} has examples of using custom rank function.
+
+There is also \code{\link{subset.model.selection}} method.
 }
 
 

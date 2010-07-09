@@ -148,7 +148,6 @@ legend("topleft",
 	)
 
 
-
 \dontrun{
 # Example with gam models (based on "example(gam)")
 require(mgcv)

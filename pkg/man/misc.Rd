@@ -80,7 +80,7 @@ rbindDataFrameList(x)
 effects' coefficients for mixed models.
 
 Functions \code{*bindDataFrameList} are not exported from the name space,
-use e.g. \code{MuMIn:::cbindDataFrameList} to access them.
+use \code{MuMIn:::cbindDataFrameList} to access them.
 
 }
 
@@ -92,5 +92,6 @@ use e.g. \code{MuMIn:::cbindDataFrameList} to access them.
 \code{\link{dredge}}
 }
 
-\keyword{misc}
-\keyword{utilities}
+
+\keyword{models}
+\keyword{manip}

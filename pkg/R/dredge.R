@@ -16,7 +16,6 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
   		if (!is.numeric(x) || length(x) != 1) {
 			stop(sQuote("rank"), " should return numeric vector of length 1")
 		}
-
 	}
 	intercept <- "(Intercept)"
 
@@ -41,7 +40,8 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	}
 
 	if (!is.lm && beta) {
-		warning("Cannot calculate beta weigths (yet) for ", class(global.model)[1])
+		warning("Do not know how to calculate beta weigths for ",
+				class(global.model)[1])
           beta <- FALSE
 	}
 
@@ -80,7 +80,7 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		all.comb <- c(`0` = list(0), all.comb)
 
 	} else {
-		all.comb <- list (0)
+		all.comb <- list(0)
 	}
 
 	if (!is.null(fixed))
@@ -178,7 +178,7 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 	# Convert columns with presence/absence of terms to factors
 	tfac <- which(c(FALSE, !(all.terms %in% names(coeffs(global.model)))))
-	ms.tbl[, tfac] <- lapply(ms.tbl[,tfac], factor, levels=1, labels="+")
+	ms.tbl[tfac] <- lapply(ms.tbl[tfac], factor, levels=1, labels="+")
 
 	colnames(ms.tbl) <- c("(int.)", all.terms, "k",
 		if (has.rsq) c("R.sq", "Adj.R.sq"),
@@ -210,32 +210,29 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 }
 
 `subset.model.selection` <-
-function(x, subset, select, ...) {
-	cl <- match.call(expand.dots = FALSE)
-    cl <- cl[c(1L, match(names(formals("subset.data.frame")), names(cl), 0L))]
-    cl[[1L]] <- as.name("subset.data.frame")
-    res <- eval(cl, parent.frame(2))
-
+function(x, subset, select, recalc.weights = TRUE, ...) {
 	if (missing(select)) {
 		e <- substitute(subset)
-		r <- eval(e, x, parent.frame(2))
-		attr(res, "formulas") <- attr(x, "formulas")[r]
-		attr(res, "global") <- attr(x, "global")
-		attr(res, "terms") <- attr(x, "terms")
-		class(res) <- class(x)
+		i <- eval(e, x, parent.frame(2))
+		return(`[.model.selection`(x, i, recalc.weights = recalc.weights, ...))
 	} else {
-		class(res) <- "data.frame"
+		cl <- match.call(expand.dots = FALSE)
+	    cl <- cl[c(1L, match(names(formals("subset.data.frame")), names(cl), 0L))]
+	    cl[[1L]] <- as.name("subset.data.frame")
+	    return(eval(cl, parent.frame(2)))
 	}
-	return(res)
 }
 
 `[.model.selection` <-
-function (x, i, j, ...) {
+function (x, i, j, recalc.weights = TRUE, ...) {
 	res <- `[.data.frame`(x, i, j, ...)
 	if (missing(j)) {
 		attr(res, "global") <- attr(x, "global")
 		attr(res, "terms") <- attr(x, "terms")
 		attr(res, "formulas") <- attr(x, "formulas")[i]
+		if(recalc.weights)
+			res$weight <- res$weight / sum(res$weight)
+		class(res) <- class(x)
 	} else {
 		class(res) <- "data.frame"
 	}
@@ -244,23 +241,31 @@ function (x, i, j, ...) {
 
 `print.model.selection` <-
 function(x, ...) {
-
 	if(!is.null(x$weight))
 		x$weight <- round(x$weight, 3)
 
-	nn <- attr(x, "terms")
+	xterms <- attr(x, "terms")
 
-	if(is.null(nn)) {
+	if(is.null(xterms)) {
 		print.data.frame(x, ...)
 	} else {
-		names(x)[seq(along=nn)] <- sapply( strsplit(nn, ":"), function(xx) paste(sapply(xx, abbreviate, 6 )  , collapse=":") )
+		names(x)[seq_along(xterms)] <- sapply(strsplit(xterms, ":"),
+			function(z) paste(sapply(z, abbreviate, 6), collapse=":"))
 
-		cat ("Model selection table", "\n")
+		gm <- attr(x, "global")
+		gm.call <- (if(mode(gm) == "S4") `@` else `$`)(gm, "call")
+		if(!is.null(call)) {
+			cat("Global model: ")
+			print(gm.call)
+		}
+
+		cat ("---\nModel selection table \n")
 		i <- sapply(x, is.numeric)
 		x[,i] <- signif(x[,i], 4)
 		print.default(as.matrix(x), na.print="", quote=FALSE)
 		if (!is.null(attr(x, "random.terms"))) {
-			cat("Random terms:", paste(attr(x, "random.terms"), collapse=", "), "\n")
+			cat("Random terms:", paste(attr(x, "random.terms"), collapse=", "),
+				"\n")
 		}
 	}
 }
