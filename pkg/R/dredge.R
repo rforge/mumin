@@ -116,7 +116,6 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	}
 
 	if (!eval) {
-		attr(formulas, "x") <- xtable
 		return(formulas)
 	}
 

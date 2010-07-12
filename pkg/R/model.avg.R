@@ -1,7 +1,6 @@
 `model.avg` <-
-function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = NULL,
-		alpha = 0.05
-) {
+function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
+	rank.args = NULL, alpha = 0.05) {
 	method <- match.arg(method)
 
 	if (!is.null(rank)) {
@@ -31,19 +30,29 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
   		if (!is.numeric(x) || length(x) != 1) {
 			stop(sQuote("rank"), " should return numeric vector of length 1")
 		}
-
 	}
 
-	if (length(models) == 1) {
+	if (length(models) == 1)
 		stop("Only one model supplied. Nothing to do")
-	}
+
+
+	#Try to find if all models are fitted to the same data
+	m.resp <- sapply(models, function(x) formula(x)[[2]])
+	if(!all(m.resp[-1] == m.resp[[1]]))
+		stop("Response differs between models")
+
+	m.data <- lapply(models, function(x) (if(mode(x) == "S4") `@` else `$`)
+					 (x, "call")$data)
+	m.nresid <- sapply(models, function(x) length(resid(x)))
+	if(!all(m.data[-1] == m.data[[1]]) || !all(m.nresid[-1] == m.nresid[[1]]))
+		stop("Models were not fitted to the same data")
+
 	if (is.null(rank)) {
 		aicc <- sapply (models, AICc)
 	} else {
 		cl <- as.call(c(as.name("sapply"), quote(models), quote(rankFn), rank.args))
 		aicc <- eval(cl)
 		#aicc <- do.call("sapply", list(models, rankFn, rank.args), quote = T)
-
 	}
 
 	if (!is.null(tryCatch(deviance(models[[1]]), error = function(...)
@@ -64,20 +73,17 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 
 	selection.table <- data.frame(AICc = aicc, Delta = delta, Weight = weight)
 
-	if (!is.null(dev)) {
+	if (!is.null(dev))
           selection.table <- cbind(Deviance = dev, selection.table)
-	}
 
 	all.par <- unique(unlist(lapply(models, function(m) names(coeffs(m)))))
 
 	all.terms <- unique(unlist(lapply(models, getAllTerms)))
 	all.terms <- all.terms[order(sapply(gregexpr(":", all.terms),
-										function(x) if(x[1] == -1) 0 else length(x)), all.terms
-								 )]
+		function(x) if(x[1] == -1) 0 else length(x)), all.terms)]
 
 	all.par <- all.par[order(sapply(gregexpr(":", all.par),
-									function(x) if(x[1] == -1) 0 else length(x)), all.par
-							 )]
+		function(x) if(x[1] == -1) 0 else length(x)), all.par)]
 
 	all.coef <- all.var <- all.df <- numeric(0)
 
@@ -106,9 +112,11 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 
 	}
 
-	all.model.names <- sapply(models, function(x) paste(match(getAllTerms(x), all.terms), collapse="+"))
+	all.model.names <- sapply(models,
+		function(x) paste(match(getAllTerms(x), all.terms), collapse="+"))
 
-	importance <- apply(weight * t(sapply(models, function(x) all.terms %in% getAllTerms(x))), 2, sum)
+	importance <- apply(weight * t(sapply(models,
+		function(x) all.terms %in% getAllTerms(x))), 2, sum)
 
 	names(importance) <- all.terms
 
@@ -121,7 +129,8 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 	}
 	##
 
-	rownames(all.var) <- rownames(all.coef) <- rownames(selection.table) <- all.model.names
+	rownames(all.var) <- rownames(all.coef) <- rownames(selection.table) <-
+		all.model.names
 
 	if (method == "0") {
 		all.coef[is.na(all.coef)] <- 0
@@ -139,16 +148,21 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 
     names(all.terms) <- seq_along(all.terms)
 
-	if (!is.null(rank)) {
+	if (!is.null(rank))
 		colnames(selection.table)[2] <- as.character(rank)
-	}
 
 	#global.mm <- model.matrix(fit)
 	#cnmmxx2 <- unique(unlist(lapply(gm, function(x) names(coef(x)))))
 	#mmx <- gmm[, cnmmxx[match(colnames(gmm), cnmmxx, nomatch = 0)]]
 
+	# workaround for different behavior of model.matrix with lme: data argument is required
+	if(any(sapply(models, inherits, "lme"))) {
+		model.matrix.lme <- function(object, data=object$data, ...)
+			model.matrix.default(x, data=data, ...)
+	}
 
-	mmxs <- cbindDataFrameList(lapply(models, model.matrix))
+	mmxs <- tryCatch(cbindDataFrameList(lapply(models, model.matrix)),
+					 error=function(e) return(NULL))
 
 	# Far less efficient:
 	#mmxs <- lapply(models, model.matrix)
@@ -159,7 +173,9 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 	# residuals averaged (with brute force)
 	rsd <- apply(sapply(models, residuals), 1, weighted.mean, w=weight)
 
-	trm <- terms(models[[1]])
+	trm <- tryCatch(terms(models[[1]]),
+			error=function(e) terms(formula(models[[1]])))
+
 	frm <- reformulate(all.terms,
 				response = attr(trm, "variables")[-1][[attr(trm, "response")]])
 
@@ -189,7 +205,8 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL, rank.args = 
 function(object, ...) object$avg.model[,1]
 
 `predict.averaging` <-
-function(object, newdata = NULL, se.fit = NULL, interval = NULL, type = NULL, ...) {
+function(object, newdata = NULL, se.fit = NULL, interval = NULL, type = NULL,
+	...) {
 
 	#if(("type" %in% names(match.call())) && type != "link") {
 	if(!missing("type") && type != "link") {
@@ -229,7 +246,6 @@ function(object, newdata = NULL, se.fit = NULL, interval = NULL, type = NULL, ..
 		#}
 	} else {
 		# otherwise, use brute force:
-
 		if(object$method == "NA")
 			warning("Prediction for this type of model assumes method=",
 			dQuote("0"))
