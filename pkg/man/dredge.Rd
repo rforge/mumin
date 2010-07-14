@@ -44,7 +44,9 @@ dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	formula.
   }
 
-  \item{\dots}{optional arguments for the \code{rank} function}
+  \item{\dots}{optional arguments for the \code{rank} function. Any can be
+	an expression (of mode \code{call}), in which case any \code{x} within it
+	will be substituted with a current model. }
 }
 
 

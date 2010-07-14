@@ -1,14 +1,13 @@
 `model.avg` <-
 function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	rank.args = NULL, alpha = 0.05) {
+
 	method <- match.arg(method)
 
 	if (!is.null(rank)) {
 	   	rankFn <- match.fun(rank)
-		#browser()
-		rank.call <- as.call(c(as.name(substitute(rank)), NA, rank.args))
+		rank.call <- as.call(c(as.name("rankFn"), as.symbol("x"), rank.args))
 		rank <- substitute(rank)
-
 	} else if (!is.null(attr(m1, "rank.call"))) {
 		rank.call <- attr(m1, "rank.call")
 		rank.args <- as.list(attr(m1, "rank.call"))[-(1:2)]
@@ -24,17 +23,14 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	}
 
 	if (!is.null(rank)) {
-		# test the rank function
-  		rank.call[[2]] <- quote(m1)
-  		x <- eval(rank.call)
-  		if (!is.numeric(x) || length(x) != 1) {
+		IC <- function(x) eval(rank.call)
+		res <- IC(m1)
+  		if (!is.numeric(res) || length(res) != 1)
 			stop(sQuote("rank"), " should return numeric vector of length 1")
-		}
 	}
 
 	if (length(models) == 1)
 		stop("Only one model supplied. Nothing to do")
-
 
 	#Try to find if all models are fitted to the same data
 	m.resp <- sapply(models, function(x) formula(x)[[2]])
@@ -47,79 +43,13 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	if(!all(m.data[-1] == m.data[[1]]) || !all(m.nresid[-1] == m.nresid[[1]]))
 		stop("Models were not fitted to the same data")
 
-	if (is.null(rank)) {
-		aicc <- sapply (models, AICc)
-	} else {
-		cl <- as.call(c(as.name("sapply"), quote(models), quote(rankFn), rank.args))
-		aicc <- eval(cl)
-		#aicc <- do.call("sapply", list(models, rankFn, rank.args), quote = T)
-	}
-
-	if (!is.null(tryCatch(deviance(models[[1]]), error = function(...)
-	NULL)))
-		dev <- sapply (models, deviance)
-	else
-		dev <- NULL
-
-	delta <- aicc - min(aicc)
-	weight <- exp(-delta / 2) / sum(exp(-delta / 2))
-
-	model.order <- order(weight, decreasing=TRUE)
-	aicc <- aicc[model.order]
-	delta <- delta[model.order]
-	weight <- weight[model.order]
-	models <- models[model.order]
-	dev <- dev[model.order]
-
-	selection.table <- data.frame(AICc = aicc, Delta = delta, Weight = weight)
-
-	if (!is.null(dev))
-          selection.table <- cbind(Deviance = dev, selection.table)
-
-	all.par <- unique(unlist(lapply(models, function(m) names(coeffs(m)))))
 
 	all.terms <- unique(unlist(lapply(models, getAllTerms)))
 	all.terms <- all.terms[order(sapply(gregexpr(":", all.terms),
 		function(x) if(x[1] == -1) 0 else length(x)), all.terms)]
 
-	all.par <- all.par[order(sapply(gregexpr(":", all.par),
-		function(x) if(x[1] == -1) 0 else length(x)), all.par)]
-
-	all.coef <- all.var <- all.df <- numeric(0)
-
-	ac <- rep(0, length = length(all.par))
-
- 	for (m in models) {
-		m.tTable <- tTable(m)
-		n <- NROW(residuals(m))
-		m.coef <- m.tTable[,1]
-		m.var <- m.tTable[,2]
- 		m.df <- n - length(m.coef)
-
-		if (beta) {
-			response.sd <- sd(model.frame(m1)[, attr(terms(m1) ,"response")])
-			m.vars.sd <- sd(model.matrix(m))
-			bx <- m.vars.sd / response.sd
-			m.coef <- m.coef * bx
-			m.var <- m.var * bx
-		}
-
-		m.vars <- match(all.par, rownames(m.tTable))
-
-		all.coef <- rbind(all.coef, model = c(m.coef[m.vars]))
-		all.var <- rbind(all.var, model = c(m.var[m.vars]))
-		all.df <- append(all.df, m.df)
-
-	}
-
 	all.model.names <- sapply(models,
 		function(x) paste(match(getAllTerms(x), all.terms), collapse="+"))
-
-	importance <- apply(weight * t(sapply(models,
-		function(x) all.terms %in% getAllTerms(x))), 2, sum)
-
-	names(importance) <- all.terms
-
 	# check if models are unique:
 	dup <- duplicated(all.model.names)
 	if (any(dup)) {
@@ -127,7 +57,72 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 		dup <- seq(all.model.names)[all.model.names %in% names(dup[dup > 1])]
 		stop("Models are not unique. Duplicates: ", paste(dup, collapse=", "))
 	}
+
+	# workaround for different behavior of model.matrix with lme: data argument is required
+	if(any(sapply(models, inherits, "lme"))) {
+		model.matrix.lme <- function(object, data=object$data, ...)
+			model.matrix.default(object, data=data, ...)
+	}
+
+	if (is.null(rank)) {
+		aicc <- sapply(models, AICc)
+	} else {
+		aicc <- sapply(models, IC)
+	}
+
+	dev <- if (!is.null(tryCatch(deviance(models[[1]]), error = function(...)
+		NULL)))
+		sapply (models, deviance) else NA
+
+	delta <- aicc - min(aicc)
+	weight <- exp(-delta / 2) / sum(exp(-delta / 2))
+
+	model.order <- order(weight, decreasing=TRUE)
+
+	selection.table <- data.frame(
+		Deviance = dev,	AICc = aicc, Delta = delta, Weight = weight
+	)[model.order, ]
+
+	weight <- selection.table$Weight
+	models <- models[model.order]
+
+	all.par <- unique(unlist(lapply(models, function(m) names(coeffs(m)))))
+
+	all.par <- all.par[order(sapply(gregexpr(":", all.par),
+		function(x) if(x[1] == -1) 0 else length(x)), all.par)]
+
+	npar <- length(all.par)
+
+	ac <- rep(0, length = npar)
+
+	mtable <- t(sapply(models, function(m) {
+		m.tTable <- tTable(m)
+		n <- NROW(residuals(m))
+		m.coef <- m.tTable[,1]
+		m.var <- m.tTable[,2]
+ 		m.df <- n - length(m.coef)
+
+		if (beta) {
+			response.sd <- sd(model.frame(m1)[, attr(terms(m1), "response")])
+			m.vars.sd <- sd(model.matrix(m))
+			bx <- m.vars.sd / response.sd
+			m.coef <- m.coef * bx
+			m.var <- m.var * bx
+		}
+
+		m.vars <- match(all.par, rownames(m.tTable))
+		return(c(coef=m.coef[m.vars], var=m.var[m.vars], df=m.df))
+	}))
+
+	all.coef <- mtable[, 1:npar]
+	all.var <- mtable[, npar + (1:npar)]
+	all.df <- mtable[, 2 * npar + 1]
 	##
+
+	importance <- apply(weight * t(sapply(models,
+		function(x) all.terms %in% getAllTerms(x))), 2, sum)
+
+	names(importance) <- all.terms
 
 	rownames(all.var) <- rownames(all.coef) <- rownames(selection.table) <-
 		all.model.names
@@ -154,12 +149,6 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	#global.mm <- model.matrix(fit)
 	#cnmmxx2 <- unique(unlist(lapply(gm, function(x) names(coef(x)))))
 	#mmx <- gmm[, cnmmxx[match(colnames(gmm), cnmmxx, nomatch = 0)]]
-
-	# workaround for different behavior of model.matrix with lme: data argument is required
-	if(any(sapply(models, inherits, "lme"))) {
-		model.matrix.lme <- function(object, data=object$data, ...)
-			model.matrix.default(x, data=data, ...)
-	}
 
 	mmxs <- tryCatch(cbindDataFrameList(lapply(models, model.matrix)),
 					 error=function(e) return(NULL))

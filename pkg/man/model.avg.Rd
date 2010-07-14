@@ -32,7 +32,8 @@ model.avg(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	\code{AICc}, e.g. \code{QAIC} or \code{BIC}, may be omitted if \code{m1} is
 		a list returned by \code{dredge}. See \sQuote{Details}.}
 	\item{rank.args}{Optional \code{list} of arguments for the \code{rank}
-		function.}
+		function. If one is an expression, an \code{x} within it is substituted
+		with a current model. }
 	\item{alpha}{Significance level for calculatinq confidence intervals.}
 	\item{object}{An object returned by \code{model.avg}.}
 	\item{newdata}{ An optional data frame in which to look for variables with

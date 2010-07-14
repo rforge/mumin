@@ -3,20 +3,23 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		 fixed = NULL, m.max = NA, subset, ...) {
 
 	rankFn <- match.fun(rank)
-	if (is.function(rank)) {
+	if (is.function(rank))
   		rank <- deparse(substitute(rank))
-	}
 
-	if (rank != "AICc") {
+	rank.custom <- !missing(rank)
+	if (rank.custom) {
 		arg <- list(...)
-		rankFnCall <- as.call(c(as.name("rankFn"), substitute(global.model), arg))
-
-		# test the rank function
-  		x <- eval(rankFnCall)
-  		if (!is.numeric(x) || length(x) != 1) {
+		rankFnCall <- as.call(c(as.name("rankFn"), as.symbol("x"), arg))
+		IC <- function(x) eval(rankFnCall)
+		res <- IC(global.model)
+  		if (!is.numeric(res) || length(res) != 1) {
 			stop(sQuote("rank"), " should return numeric vector of length 1")
 		}
+	} else {
+		rankFnCall <- call("AICc", as.symbol("x"))
 	}
+	#print(rankFnCall)
+
 	intercept <- "(Intercept)"
 
 	all.terms <- getAllTerms(global.model)
@@ -41,7 +44,7 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 	if (!is.lm && beta) {
 		warning("Do not know how to calculate beta weigths for ",
-				class(global.model)[1])
+				class(global.model)[1], ", option ignored")
           beta <- FALSE
 	}
 
@@ -54,7 +57,7 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	if (!is.null(fixed)) {
 		if (inherits(fixed, "formula")) {
 			if (fixed[[1]] != "~" || length(fixed) != 2)
-				warning(sQuote("fixed"), " formula should be of form ",
+				warning(sQuote("fixed"), " attribute should be a formula of form ",
 						dQuote("~ a + b + c"))
 			fixed <- c(getAllTerms(fixed))
 		} else if (!is.character(fixed)) {
@@ -115,11 +118,9 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
           formulas <- lapply(formulas, update, attr(all.terms, "random"))
 	}
 
-	if (!eval) {
-		return(formulas)
-	}
+	if (!eval) return(formulas)
 
-	rank.custom <- rank != "AICc"
+	getK <- function(x) as.vector(attr(logLik(x), "df"))
 
 	###
 	for(b in seq(length(all.comb))) {
@@ -150,10 +151,9 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		mod.coef.index <- match(mod.coef.names, all.terms)
 		c.row[match(mod.coef.names, all.terms)] <- mod.coef
 
-		aicc <- AICc(cmod)
-		aic <- attr(aicc, "AIC")
 
-		c.row <- c(icept, c.row, k=attr(aicc,"df"))
+		#c.row <- c(icept, c.row, k=attr(aicc,"df"))
+		c.row <- c(icept, c.row, k=getK(cmod))
 		if (has.rsq) {
 			cmod.summary <- summary(cmod)
 			c.row <- c(c.row, r.squared=cmod.summary$r.squared,
@@ -163,11 +163,16 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 			c.row <- c(c.row, deviance(cmod))
 
 		if (rank.custom) {
-			rankFnCall[[2]] <- cmod
-			ic <- eval(rankFnCall)
+			#rankFnCall[[2]] <- quote(cmod)
+			#rankFnCall <- eval(call("substitute", rankFnCall,
+			#	list(x=as.symbol("cmod"))))
+			#print(rankFnCall)
+			ic <- IC(cmod)
+			#ic <- eval(rankFnCall)
 			c.row <- c(c.row, IC=ic)
 		} else {
-		     c.row <- c(c.row, AIC=aic, AICc=aicc)
+			aicc <- AICc(cmod)
+		    c.row <- c(c.row, AIC=attr(aicc, "AIC"), AICc=aicc)
 		}
 		ms.tbl <- rbind(ms.tbl, c.row)
 	}
@@ -196,11 +201,14 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	attr(ms.tbl, "global") <- global.model
 	attr(ms.tbl, "terms") <- c(intercept, all.terms)
 
+	#print(rankFnCall)
+
 	if (rank.custom) {
 		rankFnCall[[1]] <- as.name(rank)
-		rankFnCall[[2]] <- substitute(global.model)
-		attr(ms.tbl, "rank.call") <- rankFnCall
 	}
+	#rankFnCall[[2]] <- substitute(global.model)
+	attr(ms.tbl, "rank.call") <- rankFnCall
+
 
 	if (!is.null(attr(all.terms, "random.terms")))
 		attr(ms.tbl, "random.terms") <- attr(all.terms, "random.terms")
