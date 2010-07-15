@@ -86,6 +86,11 @@ Apart from \code{predict} and \code{coef}, other default methods, such as
  \code{formula} and \code{residuals} may be used.
 }
 
+\note{
+\code{predict.averaging} relies on availability of the \code{predict} methods
+for the component model classes (except for \code{(g)lm}).
+}
+
 \references{
 Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel
 inference: a practical information-theoretic approach}. 2nd ed. }

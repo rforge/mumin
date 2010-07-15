@@ -1,5 +1,8 @@
 MuMIn package changelog:
 
+Version: 0.13.3 (2010-07-15)
+Bug fixed in print.averaging
+
 Version: 0.13.2 (2010-07-14)
 Attributes for custom rank function in "dredge" and "model.avg" are now evaluated model-wise, if provided as expressions
 

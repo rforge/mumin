@@ -262,7 +262,7 @@ function (object, ...) print.averaging(object)
 `print.averaging` <-
 function(x, ...) {
 	cat("\nModel summary:\n")
-	print(round(x$summary,1))
+	print(round(as.matrix(x$summary), 2), na.print="")
 
 	cat("\nVariables:\n")
 	print(x$variable.codes, quote=F)
