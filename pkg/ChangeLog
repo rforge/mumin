@@ -1,5 +1,10 @@
 MuMIn package changelog:
 
+Version: 0.13.4 (2010-07-21)
+'beta.weights' now uses 'tTable' (support for more model types), 'dredge' with 
+beta=TRUE tries out if it can get beta.weights working. 
+Manual: added gls and rlm to the list of supported models
+
 Version: 0.13.3 (2010-07-15)
 Bug fixed in print.averaging
 

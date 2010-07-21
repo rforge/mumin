@@ -13,7 +13,7 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		IC <- function(x) eval(rankFnCall)
 		res <- IC(global.model)
   		if (!is.numeric(res) || length(res) != 1) {
-			stop(sQuote("rank"), " should return numeric vector of length 1")
+			stop("'rank' should return numeric vector of length 1")
 		}
 	} else {
 		rankFnCall <- call("AICc", as.symbol("x"))
@@ -42,13 +42,15 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		warning("Comparing models with different fixed effects fitted by REML")
 	}
 
-	if (!is.lm && beta) {
-		warning("Do not know how to calculate beta weigths for ",
-				class(global.model)[1], ", option ignored")
-          beta <- FALSE
+	if (beta && is.null(tryCatch(beta.weights(lm1), error=function(e) NULL,
+		warning=function(e) NULL))) {
+		warning("Do not know how to calculate 'beta' weigths for ",
+				class(global.model)[1], ", argument ignored")
+         beta <- FALSE
 	}
 
-	has.rsq <- "r.squared" %in% names(summary(global.model))
+	summary.globmod <- summary(global.model)
+	has.rsq <- is.numeric(summary.globmod$r.squared)
 	has.dev <- !is.null(deviance(global.model))
 
 	m.max <- if (missing(m.max)) n.vars else min(n.vars, m.max)
@@ -57,16 +59,15 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	if (!is.null(fixed)) {
 		if (inherits(fixed, "formula")) {
 			if (fixed[[1]] != "~" || length(fixed) != 2)
-				warning(sQuote("fixed"), " attribute should be a formula of form ",
-						dQuote("~ a + b + c"))
+				warning("'fixed' attribute should be a formula of form: ",
+						"~ a + b + c")
 			fixed <- c(getAllTerms(fixed))
 		} else if (!is.character(fixed)) {
-			stop (sQuote("fixed"), " should be either a character vector with"
+			stop ("'fixed' should be either a character vector with"
 				  + " names of variables or a one-sided formula")
 		}
 		if (!all(fixed %in% all.terms)) {
-			warning("Not all terms of ", sQuote("fixed"), " exist in ",
-					sQuote("global.model"))
+			warning("Not all terms in 'fixed' exist in 'global.model'")
 			fixed <- fixed[fixed %in% all.terms]
 		}
 		m.max <- m.max - length(fixed)
