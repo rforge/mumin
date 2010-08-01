@@ -130,15 +130,20 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	### BEGIN:
 	for(b in seq(length(all.comb))) {
 		# print(all.comb[[b]])
-        cterms <- all.terms[all.comb[[b]]]
+        terms1 <- all.terms[all.comb[[b]]]
 		frm <- formulas[[b]]
 
 		row1 <- rep(NA, n.vars)
-		row1[match(cterms, all.terms)] <- rep(1, length(cterms))
+		row1[match(terms1, all.terms)] <- rep(1, length(terms1))
 
 		cl <- call("update", substitute(global.model), frm)
 
-		fit1 <- tryCatch(eval(cl, parent.frame()), error=function(e) NULL)
+		#TODO: optional error printing.
+		fit1 <- tryCatch(eval(cl, parent.frame()), error=function(err) {
+			err$message <- paste(conditionMessage(err), "(model skipped by dredge)")
+			warning(err)
+			return(NULL)
+		})
 
 		if (is.null(fit1)) {
 			formulas[[as.character(b)]] <- NA
