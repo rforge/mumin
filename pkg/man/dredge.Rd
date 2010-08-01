@@ -11,6 +11,9 @@ supplied model. }
 \usage{
 dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	fixed = NULL, m.max = NA, subset, ...)
+
+\method{print}{model.selection}(x, abbrev.names = TRUE, ...)
+
 }
 
 \arguments{
@@ -43,6 +46,15 @@ dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	as non-syntactic names and enclosed in backticks (see \link[base]{Quotes}).
 	Mind the spacing, names must match exactly the term names in model's
 	formula.
+  }
+
+  \item{x}{
+	a \code{model.selection} object, returned by \code{dredge}.
+	}
+
+  \item{abbrev.names}{
+	Should variable names be abbreviated when printing? (useful with many
+		variables)
   }
 
   \item{\dots}{optional arguments for the \code{rank} function. Any can be

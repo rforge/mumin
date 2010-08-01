@@ -23,7 +23,11 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	intercept <- "(Intercept)"
 
 	all.terms <- getAllTerms(global.model)
+
 	has.int <- attr(all.terms, "intercept")
+	all.terms <- fixCoefNames(all.terms)
+
+	attributes(getAllTerms(global.model))
 
 	n.vars <- length(all.terms)
 	ms.tbl <- numeric(0)
@@ -42,7 +46,7 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		warning("Comparing models with different fixed effects fitted by REML")
 	}
 
-	if (beta && is.null(tryCatch(beta.weights(lm1), error=function(e) NULL,
+	if (beta && is.null(tryCatch(beta.weights(global.model), error=function(e) NULL,
 		warning=function(e) NULL))) {
 		warning("Do not know how to calculate 'beta' weigths for ",
 				class(global.model)[1], ", argument ignored")
@@ -123,67 +127,58 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 	getK <- function(x) as.vector(attr(logLik(x), "df"))
 
-	###
+	### BEGIN:
 	for(b in seq(length(all.comb))) {
 		# print(all.comb[[b]])
         cterms <- all.terms[all.comb[[b]]]
 		frm <- formulas[[b]]
 
-		c.row <- rep(NA, n.vars)
-		c.row[match(cterms, all.terms)] <- rep(1, length(cterms))
+		row1 <- rep(NA, n.vars)
+		row1[match(cterms, all.terms)] <- rep(1, length(cterms))
 
 		cl <- call("update", substitute(global.model), frm)
 
-		cmod <- tryCatch(eval(cl, parent.frame()), error=function(e) NULL)
+		fit1 <- tryCatch(eval(cl, parent.frame()), error=function(e) NULL)
 
-		if (is.null(cmod)) {
+		if (is.null(fit1)) {
 			formulas[[as.character(b)]] <- NA
 			next;
 		}
-		mod.coef <- c(na.omit(match(all.terms, names(coeffs(cmod)))))
 
-		icept <- if (attr(all.terms, "intercept")) coeffs(cmod)[intercept]
-			else NA
+		coef1 <- if (beta) beta.weights(fit1)[,3] else coeffs(fit1)
+		names(coef1) <- fixCoefNames(names(coef1))
 
-	    cmod.all.coef <- if (beta) beta.weights(cmod)[,3] else coeffs(cmod)
+		icept <- if (has.int) coef1[intercept] else NA
 
-		mod.coef <- cmod.all.coef[mod.coef]
-		mod.coef.names <- names(mod.coef)
-		mod.coef.index <- match(mod.coef.names, all.terms)
-		c.row[match(mod.coef.names, all.terms)] <- mod.coef
+		coef1 <- coef1[c(na.omit(match(all.terms, names(coef1))))]
+		row1[match(names(coef1), all.terms)] <- coef1
 
-
-		#c.row <- c(icept, c.row, k=attr(aicc,"df"))
-		c.row <- c(icept, c.row, k=getK(cmod))
+		row1 <- c(icept, row1, k=getK(fit1))
 		if (has.rsq) {
-			cmod.summary <- summary(cmod)
-			c.row <- c(c.row, r.squared=cmod.summary$r.squared,
-				adj.r.squared=cmod.summary$adj.r.squared)
+			fit1.summary <- summary(fit1)
+			row1 <- c(row1, r.squared=fit1.summary$r.squared,
+				adj.r.squared=fit1.summary$adj.r.squared)
 		}
 		if (has.dev)
-			c.row <- c(c.row, deviance(cmod))
+			row1 <- c(row1, deviance(fit1))
 
 		if (rank.custom) {
-			#rankFnCall[[2]] <- quote(cmod)
-			#rankFnCall <- eval(call("substitute", rankFnCall,
-			#	list(x=as.symbol("cmod"))))
-			#print(rankFnCall)
-			ic <- IC(cmod)
-			#ic <- eval(rankFnCall)
-			c.row <- c(c.row, IC=ic)
+			ic <- IC(fit1)
+			row1 <- c(row1, IC=ic)
 		} else {
-			aicc <- AICc(cmod)
-		    c.row <- c(c.row, AIC=attr(aicc, "AIC"), AICc=aicc)
+			aicc <- AICc(fit1)
+		    row1 <- c(row1, AIC=attr(aicc, "AIC"), AICc=aicc)
 		}
-		ms.tbl <- rbind(ms.tbl, c.row)
-	}
+		ms.tbl <- rbind(ms.tbl, row1)
+	} ### END
 
 	formulas[is.na(formulas)] <- NULL
-	ms.tbl <- data.frame(ms.tbl, row.names=1:NROW(ms.tbl))
+	ms.tbl <- data.frame(ms.tbl, row.names=seq(NROW(ms.tbl)))
 
 	# Convert columns with presence/absence of terms to factors
-	tfac <- which(c(FALSE, !(all.terms %in% names(coeffs(global.model)))))
+	tfac <- which(c(FALSE, !(all.terms %in% fixCoefNames(names(coeffs(global.model))))))
 	ms.tbl[tfac] <- lapply(ms.tbl[tfac], factor, levels=1, labels="+")
+
 
 	colnames(ms.tbl) <- c("(int.)", all.terms, "k",
 		if (has.rsq) c("R.sq", "Adj.R.sq"),
@@ -248,7 +243,7 @@ function (x, i, j, recalc.weights = TRUE, ...) {
 }
 
 `print.model.selection` <-
-function(x, ...) {
+function(x, abbrev.names = TRUE, ...) {
 	if(!is.null(x$weight))
 		x$weight <- round(x$weight, 3)
 
@@ -257,8 +252,23 @@ function(x, ...) {
 	if(is.null(xterms)) {
 		print.data.frame(x, ...)
 	} else {
-		names(x)[seq_along(xterms)] <- sapply(strsplit(xterms, ":"),
-			function(z) paste(sapply(z, abbreviate, 6), collapse=":"))
+
+		xterms <- gsub(" ", "", xterms)
+
+		if(abbrev.names) {
+			xterms <- sapply(xterms, function(z) {
+				spl <- strsplit(rep(z, 2), c("[^\\w\\.]+",  "[\\w\\.$]+"),
+					perl=TRUE)
+				spl[[1]] <- abbreviate(spl[[1]], minlength=3)
+				o <- order(sapply(lapply(spl, `==`, ""), `[[`, 1), decreasing=TRUE)
+				x2 <- unsplit(spl, rep(order(sapply(lapply(spl, `==`, ""),
+					`[[`, 1), decreasing=T), length.out=length(unlist(spl))))
+				return(paste(x2, collapse=""))
+			})
+		}
+
+		colnames(x)[seq_along(xterms)] <-  xterms
+
 
 		gm <- attr(x, "global")
 		gm.call <- (if(mode(gm) == "S4") `@` else `$`)(gm, "call")
@@ -277,3 +287,8 @@ function(x, ...) {
 		}
 	}
 }
+
+
+#sorts alphabetically interaction components in model term names
+`fixCoefNames` <-
+function(x) sapply(lapply(strsplit(x, ":"), sort), paste, collapse=":")
