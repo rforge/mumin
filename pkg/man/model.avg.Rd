@@ -115,6 +115,9 @@ inference: a practical information-theoretic approach}. 2nd ed. }
 }
 
 \examples{
+
+require(graphics)
+
 # Example from Burnham and Anderson (2002), page 100:
 data(Cement)
 lm1 <- lm(y ~ ., data = Cement)
