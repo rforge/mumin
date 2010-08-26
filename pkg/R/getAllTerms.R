@@ -15,13 +15,24 @@ function(x, ...) {
 		offs <- NULL
 	}
 	ret <- attr(mTerms, "term.labels")
-	if (length(ret) > 0) {
-		ret <- ret[order(ret)]
-		i <- grep(" ", ret)
-		ret[i] <- paste("(", ret[i] , ")")
 
-		mTerms <- terms(reformulate(ret))
-		ret <- attr(mTerms, "term.labels")
+	if (length(ret) > 0) {
+
+		#TODO: handle terms with ":" in the name
+		if(length(grep(":", sapply(attr(mTerms, "variables")[-1],
+		"as.character"))) > 0) {
+			stop("Variable names cannot contain \":\"")
+		}
+
+		ia <- attr(mTerms, "order") > 1
+		ret[ia] <- unlist(sapply(lapply(strsplit(ret[ia], ":", fixed = TRUE),
+			sort), paste, collapse=":"))
+
+		ret <- ret[order(attr(mTerms, "order"), ret)]
+
+		#WTF?
+		#i <- grep(" ", ret)
+		#ret[i] <- paste("(", ret[i], ")")
 	}
 
 	attr(ret, "intercept") <- intercept
@@ -31,69 +42,52 @@ function(x, ...) {
 	return(ret)
 }
 
-`getAllTerms.glmer` <-
-function(x, ...) {
-     ret <- getAllTerms(as.formula(formula(x)))
-     i <- grep(" \\| ", ret)
-
-     intercept <- attr(ret, "intercept")
-
-	rnd <- ret[i]
-     ret <- ret[-i]
-     attr(ret, "random.terms") <- rnd
-     rnd.formula <- paste("(", rnd, ")", sep="", collapse=" + ")
-     rnd.formula <- as.formula(paste(". ~ .", rnd.formula, sep="+"))
-
-	attr(ret, "random") <- rnd.formula
-	attr(ret, "intercept") <- intercept
-
-     ret
-}
-
 `getAllTerms.lme` <-
 function(x, ...) {
-	getAllTerms(as.formula(formula(x)))
+	ret <- getAllTerms.formula(x)
+	attr(ret, "random") <- . ~ .
+	attr(ret, "random.terms") <- deparse(x$call$random)
+	return(ret)
+
+	#x <- fm2
+	#reStruct <- x$modelStruct$reStruct
+	#nobj <- length(reStruct)
+	#if (is.null(namx <- names(reStruct)))
+	#	names(reStruct) <- nobj:1
+	#aux <- t(array(rep(names(reStruct), nobj), c(nobj, nobj)))
+	#aux[lower.tri(aux)] <- ""
+	#reStruct[] <- rev(reStruct)
+	#aux <- t(array(rep(names(rs), nobj), c(nobj, nobj)))
+	#aux[lower.tri(aux)] <- ""
+	#rev(apply(aux, 1, function(x) paste(x[x != ""], collapse = " %in% ")))
+	#paste(lapply(reStruct, attr, "formula"), "|",
+	#	  rev(apply(aux, 1, function(x) paste(x[x != ""], collapse = " %in% "))))
 }
 
-`getAllTerms.lmer` <-
-function(x, ...) {
-     ret <- getAllTerms(as.formula(formula(x)))
-     i <- grep(" \\| ", ret)
 
-     intercept <- attr(ret, "intercept")
-
-	rnd <- ret[i]
-     ret <- ret[-i]
-     attr(ret, "random.terms") <- rnd
-
-     rnd.formula <- paste("(", rnd, ")", sep="", collapse=" + ")
-     rnd.formula <- as.formula(paste(". ~ .", rnd.formula, sep="+"))
-
-	attr(ret, "random") <- rnd.formula
-	attr(ret, "intercept") <- intercept
-
-     ret
-}
-
+`getAllTerms.glmer` <- # For backwards compatibility
+`getAllTerms.lmer` <-  # with older versions of lme4
 `getAllTerms.mer` <-
 function(x, ...) {
-     ret <- getAllTerms(as.formula(formula(x)))
-     i <- grep(" \\| ", ret)
+	#fixed <- fixCoefNames(attr(terms(x), "term.labels"))
 
-     intercept <- attr(ret, "intercept")
+	frm <- as.formula(formula(x))
+	#tt <- terms(frm)
+	#allc <- attr(tt, "term.labels")
+	allc <- getAllTerms.formula(frm)
 
-	rnd <- ret[i]
-     ret <- ret[-i]
-     attr(ret, "random.terms") <- rnd
+	j <- grep(" | ", allc, fixed = TRUE)
+	rnd <- allc[j]
+	rnd.formula <- reformulate(c(".", paste("(", rnd, ")", sep = "")),
+							   response = ".")
 
-     rnd.formula <- paste("(", rnd, ")", sep="", collapse=" + ")
-     rnd.formula <- as.formula(paste(". ~ .", rnd.formula, sep="+"))
-
+	ret <- fixCoefNames(allc[-j])
+	attr(ret, "intercept") <- attr(allc, "intercept")
 	attr(ret, "random") <- rnd.formula
-	attr(ret, "intercept") <- intercept
-
-     ret
+	attr(ret, "random.terms") <- rnd
+	return(ret)
 }
+
 
 `getAllTerms` <-
 function(x, ...) UseMethod("getAllTerms")

@@ -182,7 +182,8 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	ms.tbl <- data.frame(ms.tbl, row.names=seq(NROW(ms.tbl)))
 
 	# Convert columns with presence/absence of terms to factors
-	tfac <- which(c(FALSE, !(all.terms %in% fixCoefNames(names(coeffs(global.model))))))
+	tfac <- which(c(FALSE, !(all.terms %in%
+		fixCoefNames(names(coeffs(global.model))))))
 	ms.tbl[tfac] <- lapply(ms.tbl[tfac], factor, levels=1, labels="+")
 
 
@@ -212,8 +213,9 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	attr(ms.tbl, "rank.call") <- rankFnCall
 
 
-	if (!is.null(attr(all.terms, "random.terms")))
+	if (!is.null(attr(all.terms, "random.terms"))) {
 		attr(ms.tbl, "random.terms") <- attr(all.terms, "random.terms")
+	}
 
 	return(ms.tbl)
 }
@@ -236,8 +238,9 @@ function(x, subset, select, recalc.weights = TRUE, ...) {
 function (x, i, j, recalc.weights = TRUE, ...) {
 	res <- `[.data.frame`(x, i, j, ...)
 	if (missing(j)) {
-		attr(res, "global") <- attr(x, "global")
-		attr(res, "terms") <- attr(x, "terms")
+		for (a in c("global", "terms", "rank.call", "random.terms"))
+			attr(res, a) <- attr(x, a)
+
 		attr(res, "formulas") <- attr(x, "formulas")[i]
 		if(recalc.weights)
 			res$weight <- res$weight / sum(res$weight)
@@ -247,6 +250,7 @@ function (x, i, j, recalc.weights = TRUE, ...) {
 	}
 	return(res)
 }
+
 
 `print.model.selection` <-
 function(x, abbrev.names = TRUE, ...) {
@@ -275,7 +279,6 @@ function(x, abbrev.names = TRUE, ...) {
 
 		colnames(x)[seq_along(xterms)] <-  xterms
 
-
 		gm <- attr(x, "global")
 		gm.call <- (if(mode(gm) == "S4") `@` else `$`)(gm, "call")
 		if(!is.null(call)) {
@@ -292,12 +295,4 @@ function(x, abbrev.names = TRUE, ...) {
 				"\n")
 		}
 	}
-}
-
-
-#sorts alphabetically interaction components in model term names
-`fixCoefNames` <-
-function(x) {
-	if(!is.character(x)) return(x)
-	return(sapply(lapply(strsplit(x, ":"), sort), paste, collapse=":"))
 }

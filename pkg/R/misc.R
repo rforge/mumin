@@ -33,3 +33,11 @@ function(aic, ...) {
 	weight <- exp(-delta / 2) / sum(exp(-delta / 2))
 	return (weight)
 }
+
+
+#sorts alphabetically interaction components in model term names
+`fixCoefNames` <-
+function(x) {
+	if(!is.character(x)) return(x)
+	return(sapply(lapply(strsplit(x, ":"), sort), paste, collapse=":"))
+}
