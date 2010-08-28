@@ -1,5 +1,8 @@
 MuMIn package changelog:
 
+Version: 0.13.12 (2010-08-29)
+dredge, getAllTerms, dredge.Rd: small modifications
+
 Version: 0.13.11 (2010-08-28)
 getAllTerms: improved handling of interactions, random terms (lmer) and "offset()".
 formulaAllowed: now allows for exceptions in margins presence checking (new argument: "except")

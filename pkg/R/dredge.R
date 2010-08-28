@@ -23,6 +23,10 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 	all.terms <- getAllTerms(global.model)
 
+	# Just in case:
+	if(length(grep(":", all.vars(delete.response(terms(formula(global.model)))))) > 0)
+		stop("Variable names in the model can not contain \":\"")
+
 	global.call <- if(mode(global.model) == "S4") {
 		if ("call" %in% slotNames(global.model)) slot(global.model, "call") else
 			NULL
@@ -45,13 +49,8 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	if(!(formula.arg %in% names(global.call)))
 		names(cl)[2] <- formula.arg
 
-	# TODO imports methods::slot, slotNames
-
 	has.int <- attr(all.terms, "intercept")
-	tmp <- attributes(all.terms)
-
-	all.terms <- fixCoefNames(all.terms)
-	attributes(all.terms) <- tmp
+	globCoefNames <- fixCoefNames(names(coeffs(global.model)))
 
 	n.vars <- length(all.terms)
 	ms.tbl <- numeric(0)
@@ -215,10 +214,8 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	ms.tbl <- data.frame(ms.tbl, row.names=seq(NROW(ms.tbl)))
 
 	# Convert columns with presence/absence of terms to factors
-	tfac <- which(c(FALSE, !(all.terms %in%
-		fixCoefNames(names(coeffs(global.model))))))
+	tfac <- which(c(FALSE, !(all.terms %in% globCoefNames)))
 	ms.tbl[tfac] <- lapply(ms.tbl[tfac], factor, levels=1, labels="+")
-
 
 	colnames(ms.tbl) <- c("(int.)", all.terms, "k",
 		if (has.rsq) c("R.sq", "Adj.R.sq"),

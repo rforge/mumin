@@ -7,6 +7,8 @@ importsFrom(stats, AIC, as.formula, coef, delete.response, deviance, fitted,
 formula, logLik, model.frame, model.matrix, na.omit, predict, qnorm, qt,
 reformulate, residuals, sd, terms, update, weighted.mean)
 
+importsFrom(methods, slot, slotNames)
+
 S3method(print, averaging)
 S3method(summary, averaging)
 S3method(predict, averaging)
@@ -18,6 +20,7 @@ S3method(subset, model.selection)
 S3method("[", model.selection)
 S3method(getAllTerms, default)
 S3method(getAllTerms, formula)
+S3method(getAllTerms, terms)
 S3method(getAllTerms, glmer)
 S3method(getAllTerms, lme)
 S3method(getAllTerms, lmer)

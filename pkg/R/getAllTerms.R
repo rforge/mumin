@@ -56,23 +56,25 @@ function(x, ...) getAllTerms.terms(terms(x), ...)
 function(x, ...) {
 	ret <- getAllTerms(terms(x))
 	attr(ret, "random") <- . ~ .
-	attr(ret, "random.terms") <- deparse(x$call$random)
-	return(ret)
 
-	#x <- fm2
-	#reStruct <- x$modelStruct$reStruct
-	#nobj <- length(reStruct)
-	#if (is.null(namx <- names(reStruct)))
-	#	names(reStruct) <- nobj:1
-	#aux <- t(array(rep(names(reStruct), nobj), c(nobj, nobj)))
-	#aux[lower.tri(aux)] <- ""
-	#reStruct[] <- rev(reStruct)
-	#aux <- t(array(rep(names(rs), nobj), c(nobj, nobj)))
-	#aux[lower.tri(aux)] <- ""
-	#rev(apply(aux, 1, function(x) paste(x[x != ""], collapse = " %in% ")))
-	#paste(lapply(reStruct, attr, "formula"), "|",
-	#	  rev(apply(aux, 1, function(x) paste(x[x != ""], collapse = " %in% "))))
+	# Code from nlme:::print.reStruct, modified slightly
+	reStruct <- x$modelStruct$reStruct
+	nobj <- length(reStruct)
+	if (is.null(namx <- names(reStruct)))
+		names(reStruct) <- nobj:1
+	aux <- t(array(rep(names(reStruct), nobj), c(nobj, nobj)))
+	aux[lower.tri(aux)] <- ""
+	reStruct[] <- rev(reStruct)
+	aux <- t(array(rep(names(reStruct), nobj), c(nobj, nobj)))
+	aux[lower.tri(aux)] <- ""
+	attr(ret, "random.terms") <- paste(lapply(lapply(reStruct, attr, "formula"),
+		"[[", 2), "|",
+		rev(apply(aux, 1, function(z) paste(z[z != ""], collapse = " %in% "))))
+
+	return(ret)
 }
+
+
 
 
 `getAllTerms.glmer` <- # For backwards compatibility

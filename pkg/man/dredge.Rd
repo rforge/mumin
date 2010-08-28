@@ -46,12 +46,14 @@ dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	as non-syntactic names and enclosed in backticks (see \link[base]{Quotes}).
 	Mind the spacing, names must match exactly the term names in model's
 	formula.
+	To simply keep variables in all models, use of \code{fixed} is preferred.
   }
 
   \item{marg.ex}{
 	a character vector specyfying names of variables for which NOT to check for
-	marginality restrictions. If this argument is set to TRUE, all model
-	formulas are used (i.e. no checking).
+	marginality restrictions when generating model formulas. If this argument is
+	set to TRUE, all model formulas are used (i.e. no checking). See
+	\sQuote{Details}.
   }
 
   \item{trace}{
