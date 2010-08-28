@@ -24,7 +24,7 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	all.terms <- getAllTerms(global.model)
 
 	# Just in case:
-	if(length(grep(":", all.vars(delete.response(terms(formula(global.model)))))) > 0)
+	if(length(grep(":", all.vars(delete.response(terms(global.model))))) > 0)
 		stop("Variable names in the model can not contain \":\"")
 
 	global.call <- if(mode(global.model) == "S4") {
