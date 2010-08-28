@@ -1,50 +1,60 @@
 `getAllTerms.default` <-
-function(x, ...) {
-	return(getAllTerms(as.formula(formula(x))))
-}
+function(x, ...) getAllTerms(as.formula(formula(x)), ...)
 
-`getAllTerms.formula` <-
-function(x, ...) {
-	mTerms <- terms(x)
-	intercept <- attr(mTerms, "intercept")
-	if (!is.null(attr(mTerms, "offset"))){
-		offs <-
-		sapply(as.list(attr(mTerms,"variables")[-1])[attr(mTerms,"offset")],
-		deparse)
+
+`getAllTerms.terms` <-
+function(x, offset = TRUE, ...) {
+	if (!is.null(attr(x, "offset"))){
+		offs <- sapply((attr(x, "variables")[-1])[attr(x, "offset")], deparse)
 	} else {
 		offs <- NULL
 	}
-	ret <- attr(mTerms, "term.labels")
+	ret <- attr(x, "term.labels")
 
+	# Get term names, with higher order term components arranged alphabetically
 	if (length(ret) > 0) {
-
-		#TODO: handle terms with ":" in the name
-		if(length(grep(":", sapply(attr(mTerms, "variables")[-1],
-		"as.character"))) > 0) {
-			stop("Variable names cannot contain \":\"")
-		}
-
-		ia <- attr(mTerms, "order") > 1
-		ret[ia] <- unlist(sapply(lapply(strsplit(ret[ia], ":", fixed = TRUE),
-			sort), paste, collapse=":"))
-
-		ret <- ret[order(attr(mTerms, "order"), ret)]
-
-		#WTF?
-		#i <- grep(" ", ret)
-		#ret[i] <- paste("(", ret[i], ")")
+		factors <- attr(x, "factors")
+		factors1 <- rownames(factors)
+		ret <- apply(factors > 0, 2, function(i) paste(sort(factors1[i]), collapse=":"))
 	}
 
-	attr(ret, "intercept") <- intercept
+	# Leave out random terms (lmer type)
+	#ran <- attr(x, "variables")[-1][-c(attr(x, "offset"), attr(x, "response"))]
+	ran <- attr(x, "variables")[-1]
+	ran <- as.character(ran[sapply(ran,
+		function(x) length(x) == 3 && x[[1]] == as.name("|"))])
+	ifx <- !(ret %in% ran)
 
-	if (!is.null(offs[1]))
+	ret <- ret[ifx]
+
+	# finally, sort by order and then alphabetically
+	ret <- unname(ret[order(attr(x, "order")[ifx], ret)])
+
+
+	if (!is.null(offs[1])) {
+		if (offset)
+			ret <- c(ret, offs)
 		attr(ret, "offset") <- offs
+	}
+	attr(ret, "intercept") <- attr(x, "intercept")
+	if (length(ran) > 0) {
+		attr(ret, "random.terms") <- ran
+		attr(ret, "random") <- reformulate(c(".", paste("(", ran, ")",
+			sep = "")), response = ".")
+	}
+
 	return(ret)
 }
 
+
+
+`getAllTerms.formula` <-
+function(x, ...) getAllTerms.terms(terms(x), ...)
+
+
 `getAllTerms.lme` <-
 function(x, ...) {
-	ret <- getAllTerms.formula(x)
+	ret <- getAllTerms(terms(x))
 	attr(ret, "random") <- . ~ .
 	attr(ret, "random.terms") <- deparse(x$call$random)
 	return(ret)
@@ -68,25 +78,7 @@ function(x, ...) {
 `getAllTerms.glmer` <- # For backwards compatibility
 `getAllTerms.lmer` <-  # with older versions of lme4
 `getAllTerms.mer` <-
-function(x, ...) {
-	#fixed <- fixCoefNames(attr(terms(x), "term.labels"))
-
-	frm <- as.formula(formula(x))
-	#tt <- terms(frm)
-	#allc <- attr(tt, "term.labels")
-	allc <- getAllTerms.formula(frm)
-
-	j <- grep(" | ", allc, fixed = TRUE)
-	rnd <- allc[j]
-	rnd.formula <- reformulate(c(".", paste("(", rnd, ")", sep = "")),
-							   response = ".")
-
-	ret <- fixCoefNames(allc[-j])
-	attr(ret, "intercept") <- attr(allc, "intercept")
-	attr(ret, "random") <- rnd.formula
-	attr(ret, "random.terms") <- rnd
-	return(ret)
-}
+function(x, ...) getAllTerms(formula(x), ...)
 
 
 `getAllTerms` <-

@@ -10,7 +10,7 @@ supplied model. }
 
 \usage{
 dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
-	fixed = NULL, m.max = NA, subset, ...)
+	fixed = NULL, m.max = NA, subset, marg.ex = NULL, trace = FALSE, ...)
 
 \method{print}{model.selection}(x, abbrev.names = TRUE, ...)
 
@@ -48,6 +48,18 @@ dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	formula.
   }
 
+  \item{marg.ex}{
+	a character vector specyfying names of variables for which NOT to check for
+	marginality restrictions. If this argument is set to TRUE, all model
+	formulas are used (i.e. no checking).
+  }
+
+  \item{trace}{
+	if TRUE, all calls to the fitting function (i.e. updated \code{global.model}
+	calls) are printed.
+  }
+
+
   \item{x}{
 	a \code{model.selection} object, returned by \code{dredge}.
 	}
@@ -73,6 +85,9 @@ memory) consuming.
 Handling interactions, \code{dredge} respects marginality constraints, so
 \dQuote{all possible combinations} do not include models containing interactions
 without their respective main effects.
+This behaviour can be altered by \code{marg.ex} argument. It can be used to
+allow for simple nested designs. For example, with global model of form \code{a
+/ (x + z)}, use \code{marg.ex = "a"} and \code{fixed = "a"}.
 
 \code{rank} is found by a call to \code{match.fun} and typically is specified as
 a function or a symbol (e.g. a backquoted name) or a character string specifying
@@ -84,7 +99,7 @@ always return a scalar.
 
 
 \value{
-\code{dredge} returns an object of class \code{model.selection}, being a a
+\code{dredge} returns an object of class \code{model.selection}, being a
 \code{\link{data.frame}} with models' coefficients, k, deviance/RSS, R-squared,
 AIC, AICc, delta and weight. This depends on a type of model. Models are ordered
 according to \code{\link{AICc}} (lowest on top), or by \code{rank} function if
@@ -99,8 +114,7 @@ specified. The attribute "formulas" is a list containing model formulas.
 
 Make sure there is no a \code{na.action} set to \code{na.omit} in
 \code{global.model}. This can result with models fitted to different data sets,
-if there are NA's present. \code{dredge} cannot handle nested model designs
-(formulas such as \code{y ~ a/b}) properly.
+if there are NA's present.
 
 
 }

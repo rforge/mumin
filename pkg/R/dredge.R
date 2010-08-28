@@ -1,6 +1,6 @@
 `dredge` <-
 function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
-		 fixed = NULL, m.max = NA, subset, ...) {
+		 fixed = NULL, m.max = NA, subset, marg.ex = NULL, trace = FALSE, ...) {
 
 	rankFn <- match.fun(rank)
 	if (is.function(rank))
@@ -18,14 +18,38 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	} else {
 		rankFnCall <- call("AICc", as.symbol("x"))
 	}
-	#print(rankFnCall)
 
 	intercept <- "(Intercept)"
 
 	all.terms <- getAllTerms(global.model)
 
+	global.call <- if(mode(global.model) == "S4") {
+		if ("call" %in% slotNames(global.model)) slot(global.model, "call") else
+			NULL
+	} else {
+		if(!is.null(global.model$call)) {
+			global.model$call
+		} else if(!is.null(attr(global.model, "call"))) {
+			attr(global.model, "call")
+		} else
+			NULL
+	}
+
+	if (is.null(global.call))
+		global.call <- substitute(global.model)
+
+	formula.arg <- if(inherits(global.model, "lme")) "fixed" else "formula"
+	global.formula <- global.call[[2]]
+
+	# If not named, assume that the first argument is the formula
+	if(!(formula.arg %in% names(global.call)))
+		names(cl)[2] <- formula.arg
+
+	# TODO imports methods::slot, slotNames
+
 	has.int <- attr(all.terms, "intercept")
 	tmp <- attributes(all.terms)
+
 	all.terms <- fixCoefNames(all.terms)
 	attributes(all.terms) <- tmp
 
@@ -98,10 +122,11 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	formulas <- lapply(all.comb, function(.x) reformulate(c("1", all.terms[.x]),
 														  response = "." ))
 
+	env <- attr(terms(global.model), ".Environment")
 	formulas <- lapply(formulas, `attr<-`, ".Environment",
-				 attr(formula(global.model), ".Environment"))
+				 attr(terms(global.model), ".Environment"))
 
-	ss <- sapply(formulas, formulaAllowed)
+	ss <- sapply(formulas, formulaAllowed, except = marg.ex)
 
 	all.comb <- all.comb[ss]
 	formulas <- formulas[ss]
@@ -129,15 +154,23 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	getK <- function(x) as.vector(attr(logLik(x), "df"))
 
 	### BEGIN:
-	for(b in seq(length(all.comb))) {
-		# print(all.comb[[b]])
-        terms1 <- all.terms[all.comb[[b]]]
-		frm <- formulas[[b]]
+	for(j in seq(length(all.comb))) {
+		# print(all.comb[[j]])
+        terms1 <- all.terms[all.comb[[j]]]
+		frm <- formulas[[j]]
 
 		row1 <- rep(NA, n.vars)
 		row1[match(terms1, all.terms)] <- rep(1, length(terms1))
 
-		cl <- call("update", substitute(global.model), frm)
+		#cl <- call("update", substitute(global.model), frm)
+
+		cl <- global.call
+		cl[[formula.arg]] <- update.formula(global.formula, frm)
+
+		if(trace) {
+			cat(j, ": ")
+			print(cl)
+		}
 
 		#TODO: optional error printing.
 		fit1 <- tryCatch(eval(cl, parent.frame()), error=function(err) {
@@ -147,7 +180,7 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		})
 
 		if (is.null(fit1)) {
-			formulas[[as.character(b)]] <- NA
+			formulas[[as.character(j)]] <- NA
 			next;
 		}
 
@@ -202,20 +235,19 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 	attr(ms.tbl, "formulas") <- formulas[o]
 	attr(ms.tbl, "global") <- global.model
+	attr(ms.tbl, "global.call") <- global.call
 	attr(ms.tbl, "terms") <- c(intercept, all.terms)
 
-	#print(rankFnCall)
-
-	if (rank.custom) {
+	if (rank.custom)
 		rankFnCall[[1]] <- as.name(rank)
-	}
-	#rankFnCall[[2]] <- substitute(global.model)
-	attr(ms.tbl, "rank.call") <- rankFnCall
 
+	attr(ms.tbl, "rank.call") <- rankFnCall
 
 	if (!is.null(attr(all.terms, "random.terms"))) {
 		attr(ms.tbl, "random.terms") <- attr(all.terms, "random.terms")
 	}
+
+	#print(global.model)
 
 	return(ms.tbl)
 }
@@ -279,11 +311,11 @@ function(x, abbrev.names = TRUE, ...) {
 
 		colnames(x)[seq_along(xterms)] <-  xterms
 
-		gm <- attr(x, "global")
-		gm.call <- (if(mode(gm) == "S4") `@` else `$`)(gm, "call")
+		#gm <- attr(x, "global")
+		#gm.call <- (if(mode(gm) == "S4") `@` else `$`)(gm, "call")
 		if(!is.null(call)) {
 			cat("Global model: ")
-			print(gm.call)
+			print(attr(x, "global.call"))
 		}
 
 		cat ("---\nModel selection table \n")
