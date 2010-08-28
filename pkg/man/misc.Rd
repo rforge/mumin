@@ -16,6 +16,7 @@
 
 %%\alias{getAllTerms.default}
 %%\alias{getAllTerms.formula}
+\alias{getAllTerms.terms}
 %%\alias{getAllTerms.glmer}
 %%\alias{getAllTerms.lme}
 %%\alias{getAllTerms.lmer}
@@ -56,7 +57,8 @@
 \usage{
 beta.weights(model)
 coeffs(model)
-getAllTerms(x, offset = TRUE, ...)
+getAllTerms(x, ...)
+\method{getAllTerms}{terms}(x, offset = TRUE, ...)
 tTable(model, ...)
 Weights(aic, ...)
 
@@ -70,7 +72,7 @@ rbindDataFrameList(x)
   \item{x}{a fitted model object or a \code{\link{formula}}.
   for \code{*bindDataFrameList}, a list of \code{data.frames}
   }
-  \item{\offset}{should \sQuote(offset) terms be included?}
+  \item{offset}{should \sQuote{offset} terms be included?}
   \item{\dots}{other arguments, not used}
   \item{aic}{a vector of AIC (or other information criterion) values }
 }
