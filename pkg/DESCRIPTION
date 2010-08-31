@@ -8,5 +8,5 @@ Author: Kamil Bartoń
 Maintainer: Kamil Bartoń <kamil.barton@go2.pl>
 Description: Model selection and model averaging based on information criteria (AICc and alike).
 License: GPL
-Suggests: lme4
+Suggests: lme4, nlme
 LazyLoad: yes
