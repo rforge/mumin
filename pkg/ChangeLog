@@ -1,5 +1,8 @@
 MuMIn package changelog:
 
+Version: 0.13.14 (2010-09-03)
+print.model.selection:empty columns are not printed now 
+
 Version: 0.13.13 (2010-09-02)
 dredge: handling of models with no intercept, added "call" attribute
 update.model.selection: new

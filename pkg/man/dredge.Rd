@@ -149,12 +149,12 @@ top.models[[1]]
 
 \dontrun{
 # Examples of using 'subset':
-# exclude models with with both X1 and X2
+# exclude models containing both X1 and X2
 dredge(lm1, subset = !X1 | !X2)
-# keep only models with X3
+# keep only models containing X3
 dredge(lm1, subset = X3)
 # the same, but more effective:
-dredge(lm1, fixed = ~ X3)
+dredge(lm1, fixed = "X3")
 }
 }
 

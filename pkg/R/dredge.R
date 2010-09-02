@@ -150,6 +150,8 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
           formulas <- lapply(formulas, update, attr(all.terms, "random"))
 	}
 
+	#cat("Evaluating", length(formulas), "models\n")
+
 	if (!eval) return(formulas)
 
 	getK <- function(x) as.vector(attr(logLik(x), "df"))
@@ -217,6 +219,7 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 	# Convert columns with presence/absence of terms to factors
 	tfac <- which(c(FALSE, !(all.terms %in% globCoefNames)))
+
 	ms.tbl[tfac] <- lapply(ms.tbl[tfac], factor, levels=1, labels="+")
 
 	colnames(ms.tbl) <- c("(int.)", all.terms, "k",
@@ -241,14 +244,11 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		rankFnCall[[1]] <- as.name(rank)
 
 	attr(ms.tbl, "rank.call") <- rankFnCall
-
 	attr(ms.tbl, "call") <- match.call(expand.dots = TRUE)
 
 	if (!is.null(attr(all.terms, "random.terms"))) {
 		attr(ms.tbl, "random.terms") <- attr(all.terms, "random.terms")
 	}
-
-	#print(global.model)
 
 	return(ms.tbl)
 }
@@ -312,17 +312,18 @@ function(x, abbrev.names = TRUE, ...) {
 
 		colnames(x)[seq_along(xterms)] <-  xterms
 
-		#gm <- attr(x, "global")
-		#gm.call <- (if(mode(gm) == "S4") `@` else `$`)(gm, "call")
-		if(!is.null(call)) {
+
+		cl <- attr(x, "global.call")
+		if(!is.null(cl)) {
 			cat("Global model: ")
-			print(attr(x, "global.call"))
+			print(cl)
 		}
 
 		cat ("---\nModel selection table \n")
 		i <- sapply(x, is.numeric)
 		x[,i] <- signif(x[,i], 4)
-		print.default(as.matrix(x), na.print="", quote=FALSE)
+		print.default(as.matrix(x[, !sapply(x, function(.x) all(is.na(.x)))]),
+					  na.print="", quote=FALSE)
 		if (!is.null(attr(x, "random.terms"))) {
 			cat("Random terms:", paste(attr(x, "random.terms"), collapse=", "),
 				"\n")
