@@ -87,7 +87,7 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	if (!is.null(fixed)) {
 		if (inherits(fixed, "formula")) {
 			if (fixed[[1]] != "~" || length(fixed) != 2)
-				warning("'fixed' attribute should be a formula of form: ",
+				warning("'fixed' should be a formula of form: ",
 						"~ a + b + c")
 			fixed <- c(getAllTerms(fixed))
 		} else if (!is.character(fixed)) {
@@ -118,8 +118,10 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	if (!is.null(fixed))
 		all.comb <- lapply(all.comb, append, (1:n.vars)[all.terms %in% fixed])
 
-	formulas <- lapply(all.comb, function(.x) reformulate(c("1", all.terms[.x]),
-														  response = "." ))
+	int.term <- if (has.int) "1" else "0"
+
+	formulas <- lapply(all.comb,
+		function(.x) reformulate(c(all.terms[.x], int.term), response = "." ))
 
 	env <- attr(terms(global.model), ".Environment")
 	formulas <- lapply(formulas, `attr<-`, ".Environment",
@@ -240,6 +242,8 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 	attr(ms.tbl, "rank.call") <- rankFnCall
 
+	attr(ms.tbl, "call") <- match.call(expand.dots = TRUE)
+
 	if (!is.null(attr(all.terms, "random.terms"))) {
 		attr(ms.tbl, "random.terms") <- attr(all.terms, "random.terms")
 	}
@@ -324,4 +328,22 @@ function(x, abbrev.names = TRUE, ...) {
 				"\n")
 		}
 	}
+}
+
+`update.model.selection` <- function (object, ..., evaluate = TRUE) {
+    call <- attr(object, "call")
+    if (is.null(call))
+        stop("need an object with call component")
+    extras <- match.call(expand.dots = FALSE)$...
+    if (length(extras)) {
+        existing <- !is.na(match(names(extras), names(call)))
+        for (a in names(extras)[existing]) call[[a]] <- extras[[a]]
+        if (any(!existing)) {
+            call <- c(as.list(call), extras[!existing])
+            call <- as.call(call)
+        }
+    }
+    if (evaluate)
+        eval(call, parent.frame())
+    else call
 }

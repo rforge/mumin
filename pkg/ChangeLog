@@ -1,5 +1,9 @@
 MuMIn package changelog:
 
+Version: 0.13.13 (2010-09-02)
+dredge: handling of models with no intercept, added "call" attribute
+update.model.selection: new
+
 Version: 0.13.12 (2010-08-29)
 dredge, getAllTerms, dredge.Rd: small modifications
 

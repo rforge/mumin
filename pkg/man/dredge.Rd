@@ -10,7 +10,7 @@ supplied model. }
 
 \usage{
 dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
-	fixed = NULL, m.max = NA, subset, marg.ex = NULL, trace = FALSE, ...)
+    fixed = NULL, m.max = NA, subset, marg.ex = NULL, trace = FALSE, ...)
 
 \method{print}{model.selection}(x, abbrev.names = TRUE, ...)
 
