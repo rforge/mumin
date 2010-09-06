@@ -217,6 +217,7 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	formulas[is.na(formulas)] <- NULL
 	ms.tbl <- data.frame(ms.tbl, row.names=seq(NROW(ms.tbl)))
 
+
 	# Convert columns with presence/absence of terms to factors
 	tfac <- which(c(FALSE, !(all.terms %in% globCoefNames)))
 
