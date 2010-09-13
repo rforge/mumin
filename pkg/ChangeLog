@@ -1,4 +1,9 @@
-MuMIn package changelog:
+MuMIn package news/change log:
+
+Version: 0.13.17 (2010-09-13)
+model.avg: fixed a bug with models with binary response; 
+dredge: added checking for na.omit'ting in the global model. 
+new tests: varia.R
 
 Version: 0.13.16 (2010-09-07)
 dredge, model.avg: broken support for several types of models was fixed 

@@ -58,9 +58,14 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 			}
 	}
 
-
 	#switch(class(fm1)[1], lme="fixed", gls="model", "formula")
 	global.formula <- global.call[[formula.arg]]
+
+	# Check for na.omit
+	if (!is.null(global.call$na.action) &&
+		as.character(global.call$na.action) %in% c("na.omit", "na.exclude")) {
+		stop("'global.model' should not use 'na.action' =", global.call$na.action)
+	}
 
 	has.int <- attr(all.terms, "intercept")
 	globCoefNames <- fixCoefNames(names(coeffs(global.model)))
