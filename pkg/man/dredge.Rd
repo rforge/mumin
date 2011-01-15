@@ -10,7 +10,7 @@ supplied model. }
 
 \usage{
 dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
-    fixed = NULL, m.max = NA, subset, marg.ex = NULL, trace = FALSE,
+	fixed = NULL, m.max = NA, subset, marg.ex = NULL, trace = FALSE,
 	...)
 
 \method{print}{model.selection}(x, abbrev.names = TRUE, ...)
@@ -152,11 +152,16 @@ top.models[[1]]
 \dontrun{
 # Examples of using 'subset':
 # exclude models containing both X1 and X2
-dredge(lm1, subset = !X1 | !X2)
+dredge(lm1, subset = !(X1 & X2))
 # keep only models containing X3
 dredge(lm1, subset = X3)
 # the same, but more effective:
 dredge(lm1, fixed = "X3")
+
+#Reduce the number of combinations, by including models with up to 2 terms
+# (and intercept)
+dredge(lm1, m.max = 2)
+
 }
 }
 

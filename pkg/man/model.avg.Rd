@@ -72,13 +72,20 @@ model.avg(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 
 \details{
 
-\code{model.avg} has been tested to work with \code{lm}, \code{glm}; \code{rlm},
-\code{multinom} (\pkg{MASS}); \code{gam} (\pkg{mgcv}); \code{lme}, \code{gls}
-(\pkg{nlme}), \code{lmer} (\pkg{lme4}), as well as with \code{sarlm} and
-\code{spautolm} (\pkg{spdep}). Other types are also likely to work, in
-particular when they inherit from the supported classes. See \sQuote{Details}
-section of the \link{Miscellaneous} page to see how to provide support for other
-types of models.
+\code{model.avg} has been tested to work with:
+\itemize{
+	\item \code{lm}, \code{glm}
+	\item \code{rlm}, \code{multinom} (\pkg{MASS})
+	\item \code{gam} (\pkg{mgcv})
+	\item \code{lme}, \code{gls} (\pkg{nlme})
+	\item \code{lmer} (\pkg{lme4})
+	\item \code{sarlm}, \code{spautolm} (\pkg{spdep})
+	\item \code{coxph} (\pkg{survival})
+}
+Other model types are also likely to be supported, in particular when they
+inherit from one of the above classes. See \sQuote{Details} section of the
+\link{Miscellaneous} page to see how to provide support for other types of
+models.
 
 \code{rank} is found by a call to \code{match.fun} and typically is specified as
 a function or a symbol (e.g. a backquoted name) or a character string specifying

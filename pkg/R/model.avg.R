@@ -29,12 +29,11 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 			stop("'rank' should return numeric vector of length 1")
 	}
 
-	if (length(models) == 1)
-		stop("Only one model supplied. Nothing to do")
+	if (length(models) == 1) stop("Only one model supplied. Nothing to do")
 
 	#Try to find if all models are fitted to the same data
 	m.resp <- lapply(models, function(x) formula(x)[[2]])
-	if(!all(m.resp[-1] == m.resp[[1]]))
+	if(!all(sapply(m.resp[-1], "==", m.resp[[1]])))
 		stop("Response differs between models")
 
 	m.data <- lapply(models, function(x) (if(mode(x) == "S4") `@` else `$`)
@@ -79,11 +78,18 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 
 	model.order <- order(weight, decreasing=TRUE)
 
+	# DEBUG:
+	# sapply(sapply(sapply(models[model.order], coef), names), paste, collapse="+")
+	#sapply(models, function(x) paste(match(getAllTerms(x), all.terms), collapse="+"))
+
+	# !!! From now on, everything has to be SORTED by 'weight' !!!
+
 	selection.table <- data.frame(
-		Deviance = dev,	AICc = aicc, Delta = delta, Weight = weight
+		Deviance = dev,	AICc = aicc, Delta = delta, Weight = weight,
+		row.names = all.model.names
 	)[model.order, ]
 
-	weight <- selection.table$Weight
+	weight <- selection.table$Weight # sorted in table
 	models <- models[model.order]
 
 	all.par <- unique(unlist(lapply(models, function(m) names(coeffs(m)))))
@@ -114,6 +120,7 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 		return(c(coef=m.coef[m.vars], var=m.var[m.vars], df=m.df))
 	}))
 
+	# mtable is sorted by weigth
 	all.coef <- mtable[, 1:npar]
 	all.var <- mtable[, npar + (1:npar)]
 	all.df <- mtable[, 2 * npar + 1]
@@ -124,8 +131,7 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 
 	names(importance) <- all.terms
 
-	rownames(all.var) <- rownames(all.coef) <- rownames(selection.table) <-
-		all.model.names
+	rownames(all.var) <- rownames(all.coef) <- rownames(selection.table)
 
 	if (method == "0") {
 		all.coef[is.na(all.coef)] <- 0

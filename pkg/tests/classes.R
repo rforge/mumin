@@ -64,7 +64,7 @@ data(Cement, package = "MuMIn")
 nseq <- function(x, len=length(x)) seq(min(x, na.rm=TRUE), max(x, na.rm=TRUE),
 	length=len)
 
-fm1 <- glm(y ~ (X+X1+X2+X3)^3, data = Cement)
+fm1 <- glm(y ~ (X+X1+X2+X3)^2, data = Cement)
 dd <- dredge(fm1, trace=T)
 gm <- get.models(dd, 1:10)
 ma <- model.avg(gm)
@@ -117,9 +117,18 @@ gam1 <- gam(y ~ s(x0) + s(x1) + s(x2) +  s(x3) + (x1+x2+x3)^2,
 
 dd <- dredge(gam1, subset=(!`s(x1)` | !x1) & (!`s(x2)` | !x2) & (!`s(x3)` | !x3),
 			 fixed="x1", trace=T)
-gm <- get.models(dd, cumsum(weight) <= .95)
-ma <- model.avg(gm)
-predict(ma)
+
+gm <- list()
+cumw <- .95
+while (length(gm) < 2 && cumw <=1) {
+	cumw <- cumw + .01
+	gm <- get.models(dd, cumsum(weight) <= cumw)
+}
+if (length(gm) > 1) {
+	ma <- model.avg(gm)
+	predict(ma)
+}
+
 
 rm(list=ls())
 detach(package:mgcv)
@@ -150,12 +159,22 @@ COL.errW.eig <- errorsarlm(CRIME ~ INC * HOVAL * OPEN, data=COL.OLD,
 dd <- dredge(COL.errW.eig)
 gm <- get.models(dd, cumsum(weight) <= .98)
 ma <- model.avg(gm)
-
 predict(ma)
 formula(ma)
 resid(ma)
 
 rm(list=ls())
 detach(package:spdep)
+
+# TEST glm.nb ---------------------------------------------------------------------------
+
+require(MASS)
+quine.nb1 <- glm.nb(Days ~ Sex/(Age + Eth*Lrn), data = quine)
+
+dredge(quine.nb1)
+
+rm(list=ls())
+detach(package:MASS)
+
 
 # END TESTS
