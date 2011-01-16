@@ -64,7 +64,18 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		global.call <- substitute(global.model)
 		formula.arg <- 2 # assume is a first argument
 	} else {
-		# if we have a call, try to figuse out the 'formula argument name
+
+
+		# some 'update' methods do not expand dots, which is a problem
+		# because we have expressions like ..1, ..2 in the call.
+		# So, try to replace them with respective arguments in the original call
+		is.dotted <- grep("^\\.\\.", sapply(as.list(global.call), deparse))
+		if(length(is.dotted) > 0)
+			global.call[is.dotted] <-
+				substitute(global.model)[names(global.call[is.dotted])]
+
+
+		# if we have a call, try to figure out the 'formula argument name
 		formula.arg <- if(inherits(global.model, "lme"))	"fixed" else
 			if(inherits(global.model, "gls")) "model" else {
 				tryCatch({
@@ -275,7 +286,7 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	attr(ms.tbl, "global.call") <- global.call
 	attr(ms.tbl, "terms") <- c(intercept, all.terms)
 
-	#if (rank.custom)	
+	#if (rank.custom)
 	rankFnCall[[1]] <- as.name(rank)
 
 	attr(ms.tbl, "rank.call") <- rankFnCall

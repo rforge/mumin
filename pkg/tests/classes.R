@@ -33,18 +33,31 @@ detach(package:nlme)
 rm(list=ls())
 
 # TEST lmer -------------------------------------------------------------------------------
+
 library(lme4)
 data(Orthodont, package = "nlme")
 
-fm2 <-lmer(distance ~ Sex*age + (1|Subject) + (1|Sex), data = Orthodont)
+fm2 <- lmer(distance ~ Sex*age + (1|Subject) + (1|Sex), data = Orthodont)
+
 dd <- dredge(fm2, trace=T)
 gm <- get.models(dd, 1:4)
 ma <- model.avg(gm)
 #predict(ma)
 #predict(ma, data.frame(Sex="Male", Subject="M01", age=8:12))
 
+# TEST dredge with update'd model
+dd <- dredge(update(fm2, REML=FALSE), trace=T)
+
+# update.mer does not expand dots, so here we have a call:
+# lmer(formula = distance ~ Sex + (1 | Subject), data = Orthodont,
+#    REML = ..2, model = ..3)
+dd <- dredge(update(fm2, REML=F, model=F), trace=T)
+
 detach(package:lme4)
+
 rm(list=ls())
+
+
 
 # TEST lm ---------------------------------------------------------------------------------
 data(Orthodont, package = "nlme")

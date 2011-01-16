@@ -3,11 +3,13 @@ export(
 	getAllTerms, coeffs, tTable, Weights
 )
 
-importFrom(stats, AIC, as.formula, coef, delete.response, deviance, fitted,
-formula, logLik, model.frame, model.matrix, na.omit, predict, qnorm, qt,
-reformulate, residuals, sd, terms, update, weighted.mean)
+#importFrom(stats, AIC, as.formula, coef, delete.response, deviance, fitted,
+#	formula, logLik, model.frame, model.matrix, na.omit, predict, qnorm, qt,
+#	reformulate, residuals, sd, terms, update, weighted.mean)
 
-importFrom(methods, slot, slotNames)
+#importFrom(methods, slot, slotNames)
+#importFrom(lme4, lmer, logLik, terms)
+#importMethodsFrom(lme4, deviance, formula, residuals)
 
 S3method(print, averaging)
 S3method(summary, averaging)

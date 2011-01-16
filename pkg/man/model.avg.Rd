@@ -150,8 +150,8 @@ mav <- model.avg(top.models, rank=BIC)
 
 
 # Predicted values
-nseq <- function(x, len=length(x)) seq(min(x, na.rm=TRUE), max(x, na.rm=TRUE),
-	length=len)
+nseq <- function(x, len=length(x)) seq(min(x, na.rm=TRUE),
+	max(x, na.rm=TRUE),	length=len)
 
 # New predictors: X1 along the range of original data, other variables held
 #	constant at their means
@@ -186,8 +186,10 @@ gam1 <- gam(y ~ s(x0) + s(x1) + s(x2) +  s(x3) + (x1+x2+x3)^2,
 
 cat(dQuote(getAllTerms(gam1)), "\n")
 
-# include only models with smooth OR linear term (but not both) for each variable:
-dd <- dredge(gam1, subset=(!`s(x1)` | !x1) & (!`s(x2)` | !x2) & (!`s(x3)` | !x3))
+# include only models with smooth OR linear term (but not both)
+# for each variable:
+dd <- dredge(gam1, subset=(!`s(x1)` | !x1) &
+	(!`s(x2)` | !x2) & (!`s(x3)` | !x3))
 # ...this may take a while.
 
 subset(dd, cumsum(weight) < .95)

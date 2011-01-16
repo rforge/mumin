@@ -90,7 +90,7 @@ rbindDataFrameList(x)
 \code{\link{coef}}, the only difference is that it returns fixed
 effects' coefficients for mixed models.
 
-Functions \code{*bindDataFrameList} are not exported from the name space,
+Functions \code{*bindDataFrameList} are not exported from the name space, \cr
 use \code{MuMIn:::cbindDataFrameList} to access them.
 
 }
