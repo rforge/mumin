@@ -57,6 +57,6 @@ function(x) {
 	#y <-  if(length(object$loglik) > 1)
 	#	-1 * (object$loglik[1] - object$loglik[2]) else object$loglik
     class(y) <- "logLik"
-    attr(y,'df') <- sum(!is.na(object$coef))
+    attr(y,'df') <- if(is.null(object$coef)) 0 else sum(!is.na(object$coef))
     return(y)
 } 

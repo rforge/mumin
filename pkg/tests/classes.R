@@ -172,7 +172,8 @@ detach(package:spdep)
 require(MASS)
 quine.nb1 <- glm.nb(Days ~ Sex/(Age + Eth*Lrn), data = quine)
 
-dredge(quine.nb1)
+dredge(quine.nb1) # Wrong
+dredge(quine.nb1, marg.ex="Sex") # Right
 
 rm(list=ls())
 detach(package:MASS)
