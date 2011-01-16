@@ -3,11 +3,11 @@ export(
 	getAllTerms, coeffs, tTable, Weights
 )
 
-importsFrom(stats, AIC, as.formula, coef, delete.response, deviance, fitted,
+importFrom(stats, AIC, as.formula, coef, delete.response, deviance, fitted,
 formula, logLik, model.frame, model.matrix, na.omit, predict, qnorm, qt,
 reformulate, residuals, sd, terms, update, weighted.mean)
 
-importsFrom(methods, slot, slotNames)
+importFrom(methods, slot, slotNames)
 
 S3method(print, averaging)
 S3method(summary, averaging)
