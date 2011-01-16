@@ -1,6 +1,6 @@
 export(
 	AICc, beta.weights, dredge, get.models, model.avg, par.avg, QAIC,
-	getAllTerms, coeffs, tTable
+	getAllTerms, coeffs, tTable, Weights
 )
 
 importsFrom(stats, AIC, as.formula, coef, delete.response, deviance, fitted,
@@ -26,6 +26,7 @@ S3method(getAllTerms, glmer)
 S3method(getAllTerms, lme)
 S3method(getAllTerms, lmer)
 S3method(getAllTerms, mer)
+S3method(getAllTerms, coxph)
 S3method(coeffs, default)
 S3method(coeffs, glmer)
 S3method(coeffs, gls)
@@ -42,4 +43,5 @@ S3method(tTable, lmer)
 S3method(tTable, mer)
 S3method(tTable, spautolm)
 S3method(tTable, multinom)
-
+S3method(tTable, coxph)
+S3method(logLik, coxph)

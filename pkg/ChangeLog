@@ -1,5 +1,9 @@
 MuMIn package news/change log:
 
+Version: 0.13.20 (2011-01-16)
+Namespace exports updated (coxph methods)
+dredge: uses now QAIC for glms with 'quasi*' family, and if no rank is specified
+
 Version: 0.13.19 (2011-01-15)
 model.avg: fixed wrong ordering of model names (thanks to Dennis Jonason for noticing this)
 

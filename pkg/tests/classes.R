@@ -96,6 +96,7 @@ library(MASS)
 
 example(birthwt)
 bwt.mu <- multinom(low ~ ., bwt)
+bwt.mu <- multinom(low ~ age + lwt + race + ht, bwt)
 
 dd <- dredge(bwt.mu, trace=T)
 gm <- get.models(dd, 1:10)
@@ -176,5 +177,19 @@ dredge(quine.nb1)
 rm(list=ls())
 detach(package:MASS)
 
+# TEST quasibinomial ---------------------------------------------------------------------------
+
+budworm <- data.frame(ldose = rep(0:5, 2), numdead = c(1, 4, 9, 13, 18, 20, 0,
+	2, 6, 10, 12, 16), sex = factor(rep(c("M", "F"), c(6, 6))))
+budworm$SF = cbind(numdead = budworm$numdead, numalive = 20 - budworm$numdead)
+
+budworm.lg <- glm(SF ~ sex*ldose, data = budworm, family = quasibinomial)
+
+dd <- dredge(budworm.lg, rank = "QAIC",
+	chat = summary(budworm.lg)$dispersion)
+mod <- get.models(dd, seq(nrow(dd)))
+budworm.avg <- model.avg(mod)
+
+rm(list=ls())
 
 # END TESTS
