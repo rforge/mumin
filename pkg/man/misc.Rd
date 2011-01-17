@@ -95,8 +95,7 @@ use \code{MuMIn:::cbindDataFrameList} to access them.
 
 }
 
-
-\author{Kamil Bartoń}
+\author{Kamil \enc{Bartoń}{Barton}}
 
 
 \seealso{

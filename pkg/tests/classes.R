@@ -199,8 +199,9 @@ budworm$SF = cbind(numdead = budworm$numdead, numalive = 20 - budworm$numdead)
 
 budworm.lg <- glm(SF ~ sex*ldose, data = budworm, family = quasibinomial)
 
-dd <- dredge(budworm.lg, rank = "QAIC",
-	chat = summary(budworm.lg)$dispersion)
+dd <- dredge(budworm.lg, rank = "QAIC", chat = summary(budworm.lg)$dispersion)
+dredge(budworm.lg) # should be the same
+
 mod <- get.models(dd, seq(nrow(dd)))
 budworm.avg <- model.avg(mod)
 

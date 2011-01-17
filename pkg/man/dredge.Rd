@@ -111,7 +111,7 @@ specified. The attribute "formulas" is a list containing model formulas.
 }
 
 
-\author{Kamil Bartoń}
+\author{Kamil \enc{Bartoń}{Barton}}
 
 
 \note{

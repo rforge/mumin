@@ -114,7 +114,7 @@ for the component model classes (except for \code{(g)lm}).
 Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel
 inference: a practical information-theoretic approach}. 2nd ed. }
 
-\author{Kamil Bartoń}
+\author{Kamil \enc{Bartoń}{Barton}}
 
 \seealso{
 \code{\link{dredge}}, \code{\link{get.models}}.

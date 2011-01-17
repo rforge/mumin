@@ -1,5 +1,9 @@
 MuMIn package news/change log:
 
+Version: 0.13.21 (2011-01-16)
+dredge: handling of update'd lmer models improved
+QAICc: new function
+
 Version: 0.13.20 (2011-01-16)
 Namespace exports updated (coxph methods)
 dredge: uses now QAIC for glms with 'quasi*' family, and if no rank is specified

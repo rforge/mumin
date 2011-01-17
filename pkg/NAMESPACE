@@ -1,5 +1,5 @@
 export(
-	AICc, beta.weights, dredge, get.models, model.avg, par.avg, QAIC,
+	AICc, beta.weights, dredge, get.models, model.avg, par.avg, QAIC, QAICc,
 	getAllTerms, coeffs, tTable, Weights
 )
 

@@ -4,13 +4,13 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 	rank.custom <- !missing(rank)
 
-	# switch to QAIC if quasi* family and no rank
+	# switch to QAICc if quasi* family and no rank
 	if(inherits(global.model, "glm") && family(global.model)$family %in%
 		c("quasi", "quasibinomial", "quasipoisson") && !rank.custom) {
-		rank <- "QAIC"
+		rank <- "QAICc"
 		arg <- list(chat=summary(global.model)$dispersion)
 		#warning here
-		warning("QAIC used for '", family(global.model)$family,
+		warning("QAICc used for '", family(global.model)$family,
 				"' family with c-hat = ", signif(arg$chat))
 		rank.custom <- TRUE
 	} else {
