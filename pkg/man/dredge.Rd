@@ -128,6 +128,9 @@ if there are NA's present.
 \code{\link{QAIC}} has examples of using custom rank function.
 
 There is also \code{\link{subset.model.selection}} method.
+
+Also, consider the alternatives: \code{\link[glmulti]{glmulti}} in package \pkg{glmulti},
+or \code{\link[AICcmodavg]{aictab}} in package \pkg{AICcmodavg}.
 }
 
 

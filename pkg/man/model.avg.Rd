@@ -119,6 +119,9 @@ inference: a practical information-theoretic approach}. 2nd ed. }
 \seealso{
 \code{\link{dredge}}, \code{\link{get.models}}.
 \code{\link{QAIC}} has examples of using custom rank function.
+
+\code{\link[AICcmodavg]{modavg}} in package \pkg{AICcmodavg}, and \code{\link[glmulti]{coef.glmulti}}
+in package \pkg{glmulti} also perform model averaging.
 }
 
 \examples{
