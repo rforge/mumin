@@ -186,7 +186,11 @@ require(MASS)
 quine.nb1 <- glm.nb(Days ~ Sex/(Age + Eth*Lrn), data = quine)
 
 dredge(quine.nb1) # Wrong
-dredge(quine.nb1, marg.ex="Sex") # Right
+dd <- dredge(quine.nb1, marg.ex="Sex") # Right
+
+
+model.avg(get.models(dd, 1:5))
+
 
 rm(list=ls())
 detach(package:MASS)
@@ -206,5 +210,6 @@ mod <- get.models(dd, seq(nrow(dd)))
 budworm.avg <- model.avg(mod)
 
 rm(list=ls())
+
 
 # END TESTS

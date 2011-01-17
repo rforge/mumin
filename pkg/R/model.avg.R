@@ -4,6 +4,8 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 
 	method <- match.arg(method)
 
+	.fnull <- function(...) return(NULL)
+
 	if (!is.null(rank)) {
 	   	rankFn <- match.fun(rank)
 		rank.call <- as.call(c(as.name("rankFn"), as.symbol("x"), rank.args))
@@ -27,6 +29,8 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 		res <- IC(m1)
   		if (!is.numeric(res) || length(res) != 1)
 			stop("'rank' should return numeric vector of length 1")
+	} else {
+		IC <- AICc
 	}
 
 	if (length(models) == 1) stop("Only one model supplied. Nothing to do")
@@ -63,14 +67,9 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 			model.matrix.default(object, data=data, ...)
 	}
 
-	if (is.null(rank)) {
-		aicc <- sapply(models, AICc)
-	} else {
-		aicc <- sapply(models, IC)
-	}
+	aicc <- sapply(models, IC)
 
-	dev <- if (!is.null(tryCatch(deviance(models[[1]]), error = function(...)
-		NULL)))
+	dev <- if (!is.null(tryCatch(deviance(models[[1]]), error=.fnull)))
 		sapply (models, deviance) else NA
 
 	delta <- aicc - min(aicc)
@@ -157,7 +156,7 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	#mmx <- gmm[, cnmmxx[match(colnames(gmm), cnmmxx, nomatch = 0)]]
 
 	mmxs <- tryCatch(cbindDataFrameList(lapply(models, model.matrix)),
-					 error=function(e) return(NULL))
+					 error=.fnull)
 
 	# Far less efficient:
 	#mmxs <- lapply(models, model.matrix)
@@ -166,7 +165,8 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	#	mx <- cbind(mx, i[,!(colnames(i) %in% colnames(mx)), drop=FALSE])
 
 	# residuals averaged (with brute force)
-	rsd <- apply(sapply(models, residuals), 1, weighted.mean, w=weight)
+	rsd <- tryCatch(apply(sapply(models, residuals), 1, weighted.mean, w=weight),
+					error=.fnull)
 
 	trm <- tryCatch(terms(models[[1]]),
 			error=function(e) terms(formula(models[[1]])))

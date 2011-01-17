@@ -35,6 +35,10 @@ inference: a practical information-theoretic approach}. 2nd ed. }
 
 \seealso{
 Akaike's An Information Criterion: \code{\link[stats]{AIC}}
+
+\code{\link[AICcmodavg]{AICc}} in package \pkg{AICcmodavg},
+\code{\link[glmulti]{aicc}} in package \pkg{glmulti}
+
 }
 
 \keyword{models}

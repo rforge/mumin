@@ -120,7 +120,6 @@ Make sure there is no a \code{na.action} set to \code{na.omit} in
 \code{global.model}. This can result with models fitted to different data sets,
 if there are NA's present.
 
-
 }
 
 \seealso{
@@ -130,7 +129,8 @@ if there are NA's present.
 There is also \code{\link{subset.model.selection}} method.
 
 Also, consider the alternatives: \code{\link[glmulti]{glmulti}} in package \pkg{glmulti},
-or \code{\link[AICcmodavg]{aictab}} in package \pkg{AICcmodavg}.
+\code{\link[AICcmodavg]{aictab}} (\pkg{AICcmodavg}), and 
+\code{\link[bbmle]{ICtab}} (\pkg{bbmle}) for a "hand-picked" model selection tables.
 }
 
 

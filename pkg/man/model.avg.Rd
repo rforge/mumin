@@ -72,18 +72,19 @@ model.avg(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 
 \details{
 
-\code{model.avg} has been tested to work with:
+\code{model.avg} has been tested to work with the following model classes:
 \itemize{
 	\item \code{lm}, \code{glm}
-	\item \code{rlm}, \code{multinom} (\pkg{MASS})
 	\item \code{gam} (\pkg{mgcv})
 	\item \code{lme}, \code{gls} (\pkg{nlme})
 	\item \code{lmer} (\pkg{lme4})
+	\item \code{rlm}, \code{glm.nb} (\pkg{MASS})
+	\item \code{multinom} (\pkg{nnet})
 	\item \code{sarlm}, \code{spautolm} (\pkg{spdep})
 	\item \code{coxph} (\pkg{survival})
 }
-Other model types are also likely to be supported, in particular when they
-inherit from one of the above classes. See \sQuote{Details} section of the
+Other model types are also likely to be supported, in particular those inheriting
+from one of the above classes. See \sQuote{Details} section of the
 \link{Miscellaneous} page to see how to provide support for other types of
 models.
 
@@ -91,7 +92,7 @@ models.
 a function or a symbol (e.g. a backquoted name) or a character string specifying
 a function to be searched for from the environment of the call to lapply.
 
-Function \code{rank} must be able to accept model as a first argument and must
+\code{rank} must be a function able to accept model as a first argument and must
 always return a scalar.
 
 \code{predict.averaging} supports method="NA" only for linear, fixed effect

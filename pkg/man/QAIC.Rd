@@ -27,13 +27,15 @@ QAICc(object, ..., chat)
 
 \note{
 This implementation of \code{QAIC}/\code{QAICc} may not be correct for mixed models. \cr
-\code{\link{dredge}} will use \code{QAICc} instead of default \code{AICc} with \code{glm} with quasi* 
+\code{\link{dredge}} will use \code{QAICc} instead of default \code{AICc} with \code{glm} with quasi*
 family.
 }
 
 \seealso{
+\code{\link{AICc}}
+
 \code{\link[stats]{quasi}} family used for models with over-dispersion. \cr
-\code{\link[stats]{AIC}}, \code{\link[nlme]{BIC}} in \pkg{nlme} (or \code{\link[stats4]{BIC}} in \pkg{stats4}) may 
+\code{\link[stats]{AIC}}, \code{\link[nlme]{BIC}} in \pkg{nlme} (or \code{\link[stats4]{BIC}} in \pkg{stats4}) may
 also be used as a custom rank function in \code{\link{dredge}}.
 
 }
