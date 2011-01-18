@@ -36,7 +36,7 @@ family.
 
 \code{\link[stats]{quasi}} family used for models with over-dispersion. \cr
 \code{\link[stats]{AIC}}, \code{\link[nlme]{BIC}} in \pkg{nlme} (or \code{\link[stats4]{BIC}} in \pkg{stats4}) may
-also be used as a custom rank function in \code{\link{dredge}}.
+also be used as a custom rank function in \code{\link{dredge}} and \code{\link{model.avg}}.
 
 }
 
