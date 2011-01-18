@@ -13,8 +13,7 @@ ma <- model.avg(gm)
 predict(ma)
 predict(ma, data.frame(Mare=1, Time=range(Ovary$Time)))
 
-detach(package:nlme)
-rm(list=ls())
+detach(package:nlme); rm(list=ls())
 
 # TEST nlme -------------------------------------------------------------------------------
 library(nlme)

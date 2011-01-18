@@ -3,11 +3,14 @@ export(
 	getAllTerms, coeffs, tTable, Weights
 )
 
+# including these imports makes this package dependent on 'lme4'
+# so, until I figure out how to deal with it, no imports is used....
+
 #importFrom(stats, AIC, as.formula, coef, delete.response, deviance, fitted,
 #	formula, logLik, model.frame, model.matrix, na.omit, predict, qnorm, qt,
 #	reformulate, residuals, sd, terms, update, weighted.mean)
 
-#importFrom(methods, slot, slotNames)
+importFrom(methods, slot, slotNames)
 #importFrom(lme4, lmer, logLik, terms)
 #importMethodsFrom(lme4, deviance, formula, residuals)
 
