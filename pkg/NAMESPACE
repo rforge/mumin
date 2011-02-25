@@ -10,6 +10,10 @@ export(
 #	formula, logLik, model.frame, model.matrix, na.omit, predict, qnorm, qt,
 #	reformulate, residuals, sd, terms, update, weighted.mean)
 
+if (getRversion() >= "2.13.0") importFrom(stats, nobs)
+
+
+
 importFrom(methods, slot, slotNames)
 #importFrom(lme4, lmer, logLik, terms)
 #importMethodsFrom(lme4, deviance, formula, residuals)
@@ -52,7 +56,6 @@ S3method(tTable, spautolm)
 S3method(tTable, multinom)
 S3method(tTable, coxph)
 S3method(logLik, coxph)
-
 
 S3method(nobs, mer)
 S3method(nobs, lme)

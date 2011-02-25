@@ -201,11 +201,13 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 }
 
 
-`nobs` <- function(x) UseMethod("nobs")
-`nobs.mer` <- function(x) x@dims[["n"]]
-`nobs.lme` <- `nobs.gls` <- function(x) x$dims$N
-`nobs.glmmML` <- function(x) length(x$coefficients) + x$cluster.null.df
-`nobs.default` <- function(x) NROW(resid(x))
+if (!existsFunction("nobs"))
+`nobs` <- function(object, ...) UseMethod("nobs")
+
+`nobs.mer` <- function(object, ...) object@dims[["n"]]
+`nobs.lme` <- `nobs.gls` <- function(object, ...) object$dims$N
+`nobs.glmmML` <- function(object, ...) length(object$coefficients) + object$cluster.null.df
+`nobs.default` <- function(object, ...) NROW(resid(object, ...))
 
 
 `coefDf` <- function(x) UseMethod("coefDf")
