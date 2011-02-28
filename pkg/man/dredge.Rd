@@ -98,7 +98,7 @@ a function to be searched for from the environment of the call to \code{dredge}.
 
 Function \code{rank} must be able to accept model as a first argument and must
 always return a scalar. Typical choice for \code{rank} would be "AIC", "QAIC" or
-"BIC" (\pkg{stats4} or \pkg{nlme}).
+"BIC" (\pkg{stats} or \pkg{nlme}).
 
 
 Use of \code{na.action = na.omit} (\R's default) in \code{global.model} should
