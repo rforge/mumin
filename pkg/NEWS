@@ -1,4 +1,13 @@
-MuMIn package news/change log:
+MuMIn package news:
+
+Version: 1.1.1 (2011-03-18)
+printing of 'averaging' has been made consistent with that of lm and glm: 'print' gives concise 
+    information and 'summary' gives more details.
+confint.averaging: new function. 
+print.summary.averaging: new function.
+
+Version: 1.1.0 (2011-03-10)
+added z-statistic, p-values (with significance stars) to model.avg output
 
 Version: 1.0.0 (2011-02-10)
 get.models: fixed - arguments in ... were not passed to updated models

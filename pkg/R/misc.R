@@ -59,4 +59,18 @@ function(x) {
     class(y) <- "logLik"
     attr(y,'df') <- if(is.null(object$coef)) 0 else sum(!is.na(object$coef))
     return(y)
-} 
+}
+
+if (!existsFunction("nobs"))
+`nobs` <- function(object, ...) UseMethod("nobs")
+
+`nobs.mer` <- function(object, ...) object@dims[["n"]]
+`nobs.lme` <- `nobs.gls` <- function(object, ...) object$dims$N
+`nobs.glmmML` <- function(object, ...) length(object$coefficients) + object$cluster.null.df
+`nobs.default` <- function(object, ...) NROW(resid(object, ...))
+
+`coefDf` <- function(x) UseMethod("coefDf")
+`coefDf.lme` <- function(x) x$fixDF$X
+`coefDf.mer` <- function(x) rep(NA, x@dims[["p"]])
+`coefDf.gls` <- function(x) rep(x$dims$N - x$dims$p, x$dims$p)
+`coefDf.default` <- function(x) rep(df.residual(x), length(coef(x)))

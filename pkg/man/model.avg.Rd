@@ -12,7 +12,7 @@ Model averaging based on an information criterion.
 
 \usage{
 model.avg(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
-	rank.args = NULL, alpha = 0.05, revised.var = TRUE)
+	rank.args = NULL, level = 0.95, alpha = 1 - level, revised.var = TRUE)
 
 \method{coef}{averaging}(object, ...)
 
@@ -37,7 +37,9 @@ model.avg(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	\item{rank.args}{Optional \code{list} of arguments for the \code{rank}
 		function. If one is an expression, an \code{x} within it is substituted
 		with a current model.}
-	\item{alpha}{Significance level for calculatinq confidence intervals.}
+	\item{level}{The confidence level for calculating confidence intervals.}
+	\item{alpha}{Significance level for calculatinq confidence intervals. Kept
+		for compatibility with older versions, use \code{level} instead. }
 	\item{object}{An object returned by \code{model.avg}.}
 	\item{newdata}{ An optional data frame in which to look for variables with
 		which to predict. If omitted, the fitted values are used.}
@@ -124,8 +126,16 @@ Besides \code{predict} and \code{coef}, other generic methods such as
 }
 
 \note{
-	\code{predict.averaging} relies on availability of the \code{predict}
-	methods for the component model classes (except for \code{lm/glm}).
+
+As of version 1.0.1, \code{print} method provides only a concise output
+(similarly as for \code{lm}), to print a full summary of the results use
+\code{summary} function. Confidence intervals can be obtained with
+\code{\link{confint}}.
+
+
+\code{predict.averaging} relies on availability of the \code{predict}
+methods for the component model classes (except for \code{lm/glm}).
+
 }
 
 \references{
@@ -139,7 +149,8 @@ inference: a practical information-theoretic approach}. 2nd ed. }
 See \code{\link{par.avg}} for details of averaged model calculation.
 
 \code{\link{dredge}}, \code{\link{get.models}}.
-\code{\link{QAIC}} has examples of using custom rank function.
+\code{\link{QAIC}} has examples of using custom rank function and prediction with confidence
+intervals.
 
 \code{\link[AICcmodavg]{modavg}} in package \pkg{AICcmodavg}, and
 \code{\link[glmulti]{coef.glmulti}}

@@ -2,6 +2,7 @@
 
 require(MuMIn)
 
+
 # TEST gls --------------------------------------------------------------------------------
 library(nlme)
 data(Ovary, package = "nlme")
@@ -10,6 +11,10 @@ fm1 <- gls(follicles ~ sin(2*pi*Time) + cos(2*pi*Time), Ovary,
 dd <- dredge(fm1, trace=T)
 gm <- get.models(dd, 1:4)
 ma <- model.avg(gm, revised=T)
+
+summary(ma)
+confint(ma)
+
 #ma <- model.avg(gm, revised=F)
 
 predict(ma)
@@ -38,9 +43,9 @@ dd <- dredge(fm2, trace=T)
 
 gm <- get.models(dd, 1:4)
 #ma <- model.avg(gm, revised = F)
-(ma <- model.avg(gm, revised = T, method = "NA"))
-(ma <- model.avg(gm, revised = T, method = "0"))
-
+summary(ma <- model.avg(gm, revised = T, method = "NA"))
+summary(ma <- model.avg(gm, revised = T, method = "0"))
+confint(ma)
 
 #mana <- model.avg(gm, revised = T, method = "NA")
 #mazero <- model.avg(gm, revised = T, method = "0")
@@ -90,6 +95,8 @@ gm <- get.models(dd, 1:4)
 ma <- model.avg(gm, revised=F)
 
 vcov(ma)
+summary(ma)
+confint(ma)
 
 predict(ma)
 predict(ma, se=T)
@@ -114,6 +121,8 @@ gm <- get.models(dd, 1:10)
 ma <- model.avg(gm, method="NA")
 ma <- model.avg(gm, method="0")
 vcov(ma)
+
+summary(ma)
 
 predict(ma) == predict(ma, Cement)
 predict(ma, se.fit=T)

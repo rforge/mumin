@@ -1,6 +1,6 @@
 `model.avg` <-
 function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
-	rank.args = NULL, alpha = 0.05, revised.var = TRUE) {
+	rank.args = NULL, level = 0.95, alpha = 1 - level, revised.var = TRUE) {
 
 	method <- match.arg(method)
 
@@ -147,9 +147,9 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 		"Lower CI", "Upper CI"))))
 
 
-	all.coef[all.coef == 0] <- NA
-	all.se[all.se == 0] <- NA
-	colnames(all.coef) <- colnames(all.se) <- rownames(avg.model) <-  all.par
+	#all.coef[all.coef == 0] <- NA
+	#all.se[all.se == 0] <- NA
+	colnames(all.coef) <- colnames(all.se) <- colnames(all.df) <- rownames(avg.model) <-  all.par
     names(all.terms) <- seq_along(all.terms)
 
 	if (!is.null(rank))
@@ -199,23 +199,6 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	class(ret) <- "averaging"
 	return(ret)
 }
-
-
-if (!existsFunction("nobs"))
-`nobs` <- function(object, ...) UseMethod("nobs")
-
-`nobs.mer` <- function(object, ...) object@dims[["n"]]
-`nobs.lme` <- `nobs.gls` <- function(object, ...) object$dims$N
-`nobs.glmmML` <- function(object, ...) length(object$coefficients) + object$cluster.null.df
-`nobs.default` <- function(object, ...) NROW(resid(object, ...))
-
-
-`coefDf` <- function(x) UseMethod("coefDf")
-`coefDf.lme` <- function(x) x$fixDF$X
-`coefDf.mer` <- function(x) rep(NA, x@dims[["p"]])
-`coefDf.gls` <- function(x) rep(x$dims$N - x$dims$p, x$dims$p)
-`coefDf.default` <- function(x) rep(df.residual(x), length(coef(x)))
-
 
 `coef.averaging` <-
 function(object, ...) object$avg.model[,1]
@@ -329,25 +312,71 @@ function (object, ...) predict.averaging(object)
 function (object, ...) object$x
 
 `summary.averaging` <-
-function (object, ...) print.averaging(object)
+function (object, ...) {
 
-`print.averaging` <-
-function(x, ...) {
-	cat("\nModel summary:\n")
+	cf <- object$avg.model
+	no.ase <- all(is.na(cf[,3]))
+    z <- abs(cf[,1] / cf[, if(no.ase) 2 else 3])
+    pval <- 2 * pnorm(z, lower.tail = FALSE)
+    coefmat <- cbind(cf[, if(no.ase) 1:2 else 1:3],
+					 `z value` = z,
+					 `Pr(>|z|)` = zapsmall(pval))
+	object$coefmat <- coefmat
+
+	structure(object, class="summary.averaging")
+}
+
+`confint.averaging` <-
+function (object, parm, level = 0.95, ...) {
+    cf <- object$coefficients
+    pnames <- colnames(cf)
+    if (missing(parm))
+        parm <- pnames
+    else if (is.numeric(parm))
+        parm <- pnames[parm]
+
+    a2 <- 1 - level
+    a <- a2 / 2
+    se <- object$se
+    wts <- object$summary$Weight
+    dfs <- object$dfs
+    ci <- t(sapply(parm, function(i)
+		par.avg(cf[,i], se[,i], wts, object$dfs[,i], alpha=a2)))[,4:5]
+    pct <- stats:::format.perc(c(a, 1 - a), 3)
+    colnames(ci) <- pct
+    return(ci)
+}
+
+`print.summary.averaging` <-
+function (x, digits = max(3, getOption("digits") - 3),
+    signif.stars = getOption("show.signif.stars"), ...) {
+
+    cat("\nModel summary:\n")
 	print(round(as.matrix(x$summary), 2), na.print="")
 
 	cat("\nVariables:\n")
 	print(x$variable.codes, quote=F)
 
-	cat("\nAveraged model parameters:\n")
+	cat("\nModel-averaged coefficients:\n")
+	#no.ase <- all(is.na(x$avg.model[,3]))
 
-	no.ase <- all(is.na(x$avg.model[,3]))
+    printCoefmat(x$coefmat, P.values=TRUE, has.Pvalue=TRUE, digits = digits,
+				 signif.stars = signif.stars)
 
-	print(signif(x$avg.model[, if(no.ase) -3 else TRUE], 3))
-	if (no.ase) cat("Confidence intervals are unadjusted \n")
+	#if (no.ase) cat("Confidence intervals are unadjusted \n")
 
 	cat("\nRelative variable importance:\n")
 	print(round(x$importance, 2))
+}
+
+`print.averaging` <-
+function(x, ...) {
+    cat("Component models:", "\n")
+	cat(format(rownames(x$summary), justify="l"), fill=T)
+    #cat("Variables:", "\n")
+    #print.default(x$variable.codes, quote=FALSE)
+    cat("\nCoefficients:", "\n")
+    print.default(x$avg.model[,1])
 }
 
 `vcov.averaging` <- function (object, ...) {

@@ -10,15 +10,20 @@ export(
 #	formula, logLik, model.frame, model.matrix, na.omit, predict, qnorm, qt,
 #	reformulate, residuals, sd, terms, update, weighted.mean)
 
-if (getRversion() >= "2.13.0") importFrom(stats, nobs)
+if (getRversion() >= "2.13.0") {
+importFrom(stats, nobs)
+}
 
 
+#importFrom(stats, logLik, terms)
+#importMethodsFrom(stats, logLik, terms)
 
-importFrom(methods, slot, slotNames)
+#importFrom(methods, slot, slotNames)
 #importFrom(lme4, lmer, logLik, terms)
 #importMethodsFrom(lme4, deviance, formula, residuals)
 
 S3method(print, averaging)
+S3method(print, summary.averaging)
 S3method(summary, averaging)
 S3method(predict, averaging)
 S3method(coef, averaging)
