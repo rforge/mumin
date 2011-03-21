@@ -1,6 +1,8 @@
 `model.avg` <-
 function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
-	rank.args = NULL, level = 0.95, alpha = 1 - level, revised.var = TRUE) {
+	rank.args = NULL, revised.var = TRUE) {
+    
+    alpha <- 0.05
 
 	method <- match.arg(method)
 

@@ -1,8 +1,11 @@
 MuMIn package news:
 
+Version: 1.1.2 (2011-03-19)
+removed arguments 'alpha' and 'level' from model.avg. 'confint' is used instead to obtain CI
+
 Version: 1.1.1 (2011-03-18)
-printing of 'averaging' has been made consistent with that of lm and glm: 'print' gives concise 
-    information and 'summary' gives more details.
+the printed output of 'averaging' has been made consistent with that of lm and glm: 'print' gives 
+    concise information and 'summary' gives more details.
 confint.averaging: new function. 
 print.summary.averaging: new function.
 

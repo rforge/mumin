@@ -12,7 +12,7 @@ Model averaging based on an information criterion.
 
 \usage{
 model.avg(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
-	rank.args = NULL, level = 0.95, alpha = 1 - level, revised.var = TRUE)
+	rank.args = NULL, revised.var = TRUE)
 
 \method{coef}{averaging}(object, ...)
 
@@ -37,9 +37,9 @@ model.avg(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	\item{rank.args}{Optional \code{list} of arguments for the \code{rank}
 		function. If one is an expression, an \code{x} within it is substituted
 		with a current model.}
-	\item{level}{The confidence level for calculating confidence intervals.}
-	\item{alpha}{Significance level for calculatinq confidence intervals. Kept
-		for compatibility with older versions, use \code{level} instead. }
+	% \item{level}{The confidence level for calculating confidence intervals.}
+	% \item{alpha}{Significance level for calculatinq confidence intervals. Kept
+		% for compatibility with older versions, use \code{level} instead. }
 	\item{object}{An object returned by \code{model.avg}.}
 	\item{newdata}{ An optional data frame in which to look for variables with
 		which to predict. If omitted, the fitted values are used.}
