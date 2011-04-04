@@ -7,7 +7,7 @@ Calculates second-order Akaike information criterion for one or several fitted
 model objects (AIC for small samples). }
 
 \usage{
-AICc(object, ..., k = 2)
+AICc(object, ..., k = 2, REML = NULL)
 }
 
 \arguments{
@@ -15,6 +15,11 @@ AICc(object, ..., k = 2)
   \item{\dots}{optionally more fitted model objects}
   \item{k}{the \dQuote{penalty} per parameter to be used; the default \code{k} =
 	2 is the classical \code{\link[stats]{AIC}}}
+   \item{REML}{ optional logical value (currently used only with \code{lmer},
+	\code{lme} and \code{gls} object), indicating whether the restricted
+	log-likelihood or log-likelihood should be used. The default is to use the
+	method used for model estimation.
+   }
 }
 
 
@@ -40,5 +45,37 @@ Akaike's An Information Criterion: \code{\link[stats]{AIC}}
 \code{\link[glmulti]{aicc}} in package \pkg{glmulti}
 
 }
+
+\examples{
+
+#Model-averaging mixed models
+
+library(nlme)
+data(Orthodont, package = "nlme")
+
+# Fit model by REML
+fm2 <- lme(distance ~ Sex*age + age*Sex, data = Orthodont,
+		   random = ~ 1|Subject / Sex, method = "REML")
+
+# Model selection: ranking by AICc using ML
+dd <- dredge(fm2, trace=TRUE, rank="AICc", REML=FALSE)
+
+(attr(dd, "rank.call"))
+
+# Get the models (fitted by REML, as in the global model)
+gm <- get.models(dd, 1:4)
+
+# Because the models originate from 'dredge(..., rank=AICc, REML=FALSE)', the
+# default weights in 'model.avg' is also ML based:
+model.avg(gm, method = "NA")
+# same result
+#model.avg(gm, method = "NA", rank="AICc", rank.args = list(REML=FALSE))
+# REML based weights
+model.avg(gm, method = "NA", rank="AICc", rank.args = list(REML=TRUE))
+
+
+}
+
+
 
 \keyword{models}

@@ -1,11 +1,9 @@
 `model.avg` <-
 function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	rank.args = NULL, revised.var = TRUE) {
-    
+
     alpha <- 0.05
-
 	method <- match.arg(method)
-
 	.fnull <- function(...) return(NULL)
 
 	if (!is.null(rank)) {
@@ -44,7 +42,7 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 
 	m.data <- lapply(models, function(x) (if(mode(x) == "S4") `@` else `$`)
 					 (x, "call")$data)
-	m.nresid <-	vapply(models, nobs, numeric(1L))
+	m.nresid <-	vapply(models, nobs, numeric(1L), nall=T)
 	if(!all(m.data[-1L] == m.data[[1]]) || !all(m.nresid[-1L] == m.nresid[[1L]]))
 		stop("Models were not all fitted to the same dataset")
 
@@ -265,7 +263,21 @@ function(object, newdata = NULL, se.fit = NULL, interval = NULL,
 		cl[[1]] <- as.name("predict")
 		if("type" %in% names(cl)) cl$type <- "link"
 		if(!missing(newdata)) cl$newdata <- as.name("newdata")
-		pred <- do.call("lapply", c(as.name("models"), cl[-2]))
+		#pred <- do.call("lapply", c(as.name("models"), cl[-2]))
+		pred <- lapply(models, function(x) {
+			cl[[2]] <- x
+			tryCatch(eval(as.call(cl)), error=function(e) e)
+		})
+
+		pred <- lapply(models, function(x) { cl[[2]] <- x; tryCatch(eval(as.call(cl)), error=function(e) e)  })
+
+		err <- sapply(pred, inherits, "condition")
+		if (any(err)) {
+			lapply(pred[err], warning)
+			stop(sprintf(ngettext(sum(err), "'predict' for model %s caused error",
+				"'predict' for models %s caused errors"),
+				sQuote(names(models[err]))))
+		}
 
 		if(all(sapply(pred, function(x) c("fit", "se.fit") %in% names(x)))) {
 			fit <- do.call("cbind", lapply(pred, "[[", "fit"))

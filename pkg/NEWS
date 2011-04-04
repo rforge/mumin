@@ -1,5 +1,8 @@
 MuMIn package news:
 
+Version: 1.2.0 (2011-04-04)
+AICc has new argument REML used with mixed models. Thanks to Benjamin Augustine for suggestion.
+
 Version: 1.1.2 (2011-03-19)
 removed arguments 'alpha' and 'level' from model.avg. 'confint' is used instead to obtain CI
 

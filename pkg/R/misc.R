@@ -63,9 +63,28 @@ function(x) {
 
 if (!existsFunction("nobs"))
 `nobs` <- function(object, ...) UseMethod("nobs")
-
 `nobs.mer` <- function(object, ...) object@dims[["n"]]
-`nobs.lme` <- `nobs.gls` <- function(object, ...) object$dims$N
+
+`nobs.gls` <- function(object, nall = FALSE, ...) {
+	p <- object$dims$p
+	N <- object$dims$N
+	if (nall) return (N)
+	REML <- object$method == "REML"
+	N - REML * p
+}
+
+`nobs.lme` <- function(object, nall = FALSE, ...) {
+    p <- object$dims$ncol[object$dims$Q + 1]
+	N <- object$dims$N
+	if (nall) return (N)
+	REML <- object$method == "REML"
+	N - REML * p
+}
+
+
+
+
+
 `nobs.glmmML` <- function(object, ...) length(object$coefficients) + object$cluster.null.df
 `nobs.default` <- function(object, ...) NROW(resid(object, ...))
 

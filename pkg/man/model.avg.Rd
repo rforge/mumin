@@ -97,8 +97,8 @@ An object of class \code{averaging} with following elements:
 }
 Other model types are also likely to be supported, in particular those
 	inheriting from one of the above classes. See \sQuote{Details} section of
-	the \sQuote{\link{Miscellaneous}} page to see how to provide support for other types
-	of models.
+	the \sQuote{\link{Miscellaneous}} page to see how to provide support for
+	other types of models.
 
 With \code{method = "0"} (default) all predictors are averaged as if they were
 	present in all models in the set, and the value of parameter estimate is
@@ -112,11 +112,11 @@ With \code{method = "0"} (default) all predictors are averaged as if they were
 	call to lapply. \code{rank} must be a function able to accept model as a
 	first argument and must always return a scalar.
 
-\code{predict.averaging} supports \code{method = "NA"} only for linear, fixed effect
-	models. In other cases (e.g. nonlinear or mixed models), prediction is
-	obtained using \dQuote{brute force}, i.e. by calling \code{predict} on each
-	component model and weighted averaging the results, which is equivalent to
-	assuming that missing coefficients equal zero (\code{method = "0"}).
+\code{predict.averaging} supports \code{method = "NA"} only for linear, fixed
+	effect models. In other cases (e.g. nonlinear or mixed models), prediction
+	is obtained using \dQuote{brute force}, i.e. by calling \code{predict} on
+	each component model and weighted averaging the results, which is equivalent
+	to assuming that missing coefficients equal zero (\code{method = "0"}).
 
 Besides \code{predict} and \code{coef}, other generic methods such as
 	\code{\link[stats]{formula}}, \code{\link[stats]{residuals}} and
@@ -127,7 +127,7 @@ Besides \code{predict} and \code{coef}, other generic methods such as
 
 \note{
 
-As of version 1.0.1, \code{print} method provides only a concise output
+From version 1.0.1, \code{print} method provides only a concise output
 (similarly as for \code{lm}), to print a full summary of the results use
 \code{summary} function. Confidence intervals can be obtained with
 \code{\link{confint}}.
@@ -149,8 +149,10 @@ inference: a practical information-theoretic approach}. 2nd ed. }
 See \code{\link{par.avg}} for details of averaged model calculation.
 
 \code{\link{dredge}}, \code{\link{get.models}}.
-\code{\link{QAIC}} has examples of using custom rank function and prediction with confidence
-intervals.
+\code{\link{QAIC}} has examples of using custom rank function and prediction
+with confidence intervals. \cr
+\code{\link{AICc}} has examples of averaging models fitted by REML.
+
 
 \code{\link[AICcmodavg]{modavg}} in package \pkg{AICcmodavg}, and
 \code{\link[glmulti]{coef.glmulti}}

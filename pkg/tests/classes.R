@@ -2,7 +2,6 @@
 
 require(MuMIn)
 
-
 # TEST gls --------------------------------------------------------------------------------
 library(nlme)
 data(Ovary, package = "nlme")
@@ -25,39 +24,49 @@ detach(package:nlme); rm(list=ls())
 #dredge(fm1, rank=BIC)
 #dredge(fm1, rank=AIC)
 
-# TEST nlme -------------------------------------------------------------------------------
+# TEST nlme --------------------------------------------------------------------
 library(nlme)
 #library(lme4)
 data(Orthodont, package = "nlme")
 
+
+#:: Model-averaging mixed models :::::::::::::::::::::::::::::::::::::::::::::::
+# Fitting by REML
 fm2 <- lme(distance ~ Sex*age + age*Sex, data = Orthodont,
-		   random = ~ 1|Subject / Sex,  method = "ML")
+		   random = ~ 1|Subject / Sex, method = "REML")
 
+# Model selection: ranking by AICc which uses ML
+dd <- dredge(fm2, trace=T, rank="AICc", REML=FALSE)
 
-dd <- dredge(fm2, trace=T)
+#attr(dd, "rank.call")
 
-#vapply(gm, function(x) {
-#	tt <- tTable(x)
-#	tt[, "DF"][match(alln, rownames(tt))]
-#}, structure(double(length(alln)), names=alln))
-
+# Get models (which are fitted by REML, like the global model)
 gm <- get.models(dd, 1:4)
-#ma <- model.avg(gm, revised = F)
-summary(ma <- model.avg(gm, revised = T, method = "NA"))
-summary(ma <- model.avg(gm, revised = T, method = "0"))
-confint(ma)
 
-#mana <- model.avg(gm, revised = T, method = "NA")
-#mazero <- model.avg(gm, revised = T, method = "0")
-#
-#options(digits=3)
-#
-#mana$avg.model
-#mazero$avg.model
+# Because the models originate from 'dredge(rank=AICc, REML=FALSE)', the default
+# ranking is by AICc with ML:
+# model.avg(gm, method = "NA")
+# same result
+# model.avg(gm, method = "NA", rank="AICc", rank.args = list(REML=FALSE))
+# model.avg(gm, method = "NA", rank="AICc", rank.args = list(REML=FALSE))
+
+##::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+
+#maML <- model.avg(gm, method = "NA", rank="AICc", rank.args = list(REML=FALSE))
+#maREML <- model.avg(gm, method = "NA", rank="AICc", rank.args = list(REML=TRUE))
+
+#summary(maML)
+#summary(maREML)
+
+#ma <- model.avg(gm, revised = F)
+summary(maNA <- model.avg(gm, revised = T, method = "NA"))
+summary(ma0 <- model.avg(gm, revised = T, method = "0"))
+confint(maNA)
+confint(ma0)
 
 
 #dredge(fm2, rank=BIC)
-predict(ma, data.frame(Sex="Male", Subject="M01", age=8:12))
+predict(ma0, data.frame(Sex="Male", Subject="M01", age=8:12))
 
 detach(package:nlme); rm(list=ls())
 
@@ -215,7 +224,6 @@ predict(ma, se.fit=T)
 #vcov(ma)
 #
 #plot(predict(gam1), predict(ma, se.fit=F))
-
 
 
 rm(list=ls()); detach(package:mgcv)
