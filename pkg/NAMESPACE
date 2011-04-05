@@ -3,24 +3,20 @@ export(
 	getAllTerms, coeffs, tTable, Weights
 )
 
-# including these imports makes this package dependent on 'lme4'
+if (getRversion() >= "2.13.0") {
+importFrom(stats, nobs)
+}
+# including the lines below makes this package dependent on 'lme4'
 # so, until I figure out how to deal with it, no imports is used....
 
 #importFrom(stats, AIC, as.formula, coef, delete.response, deviance, fitted,
 #	formula, logLik, model.frame, model.matrix, na.omit, predict, qnorm, qt,
 #	reformulate, residuals, sd, terms, update, weighted.mean)
 
-if (getRversion() >= "2.13.0") {
-importFrom(stats, nobs)
-}
-
-
 #importFrom(stats, logLik, terms)
 #importMethodsFrom(stats, logLik, terms)
-
 #importFrom(methods, slot, slotNames)
 #importFrom(lme4, lmer, logLik, terms)
-#importMethodsFrom(lme4, deviance, formula, residuals)
 
 S3method(print, averaging)
 S3method(print, summary.averaging)

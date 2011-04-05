@@ -30,7 +30,6 @@ function(frm, except=NULL) {
 	return(all(factors < 2))
 }
 
-
 # Calculate Akaike weights
 `Weights` <-
 function(aic, ...) {
@@ -39,14 +38,12 @@ function(aic, ...) {
 	return (weight)
 }
 
-
 #sorts alphabetically interaction components in model term names
 `fixCoefNames` <-
 function(x) {
 	if(!is.character(x)) return(x)
 	return(sapply(lapply(strsplit(x, ":"), sort), paste, collapse=":"))
 }
-
 
 # logLik for survival::coxph model
 # https://stat.ethz.ch/pipermail/r-help/2006-December/122118.html
@@ -81,10 +78,6 @@ if (!existsFunction("nobs"))
 	N - REML * p
 }
 
-
-
-
-
 `nobs.glmmML` <- function(object, ...) length(object$coefficients) + object$cluster.null.df
 `nobs.default` <- function(object, ...) NROW(resid(object, ...))
 
@@ -93,3 +86,8 @@ if (!existsFunction("nobs"))
 `coefDf.mer` <- function(x) rep(NA, x@dims[["p"]])
 `coefDf.gls` <- function(x) rep(x$dims$N - x$dims$p, x$dims$p)
 `coefDf.default` <- function(x) rep(df.residual(x), length(coef(x)))
+
+`.getLogLik` <- function()
+	if ("stats4" %in% loadedNamespaces())
+        stats4:::logLik else
+		logLik

@@ -18,6 +18,8 @@ function(object, ..., k = 2, REML = NULL) {
 
 `getAICc` <-
 function(object, k = 2, REML = NULL) {
+	ll <- .getLogLik()
+
 	if(me <- inherits(object, c("mer", "lme", "gls"))) {
 		if (is.null(REML)) {
 			if (inherits(object, c("lme", "gls"))) {
@@ -26,9 +28,9 @@ function(object, k = 2, REML = NULL) {
 				REML <- object@dims['REML'] != 0
 			}
 		}
-		mLogLik <- logLik(object, REML=REML)
+		mLogLik <- ll(object, REML=REML)
 	} else
-		mLogLik <- logLik(object)
+		mLogLik <- ll(object)
 
 	N <- nobs(object)
 	mK <- attr(mLogLik, "df")

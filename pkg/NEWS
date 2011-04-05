@@ -1,5 +1,8 @@
 MuMIn package news:
 
+Version: 1.2.1 (2011-04-05)
+.GetLogLik - hidden helper function (returns the proper logLik to use)
+
 Version: 1.2.0 (2011-04-04)
 AICc has new argument REML used with mixed models. Thanks to Benjamin Augustine for suggestion.
 

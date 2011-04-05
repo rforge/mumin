@@ -422,6 +422,6 @@ function(x, ...) {
 }
 
 `logLik.averaging` <- function (object, ...) {
-	return(structure(lapply(attr(object, "mList"), logLik),
+	return(structure(lapply(attr(object, "mList"), .getLogLik()),
 			  names=rownames(object$summary)))
 }

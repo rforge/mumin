@@ -9,7 +9,6 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		c("quasi", "quasibinomial", "quasipoisson") && !rank.custom) {
 		rank <- "QAICc"
 		arg <- list(chat=summary(global.model)$dispersion)
-		#warning here
 		warning("QAICc used for '", family(global.model)$family,
 				"' family with c-hat = ", signif(arg$chat))
 		rank.custom <- TRUE
@@ -59,7 +58,6 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		formula.arg <- 2 # assume is a first argument
 	} else {
 
-
 		# if 'update' method does not expand dots, we have a problem
 		# with expressions like ..1, ..2 in the call.
 		# So, try to replace them with respective arguments in the original call
@@ -67,7 +65,6 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		if(length(is.dotted) > 0)
 			global.call[is.dotted] <-
 				substitute(global.model)[names(global.call[is.dotted])]
-
 
 		# if we have a call, try to figure out the 'formula' argument name
 		formula.arg <- if(inherits(global.model, "lme"))	"fixed" else
@@ -100,9 +97,8 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	is.glm <- inherits(global.model, "glm")
 	is.lm <- !is.glm & inherits(global.model, "lm")
 
-	if ((inherits(global.model, c("mer")) && (
-				"REML" %in% names(deviance(global.model)) # old lmer?
-				|| global.model@dims[["REML"]] != 0
+	if ((inherits(global.model, "mer") && (
+				global.model@dims[["REML"]] != 0
 		))  || 	(inherits(global.model, c("lme", "gls", "gam"))
 			 && !is.null(global.model$method)
 			 && global.model$method %in% c("lme.REML", "REML"))
@@ -192,7 +188,8 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	}
 	if (!eval) return(formulas)
 
-	getK <- function(x) as.vector(attr(logLik(x), "df"))
+	llik <- .getLogLik()
+	getK <- function(x) as.vector(attr(llik(x), "df"))
 
 	nmodels <- length(all.cbn)
 	ret <- matrix(NA, ncol=length(all.terms) + (2 * has.rsq) + has.dev +
