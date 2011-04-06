@@ -60,6 +60,7 @@ S3method(logLik, coxph)
 
 S3method(nobs, mer)
 S3method(nobs, lme)
+S3method(nobs, gls)
 S3method(nobs, glmmML)
 S3method(nobs, default)
 

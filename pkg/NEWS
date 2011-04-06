@@ -1,5 +1,8 @@
 MuMIn package news:
 
+Version: 1.2.2 (2011-04-06)
+nobs: corrected methods for mixed models, added documentation page
+
 Version: 1.2.1 (2011-04-05)
 .GetLogLik - hidden helper function (returns the proper logLik to use)
 

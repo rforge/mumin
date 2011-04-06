@@ -60,7 +60,14 @@ function(x) {
 
 if (!existsFunction("nobs"))
 `nobs` <- function(object, ...) UseMethod("nobs")
-`nobs.mer` <- function(object, ...) object@dims[["n"]]
+
+`nobs.mer` <- function(object, nall = FALSE, ...) {
+	N <- object@dims[["n"]]
+	p <- object@dims[["p"]]
+	if (nall) return (N)
+	REML <- object@dims[['REML']]
+	N - REML * p
+}
 
 `nobs.gls` <- function(object, nall = FALSE, ...) {
 	p <- object$dims$p
@@ -68,7 +75,9 @@ if (!existsFunction("nobs"))
 	if (nall) return (N)
 	REML <- object$method == "REML"
 	N - REML * p
+	# p - the number of coefficients in the linear model.
 }
+
 
 `nobs.lme` <- function(object, nall = FALSE, ...) {
     p <- object$dims$ncol[object$dims$Q + 1]
@@ -76,6 +85,10 @@ if (!existsFunction("nobs"))
 	if (nall) return (N)
 	REML <- object$method == "REML"
 	N - REML * p
+	#N - the number of observations in the data,
+	#Q - the number of grouping levels
+	#ncol - the number of columns in the model matrix for each level of grouping from innermost to outermost
+	#  (last two values are equal to the number of fixed effects and one).
 }
 
 `nobs.glmmML` <- function(object, ...) length(object$coefficients) + object$cluster.null.df
