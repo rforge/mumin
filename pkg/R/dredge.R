@@ -4,27 +4,26 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 	rank.custom <- !missing(rank)
 
+	#dots <- list(...)
+
 	# switch to QAICc if quasi* family and no rank
 	if(inherits(global.model, "glm") && family(global.model)$family %in%
 		c("quasi", "quasibinomial", "quasipoisson") && !rank.custom) {
 		rank <- "QAICc"
-		arg <- list(chat=summary(global.model)$dispersion)
+		rankArgs <- list(chat=summary(global.model)$dispersion, ...)
 		warning("QAICc used for '", family(global.model)$family,
-				"' family with c-hat = ", signif(arg$chat))
+				"' family with c-hat = ", signif(rankArgs$chat))
 		rank.custom <- TRUE
 	} else {
-		arg <- list(...)
+		rankArgs <- list(...)
 	}
 
 	rankFn <- match.fun(rank)
 	if (is.function(rank))
   		rank <- deparse(substitute(rank))
-
-	rankFnCall <- as.call(c(as.name("rankFn"), as.symbol("x"), arg))
+	rankFnCall <- as.call(c(as.name("rankFn"), as.symbol("x"), rankArgs))
 	IC <- function(x) eval(rankFnCall)
-
 	if (rank.custom) {
-		#IC <- function(x) eval(rankFnCall)
 		res <- IC(global.model)
   		if (!is.numeric(res) || length(res) != 1) {
 			stop("'rank' should return numeric vector of length 1")
@@ -97,16 +96,11 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	is.glm <- inherits(global.model, "glm")
 	is.lm <- !is.glm & inherits(global.model, "lm")
 
-	if ((inherits(global.model, "mer") && (
-				global.model@dims[["REML"]] != 0
-		))  || 	(inherits(global.model, c("lme", "gls", "gam"))
-			 && !is.null(global.model$method)
-			 && global.model$method %in% c("lme.REML", "REML"))
-		||  (any(inherits(global.model, c("lmer", "glmer")))
-			  && global.model@status["REML"] != 0)
-	) {
+
+	if(isTRUE(rankArgs$REML) || (isTRUE(.isREMLFit(global.model)) && is.null(rankArgs$REML))) {
 		warning("Comparing models with different fixed effects fitted by REML")
 	}
+
 
 	if (beta && is.null(tryCatch(beta.weights(global.model), error=function(e) NULL,
 		warning=function(e) NULL))) {
@@ -193,7 +187,8 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 	nmodels <- length(all.cbn)
 	ret <- matrix(NA, ncol=length(all.terms) + (2 * has.rsq) + has.dev +
-		(if(rank == "AICc") 2 else 1) + 2, nrow=nmodels)
+		#(if(rank == "AICc") 2 else 1) + 2, nrow=nmodels)
+		3, nrow=nmodels)
 
 	### BEGIN:
 	#TODO: 	vapply(seq_along(all.cbn), function(j) {},	)
@@ -240,7 +235,7 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		if (has.dev)	row1 <- c(row1, deviance(fit1))
 
 		ic <- IC(fit1)
-		row1 <- c(row1, AIC=attr(ic, "AIC"), IC=ic)
+		row1 <- c(row1, IC=ic)
 
 		ret[j,] <- row1
 	} ### END
@@ -260,7 +255,8 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	colnames(ret) <- c("(int.)", all.terms, "k",
 		if (has.rsq) c("R.sq", "Adj.R.sq"),
 		if (has.dev) if (is.lm) "RSS" else "Dev.",
-		if (rank.custom) rank else c("AIC", "AICc")
+		#if (rank.custom) rank else c("AIC", "AICc")
+		rank
 	)
 
 	o <- order(ret[, rank], decreasing = FALSE)

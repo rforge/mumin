@@ -38,13 +38,6 @@ function(aic, ...) {
 	return (weight)
 }
 
-#sorts alphabetically interaction components in model term names
-`fixCoefNames` <-
-function(x) {
-	if(!is.character(x)) return(x)
-	return(sapply(lapply(strsplit(x, ":"), sort), paste, collapse=":"))
-}
-
 # logLik for survival::coxph model
 # https://stat.ethz.ch/pipermail/r-help/2006-December/122118.html
 # originally by Charles C. Berry, mod. by KB: correction for the null model
@@ -54,6 +47,8 @@ function(x) {
 	#y <-  if(length(object$loglik) > 1)
 	#	-1 * (object$loglik[1] - object$loglik[2]) else object$loglik
     class(y) <- "logLik"
+	#attr(y,"nall") <-
+	#attr(y,"nobs") <-
     attr(y,'df') <- if(is.null(object$coef)) 0 else sum(!is.na(object$coef))
     return(y)
 }
@@ -100,7 +95,41 @@ if (!existsFunction("nobs"))
 `coefDf.gls` <- function(x) rep(x$dims$N - x$dims$p, x$dims$p)
 `coefDf.default` <- function(x) rep(df.residual(x), length(coef(x)))
 
+
+# Hidden functions
+
 `.getLogLik` <- function()
 	if ("stats4" %in% loadedNamespaces())
         stats4:::logLik else
 		logLik
+
+`.getCall` <- function(x) {
+	if(mode(x) == "S4") {
+		if ("call" %in% slotNames(x)) slot(x, "call") else
+			NULL
+	} else {
+		if(!is.null(x$call)) {
+			x$call
+		} else if(!is.null(attr(x, "call"))) {
+			attr(x, "call")
+		} else
+			NULL
+	}
+}
+
+`.isREMLFit` <- function(x) {
+	if (inherits(x, "mer")) return (x@dims[["REML"]] != 0)
+	if (inherits(x, c("lme", "gls", "gam")) && !is.null(x$method))
+		return(x$method %in% c("lme.REML", "REML"))
+	if (any(inherits(x, c("lmer", "glmer"))))
+		return(x@status["REML"] != 0)
+	return(NA)
+}
+
+
+#sorts alphabetically interaction components in model term names
+`fixCoefNames` <-
+function(x) {
+	if(!is.character(x)) return(x)
+	return(sapply(lapply(strsplit(x, ":"), sort), paste, collapse=":"))
+}

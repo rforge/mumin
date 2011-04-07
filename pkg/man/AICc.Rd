@@ -11,26 +11,24 @@ AICc(object, ..., k = 2, REML = NULL)
 }
 
 \arguments{
-  \item{object}{a fitted model object}
+  \item{object}{a fitted model object for which there exists a \code{logLik}
+	method, or a \code{logLik} object}
   \item{\dots}{optionally more fitted model objects}
   \item{k}{the \dQuote{penalty} per parameter to be used; the default \code{k} =
 	2 is the classical \code{\link[stats]{AIC}}}
-   \item{REML}{ optional logical value (currently used only with \code{lmer},
-	\code{lme} and \code{gls} object), indicating whether the restricted
-	log-likelihood or log-likelihood should be used. The default is to use the
-	method used for model estimation.
+   \item{REML}{ optional logical value, passed to the \code{logLik} method
+	indicating whether the restricted log-likelihood or log-likelihood should be
+	used. The default is to use the method used for model estimation.
    }
 }
-
 
 \value{
 	If just one object is provided, returns a numeric value with the
 	corresponding AICc; if more than one object are provided, returns a
 	\code{data.frame} with rows corresponding to the objects and columns
-	representing the number of parameters in the model (df), AICc and the
-	\code{\link[stats]{AIC}}.
-
+	representing the number of parameters in the model (df) and AICc.
 }
+
 \references{
 Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel
 inference: a practical information-theoretic approach}. 2nd ed. }
@@ -73,9 +71,7 @@ model.avg(gm, method = "NA")
 # REML based weights
 model.avg(gm, method = "NA", rank="AICc", rank.args = list(REML=TRUE))
 
-
 }
-
 
 
 \keyword{models}

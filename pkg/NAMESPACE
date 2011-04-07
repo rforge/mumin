@@ -68,3 +68,6 @@ S3method(coefDf, lme)
 S3method(coefDf, mer)
 S3method(coefDf, gls)
 S3method(coefDf, default)
+
+S3method(AICc, default)
+S3method(AICc, logLik)

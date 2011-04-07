@@ -1,11 +1,11 @@
-\name{nobs.mixed}
+\name{nobs-me}
 \alias{nobs.lme}
 \alias{nobs.mer}
 \alias{nobs.gls}
 \encoding{utf-8}
 \title{Extract the number of observations from a mixed effect fit}
 \description{
-Methods for extracting the number of ‘observations’ from a mixed effect model fit.
+Methods for extracting the number of sQuote(observations) from a mixed effect model fit.
 }
 
 \usage{
@@ -34,7 +34,5 @@ is returned.
 \seealso{
 \code{\link{nobs}}, \code{\link[nlme]{logLik.lme}}
 }
-
-
 
 \keyword{models}

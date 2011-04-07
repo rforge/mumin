@@ -1,5 +1,8 @@
 MuMIn package news:
 
+Version: 1.2.3 (2011-04-07)
+fixed some REML/ML issues, AICc rewritten (based on the new AIC code in stats)
+
 Version: 1.2.2 (2011-04-06)
 nobs: corrected methods for mixed models, added documentation page
 

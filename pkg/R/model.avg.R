@@ -42,7 +42,7 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 
 	m.data <- lapply(models, function(x) (if(mode(x) == "S4") `@` else `$`)
 					 (x, "call")$data)
-	m.nresid <-	vapply(models, nobs, numeric(1L), nall=T)
+	m.nresid <-	vapply(models, nobs, numeric(1L), nall=TRUE)
 	if(!all(m.data[-1L] == m.data[[1]]) || !all(m.nresid[-1L] == m.nresid[[1L]]))
 		stop("Models were not all fitted to the same dataset")
 
@@ -93,8 +93,7 @@ function(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	npar <- length(all.par)
 	ac <- rep(0, length = npar)
 
-	if (beta)
-		response.sd <- sd(model.response(model.frame(m1)))
+	if (beta)	response.sd <- sd(model.response(model.frame(m1)))
 
 	mtable <- t(vapply(models, function(m) {
 		m.tTable <- tTable(m)
