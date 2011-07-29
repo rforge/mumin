@@ -51,7 +51,10 @@ An object of class \code{averaging} with following elements:
  \item{avg.model}{the averaged model summary, (\code{data.frame} containing
 	averaged coefficients, unconditional standard error, adjusted SE,
 	and confidence intervals)}
- \item{importance}{the relative importance of variables}
+ \item{importance}{the relative importance of the predictor variables: 
+	calculated as a sum of the Akaike weights over all of the models in 
+	which the parameter of interest appears.
+ }
  \item{beta}{(logical) were standardized coefficients used?}
  \item{term.names}{character vector giving names of all terms in the model}
  \item{residuals}{the residuals (response minus fitted values).}
@@ -99,7 +102,7 @@ With \code{method = "0"} (default) all predictors are averaged as if they were
 	call to lapply. \code{rank} must be a function able to accept model as a
 	first argument and must always return a scalar.
 
-Some generic methods such as \code{\link[MuMIn]{predict}}, \code{\link{coef}},
+Some generic methods such as \code{\link{predict.averaging}}, \code{\link{coef}},
 	\code{\link[stats]{formula}}, 
 	\code{\link[stats]{residuals}} and \code{\link[stats]{vcov}} are supported. \cr
 	\code{logLik} method returns a list of \code{\link[stats]{logLik}} objects
@@ -154,73 +157,11 @@ top.models <- get.models(dd, cumsum(weight) <= .95)
 
 model.avg(top.models) # get averaged coefficients
 
-#topmost model:
-top.models[[1]]
-
 \dontrun{
 # using BIC (Schwarz's Bayesian criterion) to rank the models
 BIC <- function(x) AIC(x, k=log(length(residuals(x))))
 mav <- model.avg(top.models, rank=BIC)
 }
-
-
-# Predicted values
-nseq <- function(x, len=length(x)) seq(min(x, na.rm=TRUE),
-	max(x, na.rm=TRUE),	length=len)
-
-# New predictors: X1 along the range of original data, other variables held
-#	constant at their means
-newdata <- as.data.frame(lapply(lapply(Cement[1:5], mean), rep, 25))
-newdata$X1 <- nseq(Cement$X1, nrow(newdata))
-
-# Predictions from each of the models in a set:
-pred <- sapply(top.models, predict, newdata=newdata)
-# Add predictions from the models averaged using two methods:
-pred <- cbind(pred,
-	averaged.0=predict(model.avg(top.models, method="0"), newdata),
-	averaged.NA=predict(model.avg(top.models, method="NA"), newdata)
-	)
-
-matplot(x=newdata$X1, y=pred, type="l", lwd=c(rep(1,ncol(pred)-2), 2, 2),
-	xlab="X1", ylab="y")
-
-legend("topleft",
-	legend=c(lapply(top.models, formula),
-		paste("Averaged model (method=", c("0", "NA"), ")", sep="")),
-	col=1:6, lty=1:5, lwd=c(rep(1,ncol(pred)-2), 2, 2), cex = .75
-	)
-
-
-\dontrun{
-# Example with gam models (based on "example(gam)")
-require(mgcv)
-dat <- gamSim(1, n = 500, dist="poisson", scale=0.1)
-
-gam1 <- gam(y ~ s(x0) + s(x1) + s(x2) +  s(x3) + (x1+x2+x3)^2,
-	family = poisson, data = dat, method = "REML")
-
-cat(dQuote(getAllTerms(gam1)), "\n")
-
-# include only models with smooth OR linear term (but not both)
-# for each variable:
-dd <- dredge(gam1, subset=xor(`s(x1)`, x1) & xor(`s(x2)`, x2) & xor(`s(x3)`, x3))
-# ...this may take a while.
-
-subset(dd, cumsum(weight) < .95)
-
-top.models <- get.models(dd, cumsum(weight) <= .95)
-
-newdata <- as.data.frame(lapply(lapply(dat, mean), rep, 50))
-newdata$x1 <- nseq(dat$x1, nrow(newdata))
-pred <- cbind(
-	sapply(top.models, predict, newdata=newdata),
-	averaged=predict(model.avg(top.models), newdata)
-)
-
-matplot(x=newdata$x1, y=pred, type="l", lwd=c(rep(1,ncol(pred)-2), 2, 2),
-	xlab="x1", ylab="y")
-}
-
 
 }
 
