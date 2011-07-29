@@ -5,7 +5,7 @@
 \encoding{utf-8}
 \title{Extract the number of observations from a mixed effect fit}
 \description{
-Methods for extracting the number of sQuote(observations) from a mixed effect model fit.
+Methods for extracting the number of \sQuote{observations} from a mixed effect model fit.
 }
 
 \usage{
@@ -14,7 +14,8 @@ Methods for extracting the number of sQuote(observations) from a mixed effect mo
 
 \arguments{
   \item{object}{a fitted model object}
-  \item{nall}{logical, should actual number of observations be returned?}
+  \item{nall}{logical, should actual number of observations be returned? Use 
+	\code{FALSE} for an adjusted number.}
   \item{\dots}{Further arguments to be passed to methods (currently ignored)}
 
 }

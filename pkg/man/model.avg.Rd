@@ -1,8 +1,6 @@
 \name{model.avg}
 \alias{model.avg}
 \alias{print.averaging}
-\alias{coef.averaging}
-\alias{predict.averaging}
 \encoding{utf-8}
 
 \title{Model averaging}
@@ -11,20 +9,18 @@ Model averaging based on an information criterion.
 }
 
 \usage{
-model.avg(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
+model.avg(object, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	rank.args = NULL, revised.var = TRUE)
-
-\method{coef}{averaging}(object, ...)
-
-\method{predict}{averaging}(object, newdata, se.fit = NULL, interval = NULL,
-	type=c("link", "response"), ...)
 }
 
 \arguments{
-	\item{m1}{A fitted model object or a list of such objects. See
-		\sQuote{Details}.}
+	\item{object}{A fitted model object or a list of such objects. Alternatively 
+		an object of class "model.selection". See \sQuote{Details}.}
+		
+	\item{\dots}{ more fitted model objects }
 
 	\item{beta}{Logical, should standardized coefficients be returned?}
+	
 	\item{method}{The method of averaging parameter estimators that are not
 		common for all the models. Either \code{"0"} (default) or \code{"NA"}.
 		See \sQuote{Details}.}
@@ -37,25 +33,9 @@ model.avg(m1, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	\item{rank.args}{Optional \code{list} of arguments for the \code{rank}
 		function. If one is an expression, an \code{x} within it is substituted
 		with a current model.}
-	% \item{level}{The confidence level for calculating confidence intervals.}
-	% \item{alpha}{Significance level for calculatinq confidence intervals. Kept
-		% for compatibility with older versions, use \code{level} instead. }
-	\item{object}{An object returned by \code{model.avg}.}
-	\item{newdata}{ An optional data frame in which to look for variables with
-		which to predict. If omitted, the fitted values are used.}
-	\item{se.fit}{logical, indicates if standard errors should be returned.
-		This has any effect only if the \code{predict} methods for each of the
-		component models support it.}
-	\item{interval}{Currently not used.}
+
 	\item{revised.var}{Logical, indicating whether to use revised formula for
 		standard errors. See \code{\link{par.avg}}.}
-	\item{type}{Predictions on response scale are only possible if all
-		component models use the same \code{\link[stats]{family}}. See
-		\code{\link[stats]{predict.glm}}}
-	\item{\dots}{ for \code{model.avg} - more fitted model objects, for
-		\code{predict} - arguments to be passed to respective \code{predict}
-		method (e.g. \code{level} for \code{\link[nlme]{lme}} model). }
-
 }
 
 \value{
@@ -95,6 +75,13 @@ An object of class \code{averaging} with following elements:
 	\item \code{sarlm}, \code{spautolm} (\pkg{spdep})
 	\item \code{coxph} (\pkg{survival})
 }
+
+\code{model.avg} may be used with a list of models, or an object returned by 
+	\code{dredge}). In the latter case, the models from the model selection table 
+	are evaluated (with a call to \code{get.models}) prior to averaging.
+	A warning is given if the subset argument is not provided, and the default 
+	\code{delta <= 4} will be used.
+
 Other model types are also likely to be supported, in particular those
 	inheriting from one of the above classes. See \sQuote{Details} section of
 	the \sQuote{\link{Miscellaneous}} page to see how to provide support for
@@ -112,15 +99,9 @@ With \code{method = "0"} (default) all predictors are averaged as if they were
 	call to lapply. \code{rank} must be a function able to accept model as a
 	first argument and must always return a scalar.
 
-\code{predict.averaging} supports \code{method = "NA"} only for linear, fixed
-	effect models. In other cases (e.g. nonlinear or mixed models), prediction
-	is obtained using \dQuote{brute force}, i.e. by calling \code{predict} on
-	each component model and weighted averaging the results, which is equivalent
-	to assuming that missing coefficients equal zero (\code{method = "0"}).
-
-Besides \code{predict} and \code{coef}, other generic methods such as
-	\code{\link[stats]{formula}}, \code{\link[stats]{residuals}} and
-	\code{\link[stats]{vcov}} are supported. \cr
+Some generic methods such as \code{\link[MuMIn]{predict}}, \code{\link{coef}},
+	\code{\link[stats]{formula}}, 
+	\code{\link[stats]{residuals}} and \code{\link[stats]{vcov}} are supported. \cr
 	\code{logLik} method returns a list of \code{\link[stats]{logLik}} objects
 	for the component models.
 }
@@ -131,10 +112,6 @@ From version 1.0.1, \code{print} method provides only a concise output
 (similarly as for \code{lm}), to print a full summary of the results use
 \code{summary} function. Confidence intervals can be obtained with
 \code{\link{confint}}.
-
-
-\code{predict.averaging} relies on availability of the \code{predict}
-methods for the component model classes (except for \code{lm/glm}).
 
 }
 

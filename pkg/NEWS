@@ -1,5 +1,15 @@
 MuMIn package news:
 
+Version: 1.2.5 (2011-07-29)
+model.avg: now may be used directly with 'model.selection' object
+summary.averaging: gives now more information
+
+Version: 1.2.4 (2011-07-29)
+fixed handling of spatial parameters (lambda, rho) in models from 'spdep' package
+dredge: modified for better performance
+dredge, get.models: can deal with glms with starting values provided ('start' argument)
+QAIC: added a note in documentation stating that is uses deviance rather than logLik in the calculation
+
 Version: 1.2.3 (2011-04-07)
 fixed some REML/ML issues, AICc rewritten (based on the new AIC code in stats)
 

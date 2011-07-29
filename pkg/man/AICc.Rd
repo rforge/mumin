@@ -63,8 +63,8 @@ dd <- dredge(fm2, trace=TRUE, rank="AICc", REML=FALSE)
 # Get the models (fitted by REML, as in the global model)
 gm <- get.models(dd, 1:4)
 
-# Because the models originate from 'dredge(..., rank=AICc, REML=FALSE)', the
-# default weights in 'model.avg' are ML based:
+# Because the models originate from 'dredge(..., rank=AICc, REML=FALSE)', 
+# the default weights in 'model.avg' are ML based:
 model.avg(gm, method = "NA")
 # same result
 #model.avg(gm, method = "NA", rank="AICc", rank.args = list(REML=FALSE))

@@ -43,15 +43,7 @@ dd <- dredge(fm2, trace=T, rank="AICc", REML=FALSE)
 # Get models (which are fitted by REML, like the global model)
 gm <- get.models(dd, 1:4)
 
-# Because the models originate from 'dredge(rank=AICc, REML=FALSE)', the default
-# ranking is by AICc with ML:
-# model.avg(gm, method = "NA")
-# same result
-# model.avg(gm, method = "NA", rank="AICc", rank.args = list(REML=FALSE))
-# model.avg(gm, method = "NA", rank="AICc", rank.args = list(REML=FALSE))
-
 ##::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-
 #maML <- model.avg(gm, method = "NA", rank="AICc", rank.args = list(REML=FALSE))
 #maREML <- model.avg(gm, method = "NA", rank="AICc", rank.args = list(REML=TRUE))
 
@@ -80,7 +72,6 @@ fm2 <- lmer(distance ~ Sex*age + (1|Subject) + (1|Sex), data = Orthodont)
 dd <- dredge(fm2, trace=T)
 gm <- get.models(dd, 1:4)
 (ma <- model.avg(gm))
-
 
 #predict(ma)
 #predict(ma, data.frame(Sex="Male", Subject="M01", age=8:12))
@@ -201,6 +192,7 @@ bwt.mu <- multinom(low ~ ., data = bwt)
 dd <- dredge(bwt.mu, trace=T)
 gm <- get.models(dd, seq(nrow(dd)))
 ma <- model.avg(gm)
+summary(ma)
 #predict(bwt.mu)
 # predict(ma) // Cannot average factors!
 
@@ -208,23 +200,19 @@ rm(list=ls()); detach(package:nnet)
 
 # TEST gam --------------------------------------------------------------------------------
 suppressPackageStartupMessages(library(mgcv))
-
 RNGkind("Mersenne")
-set.seed(8)
-dat <- gamSim(1, n = 50, dist="poisson", scale=0.1)
+set.seed(0) ## simulate some data... 
+dat <- gamSim(1,n=400,dist="normal",scale=2)
+gam1 <- gam(y~s(x0)+s(x1)+s(x2)+s(x3), data=dat, )
+
 gam1 <- gam(y ~ s(x0) + s(x1) + s(x2) +  s(x3) + (x1+x2+x3)^2,
-	family = poisson, data = dat, method = "REML")
-dd <- dredge(gam1, subset=!`s(x0)` & (!`s(x1)` | !x1) & (!`s(x2)` | !x2) & (!`s(x3)` | !x3),
-			 fixed="x1", trace=T)
+	data = dat, method = "REML")
+
+dd <- dredge(gam1, subset=!`s(x0)` & (!`s(x1)` | !x1) & (!`s(x2)` | !x2) & (!`s(x3)` | !x3), fixed="x1", trace=T)
 gm <- get.models(dd, cumsum(weight) <= .95)
 ma <- model.avg(gm)
 predict(ma)
 predict(ma, se.fit=T)
-
-#vcov(ma)
-#
-#plot(predict(gam1), predict(ma, se.fit=F))
-
 
 rm(list=ls()); detach(package:mgcv)
 
@@ -252,6 +240,11 @@ COL.errW.eig <- errorsarlm(CRIME ~ INC * HOVAL * OPEN, data=COL.OLD,
 dd <- dredge(COL.errW.eig)
 gm <- get.models(dd, cumsum(weight) <= .98)
 ma <- model.avg(gm)
+
+# XXX: Error in t(vapply(models, function(m) {: error in evaluating the argument 'x' in selecting a method for function 't': Error in m.tTable[, 2L] : incorrect number of dimensions
+
+traceback()
+summary(ma)
 predict(ma)[1:10]
 
 rm(list=ls()); detach(package:spdep)
@@ -279,6 +272,43 @@ budworm <- data.frame(ldose = rep(0:5, 2), numdead = c(1, 4, 9, 13, 18, 20, 0,
 budworm$SF = cbind(numdead = budworm$numdead, numalive = 20 - budworm$numdead)
 
 budworm.lg <- glm(SF ~ sex*ldose + sex*I(ldose^2), data = budworm, family = quasibinomial)
+budworm.lg1 <- glm(SF ~ sex*ldose + sex*I(ldose^2), data = budworm, family = binomial)
+
+# qx <- budworm.lg
+# x <- budworm.lg1
+# deviance(qx)
+# deviance(x)
+# x$null.deviance / x$deviance
+# x$aic
+# x[]
+# summary(qx)$dispersion
+# summary(x)$dispersion
+# logLik(qx)
+# logLik(x)
+# ll
+
+# logLik(budworm.lg1)
+# ll(budworm.lg1)
+
+# ll <- function(x) {
+	# sum(x$y * log(fitted(x)) - fitted(x) - lgamma(x$y + 1))
+# }
+# ?lgamma
+# ll <- function(x) {
+	# sum(x$y * family(x)$linkfun(fitted(x)) - fitted(x) - lgamma(x$y + 1))
+# }
+# x <- rnorm(100)
+# y <- rpois(100, exp(1+x))
+# glm(y~x, family=quasi(variance="mu", link="log"))
+# m1 <- glm(y ~x, family=poisson("identity"))
+# quasipoisson()[]
+# ?poisson
+# ()[]
+# logLik(m1)
+# ll(m1)
+# family(m1)$linkfun
+# sum(Model$y*log(Model$fitted.values)-Model$fitted.values-lgamma(Model$y+1))
+
 
 #summary(budworm.lg)
 dd <- dredge(budworm.lg, rank = "QAIC", chat = summary(budworm.lg)$dispersion)
@@ -292,7 +322,33 @@ mod <- get.models(dd, seq(nrow(dd)))
 # so, need to supply them
 ma <- model.avg(mod[1:5], rank="QAICc", rank.args = list(chat = 0.403111))
 
-rm(list=ls())
+rm(list=ls());
+
+# TEST glm.nb with 'start'ing values {MASS} ---------------------------------------------------------------------------
+# from example(glm.nb)
+
+library(MASS)
+
+dat <- data.frame(
+y=c(7, 5, 4, 7, 5, 2, 11, 5, 5, 4, 2, 3, 4, 3, 5, 9, 6, 7, 10, 6, 12,
+6, 3, 5, 3, 9, 13, 0, 6, 1, 2, 0, 1, 0, 0, 4, 5, 1, 5, 3, 3, 4),
+lag1=c(0, 7, 5, 4, 7, 5, 2, 11, 5, 5, 4, 2, 3, 4, 3, 5, 9, 6, 7, 10,
+6, 12, 6, 3, 5, 3, 9, 13, 0, 6, 1, 2, 0, 1, 0, 0, 4, 5, 1, 5, 3, 3),
+lag2=c(0, 0, 7, 5, 4, 7, 5, 2, 11, 5, 5, 4, 2, 3, 4, 3, 5, 9, 6, 7,
+10, 6, 12, 6, 3, 5, 3, 9, 13, 0, 6, 1, 2, 0, 1, 0, 0, 4, 5, 1, 5, 3),
+lag3=c(0, 0, 0, 7, 5, 4, 7, 5, 2, 11, 5, 5, 4, 2, 3, 4, 3, 5, 9, 6,
+7, 10, 6, 12, 6, 3, 5, 3, 9, 13, 0, 6, 1, 2, 0, 1, 0, 0, 4, 5, 1, 5))
+
+# fit <- glm.nb(y ~ lag1+lag2+lag3, family=poisson(link=identity), data=dat,
+            # start=c(2, 0.1, 0.1, 0.1))
+ 
+fit <- glm.nb(y ~ lag1+lag2+lag3, data=dat, start=c(2, 0.1, 0.1, 0.1))
+			
+model.avg(dredge(fit))
+
+
+rm(list=ls()); detach(package:MASS)
+
 
 # TEST polr {MASS} ---------------------------------------------------------------------------
 

@@ -26,11 +26,14 @@
   \item{\dots}{further arguments passed to  \code{\link{[.data.frame}}. }
 }
 
-
 \value{
 A \code{model.selection} object containing only the selected models (rows).
 When columns are selected (arguments \code{select} or \code{j} are provided), a
 plain \code{data.frame} is returned.
+}
+
+\note{
+Unlike the method for \code{data.frame}, extracting with only one index (i.e. \code{x[i]}) will select rows rather than columns.
 }
 
 \author{Kamil \enc{Bartoń}{Barton}}

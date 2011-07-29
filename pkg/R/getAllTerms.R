@@ -83,6 +83,5 @@ function(x, ...) getAllTerms(lme4::formula(x), ...)
 	return(ret)
 }
 
-
 `getAllTerms` <-
 function(x, ...) UseMethod("getAllTerms")

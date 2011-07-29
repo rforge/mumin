@@ -26,9 +26,9 @@ QAICc(object, ..., chat)
 }
 
 \note{
-	This implementation of \code{QAIC}/\code{QAICc} may not be correct for mixed
-	models. \cr \code{\link{dredge}} will use \code{QAICc} instead of default
-	\code{AICc} with \code{glm} with quasi* family.
+	This implementation of QAIC uses model \code{\link{deviance}} rather than a likelihood itself. While this allows calculation also with models fitted using quasi-likelihood (where \code{logLik = NA}), the absolute values returned may differ from those obtained with the use of plain log-likelihood, since deviance is sometimes adjusted by a constant, so that the saturated model has deviance zero (see \code{\link{glm}}). \cr
+
+	\code{\link{dredge}} will use \code{QAICc} instead of default \code{AICc} with \code{glm} with quasi* family.
 }
 
 \seealso{

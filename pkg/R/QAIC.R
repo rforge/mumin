@@ -49,7 +49,5 @@ function(object, ..., chat) {
 	}
 }
 
-
-
 #QAIC = -2log Likelihood/c-hat + 2K
 #QAICc = -2log Likelihood/c-hat + 2K + 2K(K + 1)/(n - K - 1)

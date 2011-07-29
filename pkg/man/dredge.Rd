@@ -100,7 +100,6 @@ Function \code{rank} must be able to accept model as a first argument and must
 always return a scalar. Typical choice for \code{rank} would be "AIC", "QAIC" or
 "BIC" (\pkg{stats} or \pkg{nlme}).
 
-
 Use of \code{na.action = na.omit} (\R's default) in \code{global.model} should
 be avoided, as it results with sub-models fitted to different data sets, if
 there are missing values. In versions >= 0.13.17 a warning is given in such a
@@ -112,8 +111,8 @@ case.
 \code{dredge} returns an object of class \code{model.selection}, being a
 \code{\link{data.frame}} with models' coefficients (or \code{TRUE}/\code{FALSE}
 for factors), k, deviance/RSS, R-squared, AIC, AICc, delta and weight. This
-depends on a type of model. Models are ordered according to \code{\link{AICc}}
-(lowest on top), or by \code{rank} function if specified.
+depends on a type of model. Models are ordered according to the used information
+criterion (lowest on top), specified by \code{rank}.
 
 The attribute "formulas" is a list containing model formulas (arranged in the
 same order as the models).
