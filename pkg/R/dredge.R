@@ -81,7 +81,7 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 			}
 	}
 
-	global.formula <- global.call[[formula.arg]]
+	global.formula <- tryCatch(formula(global.model), error = function(...) global.call[[formula.arg]])
 	# if (!missing(formula)) {
 		# global.formula <- update.formula(global.formula, formula)
 		# rm(formula)
@@ -146,7 +146,6 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 			warning("Not all terms in 'fixed' exist in 'global.model'")
 			fixed <- fixed[fixed %in% all.terms]
 		}
-		m.max <- m.max - length(fixed)
 	}
 
 	int.term <- if (has.int) "1" else "0"
@@ -167,6 +166,9 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 	isMER <- any(inherits(global.model, c("mer", "lmer", "glmer")))
 	env <- attr(gterms, ".Environment")
+	
+	
+	# DEBUG <- function(x) cat("*", deparse(substitute(x)), "=", x, "*\n")
 
 	### BEGIN:
 	nov <- as.integer(n.vars - n.fixed)
@@ -183,18 +185,17 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 	k <- 0L
 	ord <- integer(0)
-
+	
 	for(j in seq.int(ncomb)) {
-
 		comb <- c(bitAnd(binPos, j - 1L) != 0L, rep(TRUE, n.fixed))
 		if(sum(comb) > m.max) next;
-	
-		
+
+
 		if(hasSubset && !eval(subset, structure(as.list(comb), names=all.terms))) next;
 
 		terms1 <- all.terms[comb]
 		frm <- reformulate(c(int.term, terms1), ".")
-
+		
 		if(!formulaAllowed(frm, marg.ex)) next;
 		attr(frm, ".Environment") <- env
 		###
@@ -203,16 +204,13 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		row1[match(terms1, all.terms)] <- rep(1L, length(terms1))
 
 		cl <- global.call
-		#browser()
 		if(has.start) {
 			cl2 <- cl
 			cl2[[1]] <- as.name("model.matrix")
 			cl2[[formula.arg]] <- update.formula(global.formula, frm)
 			names(cl2)[2] <- "object" # XXX
-			coefNames <- colnames(eval(cl2))
-			cl$start <- cl$start[c(TRUE, globCoefNames0 %in% coefNames)]
+			cl$start <- cl$start[c(TRUE, globCoefNames0 %in% colnames(eval(cl2)))]
 		}
-		# print(cl)
 		if (isMER) frm <- update.formula(frm, attr(all.terms, "random"))
 		cl[[formula.arg]] <- update.formula(global.formula, frm)
 
@@ -260,7 +258,8 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		
 		ret[k, ] <- row1
 	} ### END
-	if(k < nrow(ret)) ret <- ret[seq.int(k), ]
+	
+	if(k < nrow(ret)) ret <- ret[seq.int(k), , drop=FALSE]
 
 	ret <- as.data.frame(ret)
 	#row.names(ret) <- seq_len(NROW(ret))
