@@ -1,5 +1,11 @@
 MuMIn package news:
 
+Version: 1.3.3 (2011-08-01)
+dredge: small improvements, no longer dependent on 'bitops'
+
+Version: 1.3.2 (2011-08-01)
+nobs: updated methods
+
 Version: 1.3.1 (2011-07-31)
 dredge: bugs fixed
 

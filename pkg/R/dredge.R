@@ -1,9 +1,9 @@
 `dredge` <-
 function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		 fixed = NULL, m.max = NA, subset, marg.ex = NULL, trace = FALSE, ...) {
-	
-	require(bitops)
-	
+
+	#require(bitops)
+
 	# XXX
 	if(!missing(eval) && !eval) .NotYetUsed("eval")
 	rank.custom <- !missing(rank)
@@ -41,6 +41,9 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	# Just in case:
 	gterms <- tryCatch(terms(formula(global.model)),
 		error=function(...) terms(global.model))
+
+	response <- if(attr(gterms, "response") == 0) NULL else "."
+
 	if(length(grep(":", all.vars(delete.response(gterms) > 0))))
 		stop("Variable names in the model can not contain \":\"")
 
@@ -86,14 +89,14 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		# global.formula <- update.formula(global.formula, formula)
 		# rm(formula)
 	# }
-	
+
 	globCoefNames0 <- names(coeffs(global.model))
 	if(has.start <- !is.null(global.call$start)) {
 		if(is.null(names(global.call$start))) {
 			names(global.call$start)[-1] <- names(coeffs(global.model))
 		}
 	}
-	
+
 
 	# Check for na.omit
 	if (!is.null(global.call$na.action) &&
@@ -148,13 +151,12 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		}
 	}
 
-	int.term <- if (has.int) "1" else "0"
+
+	#int.term <- if (has.int) "1" else "0"
 
 	n.fixed <- length(fixed)
 	all.terms <- do.call("structure", c(list(all.terms[order(all.terms %in%
 		fixed)]), attributes(all.terms)))
-
-
 
 
 	######
@@ -166,36 +168,41 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 	isMER <- any(inherits(global.model, c("mer", "lmer", "glmer")))
 	env <- attr(gterms, ".Environment")
-	
-	
+
+
 	# DEBUG <- function(x) cat("*", deparse(substitute(x)), "=", x, "*\n")
 
 	### BEGIN:
 	nov <- as.integer(n.vars - n.fixed)
 	ncomb <- 2L ^ nov
-	binPos <- 2L ^ seq.int(0L, nov - 1L)
+
+	if(nov > 31L) stop(gettextf("Maximum number of varying predictors is 31, but %d is given", nov))
+	if(nov > 10L) warning(gettextf("%d varying predictors will generate up to %d possible combinations", nov, ncomb))
+
+	#binPos <- 2L ^ seq.int(0L, nov - 1L)
 
 	ret.nchunk <- 25L
 	ret.ncol <- length(all.terms) + (2L * has.rsq) + has.dev + 3L
 	ret <- matrix(NA, ncol=ret.ncol, nrow=ret.nchunk)
 	calls <- vector(mode="list", length=ret.nchunk)
-	
+
 	hasSubset <- !missing(subset)
 	if(hasSubset) subset <- substitute(subset)
 
+	comb.sfx <- rep(TRUE, n.fixed)
+	comb.seq <- seq.int(nov)
 	k <- 0L
-	ord <- integer(0)
-	
+	ord <- integer(0L)
+
 	for(j in seq.int(ncomb)) {
-		comb <- c(bitAnd(binPos, j - 1L) != 0L, rep(TRUE, n.fixed))
+		#comb <- c(bitAnd(binPos, j - 1L) != 0L, rep(TRUE, n.fixed))
+		comb <- c(as.logical(intToBits(j - 1L)[comb.seq]), comb.sfx)
 		if(sum(comb) > m.max) next;
-
-
 		if(hasSubset && !eval(subset, structure(as.list(comb), names=all.terms))) next;
 
 		terms1 <- all.terms[comb]
-		frm <- reformulate(c(int.term, terms1), ".")
-		
+		frm <- reformulate(c("1", terms1), response=response, intercept=has.int)
+
 		if(!formulaAllowed(frm, marg.ex)) next;
 		attr(frm, ".Environment") <- env
 		###
@@ -255,10 +262,10 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 			calls <- c(calls, vector("list", nadd))
 		}
 		calls[[k]] <- cl
-		
+
 		ret[k, ] <- row1
 	} ### END
-	
+
 	if(k < nrow(ret)) ret <- ret[seq.int(k), , drop=FALSE]
 
 	ret <- as.data.frame(ret)

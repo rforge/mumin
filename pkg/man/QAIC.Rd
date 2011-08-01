@@ -34,10 +34,30 @@ QAICc(object, ..., chat)
 \seealso{
 \code{\link{AICc}} \cr
 \code{\link[stats]{quasi}} family used for models with over-dispersion. \cr
-\code{\link[stats]{AIC}}, \code{\link{BIC}}) may also be used as a custom rank
+\code{\link[stats]{AIC}} and \code{\link{BIC}} may also be used as a custom rank
 function in \code{\link{dredge}} and \code{\link{model.avg}}.
 
+\ifelse{html}{
+
+\Sexpr[echo=TRUE,results=rd,stage=render]{
+paste(
+"\\\\sQuote{\\\\href{",
+if(system.file(package="bbmle")!="") "../../bbmle/doc/" else "http://cran.r-project.org/web/packages/bbmle/vignettes/",
+"quasi.pdf}", "{Dealing with quasi- models in R}}",
+", a vignette in the \\\\pkg{bbmle} package.", sep="")
 }
+}{
+
+\sQuote{\href{http://cran.r-project.org/web/packages/bbmle/vignettes/quasi.pdf}{Dealing with quasi- models in R}}, 
+a vignette in the \pkg{bbmle} package.
+
+}
+
+
+
+}
+
+%cat()
 
 
 \author{Kamil Barto\enc{ń}{n}}
@@ -94,3 +114,4 @@ legend("bottomright", legend=c("full", "averaged"), title="Model",
 }
 
 \keyword{models}
+

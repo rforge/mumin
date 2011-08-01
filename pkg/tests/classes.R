@@ -201,9 +201,9 @@ rm(list=ls()); detach(package:nnet)
 # TEST gam --------------------------------------------------------------------------------
 suppressPackageStartupMessages(library(mgcv))
 RNGkind("Mersenne")
-set.seed(0) ## simulate some data... 
+set.seed(0) ## simulate some data...
 dat <- gamSim(1,n=400,dist="normal",scale=2)
-gam1 <- gam(y~s(x0)+s(x1)+s(x2)+s(x3), data=dat, )
+#gam1 <- gam(y~s(x0)+s(x1)+s(x2)+s(x3), data=dat)
 
 gam1 <- gam(y ~ s(x0) + s(x1) + s(x2) +  s(x3) + (x1+x2+x3)^2,
 	data = dat, method = "REML")
@@ -242,8 +242,6 @@ gm <- get.models(dd, cumsum(weight) <= .98)
 ma <- model.avg(gm)
 
 # XXX: Error in t(vapply(models, function(m) {: error in evaluating the argument 'x' in selecting a method for function 't': Error in m.tTable[, 2L] : incorrect number of dimensions
-
-traceback()
 summary(ma)
 predict(ma)[1:10]
 
@@ -255,10 +253,10 @@ require(MASS)
 quine.nb1 <- glm.nb(Days ~ 0+Sex/(Age + Eth*Lrn), data = quine)
 
 dredge(quine.nb1) # Wrong
-dd <- dredge(quine.nb1, marg.ex="Sex") # Right
-(ma <- model.avg(get.models(dd, 1:5)))
+#dredge(quine.nb1, marg.ex="Sex") # Right
+ma <- model.avg(dredge(quine.nb1, marg.ex="Sex"), subset=cumsum(weight)<=.9999)
 
-pred <- predict(ma, se=T)
+pred <- predict(ma, se=TRUE)
 #pred <- cbind(pred$fit, pred$fit - (2 * pred$se.fit), pred$fit + (2 * pred$se.fit))
 #matplot(pred, type="l")
 #matplot(family(quine.nb1)$linkinv(pred), type="l")
@@ -323,32 +321,6 @@ mod <- get.models(dd, seq(nrow(dd)))
 ma <- model.avg(mod[1:5], rank="QAICc", rank.args = list(chat = 0.403111))
 
 rm(list=ls());
-
-# TEST glm.nb with 'start'ing values {MASS} ---------------------------------------------------------------------------
-# from example(glm.nb)
-
-library(MASS)
-
-dat <- data.frame(
-y=c(7, 5, 4, 7, 5, 2, 11, 5, 5, 4, 2, 3, 4, 3, 5, 9, 6, 7, 10, 6, 12,
-6, 3, 5, 3, 9, 13, 0, 6, 1, 2, 0, 1, 0, 0, 4, 5, 1, 5, 3, 3, 4),
-lag1=c(0, 7, 5, 4, 7, 5, 2, 11, 5, 5, 4, 2, 3, 4, 3, 5, 9, 6, 7, 10,
-6, 12, 6, 3, 5, 3, 9, 13, 0, 6, 1, 2, 0, 1, 0, 0, 4, 5, 1, 5, 3, 3),
-lag2=c(0, 0, 7, 5, 4, 7, 5, 2, 11, 5, 5, 4, 2, 3, 4, 3, 5, 9, 6, 7,
-10, 6, 12, 6, 3, 5, 3, 9, 13, 0, 6, 1, 2, 0, 1, 0, 0, 4, 5, 1, 5, 3),
-lag3=c(0, 0, 0, 7, 5, 4, 7, 5, 2, 11, 5, 5, 4, 2, 3, 4, 3, 5, 9, 6,
-7, 10, 6, 12, 6, 3, 5, 3, 9, 13, 0, 6, 1, 2, 0, 1, 0, 0, 4, 5, 1, 5))
-
-# fit <- glm.nb(y ~ lag1+lag2+lag3, family=poisson(link=identity), data=dat,
-            # start=c(2, 0.1, 0.1, 0.1))
- 
-fit <- glm.nb(y ~ lag1+lag2+lag3, data=dat, start=c(2, 0.1, 0.1, 0.1))
-			
-model.avg(dredge(fit))
-
-
-rm(list=ls()); detach(package:MASS)
-
 
 # TEST polr {MASS} ---------------------------------------------------------------------------
 

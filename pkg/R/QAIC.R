@@ -5,7 +5,7 @@ function(object, ..., chat) {
 
 	.getQAIC <- function(object, chat) {
 		mLogLik <- ll(object)
-		N <- nobs(object)
+		N <- attr(mLogLik, "nobs")
 		k <- attr(mLogLik, "df") + 1
 		ret <- (deviance(object) / chat) + 2 * k
 		return (ret)
@@ -31,7 +31,7 @@ function(object, ..., chat) {
 
 	.getQAICc <- function(object, chat) {
 		mLogLik <- ll(object)
-		N <- nobs(object)
+		N <- attr(mLogLik, "nobs")
 		k <- attr(mLogLik, "df") + 1
 		ret <- (deviance(object) / chat) + (2 * k) * (1 + ((k + 1) / (N - k - 1)))
 		return (ret)
