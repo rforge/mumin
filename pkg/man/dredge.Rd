@@ -11,8 +11,8 @@ model, with optional restrictions.
 
 \usage{
 dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
-	fixed = NULL, m.max = NA, subset, marg.ex = NULL, trace = FALSE,
-	...)
+    fixed = NULL, m.max = NA, subset, marg.ex = NULL, 
+    trace = FALSE, ...)
 
 \method{print}{model.selection}(x, abbrev.names = TRUE, ...)
 
@@ -20,10 +20,11 @@ dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 \arguments{
   \item{global.model}{a fitted \sQuote{global} model object. Currently, it can
-	be a \code{lm}, \code{glm}, \code{rlm}, \code{multinom}, \code{gam},
-	\code{gls}, \code{lme}, \code{lmer}, \code{sarlm} or \code{spautolm}, but
-	also other types are likely to work (untested).
-	}
+    be a \code{lm}, \code{glm}, \code{rlm}, \code{multinom}, \code{gam},
+    \code{gls}, \code{lme}, \code{lmer}, \code{coxph}, \code{glmmML},
+    \code{sarlm} or \code{spautolm}, but also other types are likely to work
+    (yet this is untested).
+    }
 
   \item{beta}{logical, should standardized coefficients be returned?}
 
@@ -40,36 +41,36 @@ dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
   defaults to the number of terms in \code{global.model}.}
 
   \item{subset}{
-	logical expression to put constraints for the set of models. Can contain any
-	of the \code{global.model} terms (use \code{getAllTerms(global.model)} to
-	list them). Complex expressions (e.g smooth functions in
-	\code{\link[mgcv]{gam}} models) should be treated as non-syntactic names and
-	enclosed in back-ticks (see \link[base]{Quotes}). Mind the spacing, names
-	must match exactly the term names in model's formula.
-	To simply keep certain variables in all models, use of \code{fixed} is
-	preferred. }
+    logical expression to put constraints for the set of models. Can contain any
+    of the \code{global.model} terms (use \code{getAllTerms(global.model)} to
+    list them). Complex expressions (e.g smooth functions in
+    \code{\link[mgcv]{gam}} models) should be treated as non-syntactic names and
+    enclosed in back-ticks (see \link[base]{Quotes}). Mind the spacing, names
+    must match exactly the term names in model's formula.
+    To simply keep certain variables in all models, use of \code{fixed} is
+    preferred. }
 
   \item{marg.ex}{
-	a character vector specifying names of variables for which NOT to check for
-	marginality restrictions when generating model formulas. If this argument is
-	set to \code{TRUE}, all model formulas are used (i.e. no checking). See
-	\sQuote{Details}.}
+    a character vector specifying names of variables for which NOT to check for
+    marginality restrictions when generating model formulas. If this argument is
+    set to \code{TRUE}, all model formulas are used (i.e. no checking). See
+    \sQuote{Details}.}
 
   \item{trace}{
-	if \code{TRUE}, all calls to the fitting function (i.e. updated
-	\code{global.model} calls) are printed. }
+    if \code{TRUE}, all calls to the fitting function (i.e. updated
+    \code{global.model} calls) are printed. }
 
 
   \item{x}{
-	a \code{model.selection} object, returned by \code{dredge}.	}
+    a \code{model.selection} object, returned by \code{dredge}.    }
 
   \item{abbrev.names}{
-	Should variable names be abbreviated when printing? (useful with many
-		variables). }
+    Should variable names be abbreviated when printing? (useful with many
+        variables). }
 
   \item{\dots}{optional arguments for the \code{rank} function. Any can be
-	an expression (of mode \code{call}), in which case any \code{x} within it
-	will be substituted with a current model. }
+    an expression (of mode \code{call}), in which case any \code{x} within it
+    will be substituted with a current model. }
 }
 
 
@@ -114,9 +115,12 @@ for factors), k, deviance/RSS, R-squared, AIC, AICc, delta and weight. This
 depends on a type of model. Models are ordered according to the used information
 criterion (lowest on top), specified by \code{rank}.
 
-The attribute "formulas" is a list containing model formulas (arranged in the
+The attribute "calls" is a list containing the model calls used (arranged in the
 same order as the models).
 }
+
+
+
 
 \author{Kamil \enc{Bartoń}{Barton}}
 

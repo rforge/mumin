@@ -12,21 +12,21 @@ AICc(object, ..., k = 2, REML = NULL)
 
 \arguments{
   \item{object}{a fitted model object for which there exists a \code{logLik}
-	method, or a \code{logLik} object}
+    method, or a \code{logLik} object}
   \item{\dots}{optionally more fitted model objects}
   \item{k}{the \dQuote{penalty} per parameter to be used; the default \code{k} =
-	2 is the classical \code{\link[stats]{AIC}}}
+    2 is the classical \code{\link[stats]{AIC}}}
    \item{REML}{ optional logical value, passed to the \code{logLik} method
-	indicating whether the restricted log-likelihood or log-likelihood should be
-	used. The default is to use the method used for model estimation.
+    indicating whether the restricted log-likelihood or log-likelihood should be
+    used. The default is to use the method used for model estimation.
    }
 }
 
 \value{
-	If just one object is provided, returns a numeric value with the
-	corresponding AICc; if more than one object are provided, returns a
-	\code{data.frame} with rows corresponding to the objects and columns
-	representing the number of parameters in the model (df) and AICc.
+    If just one object is provided, returns a numeric value with the
+    corresponding AICc; if more than one object are provided, returns a
+    \code{data.frame} with rows corresponding to the objects and columns
+    representing the number of parameters in the model (df) and AICc.
 }
 
 \references{
@@ -53,7 +53,7 @@ data(Orthodont, package = "nlme")
 
 # Fit model by REML
 fm2 <- lme(distance ~ Sex*age + age*Sex, data = Orthodont,
-		   random = ~ 1|Subject / Sex, method = "REML")
+    random = ~ 1|Subject / Sex, method = "REML")
 
 # Model selection: ranking by AICc using ML
 dd <- dredge(fm2, trace=TRUE, rank="AICc", REML=FALSE)

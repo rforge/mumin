@@ -45,14 +45,14 @@ top.models.1 <- get.models(dd, subset = delta < 4)
 model.avg(top.models.1) # get averaged coefficients
 
 top.models.2 <- get.models(dd, cumsum(weight) <= .95)
-model.avg(top.models.2) # get averaged coefficients
+model.avg(top.models.2)
 
 # Mixed models:
 # modified example(lme)
 data(Orthodont, package="nlme")
 require(nlme)
-fm2 <- lme(distance ~ age + Sex, data = Orthodont, random = ~ 1 | Subject,
-	method="ML")
+fm2 <- lme(distance ~ age + Sex, data = Orthodont, 
+    random = ~ 1 | Subject, method="ML")
 dredge(fm2)
 
 }
