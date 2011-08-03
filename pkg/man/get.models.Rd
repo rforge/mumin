@@ -25,7 +25,7 @@ get.models(dd, subset = delta <= 4, ...)
     \code{\link{list}} of models.
 }
 
-\author{\enc{Kamil Bartoń}{Kamil Barton}}
+\author{Kamil Barto\enc{ń}{n}}
 
 \seealso{
 \code{\link{dredge}}, \code{\link{model.avg}}

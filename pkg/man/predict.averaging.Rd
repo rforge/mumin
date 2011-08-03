@@ -74,11 +74,11 @@ methods for the component model classes (except for \code{lm/glm}).
 
 }
 
-\author{Kamil \enc{Bartoń}{Barton}}
+\author{Kamil Barto\enc{ń}{n}}
 
 \seealso{
 \code{\link{model.avg}}
-See \code{\link{par.avg}} for details of averaged model calculation.
+See \code{\link{par.avg}} for details of model-averaged parameter calculation.
 }
 
 \examples{
@@ -127,8 +127,8 @@ gam1 <- gam(y ~ s(x0) + s(x1) + s(x2) +  s(x3) + (x1 + x2 + x3)^2,
 
 cat(dQuote(getAllTerms(gam1)), "\n")
 
-# include only models with smooth OR linear term (but not both)
-# for each variable:
+# include only models with either smooth OR linear term (but not both)
+# for each predictor variable:
 dd <- dredge(gam1, subset=xor(`s(x1)`, x1) & xor(`s(x2)`, x2) & 
     xor(`s(x3)`, x3))
 # ...this may take a while.

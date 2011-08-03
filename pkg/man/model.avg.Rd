@@ -15,7 +15,7 @@ model.avg(object, ..., beta = FALSE, method = c("0", "NA"),
 
 \arguments{
     \item{object}{A fitted model object or a list of such objects. Alternatively
-        an object of class "model.selection". See \sQuote{Details}.}
+        an object of class \code{model.selection}. See \sQuote{Details}.}
 
     \item{\dots}{ more fitted model objects }
 
@@ -74,7 +74,7 @@ An object of class \code{averaging} with following elements:
     \item \code{gam} (\pkg{mgcv})
     \item \code{lme}, \code{gls} (\pkg{nlme})
     \item \code{lmer} (\pkg{lme4})
-    \item \code{rlm}, \code{glm.nb} (\pkg{MASS})
+    \item \code{rlm}, \code{glm.nb} \code{polr} (\pkg{MASS})
     \item \code{multinom} (\pkg{nnet})
     \item \code{sarlm}, \code{spautolm} (\pkg{spdep})
     \item \code{glmmML} (\pkg{glmmML})
@@ -82,7 +82,7 @@ An object of class \code{averaging} with following elements:
 }
 
 \code{model.avg} may be used with a list of models, or an object returned by
-    \code{dredge}). In the latter case, the models from the model selection table
+    \code{dredge}. In the latter case, the models from the model selection table
     are evaluated (with a call to \code{get.models}) prior to averaging.
     A warning is given if the subset argument is not provided, and the default
     \code{delta <= 4} will be used.
@@ -124,7 +124,7 @@ From version 1.0.1, \code{print} method provides only a concise output
 Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel
 inference: a practical information-theoretic approach}. 2nd ed. }
 
-\author{Kamil \enc{Bartoń}{Barton}}
+\author{Kamil Barto\enc{ń}{n}}
 
 \seealso{
 

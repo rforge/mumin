@@ -36,8 +36,7 @@ plain \code{data.frame} is returned.
 Unlike the method for \code{data.frame}, extracting with only one index (i.e. \code{x[i]}) will select rows rather than columns.
 }
 
-\author{Kamil \enc{Bartoń}{Barton}}
-
+\author{Kamil Barto\enc{ń}{n}}
 
 \seealso{
 \code{\link{dredge}}, \code{\link{subset}} and \code{\link{[.data.frame}} for

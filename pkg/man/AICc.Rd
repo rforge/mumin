@@ -34,7 +34,7 @@ Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel
 inference: a practical information-theoretic approach}. 2nd ed. }
 
 
-\author{Kamil \enc{Bartoń}{Barton}}
+\author{Kamil Barto\enc{ń}{n}}
 
 \seealso{
 Akaike's An Information Criterion: \code{\link[stats]{AIC}}

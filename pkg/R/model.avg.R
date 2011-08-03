@@ -3,7 +3,7 @@ function(object, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	rank.args = NULL, revised.var = TRUE) {
 	
 	if(inherits(object, "model.selection")) {
-		if(!("subset" %in% names(match.call())[-1]))
+		if(!("subset" %in% names(match.call(get.models))))
 			warning("'subset' argument is missing. Using the default ", 
 				sQuote(deparse(formals(get.models)$subset)))
 		object <- get.models(object, ...)

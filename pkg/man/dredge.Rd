@@ -20,7 +20,7 @@ dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 \arguments{
   \item{global.model}{a fitted \sQuote{global} model object. Currently, it can
-    be a \code{lm}, \code{glm}, \code{rlm}, \code{multinom}, \code{gam},
+    be a \code{lm}, \code{glm}, \code{rlm}, \code{polr}, \code{multinom}, \code{gam},
     \code{gls}, \code{lme}, \code{lmer}, \code{coxph}, \code{glmmML},
     \code{sarlm} or \code{spautolm}, but also other types are likely to work
     (yet this is untested).
@@ -119,10 +119,7 @@ The attribute "calls" is a list containing the model calls used (arranged in the
 same order as the models).
 }
 
-
-
-
-\author{Kamil \enc{Bartoń}{Barton}}
+\author{Kamil Barto\enc{ń}{n}}
 
 \note{
 Users should keep in mind the hazards that such a \dQuote{thoughtless approach}
