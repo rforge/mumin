@@ -63,14 +63,15 @@
 function(object, ...) NROW(fitted(object))
 
 
+
 # No longer needed
 # Extends: nlme
-# `nobs.gls` <- function(object, nall = TRUE, ...) {
 	# p <- object$dims$p
 	# N <- object$dims$N
 	# if (nall) return (N)
 	# REML <- object$method == "REML"
 	# N - REML * p
+# `nobs.gls` <- function(object, nall = TRUE, ...) {
 	# # p - the number of coefficients in the linear model.
 # }
 
@@ -85,3 +86,38 @@ function(object, ...) NROW(fitted(object))
 	# #ncol - the number of columns in the model matrix for each level of grouping from innermost to outermost
 	# #  (last two values are equal to the number of fixed effects and one).
 # }
+
+
+#limited support for unmarked
+
+logLik.unmarkedFit <- function(object, ...) {
+  ll <- -object@negLogLike
+  attr(ll, "df") <- length(object@opt$par)
+  attr(ll, "nobs") <- unmarked::sampleSize(object)
+  class(ll) <- "logLik"
+  ll
+}
+#setMethod("logLik", "unmarkedFit", logLik.unmarkedFit)
+
+formula.unmarkedFit <- function (x, ...) x@formula
+
+getAllTerms.unmarkedFit <- function (x, ...)  {
+  f <- formula(x)
+  t1 <- getAllTerms(f[[2]])
+  t2 <- getAllTerms(f[-2])
+  structure(c(sprintf("psi(%s)",t1), sprintf("p(%s)",t2)), 
+            intercept=c(attr(t1, "intercept"), attr(t2, "intercept")))
+}
+
+tTable.unmarkedFit <- function (model, ...) {
+  do.call("rbind", lapply(model@estimates@estimates, function(y) {
+    ret <- cbind(Estimate=y@estimates, SE=sqrt(diag(y@covMat)))
+    rn <- rownames(ret)
+    rn[rn=="(Intercept)"] <- "Int"
+    rownames(ret) <- paste(y@short.name, "(", rn, ")", sep="")
+    ret 
+  }))
+}
+
+coefDf.unmarkedFit <- function(x) rep(NA, length(coef(x)))
+nobs.unmarkedFit <- function(object, ...) unmarked::sampleSize(object)

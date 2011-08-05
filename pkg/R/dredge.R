@@ -2,8 +2,6 @@
 function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		 fixed = NULL, m.max = NA, subset, marg.ex = NULL, trace = FALSE, ...) {
 
-	#require(bitops)
-
 	# XXX
 	if(!missing(eval) && !eval) .NotYetUsed("eval")
 	rank.custom <- !missing(rank)
@@ -371,9 +369,10 @@ function(x, abbrev.names = TRUE, ...) {
 		if(!is.null(cl)) {
 			cat("Global model: ")
 			print(cl)
+      cat("---\n")
 		}
 
-		cat ("---\nModel selection table \n")
+		cat ("Model selection table \n")
 		i <- sapply(x, is.numeric)
 		x[,i] <- signif(x[,i], 4L)
 		print.default(as.matrix(x[, !sapply(x, function(.x) all(is.na(.x)))]),

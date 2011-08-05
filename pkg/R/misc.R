@@ -49,7 +49,7 @@ if (!existsFunction("nobs")) {
 `coefDf.lme` <- function(x) x$fixDF$X
 `coefDf.mer` <- function(x) rep(NA, x@dims[["p"]])
 `coefDf.gls` <- function(x) rep(x$dims$N - x$dims$p, x$dims$p)
-`coefDf.default` <- function(x) rep(df.residual(x), length(coef(x)))
+`coefDf.default` <- function(x) rep(tryCatch(df.residual(x), error=function(e) NA), length(coef(x)))
 
 # Hidden functions
 
@@ -80,6 +80,52 @@ if (!existsFunction("nobs")) {
 		return(x@status["REML"] != 0)
 	return(NA)
 }
+
+
+`.getRank` <- function(rank = NULL, rank.args = NULL, object = NULL, ...) {
+	#browser()
+
+	rank.args <- c(rank.args, list(...))
+
+	if(is.null(rank)) {
+		IC <- AICc
+		attr(IC, "call") <- call("AICc", as.name("x"))
+		return(IC)
+	}
+	srank <- substitute(rank, parent.frame())
+	if(srank == "rank") srank <- substitute(rank)
+
+	rank <- match.fun(rank)
+	ICName <- switch(mode(srank), call=as.name("IC"), character=as.name(srank), name=, srank)
+	ICarg <- c(list(as.name("x")), rank.args)
+	ICCall <- as.call(c(ICName, ICarg))
+	#IC <- function(x) do.call("rank", ICarg)
+	IC <- as.function(c(alist(x=), list(substitute(do.call("rank", ICarg), list(ICarg=ICarg)))))
+	if(!is.null(object)) {
+		test <- IC(object)
+		if (!is.numeric(test) || length(test) != 1L)
+			stop("'rank' should return numeric vector of length 1")
+	}
+	
+	attr(IC, "call") <- ICCall
+	IC
+}
+
+`matchCoef` <- function(m1, m2, all.terms = getAllTerms(m2)) {
+	int <- attr(all.terms, "intercept")
+	if(!is.null(int) && int != 0L) all.terms <- c("(Intercept)", all.terms)
+	terms1 <- getAllTerms(m1)
+	if(attr(terms1, "intercept")) terms1 <- c("(Intercept)", terms1)
+	if(any((terms1 %in% all.terms) == FALSE)) stop("'m1' is not nested within 'm2")
+	
+	row <- structure(rep(NA, length(all.terms)), names=all.terms)
+	coef1 <- coeffs(m1)
+	row[terms1] <- NaN
+	cf <- coef1[match(terms1, names(coef1), nomatch=0)]
+	row[names(cf)]  <- cf
+	row
+}
+
 
 
 #sorts alphabetically interaction components in model term names

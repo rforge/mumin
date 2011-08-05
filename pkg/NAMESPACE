@@ -1,6 +1,6 @@
 export(
 	AICc, beta.weights, dredge, get.models, model.avg, par.avg, QAIC, QAICc,
-	getAllTerms, coeffs, tTable, Weights
+	getAllTerms, coeffs, tTable, Weights, mod.sel
 )
 
 if (getRversion() >= "2.13.0") {
@@ -21,7 +21,6 @@ S3method(nobs, default)
 #importFrom(methods, slot, slotNames)
 #importFrom(lme4, lmer, logLik, terms)
 
-#importFrom(bitops, bitAnd)
 
 S3method(print, averaging)
 S3method(print, summary.averaging)
@@ -79,7 +78,6 @@ S3method(getAllTerms, glmer)
 S3method(coeffs, glmer)
 S3method(tTable, glmer)
 
-
 S3method(getAllTerms, mer)
 S3method(coeffs, mer)
 S3method(tTable, mer)
@@ -92,3 +90,10 @@ S3method(nobs, multinom)
 S3method(coeffs, gls)
 S3method(tTable, gls)
 S3method(coefDf, gls)
+
+S3method(formula, unmarkedFit)
+S3method(getAllTerms, unmarkedFit)
+S3method(tTable, unmarkedFit)
+S3method(coefDf, unmarkedFit)
+S3method(nobs, unmarkedFit)
+S3method(logLik, unmarkedFit)

@@ -1,10 +1,10 @@
 `model.avg` <-
 function(object, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	rank.args = NULL, revised.var = TRUE) {
-	
+
 	if(inherits(object, "model.selection")) {
 		if(!("subset" %in% names(match.call(get.models))))
-			warning("'subset' argument is missing. Using the default ", 
+			warning("'subset' argument is missing. Using the default ",
 				sQuote(deparse(formals(get.models)$subset)))
 		object <- get.models(object, ...)
 	}
@@ -13,17 +13,6 @@ function(object, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	method <- match.arg(method)
 	.fnull <- function(...) return(NULL)
 
-	if (!is.null(rank)) {
-	   	rankFn <- match.fun(rank)
-		rank.call <- as.call(c(as.name("rankFn"), as.symbol("x"), rank.args))
-		rank <- substitute(rank)
-	} else if (!is.null(attr(object, "rank.call"))) {
-		rank.call <- attr(object, "rank.call")
-		rank.args <- as.list(attr(object, "rank.call"))[-(1L:2L)]
-		rankFn <- match.fun(rank.call[[1L]])
-		rank <- as.character(rank.call[[1L]])
-	}
-
 	if (inherits(object, "list")) {
 		models <- object
 		object <- models[[1L]]
@@ -31,20 +20,25 @@ function(object, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 		models <- list(object, ...)
 	}
 
-	if (!is.null(rank)) {
-		IC <- function(x) eval(rank.call)
-		res <- IC(object)
-  		if (!is.numeric(res) || length(res) != 1L)
-			stop("'rank' should return numeric vector of length 1")
+	if (!is.null(attr(object, "rank.call"))) {
+		rank.call <- attr(object, "rank.call")
+		rank <- as.character(rank.call[[1L]])
+		ICname <- deparse(rank.call[[1]])
 	} else {
-		IC <- AICc
+		rank <- .getRank(rank, rank.args = rank.args, object = object)
+		ICname <- deparse(attr(rank,"call")[[1]])
 	}
 
 	if (length(models) == 1L) stop("Only one model supplied. Nothing to do.")
 
 	#Try to find if all models are fitted to the same data
-	m.resp <- lapply(models, function(x) formula(x)[[2L]])
-	if(!all(vapply(m.resp[-1L], "==", logical(1), m.resp[[1L]])))
+	m.resp <- lapply(models, function(x) {
+	  f <- formula(x)
+	  if(length(f) == 2L || (length(f[[2L]]) == 2 && f[[2L]][[1L]] == "~")) 0 else f[[2L]]
+	})
+
+
+ 	if(!all(vapply(m.resp[-1L], "==", logical(1), m.resp[[1L]])))
 		stop("Response differs between models")
 
 	m.data <- lapply(models, function(x) (if(mode(x) == "S4") `@` else `$`)
@@ -73,7 +67,7 @@ function(object, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 			model.matrix.default(object, data=data, ...)
 	}
 
-	aicc <- vapply(models, IC, numeric(1))
+	aicc <- vapply(models, rank, numeric(1))
 	dev <- if (!is.null(tryCatch(deviance(models[[1L]]), error=.fnull)))
 		vapply(models, deviance, numeric(1)) else NA
 	delta <- aicc - min(aicc)
@@ -158,8 +152,7 @@ function(object, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	colnames(all.coef) <- colnames(all.se) <- colnames(all.df) <- rownames(avg.model) <-  all.par
     names(all.terms) <- seq_along(all.terms)
 
-	if (!is.null(rank))
-		colnames(selection.table)[2L] <- as.character(rank)
+	colnames(selection.table)[2L] <- ICname
 
 	#global.mm <- model.matrix(fit)
 	#cnmmxx2 <- unique(unlist(lapply(gm, function(x) names(coef(x)))))
@@ -371,9 +364,9 @@ function (object, parm, level = 0.95, ...) {
 function (x, digits = max(3, getOption("digits") - 3),
     signif.stars = getOption("show.signif.stars"), ...) {
 
-    cat("\nCall:  ", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
+    cat("\nCall:  ", paste(deparse(x$call), sep = "\n", collapse = "\n"),
         "\n\n", sep = "")
-	
+
     cat("\nModel summary:\n")
 	print(round(as.matrix(x$summary), 2), na.print="")
 
@@ -387,8 +380,8 @@ function (x, digits = max(3, getOption("digits") - 3),
 				 signif.stars = signif.stars)
 
 	#if (no.ase) cat("Confidence intervals are unadjusted \n")
-	
-	cat("\nNon-present predictors", switch(attr(x, "method"), 
+
+	cat("\nNon-present predictors", switch(attr(x, "method"),
 		"0"="taken to be zero", "NA"="excluded"), "\n")
 
 	cat("\nRelative variable importance:\n")
@@ -397,7 +390,7 @@ function (x, digits = max(3, getOption("digits") - 3),
 
 `print.averaging` <-
 function(x, ...) {
-    cat("\nCall:  ", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
+    cat("\nCall:  ", paste(deparse(x$call), sep = "\n", collapse = "\n"),
         "\n\n", sep = "")
     cat("Component models:", "\n")
 	comp.names <- rownames(x$summary)
