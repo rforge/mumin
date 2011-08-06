@@ -8,7 +8,8 @@ Author: Kamil Bartoń
 Maintainer: Kamil Bartoń <kamil.barton@go2.pl>
 Description: Model selection and model averaging based on information criteria (AICc and alike).
 License: GPL-2
-Depends: methods
-Suggests: stats4, lme4, MASS, mgcv, gamm4, nlme, nnet, spdep, glmmML, unmarked
+Depends: methods, R (>= 2.13.0)
+Suggests: stats4, lme4, MASS, mgcv, gamm4, nlme (>= 3.1.99), nnet, spdep, glmmML, unmarked
 Enhances: stats, survival
 LazyLoad: yes
+BuildVignettes: false
