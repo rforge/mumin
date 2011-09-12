@@ -80,7 +80,7 @@ rbindDataFrameList(x)
 	The functions \code{coeffs}, \code{getAllTerms} and \code{tTable} provide an
 	interface between the model and \code{model.avg} (as well as \code{dredge}).
 	Custom methods can be written to provide support for additional classes of
-	models. Also, a \code{logLik} method must exist for the object.
+	models.
 }
 
 \note{
@@ -98,8 +98,13 @@ use \code{MuMIn:::cbindDataFrameList} to access them.
 
 
 \seealso{
-\code{\link{dredge}}
+
+Vignette \sQuote{\Sexpr[echo=TRUE,results=rd,stage=install]{
+paste("\\\\href{file:///", system.file(package="MuMIn", "doc", "gamm.pdf"), "}",
+"{Extending \\\\code{MuMIn}'s functionality}", sep="")
+}} has information on using with other model types
 }
+
 
 
 \keyword{models}

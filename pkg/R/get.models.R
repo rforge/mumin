@@ -11,9 +11,8 @@ function(dd, subset = delta <= 4, ...) {
 
 	models <- lapply(calls, eval, envir=env)
 
-	if (!is.null(attr(dd, "rank.call"))) {
-  		attr(models, "rank.call") <- attr(dd, "rank.call")
-	}
+	attr(models, "rank.call") <- attr(dd, "rank.call")
+	attr(models, "rank") <- attr(dd, "rank")
 
 	return(models)
 }

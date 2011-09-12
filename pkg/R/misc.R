@@ -83,8 +83,6 @@ if (!existsFunction("nobs")) {
 
 
 `.getRank` <- function(rank = NULL, rank.args = NULL, object = NULL, ...) {
-	#browser()
-
 	rank.args <- c(rank.args, list(...))
 
 	if(is.null(rank)) {
@@ -98,9 +96,13 @@ if (!existsFunction("nobs")) {
 	rank <- match.fun(rank)
 	ICName <- switch(mode(srank), call=as.name("IC"), character=as.name(srank), name=, srank)
 	ICarg <- c(list(as.name("x")), rank.args)
-	ICCall <- as.call(c(ICName, ICarg))
-	#IC <- function(x) do.call("rank", ICarg)
-	IC <- as.function(c(alist(x=), list(substitute(do.call("rank", ICarg), list(ICarg=ICarg)))))
+	ICCall <- as.call(c(ICName, ICarg)) 
+	if(is.null(rank.args) || length(rank.args) == 0L) {
+		IC <- rank
+	} else {
+		IC <- as.function(c(alist(x=), list(substitute(do.call("rank", ICarg), list(ICarg=ICarg)))))   
+	}
+
 	if(!is.null(object)) {
 		test <- IC(object)
 		if (!is.numeric(test) || length(test) != 1L)

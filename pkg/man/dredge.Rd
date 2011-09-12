@@ -11,7 +11,7 @@ model, with optional restrictions.
 
 \usage{
 dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
-    fixed = NULL, m.max = NA, subset, marg.ex = NULL, 
+    fixed = NULL, m.max = NA, subset, marg.ex = NULL,
     trace = FALSE, ...)
 
 \method{print}{model.selection}(x, abbrev.names = TRUE, ...)
@@ -76,15 +76,17 @@ dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 \details{
 
-Models are run one by one by evaluating modified call of the \code{global.model}
-\code{formula} argument (or \code{fixed} in \code{lme}). This method, while
-robust in that it can be applied to a variety of different models is not very
-efficient, and may be time consuming.
+Models are run one by one by repeated evaluation of the call to
+\code{global.model} with modified formula argument (or \code{fixed} in
+\code{lme}). This method, while robust in that it can be applied to a variety of
+different models is not very efficient and may be considerably time-intensive.
 
-Because there is potentially a large number of models to evaluate, to avoid
-memory overflow the fitted model objects are not stored. To get (a subset of)
-the models, use \code{\link{get.models}} with the object returned by
-\code{dredge} as an argument.
+Note that the number of combinations grows exponentially with number of
+predictor variables
+(\ifelse{latex}{\eqn{2^{N}}}{2^N}). Because there is potentially a large number of
+models to evaluate, to avoid memory overflow the fitted model objects are not
+stored. To get (a subset of) the models, use \code{\link{get.models}} with the
+object returned by \code{dredge} as an argument.
 
 Handling interactions, \code{dredge} respects marginality constraints, so
 \dQuote{all possible combinations} do not include models containing interactions
@@ -115,8 +117,9 @@ for factors), k, deviance/RSS, R-squared, AIC, AICc, delta and weight. This
 depends on a type of model. Models are ordered according to the used information
 criterion (lowest on top), specified by \code{rank}.
 
-The attribute "calls" is a list containing the model calls used (arranged in the
-same order as the models).
+The attribute \code{"calls"} is a list containing the model calls used (arranged
+in the same order as the models).
+
 }
 
 \author{Kamil Barto\enc{ń}{n}}
@@ -130,6 +133,7 @@ model, due to model selection bias.
 \emph{\dQuote{Let the computer find out} is a poor strategy and usually reflects
 the fact that the researcher did not bother to think clearly about the problem
 of interest and its scientific setting} (Burnham and Anderson, 2002).
+
 }
 
 \seealso{

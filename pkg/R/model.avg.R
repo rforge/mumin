@@ -15,19 +15,15 @@ function(object, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 
 	if (inherits(object, "list")) {
 		models <- object
-		object <- models[[1L]]
+		object <- object[[1L]]
+        if (!is.null(rank) || is.null(rank <- attr(models, "rank"))) {
+            rank <- .getRank(rank, rank.args = rank.args, object = object)
+      	}
 	} else {
 		models <- list(object, ...)
+        rank <- .getRank(rank, rank.args = rank.args, object = object)
 	}
-
-	if (!is.null(attr(object, "rank.call"))) {
-		rank.call <- attr(object, "rank.call")
-		rank <- as.character(rank.call[[1L]])
-		ICname <- deparse(rank.call[[1]])
-	} else {
-		rank <- .getRank(rank, rank.args = rank.args, object = object)
-		ICname <- deparse(attr(rank,"call")[[1]])
-	}
+	ICname <- deparse(attr(rank,"call")[[1]])
 
 	if (length(models) == 1L) stop("Only one model supplied. Nothing to do.")
 
@@ -263,12 +259,12 @@ function(object, newdata = NULL, se.fit = NULL, interval = NULL,
 		if("type" %in% names(cl)) cl$type <- "link"
 		if(!missing(newdata)) cl$newdata <- as.name("newdata")
 		#pred <- do.call("lapply", c(as.name("models"), cl[-2]))
+
+		cl <- as.call(cl)
 		pred <- lapply(models, function(x) {
 			cl[[2]] <- x
-			tryCatch(eval(as.call(cl)), error=function(e) e)
+			tryCatch(eval(cl), error=function(e) e)
 		})
-
-		pred <- lapply(models, function(x) { cl[[2]] <- x; tryCatch(eval(as.call(cl)), error=function(e) e)  })
 
 		err <- sapply(pred, inherits, "condition")
 		if (any(err)) {

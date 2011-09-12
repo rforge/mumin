@@ -9,7 +9,7 @@ Model averaging based on an information criterion.
 }
 
 \usage{
-model.avg(object, ..., beta = FALSE, method = c("0", "NA"), 
+model.avg(object, ..., beta = FALSE, method = c("0", "NA"),
     rank = NULL, rank.args = NULL, revised.var = TRUE)
 }
 
@@ -27,7 +27,7 @@ model.avg(object, ..., beta = FALSE, method = c("0", "NA"),
 
     \item{rank}{Optional, custom rank function (information criterion) to use
         instead of \code{AICc}, e.g. \code{QAIC} or \code{BIC}, may be omitted
-        if \code{object} is a model list returned by \code{get.models} 
+        if \code{object} is a model list returned by \code{get.models}
         or a \code{model.selection} object.
         See \sQuote{Details}.}
 
@@ -130,15 +130,14 @@ inference: a practical information-theoretic approach}. 2nd ed. }
 
 See \code{\link{par.avg}} for details of averaged model calculation.
 
-\code{\link{dredge}}, \code{\link{get.models}}.
-\code{\link{QAIC}} has examples of using custom rank function and prediction
-with confidence intervals. \cr
+\code{\link{dredge}}, \code{\link{get.models}}. \code{\link{QAIC}} has examples
+of using custom rank function and prediction with confidence intervals. \cr
 \code{\link{AICc}} has examples of averaging models fitted by REML.
 
 
 \code{\link[AICcmodavg]{modavg}} in package \pkg{AICcmodavg}, and
-\code{\link[glmulti]{coef.glmulti}}
-in package \pkg{glmulti} also perform model averaging.
+\code{\link[glmulti]{coef.glmulti}} in package \pkg{glmulti} also perform model
+averaging.
 }
 
 \examples{

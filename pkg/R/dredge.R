@@ -11,26 +11,16 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	# switch to QAICc if quasi* family and no rank
 	if(inherits(global.model, "glm") && family(global.model)$family %in%
 		c("quasi", "quasibinomial", "quasipoisson") && !rank.custom) {
+		rankArgs <- list(chat=summary(global.model)$dispersion)
 		rank <- "QAICc"
-		rankArgs <- list(chat=summary(global.model)$dispersion, ...)
 		warning("QAICc used for '", family(global.model)$family,
 				"' family with c-hat = ", signif(rankArgs$chat))
 		rank.custom <- TRUE
 	} else {
 		rankArgs <- list(...)
 	}
-
-	rankFn <- match.fun(rank)
-	if (is.function(rank))
-  		rank <- deparse(substitute(rank))
-	rankFnCall <- as.call(c(as.name("rankFn"), as.symbol("x"), rankArgs))
-	IC <- function(x) eval(rankFnCall)
-	if (rank.custom) {
-		res <- IC(global.model)
-  		if (!is.numeric(res) || length(res) != 1L) {
-			stop("'rank' should return numeric vector of length 1")
-		}
-	}
+	IC <- .getRank(rank, rankArgs)
+	ICName <- as.character(attr(IC, "call")[[1]])
 	# *** Rank ***
 
 	intercept <- "(Intercept)"
@@ -279,12 +269,12 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 		if (has.rsq) c("R.sq", "Adj.R.sq"),
 		if (has.dev) if (is.lm) "RSS" else "Dev.",
 		#if (rank.custom) rank else c("AIC", "AICc")
-		rank
+		ICName
 	)
 
-	o <- order(ret[, rank], decreasing = FALSE)
+	o <- order(ret[, ICName], decreasing = FALSE)
 	ret <- ret[o,]
-	ret$delta <- ret[, rank] - min(ret[, rank])
+	ret$delta <- ret[, ICName] - min(ret[, ICName])
 	ret$weight <- exp(-ret$delta / 2) / sum(exp(-ret$delta / 2))
 
 	class(ret) = c("model.selection", "data.frame")
@@ -294,9 +284,8 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	attr(ret, "global.call") <- global.call
 	attr(ret, "terms") <- c(intercept, all.terms)
 
-	rankFnCall[[1]] <- as.name(rank)
-
-	attr(ret, "rank.call") <- rankFnCall
+	attr(ret, "rank") <- IC
+	attr(ret, "rank.call") <- attr(IC,"call")
 	attr(ret, "call") <- match.call(expand.dots = TRUE)
 
 	if (!is.null(attr(all.terms, "random.terms")))
