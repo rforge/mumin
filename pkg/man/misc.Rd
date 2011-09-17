@@ -100,13 +100,8 @@ use \code{MuMIn:::cbindDataFrameList} to access them.
 
 \seealso{
 
-Vignette \sQuote{\Sexpr[echo=TRUE,results=rd,stage=install]{
-paste("\\\\href{file:///", system.file(package="MuMIn", "doc", "gamm.pdf"), "}",
-"{Extending \\\\code{MuMIn}'s functionality}", sep="")
-}} has information on using with other model types
+Vignette \sQuote{\ifelse{html}{\href{/library/MuMIn/doc/gamm.pdf}{Extending \pkg{MuMIn}'s functionality}}{Extending \pkg{MuMIn}'s functionality}} has information on using with other model types
 }
-
-
 
 \keyword{models}
 \keyword{manip}
