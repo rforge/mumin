@@ -58,7 +58,7 @@
 beta.weights(model)
 coeffs(model)
 getAllTerms(x, ...)
-\method{getAllTerms}{terms}(x, offset = TRUE, ...)
+\method{getAllTerms}{terms}(x, offset = TRUE, intercept = FALSE, ...)
 tTable(model, ...)
 Weights(aic, ...)
 
@@ -72,7 +72,8 @@ rbindDataFrameList(x)
   for \code{*bindDataFrameList}, a list of \code{data.frames}
   }
   \item{offset}{should \sQuote{offset} terms be included?}
-  \item{\dots}{other arguments, not used}
+  \item{intercept}{should terms names include the intercept?}
+  \item{\dots}{other arguments, often not used}
   \item{aic}{a vector of AIC (or other information criterion) values }
 }
 

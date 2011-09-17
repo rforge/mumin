@@ -1,7 +1,7 @@
 # Test support for different classes of models
 
 require(MuMIn)
-.checkPkg <- function(package) length(find.package(package, quiet=TRUE)) != 0
+.checkPkg <- function(package) length(.find.package(package, quiet=TRUE)) != 0
 
 # TEST gls --------------------------------------------------------------------------------
 library(nlme)
@@ -31,11 +31,30 @@ d.AD <- data.frame(counts =c(18,17,15,20,10,20,25,13,12), outcome = gl(3,1,9),
 treatment = gl(3,3))
 glm.qD93 <- glm(counts ~ outcome + treatment, family=quasipoisson(), data=d.AD)
 glm.D93 <- glm(counts ~ outcome + treatment, family=poisson(), data=d.AD)
+
 dd <- dredge(glm.qD93)
 summary(model.avg(dd, subset= delta <= 10))
 dd <- dredge(glm.D93)
 summary(model.avg(dd, subset= delta <= 10))
 
+
+rm(list=ls())
+
+# TEST glmmML --------------------------------------------------------------------
+
+if(.checkPkg("glmmML")) {
+
+library(glmmML)
+dat <- data.frame(y = rbinom(100, prob = rep(runif(20), rep(5, 20)), size = 1),
+	x = rnorm(100), x2 = rnorm(100), id = factor(rep(1:20, rep(5, 20))))
+
+fm1 <- glmmML(y ~ x*x2, data = dat, cluster = id)
+summary(model.avg(dredge(fm1), subset = delta <= 4))
+
+detach(package:glmmML); rm(list=ls())
+
+
+}
 
 # TEST nlme --------------------------------------------------------------------
 library(nlme)
@@ -84,6 +103,7 @@ dd <- dredge(fm2, trace=T)
 gm <- get.models(dd, 1:4)
 (ma <- model.avg(gm))
 
+
 #predict(ma)
 #predict(ma, data.frame(Sex="Male", Subject="M01", age=8:12))
 
@@ -110,7 +130,7 @@ summary(ma)
 confint(ma)
 
 predict(ma)
-predict(ma, se=T)
+predict(ma, se.fit=TRUE)
 predict(ma, data.frame(Sex="Male", age=8:12))
 
 rm(list=ls())
@@ -191,11 +211,13 @@ ops <- options(warn = -1)
 
 gam1 <- gam(y ~ s(x0) + s(x1) + s(x2) +  s(x3) + (x1+x2+x3)^2,
 	data = dat, method = "ML")
+
 dd <- dredge(gam1, subset=!`s(x0)` & (!`s(x1)` | !x1) & (!`s(x2)` | !x2) & (!`s(x3)` | !x3), fixed="x1", trace=T)
+
 gm <- get.models(dd, cumsum(weight) <= .95)
 ma <- model.avg(gm)
 
-predict(ma, se.fit=T)
+predict(ma, dat[1:10, ], se.fit=T)
 options(ops)
 
 
@@ -244,9 +266,10 @@ rm(list=ls()); detach(package:spdep)
 require(MASS)
 
 quine.nb1 <- glm.nb(Days ~ 0+Sex/(Age + Eth*Lrn), data = quine)
+#quine.nb1 <- glm.nb(Days ~ Sex/(Age + Eth*Lrn), data = quine)
 
 dredge(quine.nb1) # Wrong
-#dredge(quine.nb1, marg.ex="Sex") # Right
+dredge(quine.nb1, marg.ex="Sex") # Right
 ma <- model.avg(dredge(quine.nb1, marg.ex="Sex"), subset=cumsum(weight)<=.9999)
 
 pred <- predict(ma, se=TRUE)
