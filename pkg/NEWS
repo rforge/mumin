@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.3.9 (2011-09-17)
+removed  *.lmer *.glmer methods, added dependency on lme4 >= 0.999375-16
+tTable.mer: minor change
+
 Version: 1.3.8 (2011-09-17)
 Restored compatibility with R 2.12.2
 getAllTerms: new attribute 'intercept'

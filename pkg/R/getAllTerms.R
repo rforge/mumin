@@ -73,8 +73,8 @@ function(x, ...) {
 	return(ret)
 }
 
-`getAllTerms.glmer` <- # For backwards compatibility
-`getAllTerms.lmer` <-  # with older versions of lme4
+# `getAllTerms.glmer` <- # For backwards compatibility
+# `getAllTerms.lmer` <-  # with older versions of lme4
 `getAllTerms.mer` <-
 function(x, ...) getAllTerms(lme4::formula(x), ...)
 
