@@ -2,7 +2,7 @@
 
 require(MuMIn)
 
-print(packageDescription("MuMIn", fields = "Version"))
+#print(packageDescription("MuMIn", fields = "Version"))
 
 
 # TEST binary response ---------------------------------------------------------

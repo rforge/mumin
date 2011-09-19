@@ -4,6 +4,7 @@ require(MuMIn)
 .checkPkg <- function(package) length(.find.package(package, quiet=TRUE)) != 0
 
 # TEST gls --------------------------------------------------------------------------------
+if(.checkPkg("nlme")) {
 library(nlme)
 data(Ovary, package = "nlme")
 fm1 <- gls(follicles ~ sin(2*pi*Time) + cos(2*pi*Time), Ovary,
@@ -11,6 +12,9 @@ fm1 <- gls(follicles ~ sin(2*pi*Time) + cos(2*pi*Time), Ovary,
 dd <- dredge(fm1, trace=T)
 gm <- get.models(dd, 1:4)
 ma <- model.avg(gm, revised=T)
+
+dd
+mod.sel(gm)
 
 summary(ma)
 confint(ma)
@@ -21,6 +25,7 @@ predict(ma)
 predict(ma, data.frame(Mare=1, Time=range(Ovary$Time)))
 
 detach(package:nlme); rm(list=ls())
+}
 
 #dredge(fm1, rank=BIC)
 #dredge(fm1, rank=AIC)
@@ -36,6 +41,9 @@ dd <- dredge(glm.qD93)
 summary(model.avg(dd, subset= delta <= 10))
 dd <- dredge(glm.D93)
 summary(model.avg(dd, subset= delta <= 10))
+
+subset(dd, delta <= 10)
+mod.sel(get.models(dd, subset=delta <= 10))
 
 
 rm(list=ls())
@@ -53,12 +61,11 @@ summary(model.avg(dredge(fm1), subset = delta <= 4))
 
 detach(package:glmmML); rm(list=ls())
 
-
 }
 
 # TEST nlme --------------------------------------------------------------------
+if(.checkPkg("nlme")) {
 library(nlme)
-#library(lme4)
 data(Orthodont, package = "nlme")
 
 #:: Model-averaging mixed models :::::::::::::::::::::::::::::::::::::::::::::::
@@ -73,6 +80,8 @@ dd <- dredge(fm2, trace=T, rank="AICc", REML=FALSE)
 
 # Get models (which are fitted by REML, like the global model)
 gm <- get.models(dd, 1:4)
+
+#mod.sel(gm)
 
 ##::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #maML <- model.avg(gm, method = "NA", rank="AICc", rank.args = list(REML=FALSE))
@@ -91,8 +100,10 @@ confint(ma0)
 predict(ma0, data.frame(Sex="Male", Subject="M01", age=8:12))
 
 detach(package:nlme); rm(list=ls())
+}
 
 # TEST lmer -------------------------------------------------------------------------------
+if(.checkPkg("lme4")) {
 
 library(lme4)
 data(Orthodont, package = "nlme")
@@ -116,8 +127,10 @@ dd <- dredge(update(fm2, REML=FALSE), trace=T)
 dd <- dredge(update(fm2, REML=F, model=F), trace=T)
 
 detach(package:lme4); rm(list=ls())
+}
 
 # TEST lm ---------------------------------------------------------------------------------
+if(.checkPkg("nlme")) {
 data(Orthodont, package = "nlme")
 
 fm1 <- lm(distance ~ Sex*age + age*Sex, data = Orthodont)
@@ -134,6 +147,7 @@ predict(ma, se.fit=TRUE)
 predict(ma, data.frame(Sex="Male", age=8:12))
 
 rm(list=ls())
+}
 
 # TEST glm --------------------------------------------------------------------------------
 data(Cement, package = "MuMIn")
@@ -161,6 +175,8 @@ predict(ma, lapply(Cement, nseq))
 
 rm(list=ls())
 # TEST rlm --------------------------------------------------------------------------------
+
+if (.checkPkg("MASS")) {
 library(MASS)
 data(Cement, package = "MuMIn")
 
@@ -177,6 +193,7 @@ predict(ma, lapply(Cement, nseq, len=30), se.fit=TRUE)
 rm(list=ls()); detach(package:MASS)
 
 # TEST multinom --------------------------------------------------------------------------------
+if (.checkPkg("nnet")) {
 library(nnet); library(MASS)
 
 # Trimmed-down model from example(birthwt)
@@ -199,8 +216,12 @@ summary(ma)
 # predict(ma) // Cannot average factors!
 
 rm(list=ls()); detach(package:nnet)
+}}
+
 
 # TEST gam --------------------------------------------------------------------------------
+if (.checkPkg("mgcv")) {
+
 suppressPackageStartupMessages(library(mgcv))
 RNGkind("Mersenne")
 set.seed(0) ## simulate some data...
@@ -220,8 +241,8 @@ ma <- model.avg(gm)
 predict(ma, dat[1:10, ], se.fit=T)
 options(ops)
 
-
 rm(list=ls()); detach(package:mgcv)
+}
 
 # TEST spautolm ---------------------------------------------------------------------------
 
@@ -263,6 +284,7 @@ rm(list=ls()); detach(package:spdep)
 
 
 # TEST glm.nb ---------------------------------------------------------------------------
+if (.checkPkg("MASS")) {
 require(MASS)
 
 quine.nb1 <- glm.nb(Days ~ 0+Sex/(Age + Eth*Lrn), data = quine)
@@ -278,6 +300,7 @@ pred <- predict(ma, se=TRUE)
 #matplot(family(quine.nb1)$linkinv(pred), type="l")
 
 rm(list=ls()); detach(package:MASS)
+}
 
 # TEST quasibinomial ---------------------------------------------------------------------------
 
@@ -302,7 +325,7 @@ ma <- model.avg(mod[1:5], rank="QAICc", rank.args = list(chat = 0.403111))
 rm(list=ls());
 
 # TEST polr {MASS} ---------------------------------------------------------------------------
-
+#if (.checkPkg("MASS")) {
 #library(MASS)
 #library(MuMIn)
 #options(contrasts = c("contr.treatment", "contr.poly"))
@@ -311,6 +334,6 @@ rm(list=ls());
 #dd <- dredge(house.plr)
 #mod <- get.models(dd, 1:6)
 #model.avg(mod)
-
+#}
 
 # END TESTS

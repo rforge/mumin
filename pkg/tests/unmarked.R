@@ -1,6 +1,8 @@
-library(unmarked)
 library(MuMIn)
 
+.checkPkg <- function(package) length(.find.package(package, quiet=TRUE)) != 0
+if(.checkPkg("unmarked")) {
+library(unmarked)
 
 # Simulate occupancy data
 nSites <- 100
@@ -31,11 +33,11 @@ fm2 <- occu(~veght+habitat ~veght+habitat, umf)
 fm3 <- occu(~veght ~veght+habitat, umf)
 
 
-
-
 # Model selection
 print(mod.sel(fm1, fm2, fm3))
 print(summary(model.avg(fm1, fm2, fm3)))
+
+}
 
 
 
