@@ -1,5 +1,7 @@
 \name{mod.sel}
 \alias{mod.sel}
+\alias{mod.sel.default}
+\alias{mod.sel.model.selection}
 \encoding{utf-8}
 
 \title{model selection table}
@@ -9,14 +11,18 @@ Builds a model selection table
 
 \usage{
 
-mod.sel(object, ..., rank = AICc, rank.args = NULL)
+mod.sel(object, ...)
+
+\method{mod.sel}{model.selection}(object, rank = NULL, rank.args = NULL, ...)
+\method{mod.sel}{default}(object, ..., rank = NULL, rank.args = NULL)
 
 }
 
 \arguments{
-    \item{object}{A fitted model object or a list of such objects.}
+	\item{object}{A fitted model object, a list of such objects, or a
+	\code{"model.selection"} object.}
 
-    \item{\dots}{ more fitted model objects }
+    \item{\dots}{ More fitted model objects }
 
     \item{rank}{Optional, custom rank function (information criterion) to use
         instead of \code{AICc}, e.g. \code{QAIC} or \code{BIC}, may be omitted
@@ -30,7 +36,7 @@ mod.sel(object, ..., rank = AICc, rank.args = NULL)
 
 \value{
 
-An object of class \code{"model.selection"} with columns containing useful information 
+An object of class \code{"model.selection"} with columns containing useful information
 about each model: the coefficients, value of the information criterion used, Delta(IC) and weight.
 
 }

@@ -76,7 +76,7 @@ if (!existsFunction("nobs", where = "package:stats")) {
 		logLik
 
 `.getCall` <- function(x) {
-	if(mode(x) == "S4") {
+	if(isS4(x)) {
 		if ("call" %in% slotNames(x)) slot(x, "call") else
 			NULL
 	} else {
@@ -98,7 +98,6 @@ if (!existsFunction("nobs", where = "package:stats")) {
 	return(NA)
 }
 
-
 `.getRank` <- function(rank = NULL, rank.args = NULL, object = NULL, ...) {
 	rank.args <- c(rank.args, list(...))
 
@@ -106,6 +105,8 @@ if (!existsFunction("nobs", where = "package:stats")) {
 		IC <- AICc
 		attr(IC, "call") <- call("AICc", as.name("x"))
 		return(IC)
+	} else if(inherits(rank, "ICWithCall") && length(rank.args) == 0L) {
+		return(rank)
 	}
 	srank <- substitute(rank, parent.frame())
 	if(srank == "rank") srank <- substitute(rank)
@@ -127,6 +128,7 @@ if (!existsFunction("nobs", where = "package:stats")) {
 	}
 
 	attr(IC, "call") <- ICCall
+	class(IC) <- c("function", "ICWithCall")
 	IC
 }
 
@@ -151,4 +153,40 @@ if (!existsFunction("nobs", where = "package:stats")) {
 function(x) {
 	if(!is.character(x)) return(x)
 	return(sapply(lapply(strsplit(x, ":"), sort), paste, collapse=":"))
+}
+
+
+.checkModels <- function(models, error = TRUE) {
+	#
+	cl <- sys.call(sys.parent())
+	#print(cl)
+	err <-  if (error) 	function(x) stop(simpleError(x, cl))
+	else function(x) warning(simpleWarning(x, cl))
+
+
+	res <- TRUE
+
+	#Try to find if all models are fitted to the same data
+	responses <- lapply(models, function(x) {
+	  f <- formula(x)
+	  if(length(f) == 2L || (length(f[[2L]]) == 2 && f[[2L]][[1L]] == "~")) 0 else f[[2L]]
+	})
+
+
+ 	if(!all(vapply(responses[-1L], "==", logical(1), responses[[1L]]))) {
+		err("Response differs between models")
+		res <- FALSE
+	}
+
+
+	datas <- lapply(models, function(x) .getCall(x)$data)
+	# when using only 'nobs' - seems to be evaluated first outside of MuMIn namespace
+	# which e.g. gives an error in glmmML - the glmmML::nobs method is faulty.
+	nresid <- vapply(models, function(x) nobs(x), numeric(1L)) # , nall=TRUE
+
+	if(!all(datas[-1L] == datas[[1]]) || !all(nresid[-1L] == nresid[[1L]])) {
+		err("Response differs between models")
+		res <- FALSE
+	}
+	invisible(res)
 }

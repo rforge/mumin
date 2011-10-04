@@ -1,11 +1,12 @@
 export(
 	AICc, beta.weights, dredge, get.models, model.avg, par.avg, QAIC, QAICc,
-	getAllTerms, coeffs, tTable, Weights, mod.sel
+	getAllTerms, coeffs, tTable, Weights, mod.sel, importance
 )
 
 if (getRversion() >= "2.13.0") {
 importFrom(stats, nobs)
 } else {
+#export(nobs)
 S3method(nobs, default)
 }
 
@@ -35,6 +36,13 @@ S3method(print, model.selection)
 S3method(subset, model.selection)
 S3method("[", model.selection)
 S3method(update, model.selection)
+
+S3method(mod.sel, model.selection)
+S3method(mod.sel, default)
+
+S3method(importance, averaging)
+S3method(importance, model.selection)
+S3method(importance, default)
 
 S3method(getAllTerms, default)
 S3method(coeffs, default)

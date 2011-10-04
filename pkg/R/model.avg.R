@@ -27,24 +27,7 @@ function(object, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 
 	if (length(models) == 1L) stop("Only one model supplied. Nothing to do.")
 
-	#Try to find if all models are fitted to the same data
-	m.resp <- lapply(models, function(x) {
-	  f <- formula(x)
-	  if(length(f) == 2L || (length(f[[2L]]) == 2 && f[[2L]][[1L]] == "~")) 0 else f[[2L]]
-	})
-
-
- 	if(!all(vapply(m.resp[-1L], "==", logical(1), m.resp[[1L]])))
-		stop("Response differs between models")
-
-	m.data <- lapply(models, function(x) (if(mode(x) == "S4") `@` else `$`)
-					 (x, "call")$data)
-	# when using only nobs - seems to be evaluated first outside of MuMIn namespace
-	# which e.g. gives an error in glmmML - the glmmML::nobs method is faulty.
-	m.nresid <-	vapply(models, function(x) nobs(x), numeric(1L)) # , nall=TRUE
-	
-	if(!all(m.data[-1L] == m.data[[1]]) || !all(m.nresid[-1L] == m.nresid[[1L]]))
-		stop("Models were not all fitted to the same dataset")
+	.checkModels(models)
 
 	all.terms <- unique(unlist(lapply(models, getAllTerms)))
 	all.terms <- all.terms[order(vapply(gregexpr(":", all.terms),
@@ -66,10 +49,10 @@ function(object, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 			model.matrix.default(object, data=data, ...)
 	}
 
-	aicc <- vapply(models, rank, numeric(1))
+	ic <- vapply(models, rank, numeric(1))
 	dev <- if (!is.null(tryCatch(deviance(models[[1L]]), error=.fnull)))
 		vapply(models, deviance, numeric(1)) else NA
-	delta <- aicc - min(aicc)
+	delta <- ic - min(ic)
 	weight <- exp(-delta / 2) / sum(exp(-delta / 2))
 	model.order <- order(weight, decreasing=TRUE)
 
@@ -80,7 +63,7 @@ function(object, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	# !!! From now on, everything MUST BE SORTED by 'weight' !!!
 
 	selection.table <- data.frame(
-		Deviance = dev,	AICc = aicc, Delta = delta, Weight = weight,
+		Deviance = dev,	IC = ic, Delta = delta, Weight = weight,
 		row.names = all.model.names
 	)[model.order, ]
 
