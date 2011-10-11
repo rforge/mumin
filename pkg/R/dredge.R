@@ -35,20 +35,31 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	if(length(grep(":", all.vars(delete.response(gterms) > 0))))
 		stop("Variable names in the model can not contain \":\"")
 
-	global.call <- if(mode(global.model) == "S4") {
-		if ("call" %in% slotNames(global.model)) slot(global.model, "call") else
-			NULL
-	} else {
-		if(!is.null(global.model$call)) {
-			global.model$call
-		} else if(!is.null(attr(global.model, "call"))) {
-			attr(global.model, "call")
-		} else
-			NULL
-	}
+	global.call <- .getCall(global.model)
 
 	if (is.null(global.call)) {
 		global.call <- substitute(global.model)
+		if(!is.call(global.call)) {
+			if(inherits(global.model, c("gamm", "gamm4")))
+				message("To use gamm models with 'dredge', use 'MuMIn::gamm' wrapper")
+
+			stop("could not retrieve the call to 'global.model'")
+
+		}
+		#"For objects without a 'call' component the call to the fitting function \n",
+		#" must be used directly as an argument to 'dredge'.")
+
+		#if(inherits(global.model, c("gamm", "gamm4")) && is.null(global.model$call)) {
+		#	warning("for gamm models, use 'MuMIn:::gamm' wrapper.")
+		#}
+
+
+
+		# this is unlikely to happen:
+		if(!exists(as.character(global.call[[1]]), parent.frame(), mode="function"))
+			 stop("could not find function '", global.call[[1]], "'")
+
+
 		formula.arg <- 2L # assume is a first argument
 	} else {
 
@@ -100,8 +111,7 @@ function(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 	ret <- numeric(0L)
 	formulas <- character(0L)
 
-	is.glm <- inherits(global.model, "glm")
-	is.lm <- !is.glm & inherits(global.model, "lm")
+	is.lm <- !inherits(global.model, "glm") & inherits(global.model, "lm")
 
 
 	if(isTRUE(rankArgs$REML) || (isTRUE(.isREMLFit(global.model)) && is.null(rankArgs$REML))) {

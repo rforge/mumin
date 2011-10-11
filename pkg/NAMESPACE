@@ -1,6 +1,7 @@
 export(
 	AICc, beta.weights, dredge, get.models, model.avg, par.avg, QAIC, QAICc,
-	getAllTerms, coeffs, tTable, Weights, mod.sel, importance
+	getAllTerms, coeffs, tTable, Weights, mod.sel, importance,
+	gamm
 )
 
 if (getRversion() >= "2.13.0") {
@@ -105,3 +106,13 @@ S3method(tTable, unmarkedFit)
 S3method(coefDf, unmarkedFit)
 S3method(nobs, unmarkedFit)
 S3method(logLik, unmarkedFit)
+
+
+S3method(update, gamm)
+S3method(print, gamm)
+S3method(logLik, gamm)
+S3method(formula, gamm)
+S3method(nobs, gamm)
+S3method(coeffs, gamm)
+S3method(getAllTerms, gamm)
+S3method(tTable, gamm)

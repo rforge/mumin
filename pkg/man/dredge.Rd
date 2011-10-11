@@ -6,7 +6,7 @@
 \title{Evaluate "all possible" models}
 \description{
 Automatically generate models with combinations of the terms in the global
-model, with optional restrictions.
+model, with optional constraints.
 }
 
 \usage{

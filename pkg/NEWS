@@ -1,5 +1,11 @@
 MuMIn package news:
 
+Version: 1.4.2 (2011-10-11)
+support for gamm and gamm4
+
+Version: 1.4.1 (2011-10-10)
+A few changes to vignette 'gamm'
+
 Version: 1.4.0 (2011-10-05)
 importance: new function
 mod.sel: added method for a 'model.selection' object

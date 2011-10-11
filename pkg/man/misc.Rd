@@ -77,6 +77,7 @@ rbindDataFrameList(x)
   \item{aic}{a vector of AIC (or other information criterion) values }
 }
 
+
 \details{
 	The functions \code{coeffs}, \code{getAllTerms} and \code{tTable} provide an
 	interface between the model and \code{model.avg} (as well as \code{dredge}).
@@ -90,8 +91,8 @@ rbindDataFrameList(x)
 \code{\link{coef}}, the only difference is that it returns fixed
 effects' coefficients for mixed models.
 
-Functions \code{*bindDataFrameList} are not exported from the name space, \cr
-use \code{MuMIn:::cbindDataFrameList} to access them.
+Whimsically, the functions \code{*bindDataFrameList} are not exported from the 
+name space, \cr use \code{MuMIn:::cbindDataFrameList} to access them.
 
 }
 
@@ -100,7 +101,7 @@ use \code{MuMIn:::cbindDataFrameList} to access them.
 
 \seealso{
 
-Vignette \sQuote{\ifelse{html}{\href{/library/MuMIn/doc/gamm.pdf}{Extending \pkg{MuMIn}'s functionality}}{Extending \pkg{MuMIn}'s functionality}} has information on using with other model types
+Vignette \sQuote{\ifelse{html}{\href{/library/MuMIn/doc/gamm.pdf}{Extending \pkg{MuMIn}'s functionality}}{Extending \pkg{MuMIn}'s functionality}} has information on how to use model selection functions with other model types.
 }
 
 \keyword{models}
