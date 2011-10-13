@@ -190,3 +190,6 @@ function(x) {
 	}
 	invisible(res)
 }
+
+`videntical` <-
+function(x) all(vapply(x[-1L], identical, logical(1), x[[1L]]))

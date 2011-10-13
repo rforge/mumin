@@ -1,5 +1,6 @@
 `par.avg` <-
-function(x, se, weight, df = NULL, alpha = 0.05, revised.var = TRUE) {
+function(x, se, weight, df = NULL, level = 1 - alpha, alpha = 0.05,
+	revised.var = TRUE) {
 
 	if (!(is.numeric(x) && is.numeric(se) && is.numeric(weight)))
 		stop("'x', 'se' and 'weight' must be numeric vectors")
@@ -44,6 +45,7 @@ function(x, se, weight, df = NULL, alpha = 0.05, revised.var = TRUE) {
 	}
 
 	ci <- qnorm(a, lower.tail = TRUE) * (if (do.ase) ase else use)
+
 
 	return(c(`Coefficient` = wx, `SE` = use,
 			 `Adjusted SE` = if(do.ase) ase else NA,

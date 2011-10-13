@@ -21,6 +21,7 @@ function(object, ...) {
 function(x, ...) {
 	cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"),
         "\n\n", sep = "")
+	cat("--- \n")
 	print(x[[if(inherits(x, "gamm4")) "mer" else "lme"]])
 	cat("--- \n")
 	print(x$gam)

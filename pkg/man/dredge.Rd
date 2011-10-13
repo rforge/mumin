@@ -10,55 +10,66 @@ model, with optional constraints.
 }
 
 \usage{
-dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
-    fixed = NULL, m.max = NA, subset, marg.ex = NULL,
-    trace = FALSE, ...)
+dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
+    fixed = NULL, m.max = NA, m.min = 0, subset, marg.ex = NULL,
+    trace = FALSE, varying = NULL, ...)
 
 \method{print}{model.selection}(x, abbrev.names = TRUE, ...)
 
 }
 
 \arguments{
-  \item{global.model}{a fitted \sQuote{global} model object. Currently, it can
-    be a \code{lm}, \code{glm}, \code{rlm}, \code{polr}, \code{multinom}, \code{gam},
-    \code{gls}, \code{lme}, \code{lmer}, \code{coxph}, \code{glmmML},
-    \code{sarlm} or \code{spautolm}, but also other types are likely to work
-    (yet this is untested).
+	\item{global.model}{a fitted \sQuote{global} model object. See
+	\sQuote{Details} for a list of supported types.
     }
 
-  \item{beta}{logical, should standardized coefficients be returned?}
 
-  \item{eval}{whether to evaluate and rank the models. If \code{FALSE}, a list
-  of all possible model formulas is returned.}
+	\item{beta}{logical, should standardized coefficients be returned?}
 
-  \item{rank}{optional custom rank function (information criterion) to be used
-  instead \code{AICc}, e.g. \code{QAIC} or \code{BIC}. See \sQuote{Details}.}
+	\item{evaluate}{whether to evaluate and rank the models. If \code{FALSE}, a
+	list of model \code{call}s is returned.}
 
-  \item{fixed}{optional, either a single sided formula or a character vector
-  giving names of terms to be included in all models.}
+	\item{rank}{optional custom rank function (information criterion) to be used
+	instead \code{AICc}, e.g. \code{QAIC} or \code{BIC}. See \sQuote{Details}.}
 
-  \item{m.max}{optional, maximum number of terms to be included in single model,
-  defaults to the number of terms in \code{global.model}.}
+	\item{fixed}{optional, either a single sided formula or a character vector
+	giving names of terms to be included in all models.}
 
-  \item{subset}{
-    logical expression to put constraints for the set of models. Can contain any
-    of the \code{global.model} terms (use \code{getAllTerms(global.model)} to
-    list them). Complex expressions (e.g smooth functions in
-    \code{\link[mgcv]{gam}} models) should be treated as non-syntactic names and
-    enclosed in back-ticks (see \link[base]{Quotes}). Mind the spacing, names
-    must match exactly the term names in model's formula.
-    To simply keep certain variables in all models, use of \code{fixed} is
-    preferred. }
+	\item{m.max, m.min}{optional, maximum and minimum number of terms in a single
+	model (excluding the intercept), \code{m.max} defaults to the number of terms
+	in \code{global.model}.}
 
-  \item{marg.ex}{
-    a character vector specifying names of variables for which NOT to check for
-    marginality restrictions when generating model formulas. If this argument is
-    set to \code{TRUE}, all model formulas are used (i.e. no checking). See
-    \sQuote{Details}.}
+	\item{subset}{ logical expression to put constraints for the set of models.
+	Can contain any of the \code{global.model} terms (use
+	\code{getAllTerms(global.model)} to list them).
+
+	This can have a form of an unevaluated \code{call}, \code{expression}
+	object, or a one sided \code{formula}.
+
+	Model terms being complex expressions (e.g
+	smooth functions in \code{\link[mgcv]{gam}} models) should be treated as
+	non-syntactic names and enclosed in back-ticks (see \link[base]{Quotes}).
+	Mind the spacing, names must match exactly the term names in model's
+	formula. To simply keep certain variables in all models, use of \code{fixed}
+	is preferred. }
+
+	\item{marg.ex}{ a character vector specifying names of variables for which
+	NOT to check for marginality restrictions when generating model formulas. If
+	this argument is set to \code{TRUE}, all model formulas are used (i.e. no
+	checking). See \sQuote{Details}.}
 
   \item{trace}{
-    if \code{TRUE}, all calls to the fitting function (i.e. updated
-    \code{global.model} calls) are printed. }
+	if \code{TRUE}, all calls to the fitting function (i.e. updated
+	\code{global.model} calls) are printed. }
+
+	\item{varying}{
+		A named list of additional arguments to vary between the models. Each
+		item should be a list of alternatives. Complex items in the
+		\code{varying} elements (such as \code{family} objects) should be either
+		named (uniquely) or quoted (unevaluated, e.g. using \code{\link{alist}},
+		see \code{\link{quote}}), otherwise it may produce rather unpleasant
+		effects. See examples in \code{\link{Beetle}}
+	}
 
 
   \item{x}{
@@ -75,6 +86,12 @@ dredge(global.model, beta = FALSE, eval = TRUE, rank = "AICc",
 
 
 \details{
+
+\code{dregde} currently is known to work with \code{lm}, \code{glm}, 
+\code{rlm}, \code{polr}, \code{multinom}, \code{gam}, \code{gls}, \code{lme}, 
+\code{lmer}, \code{coxph},  \code{glmmML}, \code{sarlm}, \code{spautolm},
+\code{gamm} and \code{gamm4} (the last two should be called via the wrapper
+\code{gamm} in \pkg{MuMIn}).
 
 Models are run one by one by repeated evaluation of the call to
 \code{global.model} with modified formula argument (or \code{fixed} in

@@ -35,6 +35,14 @@ function(object, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 
 	all.model.names <- vapply(models,
 		function(x) paste(match(getAllTerms(x), all.terms), collapse="+"), character(1L))
+
+	if(videntical(all.model.names)) {
+		fam <- sapply(models, function(x) unlist(family(x)[c("family", "link")]))
+		fam <- fam[!apply(fam, 1, videntical), , drop=FALSE]
+		all.model.names <- paste(all.model.names, apply(fam, 2,  paste, collapse="."), sep="|")
+	}
+
+
 	# check if models are unique:
 	dup <- duplicated(all.model.names)
 	if (any(dup)) {
@@ -108,10 +116,11 @@ function(object, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	##
 	rownames(all.se) <- rownames(all.coef) <- rownames(selection.table)
 
-	importance <- apply(weight * t(sapply(models,
-		function(x) all.terms %in% getAllTerms(x))), 2L, sum)
+	p <- lapply(models, function(x) all.terms %in% getAllTerms(x))
+	p <- t(array(unlist(p), dim=c(length(all.terms),length(models))))
+	importance <- apply(weight * p, 2L, sum)
 	names(importance) <- all.terms
-	importance <- sort(importance, decreasing=T)
+	importance <- sort(importance, decreasing=TRUE)
 
 
 	if (method == "0") {
