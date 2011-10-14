@@ -5,7 +5,7 @@
 \title{Flour beetle mortality data}
 \description{
 Mortality of flour beetles (\emph{Tribolium confusu}) due to exposure to gaseous
-carbon disulfide (CS_{2}), from Bliss (1935)
+carbon disulfide CS\eqn{_{2}}{2}, from Bliss (1935)
 }
 
 \usage{
@@ -16,7 +16,7 @@ data(Beetle)
 \code{Beetle} is a data frame with 4 variables.
 
 \describe{
-   \item{dose}{The dose of CS_{2} in mg/L}
+   \item{dose}{The dose of CS\eqn{_{2}}{2} in mg/L}
    \item{n.tested}{Number of beetles tested}
    \item{n.killed}{Number of beetles killed}
    \item{mortality}{Observed mortality rate}
@@ -37,8 +37,8 @@ inference: a practical information-theoretic approach}. 2nd ed.
 
 \examples{
 
-# This follows the "logistic regression example"
-# from Burnham & Anderson (2002), section 4.11
+# The "Logistic regression example"
+# from Burnham & Anderson (2002) chapter 4.11
 
 data(Beetle)
 
@@ -53,22 +53,51 @@ globmod <- glm(cbind(n.killed, n.tested- n.killed)~dose + I(dose^2) + log(dose)
 msubset <- expression(xor(dose, `log(dose)`) & (dose | !`I(dose^2)`)
 	& (`log(dose)` | !`I(log(dose)^2)`))
 
-# Note the use of 'alist' rather than 'list' in order to keep the 'family'
-# objects unevaluated
-alt.family <- list(family=alist(binomial("logit"), binomial("probit"),
-	binomial("cloglog")))
-# or, provide the alternatives as a named list
-alt.family <- list(family=list(logit=binomial("logit"),
-	probit=binomial("probit"), cloglog=binomial("cloglog")))
-
 
 # Table 4.6
-(dd12 <- dredge(globmod, subset = msubset, varying = alt.family))
+
+# Use 'varying' argument to fit models with different link functions
+# Note the use of 'alist' rather than 'list' in order to keep the 'family'
+# objects unevaluated
+varying.link <- list(family=alist(
+	logit = binomial("logit"),
+	probit = binomial("probit"),
+	cloglog = binomial("cloglog")
+	))
+
+(dd12 <- dredge(globmod, subset = msubset, varying = varying.link, rank=AIC))
 
 # Table 4.7 "models justifiable a priori"
-(dd3 <- dredge(update(globmod, . ~ dose), m.min = 1, varying = alt.family))
+(dd3 <- dredge(update(globmod, . ~ dose), m.min = 1, rank=AIC,
+	varying = varying.link))
 
 mod3 <- get.models(dd3, 1:3)
+
+# Table 4.8. Predicted mortality probability at dose 40.
+
+# helper function to calculate confidence intervals on logit scale
+logit.ci <- function(p, se, quantile = 2) {
+	C. <- exp(quantile * se / (p * (1 - p)))
+	p /(p + (1 - p) * c(C., 1/C.))
+}
+
+pred <- sapply(mod3, predict, newdata=list(dose=40), se.fit=TRUE, type="response")
+pred <- apply(pred, 1, unlist)[,1:2] # simplify
+
+# build the table
+tab <- rbind(pred, par.avg(pred[,"fit"], pred[,"se.fit"], dd3$weight,
+	revised.var = FALSE)[1:2])
+tab <- cbind(
+	c(dd3$weight, NA),
+	tab,
+	matrix(logit.ci(tab[,"fit"], tab[,"se.fit"], quantile = c(rep(1.96, 3), 2)),
+	ncol=2)
+	)
+colnames(tab) <- c("Akaike weight", "Predicted(40)", "SE", "Lower CI", "Upper CI")
+rownames(tab) <- c(as.character(dd3$family), "model averaged")
+
+print(tab, digits=3, na.print="")
+
 
 # Figure 4.3
 newdata <- list(dose = seq(min(Beetle$dose), max(Beetle$dose), length.out = 25))

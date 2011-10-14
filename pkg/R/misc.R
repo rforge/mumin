@@ -102,12 +102,16 @@ if (!existsFunction("nobs", where = "package:stats")) {
 	rank.args <- c(rank.args, list(...))
 
 	if(is.null(rank)) {
-		IC <- AICc
+		IC <- as.function(c(alist(x=, do.call("AICc", list(x)))))
+		x <- NULL # just not to annoy R check
+		as.function(c(alist(x=, do.call("AICc", list(x)))))
 		attr(IC, "call") <- call("AICc", as.name("x"))
+		class(IC) <- c("function", "ICWithCall")
 		return(IC)
 	} else if(inherits(rank, "ICWithCall") && length(rank.args) == 0L) {
 		return(rank)
 	}
+
 	srank <- substitute(rank, parent.frame())
 	if(srank == "rank") srank <- substitute(rank)
 
@@ -115,11 +119,7 @@ if (!existsFunction("nobs", where = "package:stats")) {
 	ICName <- switch(mode(srank), call=as.name("IC"), character=as.name(srank), name=, srank)
 	ICarg <- c(list(as.name("x")), rank.args)
 	ICCall <- as.call(c(ICName, ICarg))
-	if(is.null(rank.args) || length(rank.args) == 0L) {
-		IC <- rank
-	} else {
-		IC <- as.function(c(alist(x=), list(substitute(do.call("rank", ICarg), list(ICarg=ICarg)))))
-	}
+	IC <- as.function(c(alist(x=), list(substitute(do.call("rank", ICarg), list(ICarg=ICarg)))))
 
 	if(!is.null(object)) {
 		test <- IC(object)
@@ -193,3 +193,48 @@ function(x) {
 
 `videntical` <-
 function(x) all(vapply(x[-1L], identical, logical(1), x[[1L]]))
+
+
+`.makeModelNames` <- function(models, all.terms) {
+	allterms1 <- lapply(models, getAllTerms)
+	if(missing(all.terms))	all.terms <- unique(unlist(allterms1))
+
+	ret <- vapply(allterms1,
+		function(x) paste(match(x, all.terms), collapse="+"),
+		character(1L))
+	if(videntical(ret)) {
+		fam <- sapply(models, function(x) {
+			tryCatch(unlist(family(x)[c("family", "link")]),
+				error=function(e) c("", ""))
+		})
+		fam <- fam[!apply(fam, 1, videntical), , drop=FALSE]
+		if(nrow(fam) > 0L)
+			ret <- paste(ret, apply(fam, 2,  paste, collapse="."), sep="|")
+	}
+
+#################
+#models <- top.models.1
+
+
+	cl <- lapply(models, .getCall)
+	x <- lapply(cl, function(x) sapply(x[-1L], function(argval) {
+		if(is.numeric(argval)) signif(argval, 3) else deparse(argval, nlines=1)
+	}))
+	x <- rbindDataFrameList(lapply(lapply(x, t), as.data.frame))
+	x$formula <- x$fixed <- NULL
+	x[x == "NULL"] <- NA
+	x <- x[, sapply(x, nlevels) != 1L, drop=FALSE]
+	x <- as.matrix(x)
+	x[is.na(x)] <- ""
+	if(ncol(x)) {
+		ret <- paste(ret,
+		gsub("(\\s+|\\w+ *=)","", apply(x, 1L, paste, collapse="/"), perl=TRUE),
+		sep=":")
+	}
+
+	if(any(duplicated(ret))) {
+		ret <- sprintf("Model %2$s (%1$s)", ret, format(seq_along(models)))
+	}
+
+	ret
+}

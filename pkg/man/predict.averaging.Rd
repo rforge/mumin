@@ -4,7 +4,7 @@
 
 \title{Predict Method for the Averaged Model}
 \description{
-Model-averaged predictions with optional standard errors. 
+Model-averaged predictions with optional standard errors.
 }
 
 \usage{
@@ -23,7 +23,7 @@ Model-averaged predictions with optional standard errors.
     \item{type}{Predictions on response scale are only possible if all
         component models use the same \code{\link[stats]{family}}. See
         \code{\link[stats]{predict.glm}}}
-    \item{\dots}{ arguments to be passed to respective \code{predict}
+    \item{\dots}{Arguments to be passed to respective \code{predict}
         method (e.g. \code{level} for \code{\link[nlme]{lme}} model). }
 
 }
@@ -60,6 +60,11 @@ An object of class \code{averaging} with following elements:
     each component model and weighted averaging the results, which is equivalent
     to assuming that missing coefficients equal zero (\code{method = "0"}).
 
+Predictions from generalized models are calculated by averaging
+	predictions of each model on the link scale, followed by inverse
+	transformation.
+
+
 Besides \code{predict} and \code{coef}, other generic methods such as
     \code{\link[stats]{formula}}, \code{\link[stats]{residuals}} and
     \code{\link[stats]{vcov}} are supported. \cr
@@ -94,9 +99,9 @@ avgm <- model.avg(top.models)
 
 # helper function
 nseq <- function(x, len=length(x)) seq(min(x, na.rm=TRUE),
-    max(x, na.rm=TRUE),    length=len)
+    max(x, na.rm=TRUE), length=len)
 
-# New predictors: X1 along the range of original data, other 
+# New predictors: X1 along the range of original data, other
 # variables held constant at their means
 newdata <- as.data.frame(lapply(lapply(Cement[1:5], mean), rep, 25))
 newdata$X1 <- nseq(Cement$X1, nrow(newdata))
@@ -129,7 +134,7 @@ cat(dQuote(getAllTerms(gam1)), "\n")
 
 # include only models with either smooth OR linear term (but not both)
 # for each predictor variable:
-dd <- dredge(gam1, subset=xor(`s(x1)`, x1) & xor(`s(x2)`, x2) & 
+dd <- dredge(gam1, subset=xor(`s(x1)`, x1) & xor(`s(x2)`, x2) &
     xor(`s(x3)`, x3))
 # ...this may take a while.
 

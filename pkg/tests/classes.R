@@ -6,23 +6,63 @@ require(MuMIn)
 # TEST gls --------------------------------------------------------------------------------
 if(.checkPkg("nlme")) {
 library(nlme)
-data(Ovary, package = "nlme")
-fm1 <- gls(follicles ~ sin(2*pi*Time) + cos(2*pi*Time), Ovary,
-		   correlation = corAR1(form = ~ 1 | Mare))
-dd <- dredge(fm1, trace=T)
-gm <- get.models(dd, 1:4)
-ma <- model.avg(gm, revised=T)
 
-dd
-mod.sel(gm)
+fm1Dial.gls <- gls(rate ~(pressure + I(pressure^2) + I(pressure^3) + I(pressure^4))*QB,
+      Dialyzer, method="ML")
+
+Dialyzer
+
+varying <- list(
+	correlation = alist(
+		AR1_0.771=corAR1(0.771, form = ~ 1 | Subject),
+		AR1=corAR1(),
+		NULL
+		),
+	weights = alist(vp.press=varPower(form = ~ pressure), NULL)
+	)
+
+dd <- dredge(fm1Dial.gls, m.max=1, m.min=1, fixed=~pressure, varying=varying)
+
+models <- get.models(dd, 1:4)
+ma <- model.avg(models, revised=T)
+
+summary(ma)
+
+predict(ma)
+predict(ma, data.frame(QB=300, pressure=seq(0.24, 3, length=10)))
+
+
+
+#traceback()
+#...
+#4: .makeModelNames(models)
+#3: eval(expr, envir, enclos)
+#2: eval(x, envir)
+#1: withVisible(eval(x, envir))
+
+# example(corGaus)
+fm1BW.lme <- lme(weight ~ Time * Diet, data = BodyWeight, random = ~ Time, method="ML")
+
+varying <- list(
+	correlation = alist(
+		corExp(form = ~ Time),
+		corGaus(form = ~ Time)
+		),
+	weights = alist(NULL, varPower())
+)
+
+dd <- dredge(fm1BW.lme, m.max=1, fixed=~Time, varying=varying)
+
+#dd <- dredge(fm1, trace=T)
+models <- get.models(dd, 1:4)
+ma <- model.avg(models, revised=T)
+
+mod.sel(models)
 
 summary(ma)
 confint(ma)
 
 #ma <- model.avg(gm, revised=F)
-
-predict(ma)
-predict(ma, data.frame(Mare=1, Time=range(Ovary$Time)))
 
 detach(package:nlme); rm(list=ls())
 }
@@ -108,7 +148,14 @@ if(.checkPkg("lme4")) {
 library(lme4)
 data(Orthodont, package = "nlme")
 
-fm2 <- lmer(distance ~ Sex*age + (1|Subject) + (1|Sex), data = Orthodont)
+fm2 <- lmer(distance ~ Sex*age + (1|Subject) + (1|Sex), data = Orthodont, REML=FALSE)
+#fm0 <- lmer(distance ~ 1 + (1|Subject) + (1|Sex), data = Orthodont, REML=FALSE)
+#fm00 <- lm(distance ~ 1 , data = Orthodont)
+
+
+
+#logLik(fm2)/logLik(fm0)
+#logLik(fm2)/logLik(fm00)
 
 dd <- dredge(fm2, trace=T)
 gm <- get.models(dd, 1:4)
@@ -254,6 +301,14 @@ suppressMessages(example(NY_data, echo = FALSE))
 esar1f <- spautolm(Z ~ PEXPOSURE * PCTAGE65P + PCTOWNHOME,
  data=nydata, listw=listw_NY, family="SAR", method="full", verbose=FALSE)
 
+dd <- dredge(esar1f, m.max=1,  fixed=~PEXPOSURE,
+	varying = list(
+		family = list("CAR", "SAR"),
+		method=list("Matrix_J", "full", "spam")
+	))
+
+#traceback()
+
 dd <- dredge(esar1f, m.max=3, fixed=~PEXPOSURE)
 gm <- get.models(dd, cumsum(weight) <= .99)
 ma <- model.avg(gm)
@@ -289,6 +344,9 @@ require(MASS)
 
 quine.nb1 <- glm.nb(Days ~ 0+Sex/(Age + Eth*Lrn), data = quine)
 #quine.nb1 <- glm.nb(Days ~ Sex/(Age + Eth*Lrn), data = quine)
+
+models <- get.models(dredge(quine.nb1, marg.ex="Sex"), 1:5)
+
 
 dredge(quine.nb1) # Wrong
 dredge(quine.nb1, marg.ex="Sex") # Right

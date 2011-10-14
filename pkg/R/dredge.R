@@ -21,6 +21,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		rankArgs <- list(...)
 	}
 	IC <- .getRank(rank, rankArgs)
+
 	ICName <- as.character(attr(IC, "call")[[1L]])
 	# *** Rank ***
 
@@ -200,10 +201,10 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		ret.nchunk <- ncomb * nvariants
 	}
 
-	calls <- vector(mode="list", length=ret.nchunk)
+	calls <- vector(mode="list", length = ret.nchunk)
 
 	if(hasSubset <- !missing(subset))  {
-		if(!tryCatch(is.language(subset), error=function(e) FALSE))
+		if(!tryCatch(is.language(subset), error = function(e) FALSE))
 			subset <- substitute(subset)
 		if(inherits(subset, "formula")) {
 			if (subset[[1]] != "~" || length(subset) != 2L)
@@ -293,7 +294,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 				ret.nrow <- nrow(ret)
 				if(k > ret.nrow) {
-					nadd <- min(ret.nchunk, ncomb - ret.nrow)
+					nadd <- min(ret.nchunk, (ncomb * nvariants) - ret.nrow)
 					ret <- rbind(ret, matrix(NA, ncol=ret.ncol, nrow=nadd))
 					calls <- c(calls, vector("list", nadd))
 				}

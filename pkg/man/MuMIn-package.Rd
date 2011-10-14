@@ -7,8 +7,8 @@
 Multi-model inference
 }
 \description{
-The package \code{MuMIn} contains functions for (automated) model selection and
-model averaging based on information criteria (AIC alike).
+The package \code{MuMIn} contains functions to streamline model selection and
+perform model averaging based on information criteria (AIC, AICc and alike).
 }
 
 
@@ -51,7 +51,7 @@ model.avg(top.models.2)
 # modified example(lme)
 data(Orthodont, package="nlme")
 require(nlme)
-fm2 <- lme(distance ~ age + Sex, data = Orthodont, 
+fm2 <- lme(distance ~ age + Sex, data = Orthodont,
     random = ~ 1 | Subject, method="ML")
 dredge(fm2)
 

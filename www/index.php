@@ -47,8 +47,6 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 
 
 
-
-
 <p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
 
 </body>

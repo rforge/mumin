@@ -1,7 +1,9 @@
 \name{mod.sel}
 \alias{mod.sel}
+\alias{model.sel}
 \alias{mod.sel.default}
 \alias{mod.sel.model.selection}
+\alias{model.sel}
 \encoding{utf-8}
 
 \title{model selection table}
@@ -12,6 +14,7 @@ Builds a model selection table
 \usage{
 
 mod.sel(object, ...)
+model.sel(object, ...)
 
 \method{mod.sel}{model.selection}(object, rank = NULL, rank.args = NULL, ...)
 \method{mod.sel}{default}(object, ..., rank = NULL, rank.args = NULL)
@@ -60,8 +63,9 @@ fm1 <- glm(formula = y ~ X + X1 + X2 * X3, data = Cement)
 fm2 <- update(fm1, . ~ . - X - X1)
 fm3 <- update(fm1, . ~ . - X2 - X3)
 
-# ranked with default AICc
+# ranked with AICc by default
 mod.sel(fm1, fm2, fm3)
+
 
 # ranked with BIC
 mod.sel(fm1, fm2, fm3, rank=AIC, rank.args=alist(k=log(nobs(x))))

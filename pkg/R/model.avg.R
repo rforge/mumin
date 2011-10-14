@@ -29,26 +29,26 @@ function(object, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 
 	.checkModels(models)
 
-	all.terms <- unique(unlist(lapply(models, getAllTerms)))
+	allterms1 <- lapply(models, getAllTerms)
+	all.terms <- unique(unlist(allterms1))
+
+	# sort by level (main effects first)
 	all.terms <- all.terms[order(vapply(gregexpr(":", all.terms),
 		function(x) if(x[1L] == -1L) 0L else length(x), numeric(1L)), all.terms)]
 
-	all.model.names <- vapply(models,
-		function(x) paste(match(getAllTerms(x), all.terms), collapse="+"), character(1L))
-
-	if(videntical(all.model.names)) {
-		fam <- sapply(models, function(x) unlist(family(x)[c("family", "link")]))
-		fam <- fam[!apply(fam, 1, videntical), , drop=FALSE]
-		all.model.names <- paste(all.model.names, apply(fam, 2,  paste, collapse="."), sep="|")
-	}
-
+	all.model.names <- .makeModelNames(models, all.terms)
 
 	# check if models are unique:
-	dup <- duplicated(all.model.names)
-	if (any(dup)) {
-  		dup <- table(all.model.names)
-		dup <- seq(all.model.names)[all.model.names %in% names(dup[dup > 1])]
-		stop("Models are not unique. Duplicates: ", paste(dup, collapse=", "))
+	mcoeffs <- lapply(models, coeffs)
+	dup <- unique(sapply(mcoeffs, function(i) which(sapply(mcoeffs, identical, i))))
+	dup <- dup[sapply(dup, length) > 1L]
+	ndups <- length(dup)
+
+	if (ndups > 0L) {
+		stop("Models are not unique. Duplicates: ",
+			paste(sapply(dup, paste, sep="", collapse=" = "),
+				if(ndups > 1L) c(rep(", ", ndups - 2L), ", and ", "") else NULL,
+				collapse="", sep=""))
 	}
 
 	# workaround for different behavior of model.matrix with lme: data argument is required
@@ -193,6 +193,7 @@ function(object, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 `coef.averaging` <-
 function(object, ...) object$avg.model[,1]
 
+# TODO: predict type="response" + average on response scale
 `predict.averaging` <-
 function(object, newdata = NULL, se.fit = NULL, interval = NULL,
 	type = c("link", "response"), ...) {
