@@ -1,7 +1,7 @@
 export(
 	AICc, beta.weights, dredge, get.models, model.avg, par.avg, QAIC, QAICc,
-	getAllTerms, coeffs, tTable, Weights, mod.sel, importance,
-	gamm
+	getAllTerms, coeffs, tTable, Weights, model.sel, mod.sel, importance,
+	gamm, Cp, ICOMP
 )
 
 if (getRversion() >= "2.13.0") {

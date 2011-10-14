@@ -36,7 +36,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 <!-- end of project description -->
 
 <p><a href="MuMIn-manual.pdf">Manual in PDF</a></p>
-<p>Install stable version from CRAN (preferred):</p>
+<p>Install stable version from CRAN (recommended):</p>
 <p><tt style="font-weight:bold; color: #005f8c;">&gt; install.packages("MuMIn")</tt></p>
 
 <p>Install development version on R-forge (use at your own risk): <br />

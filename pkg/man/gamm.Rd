@@ -11,7 +11,6 @@ Adapter function for use mixed Generalized Additive Models from packages
 
 \usage{
 gamm(formula, random = NULL, ..., lme4 = inherits(random, "formula"))
-
 }
 
 \arguments{
@@ -28,6 +27,14 @@ gamm(formula, random = NULL, ..., lme4 = inherits(random, "formula"))
 	\code{gamm4} fitted model object. The only difference from the originals is
 	the \code{call} component, allowing for \code{\link{update}}'ing of the
 	object.
+}
+
+\note{
+This is only a temporary workaround and it is likely be removed soon.
+
+To make sure this wrapper function is used (in case it is masked by 
+	the original \code{gamm} from \pkg{mgcv}), use 
+	\code{MuMIn::\link[MuMIn]{gamm}}.
 }
 
 \author{Kamil Barto\enc{ń}{n}}

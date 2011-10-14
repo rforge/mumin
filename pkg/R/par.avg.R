@@ -22,12 +22,8 @@ function(x, se, weight, df = NULL, level = 1 - alpha, alpha = 0.05,
 
 	if(do.ase) {
 		z <- c(qt(a, df) / qnorm(a))^2
-		#print(cbind(x, z, weight))
-
 		i <- is.na(df) & !is.na(x)
 		if (length(i) > 0) z[i] <- 0
-
-		#print(cbind(x, z, weight))
 	}
 
 	if(revised.var) {
@@ -45,7 +41,6 @@ function(x, se, weight, df = NULL, level = 1 - alpha, alpha = 0.05,
 	}
 
 	ci <- qnorm(a, lower.tail = TRUE) * (if (do.ase) ase else use)
-
 
 	return(c(`Coefficient` = wx, `SE` = use,
 			 `Adjusted SE` = if(do.ase) ase else NA,

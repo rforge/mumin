@@ -48,7 +48,7 @@ function in \code{\link{dredge}} and \code{\link{model.avg}}.
 % ", a vignette in the \\\\pkg{bbmle} package.", sep="")
 % }
 % }{
-% \sQuote{\href{http://cran.r-project.org/web/packages/bbmle/vignettes/quasi.pdf}{Dealing with quasi- models in R}}, 
+% \sQuote{\href{http://cran.r-project.org/web/packages/bbmle/vignettes/quasi.pdf}{Dealing with quasi- models in R}},
 % a vignette in the \pkg{bbmle} package.
 % }
 
@@ -61,23 +61,24 @@ function in \code{\link{dredge}} and \code{\link{model.avg}}.
 \examples{
 
 # Based on "example(predict.glm)"
-require(graphics)
 
 budworm <- data.frame(
-    ldose = rep(0:5, 2), 
-    numdead = c(1, 4, 9, 13, 18, 20, 0, 2, 6, 10, 12, 16), 
+    ldose = rep(0:5, 2),
+    numdead = c(1, 4, 9, 13, 18, 20, 0, 2, 6, 10, 12, 16),
     sex = factor(rep(c("M", "F"), c(6, 6))))
 budworm$SF = cbind(
-    numdead = budworm$numdead, 
+    numdead = budworm$numdead,
     numalive = 20 - budworm$numdead)
 
 budworm.lg <- glm(SF ~ sex*ldose, data = budworm, family = quasibinomial)
 
-dd <- dredge(budworm.lg, rank = "QAIC", 
+dd <- dredge(budworm.lg, rank = "QAIC",
     chat = summary(budworm.lg)$dispersion)
 # Average all models
 budworm.avg <- model.avg(get.models(dd, seq(nrow(dd))), method="NA")
 #model.avg(mod[[1]], mod[[2]], rank = "QAIC", rank.args = list(chat = 1))
+
+if(require(graphics)) {
 
 plot(c(1,32), c(0,1), type = "n", xlab = "dose",
      ylab = "prob", log = "x")
@@ -114,5 +115,6 @@ legend("bottomright", legend=c("full", "averaged"), title="Model",
 
 }
 
-\keyword{models}
+}
 
+\keyword{models}

@@ -1,6 +1,6 @@
-\name{miscellaneous}
+\name{Miscellaneous}
 \alias{Miscellaneous}
-
+\alias{miscellaneous}
 \alias{coeffs}
 \alias{beta.weights}
 \alias{tTable}

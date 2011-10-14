@@ -11,8 +11,10 @@
 
 
 `ICOMP` <-
-function (object, ..., type = c("vcov", "r", "cv"), REML = NULL) {
-    type <- match.arg(type)
+# function (object, ..., type = c("vcov", "r", "cv"), REML = NULL) {
+function (object, ..., REML = NULL) {
+    # type <- match.arg(type)
+    type <- "vcov"
     loglik <- .getLogLik()
     ret <- sapply(list(object, ...), function(x) {
         ll <- if (!is.null(REML) && inherits(x, c("mer", "lme",
@@ -33,8 +35,7 @@ function (object, ..., type = c("vcov", "r", "cv"), REML = NULL) {
             coefmat <- diag(1/coefs, nrow = ncoef, ncol = ncoef)
             mat <- coefmat %*% covmat %*% coefmat
         })
-        as.vector(-2 * ll + 2 * (k/2 * log(sum(diag(mat))/k) -
-            log(det(mat))/2))
+        as.vector(-2 * ll + 2 * (k/2 * log(sum(diag(mat))/k) - log(det(mat))/2))
     })
     if (length(ret) > 1L) {
         Call <- match.call()

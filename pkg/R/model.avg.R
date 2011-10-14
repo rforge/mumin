@@ -1,6 +1,7 @@
 `model.avg` <-
-function(object, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
-	rank.args = NULL, revised.var = TRUE) {
+function(object, ..., beta = FALSE,
+	method = c("0", "NA"), method.var = c("NA", "0"),
+	rank = NULL, rank.args = NULL, revised.var = TRUE) {
 
 	if(inherits(object, "model.selection")) {
 		if(!("subset" %in% names(match.call(get.models))))
@@ -11,6 +12,7 @@ function(object, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 
     alpha <- 0.05
 	method <- match.arg(method)
+	method.var <- match.arg(method.var)
 	.fnull <- function(...) return(NULL)
 
 	if (inherits(object, "list")) {
@@ -78,7 +80,9 @@ function(object, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	weight <- selection.table$Weight # sorted in table
 	models <- models[model.order]
 
-	all.par <- unique(unlist(lapply(models, function(m) names(coeffs(m)))))
+
+	all.par <- unique(names(unlist(mcoeffs)))
+	#all.par <- unique(unlist(lapply(models, function(m) names(coeffs(m)))))
 	all.par <- all.par[order(vapply(gregexpr(":", all.par),
 		function(x) if(x[1L] == -1) 0 else length(x), numeric(1L)), all.par)]
 	npar <- length(all.par)
@@ -109,6 +113,8 @@ function(object, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 		names=c(paste(rep(c("Coef","SE", "DF"), each=npar), all.par, sep=".")))
 	)) ### << mtable
 
+
+
 	# mtable is already sorted by weigth
 	all.coef <- mtable[, seq_len(npar)]
 	all.se <- mtable[, npar + seq_len(npar)]
@@ -117,23 +123,27 @@ function(object, ..., beta = FALSE, method = c("0", "NA"), rank = NULL,
 	rownames(all.se) <- rownames(all.coef) <- rownames(selection.table)
 
 	p <- lapply(models, function(x) all.terms %in% getAllTerms(x))
-	p <- t(array(unlist(p), dim=c(length(all.terms),length(models))))
+	#p <- t(array(unlist(p), dim=c(length(all.terms),length(models))))
+	p <- do.call("rbind", p)
+
+	# Benchmark: 3.7x faster
+	#system.time(for(i in 1:10000) t(array(unlist(p), dim=c(length(all.terms),length(models)))))
+	#system.time(for(i in 1:10000) do.call("rbind", p))
+
 	importance <- apply(weight * p, 2L, sum)
 	names(importance) <- all.terms
 	importance <- sort(importance, decreasing=TRUE)
 
 
-	if (method == "0") {
-		all.coef[is.na(all.coef)] <- 0
-		all.se[is.na(all.se)] <- 0
-	}
+	if (method == "0") all.coef[is.na(all.coef)] <- 0
+	if (method.var == "0") all.se[is.na(all.se)] <- 0
 
 	#avg.model <- t(sapply(seq_along(all.par),
 	#	function(i) par.avg(all.coef[,i], all.se[,i], weight, all.df, alpha)))
 
 	avg.model <- t(vapply(seq_along(all.par),
-		function(i) par.avg(all.coef[,i], all.se[,i], weight, all.df[,i],
-			alpha, revised.var),
+		function(i) par.avg(all.coef[,i], se=all.se[,i], weight=weight,
+			df=all.df[,i], alpha=alpha, revised.var=revised.var),
 		structure(double(5), names=c("Coefficient", "SE", "Adjusted SE",
 		"Lower CI", "Upper CI"))))
 

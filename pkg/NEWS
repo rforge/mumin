@@ -1,10 +1,16 @@
 MuMIn package news:
 
 Version: 1.5.0 (2011-10-13)
-Beetle: new data - beetle mortality, with examples from B&A2002 book
+Beetle: new data - beetle mortality, with examples from B&A book
 dredge: new arguments 'varying', 'm.min' and 'evaluate'
-model.avg: fixed detecting duplicated models and calculation of importance values
-tests/gamm.R: tests for gamm/gamm4 support
+model.avg: has new argument "method.var" controlling how variance estimates are 
+	averaged. Fixed detecting duplicated models and calculation of importance 
+	values
+tests/gamm.R: tests for 'gamm'/'gamm4' support
+ICOMP, Cp: added new information criteria
+manuals expanded
+example(par.avg) demonstrates a comparison of the two parameter averaging 
+	methods
 
 Version: 1.4.2 (2011-10-11)
 support for 'gamm' and 'gamm4'

@@ -56,5 +56,58 @@ understanding AIC and BIC in model selection}. Sociological Methods & Research
 \code{\link{model.avg}} for model averaging.
 }
 
+\examples{
+
+
+# Compare estimates and variance, model averaged with different methods
+# ("NA", "0", see ?model.avg)
+
+data(Cement)
+fm1 <- lm(y ~ ., data = Cement)
+
+avgmod <- model.avg(dredge(fm1), cumsum(weight) <= .95, method="NA")
+weight <- avgmod$summary$Weight
+
+na2z <- function(x) ifelse(is.na(x), 0, x) #helper function (changes NA to 0)
+
+ret <- sapply(colnames(avgmod$coefficients), function(i) {
+	x <- avgmod$coefficients[, i]
+	se <- avgmod$se[, i]
+	df <- avgmod$dfs[, i]
+	rbind(
+	'coef(x)se(x)' = par.avg(x, se, weight, df),
+	'coef(0)se(x)' = par.avg(na2z(x), se, weight, df),
+	'coef(0)se(0)' = par.avg(na2z(x), na2z(se), weight, df)
+	)
+}, simplify=FALSE)
+
+
+if(require(graphics)) {
+
+# Plot the comparison: coefficients +- confidence intervals
+y <- 1:3
+cap <- .1
+op <- par(mfrow=c(2,3), mar=c(3,5,1,3), oma=c(3,0,3,0))
+lapply(names(ret), function(i) {
+	x <- ret[[i]]
+	plot(y, x[,1], xlim=c(.5,3.5), ylim=range(x[,c(1,4,5)]), pch=20, cex=2,
+		ylab=i, xlab=NA, axes=FALSE, col=c(1,2,2))
+	segments(y, x[,4], y, x[,5], lty=2, col=c(1,1,2))
+	segments(y - cap, x[,4], y + cap, x[,4], col=c(1,1,2))
+	segments(y - cap, x[,5], y + cap, x[,5], col=c(1,1,2))
+	box(); axis(2); axis(1, at=y, labels=rownames(x))
+	abline(h=0, lty=3)
+})
+title("Comparison of model averaging methods",
+	sub="Cement hardening example", outer=TRUE, line=1)
+par(op)
+
+}
+
+
+
+
+}
+
 
 \keyword{models}

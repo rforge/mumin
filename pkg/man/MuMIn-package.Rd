@@ -11,17 +11,25 @@ The package \code{MuMIn} contains functions to streamline model selection and
 perform model averaging based on information criteria (AIC, AICc and alike).
 }
 
-
 \details{
 User level functions include:
 \describe{
-    \item{\code{model.avg}}{does model averaging.}
-	\item{\code{get.models}}{evaluates models from the table returned by dredge.}
-	\item{\code{dredge}}{runs models with combinations of terms of the supplied
-		\sQuote{global.model}.}
-	\item{\code{AICc}}{calculates second-order Akaike information criterion for
-		one or several fitted model objects.}
+	\item{\code{\link{dredge}}}{performs automated model selection based on 
+		subsets of the supplied \sQuote{global} model, and optional list of 
+		choices for other model characteristics (e.g. different link functions). 
+		Model set may be generated either with "all possible" combinations, or
+		tailored according to complex inclusion rules }
+	\item{\code{\link{model.sel}}}{ creates a model selection table from 
+		handpicked models }	
+	\item{\code{\link{model.avg}}}{ calculates model averaged parameters }
+	\item{\code{\link{AICc}}}{calculates second-order Akaike information 
+		criterion for one or several fitted model objects.}
 }
+
+Model selection can be done according to any information criterion, including 
+\code{\link{AIC}}, \code{\link{AICc}}, \code{\link{BIC}}, \code{\link{QAIC}}, 
+\code{\link{ICOMP}} or \code{\link{Mallows' Cp}}.
+
 }
 
 \author{ Kamil Barto\enc{ń}{n} }
@@ -33,7 +41,7 @@ inference: a practical information-theoretic approach}. 2nd ed.
 
 
 \seealso{
-\code{\link[stats]{AIC}}, \code{\link[stats]{step}}
+\code{\link{AIC}}, \code{\link{step}}
 
 }
 \examples{

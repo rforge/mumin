@@ -6,7 +6,7 @@
 \title{Evaluate "all possible" models}
 \description{
 Automatically generate models with combinations of the terms in the global
-model, with optional constraints.
+model, with optional rules for inclusion.
 }
 
 \usage{
@@ -22,7 +22,6 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	\item{global.model}{a fitted \sQuote{global} model object. See
 	\sQuote{Details} for a list of supported types.
     }
-
 
 	\item{beta}{logical, should standardized coefficients be returned?}
 
@@ -41,45 +40,42 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	\item{subset}{ logical expression to put constraints for the set of models.
 	Can contain any of the \code{global.model} terms (use
-	\code{getAllTerms(global.model)} to list them).
+	\code{getAllTerms(global.model)} to list them). It can have a form of an 
+	unevaluated \code{call}, \code{expression} object, or a one sided 
+	\code{formula}.
 
-	This can have a form of an unevaluated \code{call}, \code{expression}
-	object, or a one sided \code{formula}.
-
-	Model terms being complex expressions (e.g
-	smooth functions in \code{\link[mgcv]{gam}} models) should be treated as
-	non-syntactic names and enclosed in back-ticks (see \link[base]{Quotes}).
-	Mind the spacing, names must match exactly the term names in model's
-	formula. To simply keep certain variables in all models, use of \code{fixed}
-	is preferred. }
+	Compound model terms (such as \sQuote{as-is} expressions within \code{I} or 
+	smooths in \code{gam}) should be treated as non-syntactic names and 
+	enclosed in back-ticks (see \link[base]{Quotes}). Mind the spacing, names 
+	must match exactly the term names in model's formula. To simply keep certain
+	variables in all models, use of \code{fixed} is preferred. }
 
 	\item{marg.ex}{ a character vector specifying names of variables for which
 	NOT to check for marginality restrictions when generating model formulas. If
 	this argument is set to \code{TRUE}, all model formulas are used (i.e. no
-	checking). See \sQuote{Details}.}
+	checking). See \sQuote{Details}. }
 
-  \item{trace}{
-	if \code{TRUE}, all calls to the fitting function (i.e. updated
-	\code{global.model} calls) are printed. }
+	\item{trace}{
+		if \code{TRUE}, all calls to the fitting function (i.e. updated
+		\code{global.model} calls) are printed. }
 
-	\item{varying}{
-		A named list of additional arguments to vary between the models. Each
-		item should be a list of alternatives. Complex items in the
-		\code{varying} elements (such as \code{family} objects) should be either
-		named (uniquely) or quoted (unevaluated, e.g. using \code{\link{alist}},
-		see \code{\link{quote}}), otherwise it may produce rather unpleasant
-		effects. See examples in \code{\link{Beetle}}
+	\item{varying}{ optionally, a named list describing the additional arguments
+		to vary between the generated models. Names are the names of the 
+		arguments, and each item provides a list of choices. Complex items in 
+		the choice list (such as \code{family} objects) should be either named 
+		(uniquely) or quoted (unevaluated, e.g. using \code{\link{alist}}, see 
+		\code{\link{quote}}), otherwise it may produce rather unpleasant 
+		effects. See example in \code{\link{Beetle}. }
 	}
 
 
   \item{x}{
     a \code{model.selection} object, returned by \code{dredge}.    }
 
-  \item{abbrev.names}{
-    Should variable names be abbreviated when printing? (useful with many
-        variables). }
+  \item{abbrev.names}{ should variable names be abbreviated when printing? 
+  (useful with many variables). }
 
-  \item{\dots}{optional arguments for the \code{rank} function. Any can be
+  \item{\dots}{ optional arguments for the \code{rank} function. Any can be
     an expression (of mode \code{call}), in which case any \code{x} within it
     will be substituted with a current model. }
 }
@@ -89,9 +85,9 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 \code{dregde} currently is known to work with \code{lm}, \code{glm}, 
 \code{rlm}, \code{polr}, \code{multinom}, \code{gam}, \code{gls}, \code{lme}, 
-\code{lmer}, \code{coxph},  \code{glmmML}, \code{sarlm}, \code{spautolm},
-\code{gamm} and \code{gamm4} (the last two should be called via the wrapper
-\code{gamm} in \pkg{MuMIn}).
+\code{lmer}, \code{coxph}, \code{glmmML}, \code{sarlm}, \code{spautolm},
+\code{gamm} and \code{gamm4} (the last two should be fitted \emph{via} the 
+wrapper \code{MuMIn::\link[MuMIn]{gamm}}).
 
 Models are run one by one by repeated evaluation of the call to
 \code{global.model} with modified formula argument (or \code{fixed} in
@@ -99,11 +95,11 @@ Models are run one by one by repeated evaluation of the call to
 different models is not very efficient and may be considerably time-intensive.
 
 Note that the number of combinations grows exponentially with number of
-predictor variables
-(\ifelse{latex}{\eqn{2^{N}}}{2^N}). Because there is potentially a large number of
-models to evaluate, to avoid memory overflow the fitted model objects are not
-stored. To get (a subset of) the models, use \code{\link{get.models}} with the
-object returned by \code{dredge} as an argument.
+predictor variables (\ifelse{latex}{\eqn{2^{N}}}{2^N}). Because there is 
+potentially a large number of models to evaluate, to avoid memory overflow the
+fitted model objects are not stored. To get (a subset of) the models, use 
+\code{\link{get.models}} with the object returned by \code{dredge} as an 
+argument.
 
 Handling interactions, \code{dredge} respects marginality constraints, so
 \dQuote{all possible combinations} do not include models containing interactions
@@ -142,7 +138,7 @@ in the same order as the models).
 \author{Kamil Barto\enc{ń}{n}}
 
 \note{
-Users should keep in mind the hazards that such a \dQuote{thoughtless approach}
+Users should keep in mind the hazards that a \dQuote{thoughtless approach}
 of evaluating all possible models poses. Although this procedure is in certain
 cases useful and justified, it may result in selecting a spurious \dQuote{best}
 model, due to model selection bias.
@@ -162,7 +158,7 @@ There is also \code{\link{subset.model.selection}} method.
 Consider the alternatives: \code{\link[glmulti]{glmulti}} in package \pkg{glmulti}
 and \code{\link[bestglm]{bestglm}} (\pkg{bestglm}),
 or \code{\link[AICcmodavg]{aictab}} (\pkg{AICcmodavg}) and
-\code{\link[bbmle]{ICtab}} (\pkg{bbmle}) for a "hand-picked" model selection tables.
+\code{\link[bbmle]{ICtab}} (\pkg{bbmle}) for "hand-picked" model selection tables.
 }
 
 

@@ -33,6 +33,8 @@ predict(ma, data.frame(QB=300, pressure=seq(0.24, 3, length=10)))
 
 
 
+
+
 #traceback()
 #...
 #4: .makeModelNames(models)
@@ -301,15 +303,16 @@ suppressMessages(example(NY_data, echo = FALSE))
 esar1f <- spautolm(Z ~ PEXPOSURE * PCTAGE65P + PCTOWNHOME,
  data=nydata, listw=listw_NY, family="SAR", method="full", verbose=FALSE)
 
+options(warn=1)
 dd <- dredge(esar1f, m.max=1,  fixed=~PEXPOSURE,
 	varying = list(
 		family = list("CAR", "SAR"),
-		method=list("Matrix_J", "full", "spam")
-	))
+		method=list("Matrix_J", "full")
+	), trace=TRUE)
+options(warn=0)
 
-#traceback()
 
-dd <- dredge(esar1f, m.max=3, fixed=~PEXPOSURE)
+#dd <- dredge(esar1f, m.max=3, fixed=~PEXPOSURE)
 gm <- get.models(dd, cumsum(weight) <= .99)
 ma <- model.avg(gm)
 summary(ma)
@@ -328,7 +331,9 @@ dd <- dredge(COL.errW.eig)
 gm <- get.models(dd, cumsum(weight) <= .98)
 ma <- model.avg(gm)
 
-# XXX: Error in t(vapply(models, function(m) {: error in evaluating the argument 'x' in selecting a method for function 't': Error in m.tTable[, 2L] : incorrect number of dimensions
+# XXX: Error in t(vapply(models, function(m) {: error in evaluating the argument
+# 'x' in selecting a method for function 't': Error in m.tTable[, 2L] :
+# incorrect number of dimensions
 summary(ma)
 predict(ma)[1:10]
 
@@ -346,7 +351,6 @@ quine.nb1 <- glm.nb(Days ~ 0+Sex/(Age + Eth*Lrn), data = quine)
 #quine.nb1 <- glm.nb(Days ~ Sex/(Age + Eth*Lrn), data = quine)
 
 models <- get.models(dredge(quine.nb1, marg.ex="Sex"), 1:5)
-
 
 dredge(quine.nb1) # Wrong
 dredge(quine.nb1, marg.ex="Sex") # Right

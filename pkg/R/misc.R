@@ -73,7 +73,7 @@ if (!existsFunction("nobs", where = "package:stats")) {
 `.getLogLik` <- function()
 	if ("stats4" %in% loadedNamespaces())
         stats4:::logLik else
-		logLik
+		stats::logLik
 
 `.getCall` <- function(x) {
 	if(isS4(x)) {
@@ -156,17 +156,14 @@ function(x) {
 }
 
 
+#Tries to find out whether the models are fitted to the same data
 .checkModels <- function(models, error = TRUE) {
 	#
 	cl <- sys.call(sys.parent())
-	#print(cl)
 	err <-  if (error) 	function(x) stop(simpleError(x, cl))
-	else function(x) warning(simpleWarning(x, cl))
-
-
+		else function(x) warning(simpleWarning(x, cl))
 	res <- TRUE
 
-	#Try to find if all models are fitted to the same data
 	responses <- lapply(models, function(x) {
 	  f <- formula(x)
 	  if(length(f) == 2L || (length(f[[2L]]) == 2 && f[[2L]][[1L]] == "~")) 0 else f[[2L]]
@@ -228,7 +225,7 @@ function(x) all(vapply(x[-1L], identical, logical(1), x[[1L]]))
 	x[is.na(x)] <- ""
 	if(ncol(x)) {
 		ret <- paste(ret,
-		gsub("(\\s+|\\w+ *=)","", apply(x, 1L, paste, collapse="/"), perl=TRUE),
+		gsub("([\"'\\s]+|\\w+ *=)","", apply(x, 1L, paste, collapse="/"), perl=TRUE),
 		sep=":")
 	}
 

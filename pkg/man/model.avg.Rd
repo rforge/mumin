@@ -10,7 +10,10 @@ Model averaging based on an information criterion.
 
 \usage{
 model.avg(object, ..., beta = FALSE, method = c("0", "NA"),
-    rank = NULL, rank.args = NULL, revised.var = TRUE)
+	method.var = c("NA", "0"), rank = NULL, rank.args = NULL,
+	revised.var = TRUE)
+
+
 }
 
 \arguments{
@@ -21,9 +24,9 @@ model.avg(object, ..., beta = FALSE, method = c("0", "NA"),
 
     \item{beta}{Logical, should standardized coefficients be returned?}
 
-    \item{method}{The method of averaging parameter estimators that are not
-        common for all the models. Either \code{"0"} (default) or \code{"NA"}.
-        See \sQuote{Details}.}
+    \item{method, method.var}{The method of averaging estimators and
+		their variance for parameters that are not common for all the models.
+		Either \code{"0"} (default) or \code{"NA"}. See \sQuote{Details}.}
 
     \item{rank}{Optional, custom rank function (information criterion) to use
         instead of \code{AICc}, e.g. \code{QAIC} or \code{BIC}, may be omitted
@@ -95,9 +98,15 @@ Other model types are also likely to be supported, in particular those
 
 With \code{method = "0"} (default) all predictors are averaged as if they were
     present in all models in the set, and the value of parameter estimate is
-    taken to be 0 if it is not present in a particular model. If \code{method =
-    "NA"}, the predictors are averaged only over the models in which they
-    appear.
+    taken to be 0 if it is not present in a particular model.
+	If \code{method = "NA"}, the predictors are averaged only over the models in
+	which they appear, which biases them away from zero.
+	Analogically, the argument \code{method.var} defines the method of
+	calculating unconditional variance estimators (in this case the default
+	is \code{"NA"}).
+
+	Example in \code{link{par.avg}} shows comparison of the two methods for both
+	coefficients and variance.
 
 \code{rank} is found by a call to \code{\link[base]{match.fun}} and typically is
     specified as a function or a symbol (e.g. a back-quoted name) or a character
@@ -141,8 +150,6 @@ averaging.
 }
 
 \examples{
-
-require(graphics)
 
 # Example from Burnham and Anderson (2002), page 100:
 data(Cement)
