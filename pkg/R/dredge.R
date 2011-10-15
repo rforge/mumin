@@ -10,16 +10,16 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	# *** Rank ***
 	# switch to QAICc if quasi* family and no rank
-	if(inherits(global.model, "glm") && family(global.model)$family %in%
-		c("quasi", "quasibinomial", "quasipoisson") && !rank.custom) {
-		rankArgs <- list(chat=summary(global.model)$dispersion)
-		rank <- "QAICc"
-		warning("QAICc used for '", family(global.model)$family,
-				"' family with c-hat = ", signif(rankArgs$chat))
-		rank.custom <- TRUE
-	} else {
+	#if(inherits(global.model, "glm") && family(global.model)$family %in%
+	#	c("quasi", "quasibinomial", "quasipoisson") && !rank.custom) {
+	#	rankArgs <- list(chat=summary(global.model)$dispersion)
+	#	rank <- "QAICc"
+	#	warning("QAICc used for '", family(global.model)$family,
+	#			"' family with c-hat = ", signif(rankArgs$chat))
+	#	rank.custom <- TRUE
+	#} else {
 		rankArgs <- list(...)
-	}
+	#}
 	IC <- .getRank(rank, rankArgs)
 
 	ICName <- as.character(attr(IC, "call")[[1L]])
@@ -188,8 +188,8 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	nov <- as.integer(n.vars - n.fixed)
 	ncomb <- 2L ^ nov
 
-	if(nov > 31L) stop(gettextf("Maximum number of varying predictors is 31, but %d is given", nov))
-	if(nov > 10L) warning(gettextf("%d varying predictors will generate up to %d possible combinations", nov, ncomb))
+	if(nov > 31L) stop(gettextf("Maximum number of predictors is 31, but %d is given", nov))
+	if(nov > 10L) warning(gettextf("%d predictors will generate up to %.0f possible combinations", nov, ncomb))
 
 	#binPos <- 2L ^ seq.int(0L, nov - 1L)
 

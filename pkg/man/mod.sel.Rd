@@ -1,4 +1,4 @@
-\name{mod.sel}
+\name{model.sel}
 \alias{mod.sel}
 \alias{model.sel}
 \alias{mod.sel.default}

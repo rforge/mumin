@@ -42,6 +42,8 @@ S3method(update, model.selection)
 S3method(mod.sel, model.selection)
 S3method(mod.sel, default)
 
+S3method(plot, model.selection)
+
 S3method(importance, averaging)
 S3method(importance, model.selection)
 S3method(importance, default)

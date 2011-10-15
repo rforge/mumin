@@ -12,8 +12,6 @@ if(!("intercept" %in% names(formals(stats::reformulate)))) {
 }
 
 
-
-
 # cbind list of data.frames omitting duplicated column (names)
 `cbindDataFrameList` <-
 function(x) {

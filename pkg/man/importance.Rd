@@ -44,13 +44,11 @@ importance(subset(dd, delta <= 4))
 importance(get.models(dd, delta <= 4))
 }
 
-
-
 # Re-evaluate the importances according to BIC
 # note that re-ranking involves fitting the models again
 
 # 'nobs' is not used here for backwards compatibility
-lognobs <- log(length(resid(lm1))) 
+lognobs <- log(length(resid(lm1)))
 
 importance(subset(mod.sel(dd, rank=AIC, rank.args=list(k = lognobs)),
 	cumsum(weight) <= .95))

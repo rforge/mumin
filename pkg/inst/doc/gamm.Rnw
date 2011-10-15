@@ -33,6 +33,7 @@ This document describes how to implement the interface between the routines
 performing model selection and averaging in \pkg{MuMIn} and a class of models
 not supported by default, using \code{gamm} from package \pkg{mgcv} as
 an example.
+
 The two principal functions in \pkg{MuMIn}, \code{model.avg} and \code{dredge}
 rely on the availability of methods for several generic functions for the class
 of the given fitted model object.
@@ -44,22 +45,24 @@ as ones defined in \pkg{MuMIn} itself (\code{coeffs},
 work as well.
 
 In the case of \code{gamm} and \code{gamm4}, the returned object has no special
-class, and it is a \code{list} with two items: \code{lme} or \code{mer}, and \code{gam}
-(with some information stripped from it). Therefore no specific methods can be
-applied.
+class, and it is a \code{list} with two items: \code{lme} or \code{mer}, and
+\code{gam} (with some information stripped from it). Therefore no specific
+methods can be applied.
 
 The solution is to provide a \sQuote{wrapper} function for \code{gamm} that evaluates
 the model and adds a class attribute onto it, e.g.:
 <<results=hide>>=
 gamm <-
     function(...)
-    structure(c(mgcv::gamm(...), list(call=match.call())), class=c("gamm", "list"))
+    structure(c(mgcv::gamm(...), list(call=match.call(mgcv::gamm))),
+	class=c("gamm", "list"))
 @
 similarly for \code{gamm4} (but assign the same class \code{gamm}):
 <<results=hide>>=
 gamm4 <-
     function(...)
-    structure(c(gamm4::gamm4(...), list(call=match.call())), class=c("gamm", "list"))
+    structure(c(gamm4::gamm4(...), list(call=match.call(gamm4::gamm4))),
+	class=c("gamm", "list"))
 @
 
 As these wrappers have the same names as the actual functions, use of them is

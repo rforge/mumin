@@ -40,13 +40,13 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	\item{subset}{ logical expression to put constraints for the set of models.
 	Can contain any of the \code{global.model} terms (use
-	\code{getAllTerms(global.model)} to list them). It can have a form of an 
-	unevaluated \code{call}, \code{expression} object, or a one sided 
+	\code{getAllTerms(global.model)} to list them). It can have a form of an
+	unevaluated \code{call}, \code{expression} object, or a one sided
 	\code{formula}.
 
-	Compound model terms (such as \sQuote{as-is} expressions within \code{I} or 
-	smooths in \code{gam}) should be treated as non-syntactic names and 
-	enclosed in back-ticks (see \link[base]{Quotes}). Mind the spacing, names 
+	Compound model terms (such as \sQuote{as-is} expressions within \code{I} or
+	smooths in \code{gam}) should be treated as non-syntactic names and
+	enclosed in back-ticks (see \link[base]{Quotes}). Mind the spacing, names
 	must match exactly the term names in model's formula. To simply keep certain
 	variables in all models, use of \code{fixed} is preferred. }
 
@@ -60,11 +60,11 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		\code{global.model} calls) are printed. }
 
 	\item{varying}{ optionally, a named list describing the additional arguments
-		to vary between the generated models. Names are the names of the 
-		arguments, and each item provides a list of choices. Complex items in 
-		the choice list (such as \code{family} objects) should be either named 
-		(uniquely) or quoted (unevaluated, e.g. using \code{\link{alist}}, see 
-		\code{\link{quote}}), otherwise it may produce rather unpleasant 
+		to vary between the generated models. Names are the names of the
+		arguments, and each item provides a list of choices. Complex items in
+		the choice list (such as \code{family} objects) should be either named
+		(uniquely) or quoted (unevaluated, e.g. using \code{\link{alist}}, see
+		\code{\link{quote}}), otherwise it may produce rather unpleasant
 		effects. See example in \code{\link{Beetle}. }
 	}
 
@@ -72,7 +72,7 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
   \item{x}{
     a \code{model.selection} object, returned by \code{dredge}.    }
 
-  \item{abbrev.names}{ should variable names be abbreviated when printing? 
+  \item{abbrev.names}{ should variable names be abbreviated when printing?
   (useful with many variables). }
 
   \item{\dots}{ optional arguments for the \code{rank} function. Any can be
@@ -83,10 +83,10 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 \details{
 
-\code{dregde} currently is known to work with \code{lm}, \code{glm}, 
-\code{rlm}, \code{polr}, \code{multinom}, \code{gam}, \code{gls}, \code{lme}, 
+\code{dregde} currently is known to work with \code{lm}, \code{glm},
+\code{rlm}, \code{polr}, \code{multinom}, \code{gam}, \code{gls}, \code{lme},
 \code{lmer}, \code{coxph}, \code{glmmML}, \code{sarlm}, \code{spautolm},
-\code{gamm} and \code{gamm4} (the last two should be fitted \emph{via} the 
+\code{gamm} and \code{gamm4} (the last two should be fitted \emph{via} the
 wrapper \code{MuMIn::\link[MuMIn]{gamm}}).
 
 Models are run one by one by repeated evaluation of the call to
@@ -95,10 +95,10 @@ Models are run one by one by repeated evaluation of the call to
 different models is not very efficient and may be considerably time-intensive.
 
 Note that the number of combinations grows exponentially with number of
-predictor variables (\ifelse{latex}{\eqn{2^{N}}}{2^N}). Because there is 
+predictor variables (\ifelse{latex}{\eqn{2^{N}}}{2^N}). Because there is
 potentially a large number of models to evaluate, to avoid memory overflow the
-fitted model objects are not stored. To get (a subset of) the models, use 
-\code{\link{get.models}} with the object returned by \code{dredge} as an 
+fitted model objects are not stored. To get (a subset of) the models, use
+\code{\link{get.models}} with the object returned by \code{dredge} as an
 argument.
 
 Handling interactions, \code{dredge} respects marginality constraints, so
@@ -151,7 +151,6 @@ of interest and its scientific setting} (Burnham and Anderson, 2002).
 
 \seealso{
 \code{\link{get.models}}, \code{\link{model.avg}}.
-\code{\link{QAIC}} has examples of using custom rank function.
 
 There is also \code{\link{subset.model.selection}} method.
 
@@ -168,6 +167,12 @@ data(Cement)
 lm1 <- lm(y ~ ., data = Cement)
 dd <- dredge(lm1)
 subset(dd, delta < 4)
+
+if(require(graphics)) {
+# Visualize the model selection table:
+plot(dd)
+}
+
 
 #models with delta.aicc < 4
 model.avg(get.models(dd, subset = delta < 4)) # get averaged coefficients

@@ -22,18 +22,19 @@ gm <- get.models(dd, 1:4)
 model.avg(gm)
 # TEST evaluation from within function -----------------------------------------
 
-budworm <- data.frame(ldose = rep(0:5, 2), numdead = c(1, 4, 9, 13, 18, 20, 0,
+budworm <- data.frame(ldose = rep(0:5, 2), numdead = c(1, 4, 9, 12, 18, 20, 0,
 	2, 6, 10, 12, 16), sex = factor(rep(c("M", "F"), c(6, 6))))
 budworm$SF <- cbind(numdead = budworm$numdead, numalive = 20 - budworm$numdead)
 
-
+# evaluate within an exotic environment
 (function(dat) (function(dat2) {
-	mod <- glm(SF ~ sex*ldose, data = budworm, family = "quasibinomial", trace=T)
-	mod1 <- glm(SF ~ sex*ldose, data = budworm, family = "binomial", trace=T)
-	dd <- dredge(mod, rank = "QAIC", chat = summary(budworm.lg)$dispersion)
+	#mod <- glm(SF ~ sex*ldose, data = dat2, family = "quasibinomial", trace=T)
+	mod <- glm(SF ~ sex*ldose, data = dat2, family = "binomial", trace=F)
+	#mod <- glm(SF ~ sex*ldose, data = budworm, family = "binomial", trace=F)
+	print(dd <- dredge(mod, rank = "QAIC", chat = summary(budworm.lg)$dispersion))
 	gm <- get.models(dd, family="binomial")
 	#print(sys.frames())
-	model.avg(gm)
+	summary(model.avg(gm))
 })(dat))(budworm)
 
 

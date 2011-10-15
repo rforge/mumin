@@ -7,17 +7,12 @@
 \encoding{utf-8}
 \title{Various information criteria}
 \description{
-
-These functions implement Mallows' \emph{Cp} and ICOMP information criterion 
-by Bozdogan (1988)
-
+Calculate Mallows' \emph{Cp} and Bozdogan's ICOMP information criterion
 }
 
 \usage{
-
 Cp(object, dispersion = NULL)
 ICOMP(object, ..., REML = NULL)
-
 }
 
 \arguments{
@@ -33,25 +28,25 @@ ICOMP(object, ..., REML = NULL)
 }
 
 \value{
-    If just one object is provided, returns a numeric value with the
-    corresponding IC; if more than one object are provided, returns a
-    \code{data.frame} with rows corresponding to the objects.
+	If just one object is provided, the functions return a numeric value with
+	the corresponding IC; otherwise a \code{data.frame} with rows corresponding
+	to the objects is returned.
 }
 
 \details{
 
-Mallows' \emph{Cp} statistic is the residual deviance plus twice the estimate of 
-\eqn{\sigma^{2}}{sigma^2} times the residual degrees of freedom. It is closely 
+Mallows' \emph{Cp} statistic is the residual deviance plus twice the estimate of
+\eqn{\sigma^{2}}{sigma^2} times the residual degrees of freedom. It is closely
 related to AIC (and a multiple of it if the dispersion is known).
 
-ICOMP  (I for informational and COMP for complexity) penalizes the covariance 
-complexity of the model rather than the number of free parameters directly. 
+ICOMP  (I for informational and COMP for complexity) penalizes the covariance
+complexity of the model rather than the number of free parameters directly.
 
-\deqn{\mbox{ICOMP}=-2\log L+k\,\log(\frac{tr(\Sigma)}{k})-\log\mid\Sigma\mid}
-
-where log\emph{L} is the log-likelihood, \eqn{\Sigma} is the variance-covariance 
-matrix of parameters, \emph{k} is the number of parameters, and \emph{tr} is the 
-trace of the matrix.
+%\deqn{\mbox{ICOMP}=-2\log L+k\,\log(\frac{tr(\Sigma)}{k})-\log\mid\Sigma\mid}
+%
+%where log\emph{L} is the log-likelihood, \eqn{\Sigma} is the variance-covariance
+%matrix of parameters, \emph{k} is the number of parameters, and \emph{tr} is the
+%trace of the matrix.
 
 }
 
@@ -67,13 +62,12 @@ Mallows, C. L. (1973) Some Comments on CP. \emph{Technometrics} 15: 661–675
 Bozdogan, H. and Haughton, D.M.A. (1998) Information complexity criteria for
 regression models. \emph{Comp. Stat. & Data Analysis} 28: 51-76
 
-This implementation of ICOMP is based on functions in package \pkg{icomp} by 
-J. Ferguson.
+This implementation of ICOMP is a generalized version of \code{ICOMP.lm} in
+package \pkg{icomp} by J. Ferguson.
 }
 
 \seealso{
 \code{\link{AIC}}, \code{\link{AICc}} and \code{\link{BIC}}
-
 }
 
 % \examples{}

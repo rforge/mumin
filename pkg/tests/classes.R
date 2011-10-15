@@ -76,16 +76,18 @@ detach(package:nlme); rm(list=ls())
 
 d.AD <- data.frame(counts =c(18,17,15,20,10,20,25,13,12), outcome = gl(3,1,9),
 treatment = gl(3,3))
-glm.qD93 <- glm(counts ~ outcome + treatment, family=quasipoisson(), data=d.AD)
+#glm.qD93 <- glm(counts ~ outcome + treatment, family=quasipoisson(), data=d.AD)
 glm.D93 <- glm(counts ~ outcome + treatment, family=poisson(), data=d.AD)
 
-dd <- dredge(glm.qD93)
-summary(model.avg(dd, subset= delta <= 10))
+#dd <- dredge(glm.qD93)
+#summary(model.avg(dd, subset= delta <= 10))
+dd <- dredge(glm.D93, rank=QAIC, chat=deviance(glm.D93) / df.residual(glm.D93))
 dd <- dredge(glm.D93)
 summary(model.avg(dd, subset= delta <= 10))
 
 subset(dd, delta <= 10)
 mod.sel(get.models(dd, subset=delta <= 10))
+
 
 
 rm(list=ls())
@@ -282,6 +284,9 @@ ops <- options(warn = -1)
 gam1 <- gam(y ~ s(x0) + s(x1) + s(x2) +  s(x3) + (x1+x2+x3)^2,
 	data = dat, method = "ML")
 
+ gam(y ~ s(x0, k=1) + s(x1) + s(x2) +  s(x3) + (x1+x2+x3)^2,
+	data = dat, method = "ML")
+
 dd <- dredge(gam1, subset=!`s(x0)` & (!`s(x1)` | !x1) & (!`s(x2)` | !x2) & (!`s(x3)` | !x3), fixed="x1", trace=T)
 
 gm <- get.models(dd, cumsum(weight) <= .95)
@@ -366,15 +371,23 @@ rm(list=ls()); detach(package:MASS)
 
 # TEST quasibinomial ---------------------------------------------------------------------------
 
+
 budworm <- data.frame(ldose = rep(0:5, 2), numdead = c(1, 4, 9, 13, 18, 20, 0,
 	2, 6, 10, 12, 16), sex = factor(rep(c("M", "F"), c(6, 6))))
 budworm$SF = cbind(numdead = budworm$numdead, numalive = 20 - budworm$numdead)
 
-budworm.lg <- glm(SF ~ sex*ldose + sex*I(ldose^2), data = budworm, family = quasibinomial)
-budworm.lg1 <- glm(SF ~ sex*ldose + sex*I(ldose^2), data = budworm, family = binomial)
+qbinomial <- function(...) {
+	res <- quasibinomial(...)
+	res$aic <- binomial(...)$aic
+	res
+}
+
+budworm.qqlg <- glm(SF ~ sex*ldose + sex*I(ldose^2), data = budworm, family = qbinomial)
+#budworm.qlg <- glm(SF ~ sex*ldose + sex*I(ldose^2), data = budworm, family = quasibinomial)
+budworm.lg <- glm(SF ~ sex*ldose + sex*I(ldose^2), data = budworm, family = binomial)
 
 dd <- dredge(budworm.lg, rank = "QAIC", chat = summary(budworm.lg)$dispersion)
-dd <- dredge(budworm.lg) # should be the same
+#dd <- dredge(budworm.lg) # should be the same
 mod <- get.models(dd, seq(nrow(dd)))
 
 # Note: this works:
