@@ -1,6 +1,5 @@
 \name{Information criteria}
 \alias{IC}
-\alias{ICc}
 \alias{Mallows' Cp}
 \alias{Cp}
 \alias{ICOMP}

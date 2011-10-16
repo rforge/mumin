@@ -50,7 +50,9 @@ in small samples, \emph{Biometrika} 76: 297–307.
 \seealso{
 Akaike's An Information Criterion: \code{\link[stats]{AIC}}
 
+Other implementations: 
 \code{\link[AICcmodavg]{AICc}} in package \pkg{AICcmodavg},
+\code{\link[bbmle]{AICc}} in package \pkg{bbmle} and
 \code{\link[glmulti]{aicc}} in package \pkg{glmulti}
 
 }

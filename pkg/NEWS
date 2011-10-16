@@ -1,16 +1,16 @@
 MuMIn package news:
 
 Version: 1.5.0 (2011-10-16)
-Beetle: new data - beetle mortality, with examples from B&A book
+Beetle: new data - beetle mortality, with examples from B&A's book
 dredge: new arguments 'varying', 'm.min' and 'evaluate'
 plot.model.selection: new function to visualize the model selection table
 model.avg: has a new argument "method.var" controlling how variance estimates
 	are averaged. Fixed detecting duplicated models and calculation of
 	importance values
-QAIC: no longer uses model deviance, as it gave biased values, a trick must be
-	used to use them with quasi- models)
-ICOMP, Cp: new information criteria manuals modified and
-	corrected example(par.avg) demonstrates a comparison of the two parameter
+QAIC: no longer uses model deviance, as it gave biased values.
+ICOMP, Cp: new information criteria 
+manuals modified and corrected 
+example(par.avg) demonstrates a comparison of the two parameter
 	averaging methods
 tests/gamm.R: tests for 'gamm'/'gamm4' support
 
@@ -49,6 +49,7 @@ added methods for 'unmarkedFit' objects (package 'unmarked'), to provide (limite
 
 Version: 1.3.4 (2011-08-03)
 Added vignette document on model selection with 'gamm' and 'gamm4'
+(thanks to Graham MacDonald for an incentive)
 
 Version: 1.3.3 (2011-08-01)
 dredge: small improvements, no longer dependent on 'bitops'

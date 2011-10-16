@@ -1,12 +1,12 @@
-\name{gamm}
+\name{gamm-wrapper}
 \alias{gamm}
 \alias{MuMIn-gamm}
 \encoding{utf-8}
 
-\title{GAMM wrapper for use with MuMIn}
+\title{Updateable \code{gamm}}
 \description{
-Adapter function for use mixed Generalized Additive Models from packages
-\pkg{mgcv} and \pkg{gamm} with \pkg{MuMIn}
+Enables updating of the model objects fitted by \code{gamm} and \code{gamm4}
+from packages \pkg{mgcv} and \pkg{gamm4}.
 }
 
 \usage{
@@ -16,24 +16,31 @@ gamm(formula, random = NULL, ..., lme4 = inherits(random, "formula"))
 \arguments{
   \item{formula, random, \dots}{ arguments passed to \code{gamm} or
 	\code{gamm4} }
-  \item{lme4}{ logical, if true \code{gamm4} is used rather than \code{gamm},
-  If \code{TRUE}, the \code{random} argument must be provided as a
-  \code{formula}.
+  \item{lme4}{ logical, if \code{TRUE} \code{gamm4} is used rather than 
+	\code{gamm}. If \code{TRUE}, the \code{random} argument must be provided as 
+	a \code{formula}.
   }
 }
 
 \value{
 	Depending on the value of the 'lme4' switch, either a \code{gamm} or
-	\code{gamm4} fitted model object. The only difference from the originals is
-	the \code{call} component, allowing for \code{\link{update}}'ing of the
-	object.
+	\code{gamm4} fitted model object. The only difference from the original 
+	object is an addition of the \code{call} component.
+}
+
+\details{
+This function is just a wrapper for \code{gamm} and \code{gamm4}. It allows 
+	\code{update} on the returned object, so also makes possible using it in 
+	model selection with \code{dredge}. 
+
+This is only a temporary workaround and it is likely be removed soon.
+
 }
 
 \note{
-This is only a temporary workaround and it is likely be removed soon.
 
-To make sure this wrapper function is used (in case it is masked by 
-	the original \code{gamm} from \pkg{mgcv}), use 
+To assure \code{gamm} is called \emph{via} this wrapper (in case
+	it is masked by the original \code{gamm} from \pkg{mgcv}), use 
 	\code{MuMIn::\link[MuMIn]{gamm}}.
 }
 

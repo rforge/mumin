@@ -36,6 +36,9 @@ function (object, ..., REML = NULL) {
             mat <- coefmat %*% covmat %*% coefmat
         })
         as.vector(-2 * ll + 2 * (k/2 * log(sum(diag(mat))/k) - log(det(mat))/2))
+		# TODO: revise this
+		# ICOMP=-2* LL + k * log(trace(IFIM)/k) - log(det(IFIM))
+		
     })
     if (length(ret) > 1L) {
         Call <- match.call()

@@ -15,10 +15,10 @@ perform model averaging based on information criteria (AIC, AICc and alike).
 User level functions include:
 \describe{
 	\item{\code{\link{dredge}}}{performs automated model selection based on 
-		subsets of the supplied \sQuote{global} model, and optional list of 
-		choices for other model characteristics (e.g. different link functions). 
-		Model set may be generated either with "all possible" combinations, or
-		tailored according to complex inclusion rules }
+		subsets of the supplied \sQuote{global} model, and optional
+		choices of other model properties (such as different link functions). 
+		Model set may be generated either with \sQuote{all possible} 
+		combinations, or tailored according to user-defined inclusion rules }
 	\item{\code{\link{model.sel}}}{ creates a model selection table from 
 		handpicked models }	
 	\item{\code{\link{model.avg}}}{ calculates model averaged parameters }

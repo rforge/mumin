@@ -168,14 +168,13 @@ lm1 <- lm(y ~ ., data = Cement)
 dd <- dredge(lm1)
 subset(dd, delta < 4)
 
-if(require(graphics)) {
 # Visualize the model selection table:
+if(require(graphics))
 plot(dd)
-}
 
 
-#models with delta.aicc < 4
-model.avg(get.models(dd, subset = delta < 4)) # get averaged coefficients
+# Model average models with delta AICc < 4
+model.avg(get.models(dd, subset = delta < 4))
 
 #or as a 95\% confidence set:
 top.models <- get.models(dd, cumsum(weight) <= .95)

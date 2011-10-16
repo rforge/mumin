@@ -189,6 +189,11 @@ function(x) {
 `videntical` <-
 function(x) all(vapply(x[-1L], identical, logical(1), x[[1L]]))
 
+# Check class for each object in a list
+`linherits` <- function(x, whats) {
+	as.logical(vapply(x, inherits, integer(length(whats)), names(whats), which=TRUE)) == whats
+}
+
 
 `.makeModelNames` <- function(models, all.terms) {
 	allterms1 <- lapply(models, getAllTerms)

@@ -54,7 +54,9 @@ function(object, ..., beta = FALSE,
 	}
 
 	# workaround for different behavior of model.matrix with lme: data argument is required
-	if(any(vapply(models, inherits, logical(1L), what="lme"))) {
+
+
+	if(any(linherits(models, c(lme=TRUE)))) {
 		model.matrix.lme <- function(object, data=object$data, ...)
 			model.matrix.default(object, data=data, ...)
 	}
@@ -70,14 +72,14 @@ function(object, ..., beta = FALSE,
 	# sapply(sapply(sapply(models[model.order], coef), names), paste, collapse="+")
 	# sapply(models, function(x) paste(match(getAllTerms(x), all.terms), collapse="+"))
 
-	# !!! From now on, everything MUST BE SORTED by 'weight' !!!
+	# !!! From now on, everything MUST BE ORDERED by 'weight' !!!
 
 	selection.table <- data.frame(
 		Deviance = dev,	IC = ic, Delta = delta, Weight = weight,
 		row.names = all.model.names
 	)[model.order, ]
 
-	weight <- selection.table$Weight # sorted in table
+	weight <- selection.table$Weight # has been sorted in table
 	models <- models[model.order]
 
 
@@ -96,7 +98,7 @@ function(object, ..., beta = FALSE,
 		if(m.ncoef == 0L) { ##
 			rep(NA, npar * 3L)
 		} else {
-			m.se <- m.tTable[,2L]
+			m.se <- m.tTable[, 2L]
 			# FIXED: below is wrong for Mixed models
 			#m.df <- n - length(m.coef)
 			m.df <- coefDf(m) # -> double(ncoef)/ NA / NULL
@@ -110,13 +112,11 @@ function(object, ..., beta = FALSE,
 			return(c(m.tTable[m.vars, 1L:2L], m.df[m.vars]))
 		}
 		}, structure(double(npar * 3L),
-		names=c(paste(rep(c("Coef","SE", "DF"), each=npar), all.par, sep=".")))
+		names = c(paste(rep(c("Coef","SE", "DF"), each = npar), all.par, sep = ".")))
 	)) ### << mtable
 
 
-
-	# mtable is already sorted by weigth
-	all.coef <- mtable[, seq_len(npar)]
+	all.coef <- mtable[, seq_len(npar)] 	# mtable is already sorted by weigth
 	all.se <- mtable[, npar + seq_len(npar)]
 	all.df <- mtable[, 2L * npar + seq_len(npar)]
 	##
@@ -142,9 +142,14 @@ function(object, ..., beta = FALSE,
 	#	function(i) par.avg(all.coef[,i], all.se[,i], weight, all.df, alpha)))
 
 	avg.model <- t(vapply(seq_along(all.par),
-		function(i) par.avg(all.coef[,i], se=all.se[,i], weight=weight,
-			df=all.df[,i], alpha=alpha, revised.var=revised.var),
-		structure(double(5), names=c("Coefficient", "SE", "Adjusted SE",
+		function(i) par.avg(
+			all.coef[, i],
+			se = all.se[, i],
+			weight = weight,
+			df = all.df[, i],
+			alpha = alpha,
+			revised.var = revised.var),
+		structure(double(5), names = c("Coefficient", "SE", "Adjusted SE",
 		"Lower CI", "Upper CI"))))
 
 
@@ -169,7 +174,7 @@ function(object, ..., beta = FALSE,
 	#	mx <- cbind(mx, i[,!(colnames(i) %in% colnames(mx)), drop=FALSE])
 
 	# residuals averaged (with brute force)
-	rsd <- tryCatch(apply(vapply(models, residuals, residuals(object)), 1,
+	rsd <- tryCatch(apply(vapply(models, residuals, residuals(object)), 1L,
 		weighted.mean, w=weight), error=.fnull)
 	trm <- tryCatch(terms(models[[1]]),
 			error=function(e) terms(formula(models[[1L]])))
@@ -193,7 +198,7 @@ function(object, ..., beta = FALSE,
 	)
 
 	attr(ret, "mList") <- models
-	attr(ret, "method") <- method
+	attr(ret, "method") <- c("Coefficient" = method, "Variance" = method.var)
 	attr(ret, "beta") <- beta
 	attr(ret, "revised.var") <- revised.var
 	class(ret) <- "averaging"
@@ -220,15 +225,13 @@ function(object, newdata = NULL, se.fit = NULL, interval = NULL,
 
 	models <- attr(object, "mList")
 
-	# vapply is ~4x faster !
+	# Benchmark: vapply is ~4x faster !
 	#system.time(for(i in 1:1000) sapply(models, inherits, what="gam")) /
 	#system.time(for(i in 1:1000) vapply(models, inherits, logical(1), what="gam"))
 
 	# If all models inherit from lm:
 	if ((missing(se.fit) || !se.fit)
-		&& all(vapply(models, inherits, logical(1), what="lm"))
-		&& !any(vapply(models, inherits, logical(1), what="gam"))
-		) {
+		&& all(linherits(models, c(gam = FALSE, lm = TRUE)))) {
 		coeff <- coef(object)
 		frm <- formula(object)
 
@@ -253,8 +256,8 @@ function(object, newdata = NULL, se.fit = NULL, interval = NULL,
 		#}
 	} else {
 		# otherwise, use brute force:
-		if(attr(object, "method") == "NA")
-			warning("Prediction assumes 'method' is \"0\"")
+		if(attr(object, "method")[1L] == "NA")
+			warning("Prediction assumes that 'method' is '0'")
 
 		#pred <- if(!missing(newdata))
 		#	lapply(models, predict, newdata = newdata, se.fit = se.fit,...) else
@@ -284,6 +287,7 @@ function(object, newdata = NULL, se.fit = NULL, interval = NULL,
 		if(all(sapply(pred, function(x) c("fit", "se.fit") %in% names(x)))) {
 			fit <- do.call("cbind", lapply(pred, "[[", "fit"))
 			se.fit <- do.call("cbind", lapply(pred, "[[", "se.fit"))
+
 			#npar <- sapply(models, function(x) as.vector(attr(logLik(x), "df")))
 
 			apred <- sapply(seq(nrow(fit)), function(i)
@@ -293,7 +297,7 @@ function(object, newdata = NULL, se.fit = NULL, interval = NULL,
 			# TODO: ase!
 			#no.ase <- all(is.na(object$avg.model[,3]))
 			# if(no.ase) 2 else 3
-			ret <- list(fit=apred[1,], se.fit=apred[2, ])
+			ret <- list(fit=apred[1L,], se.fit=apred[2L, ])
 
 			if (type == "response") {
 				fam <- tryCatch(vapply(models, function(z)
@@ -301,11 +305,11 @@ function(object, newdata = NULL, se.fit = NULL, interval = NULL,
 								error=function(e) NULL)
 
 				if(!is.null(fam)) {
-					if(any(fam[,1] != fam[,-1]))
+					if(any(fam[,1] != fam[,-1L]))
 					stop("Cannot calculate predictions on the response scale ",
 						 "with models with different families or link functions")
-					ret$se.fit <- ret$se.fit * abs(family(models[[1]])$mu.eta(ret$fit))
-					ret$fit <- family(models[[1]])$linkinv(ret$fit)
+					ret$se.fit <- ret$se.fit * abs(family(models[[1L]])$mu.eta(ret$fit))
+					ret$fit <- family(models[[1L]])$linkinv(ret$fit)
 				}
 			}
 
@@ -330,10 +334,10 @@ function (object, ...) object$x
 function (object, ...) {
 
 	cf <- object$avg.model
-	no.ase <- all(is.na(cf[,3]))
-    z <- abs(cf[,1] / cf[, if(no.ase) 2 else 3])
+	no.ase <- all(is.na(cf[, 3L]))
+    z <- abs(cf[,1] / cf[, if(no.ase) 2L else 3L])
     pval <- 2 * pnorm(z, lower.tail = FALSE)
-    coefmat <- cbind(cf[, if(no.ase) 1:2 else 1:3],
+    coefmat <- cbind(cf[, if(no.ase) 1L:2L else 1L:3L],
 					 `z value` = z,
 					 `Pr(>|z|)` = zapsmall(pval))
 	object$coefmat <- coefmat
@@ -356,21 +360,21 @@ function (object, parm, level = 0.95, ...) {
     wts <- object$summary$Weight
     dfs <- object$dfs
     ci <- t(sapply(parm, function(i)
-		par.avg(cf[,i], se[,i], wts, object$dfs[,i], alpha=a2)))[,4:5]
-    pct <- stats:::format.perc(c(a, 1 - a), 3)
+		par.avg(cf[,i], se[,i], wts, object$dfs[,i], alpha=a2)))[,4L:5L]
+    pct <- stats:::format.perc(c(a, 1L - a), 3L)
     colnames(ci) <- pct
     return(ci)
 }
 
 `print.summary.averaging` <-
-function (x, digits = max(3, getOption("digits") - 3),
+function (x, digits = max(3L, getOption("digits") - 3L),
     signif.stars = getOption("show.signif.stars"), ...) {
 
     cat("\nCall:  ", paste(deparse(x$call), sep = "\n", collapse = "\n"),
         "\n\n", sep = "")
 
     cat("\nModel summary:\n")
-	print(round(as.matrix(x$summary), 2), na.print="")
+	print(round(as.matrix(x$summary), 2L), na.print="")
 
 	cat("\nVariables:\n")
 	print(x$variable.codes, quote=F)
@@ -383,11 +387,16 @@ function (x, digits = max(3, getOption("digits") - 3),
 
 	#if (no.ase) cat("Confidence intervals are unadjusted \n")
 
-	cat("\nNon-present predictors", switch(attr(x, "method"),
+	method <- attr(x, "method")
+
+	cat("\nNon-present predictors", switch(method[1L],
 		"0"="taken to be zero", "NA"="excluded"), "\n")
+	if(method[2L] == "0")
+		cat("Variance in non-present predictors taken to be zero", "\n")
+
 
 	cat("\nRelative variable importance:\n")
-	print(round(x$importance, 2))
+	print(round(x$importance, 2L))
 }
 
 `print.averaging` <-
@@ -397,9 +406,9 @@ function(x, ...) {
     cat("Component models:", "\n")
 	comp.names <- rownames(x$summary)
 	comp.names[comp.names == ""] <- "null"
-	cat(format(sQuote(comp.names), justify="l"), fill=T)
+	cat(format(sQuote(comp.names), justify="l"), fill=TRUE)
     cat("\nCoefficients:", "\n")
-    print.default(x$avg.model[,1])
+    print.default(x$avg.model[,1L])
 }
 
 `vcov.averaging` <- function (object, ...) {
@@ -410,7 +419,7 @@ function(x, ...) {
 	nvarseq <- seq(nvars)
 	wts <- object$summary$Weight / sum(object$summary$Weight) # normalize just in case
 
-	vcov0 <- matrix(if(attr(object, "method") == "NA") NA else 0, nrow=nvars, ncol=nvars,
+	vcov0 <- matrix(if(attr(object, "method")[2L] == "NA") NA else 0, nrow=nvars, ncol=nvars,
 		dimnames = list(names.all, names.all))
 	vcovs2 <- lapply(vcovs, function(v) {
 		i <- match(dimnames(v)[[1]], names.all)
@@ -419,12 +428,12 @@ function(x, ...) {
 	})
 
 	b1 <- object$coefficients
-	avgb <- object$avg.model[,1]
+	avgb <- object$avg.model[,1L]
 	#avgb <- colSums(t(b1) * wts, na.rm=T)
 
 	vcov3 <- sapply(nvarseq, function(c1) sapply(nvarseq, function(c2) {
 		 weighted.mean(sapply(vcovs2, "[", c1, c2) + (b1[, c1] - avgb[c1]) *
-		 (b1[, c2] - avgb[c2]), wts, na.rm = T)
+		 (b1[, c2] - avgb[c2]), wts, na.rm = TRUE)
 	}))
 	dimnames(vcov3) <- list(names.all, names.all)
 	return(vcov3)
