@@ -38,22 +38,13 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	model (excluding the intercept), \code{m.max} defaults to the number of terms
 	in \code{global.model}.}
 
-	\item{subset}{ logical expression to put constraints for the set of models.
-	Can contain any of the \code{global.model} terms (use
-	\code{getAllTerms(global.model)} to list them). It can have a form of an
-	unevaluated \code{call}, \code{expression} object, or a one sided
-	\code{formula}.
-
-	Compound model terms (such as \sQuote{as-is} expressions within \code{I} or
-	smooths in \code{gam}) should be treated as non-syntactic names and
-	enclosed in back-ticks (see \link[base]{Quotes}). Mind the spacing, names
-	must match exactly the term names in model's formula. To simply keep certain
-	variables in all models, use of \code{fixed} is preferred. }
-
+	\item{subset}{ logical expression indicating models to keep in the resulting
+		set. See \sQuote{Details}. }
+		
 	\item{marg.ex}{ a character vector specifying names of variables for which
 	NOT to check for marginality restrictions when generating model formulas. If
-	this argument is set to \code{TRUE}, all model formulas are used (i.e. no
-	checking). See \sQuote{Details}. }
+	this argument is set to \code{TRUE}, all combinations of terms are used 
+	(i.e. no checking).}
 
 	\item{trace}{
 		if \code{TRUE}, all calls to the fitting function (i.e. updated
@@ -111,10 +102,23 @@ and \code{fixed = "a"}.
 \code{rank} is found by a call to \code{match.fun} and may be specified as a
 function or a symbol (e.g. a back-quoted name) or a character string specifying
 a function to be searched for from the environment of the call to \code{dredge}.
-
 Function \code{rank} must be able to accept model as a first argument and must
 always return a scalar. Typical choice for \code{rank} would be "AIC", "QAIC" or
 "BIC" (\pkg{stats} or \pkg{nlme}).
+
+
+The argument \code{subset} acts in a similar fashion to that in the function
+\code{subset} for \code{data.frames}: the model terms can be referred to by name 
+as variables in the expression, with the difference that they are always logical
+ (i.e. \code{TRUE} if a term exists in the model). The expression can contain 
+ any of the \code{global.model} terms (use \code{getAllTerms(global.model)} to 
+ list them). It can have a form of an unevaluated \code{call}, \code{expression} 
+ object, or a one sided \code{formula}. See \sQuote{Examples}.
+Compound model terms (such as \sQuote{as-is} expressions within \code{I()} or
+the smooths in \code{gam}) should be treated as non-syntactic names and
+enclosed in back-ticks (see \link[base]{Quotes}). Mind the spacing, names
+must match exactly the term names in model's formula. To simply keep certain
+variables in all models, use of \code{fixed} is preferred.
 
 Use of \code{na.action = na.omit} (\R's default) in \code{global.model} should
 be avoided, as it results with sub-models fitted to different data sets, if
@@ -125,10 +129,11 @@ case.
 
 \value{
 \code{dredge} returns an object of class \code{model.selection}, being a
-\code{\link{data.frame}} with models' coefficients (or \code{TRUE}/\code{FALSE}
-for factors), k, deviance/RSS, R-squared, AIC, AICc, delta and weight. This
-depends on a type of model. Models are ordered according to the used information
-criterion (lowest on top), specified by \code{rank}.
+\code{data.frame} with models' coefficients (or \code{TRUE}/\code{FALSE}
+for factors), k, deviance/RSS, R-squared, AIC, AICc, delta and
+ \emph{Akaike weight}. This depends on a type of model. Models are ordered 
+ according to the used information criterion (lowest on top), specified 
+ by \code{rank}.
 
 The attribute \code{"calls"} is a list containing the model calls used (arranged
 in the same order as the models).
@@ -154,7 +159,7 @@ of interest and its scientific setting} (Burnham and Anderson, 2002).
 
 There is also \code{\link{subset.model.selection}} method.
 
-Consider the alternatives: \code{\link[glmulti]{glmulti}} in package \pkg{glmulti}
+Possible alternatives: \code{\link[glmulti]{glmulti}} in package \pkg{glmulti}
 and \code{\link[bestglm]{bestglm}} (\pkg{bestglm}),
 or \code{\link[AICcmodavg]{aictab}} (\pkg{AICcmodavg}) and
 \code{\link[bbmle]{ICtab}} (\pkg{bbmle}) for "hand-picked" model selection tables.
@@ -189,7 +194,8 @@ top.models[[1]]
 # exclude models containing both X1 and X2
 dredge(lm1, subset = !(X1 & X2))
 # keep only models containing X3
-dredge(lm1, subset = X3)
+dredge(lm1, subset = ~ X3) # subset as a formula
+dredge(lm1, subset = expression(X3)) # subset as expression object
 # the same, but more effective:
 dredge(lm1, fixed = "X3")
 

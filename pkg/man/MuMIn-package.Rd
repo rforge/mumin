@@ -18,7 +18,7 @@ User level functions include:
 		subsets of the supplied \sQuote{global} model, and optional
 		choices of other model properties (such as different link functions). 
 		Model set may be generated either with \sQuote{all possible} 
-		combinations, or tailored according to user-defined inclusion rules }
+		combinations, or tailored according to the conditions specified }
 	\item{\code{\link{model.sel}}}{ creates a model selection table from 
 		handpicked models }	
 	\item{\code{\link{model.avg}}}{ calculates model averaged parameters }
