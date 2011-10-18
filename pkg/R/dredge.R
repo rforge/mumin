@@ -25,10 +25,15 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	ICName <- as.character(attr(IC, "call")[[1L]])
 	# *** Rank ***
 
-	#intercept <- "(Intercept)"
-	all.terms <- getAllTerms(global.model, intercept = TRUE)
 
-	# Just in case:
+	### XXXX
+	all.terms <- getAllTerms(global.model, intercept = TRUE)
+	interceptLabel <- attr(all.terms, "interceptLabel")
+	if(is.null(interceptLabel)) interceptLabel <- "(Intercept)"
+
+	nInts <- length(interceptLabel)
+
+		# Just in case:
 	gterms <- tryCatch(terms(formula(global.model)),
 		error=function(...) terms(global.model))
 
@@ -44,13 +49,10 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		if(!is.call(global.call)) {
 			if(inherits(global.model, c("gamm", "gamm4")))
 				message("To use gamm models with 'dredge', use 'MuMIn::gamm' wrapper")
-
 			stop("Could not retrieve the call to 'global.model'")
-
 		}
 		#"For objects without a 'call' component the call to the fitting function \n",
 		#" must be used directly as an argument to 'dredge'.")
-
 
 		# this is unlikely to happen:
 		if(!exists(as.character(global.call[[1L]]), parent.frame(), mode="function"))
@@ -59,6 +61,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 		formula.arg <- 2L # assume is a first argument
 	} else {
+
 
 		# if 'update' method does not expand dots, we have a problem
 		# with expressions like ..1, ..2 in the call.
@@ -103,16 +106,14 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	globCoefNames <- fixCoefNames(globCoefNames0)
 	#sglobCoefNames <- fixCoefNames(names(coeffs(global.model)))
 
-	n.vars <- length(all.terms) - has.int
+	n.vars <- length(all.terms)
 	ret <- numeric(0L)
 	formulas <- character(0L)
 
 	is.lm <- !inherits(global.model, "glm") & inherits(global.model, "lm")
 
-
 	if(isTRUE(rankArgs$REML) || (isTRUE(.isREMLFit(global.model)) && is.null(rankArgs$REML)))
 		warning("Comparing models with different fixed effects fitted by REML")
-
 
 	if (beta && is.null(tryCatch(beta.weights(global.model), error=function(e) NULL,
 		warning=function(e) NULL))) {
@@ -126,7 +127,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	has.rsq <- is.list(summary.globmod) && is.numeric(summary.globmod$r.squared)
 	has.dev <- !is.null(deviance(global.model))
 
-	m.max <- if (missing(m.max)) n.vars else min(n.vars, m.max)
+	m.max <- if (missing(m.max)) (n.vars - nInts) else min(n.vars - nInts, m.max)
 
 	# fixed variables:
 	if (!is.null(fixed)) {
@@ -144,22 +145,21 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		}
 	}
 
-	#int.term <- if (has.int) "1" else "0"
+	fixed <- c(fixed, all.terms[all.terms %in% interceptLabel])
+	#fixed <- c(fixed, interceptLabel)
 
 	n.fixed <- length(fixed)
-	all.terms <- do.call("structure", c(list(all.terms[order(all.terms %in%
-		fixed)]), attributes(all.terms)))
+	#DebugPrint(all.terms)
+	termsOrder <- order(all.terms %in% fixed)
+	all.terms <- do.call("structure", c(list(all.terms[termsOrder]), attributes(all.terms)))
+	#DebugPrint(all.terms)
 
-
-	######
-	#if (!eval) return(formulas)
 
 	llik <- .getLogLik()
 	getK <- function(x) as.vector(attr(llik(x), "df"))
 
 	isMER <- any(inherits(global.model, c("mer", "lmer", "glmer")))
 	env <- attr(gterms, ".Environment")
-
 
 	# DEBUG <- function(x) cat("*", deparse(substitute(x)), "=", x, "*\n")
 
@@ -184,6 +184,8 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	nvariants <- length(seq.variants)
 	## varying END
 
+	#DebugPrint(n.vars)
+	#DebugPrint(n.fixed)
 
 	nov <- as.integer(n.vars - n.fixed)
 	ncomb <- 2L ^ nov
@@ -195,7 +197,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	if(evaluate) {
 		ret.nchunk <- 25L
-		ret.ncol <- n.vars + (2L * has.rsq) + has.dev + 2L + has.int + nvarying
+		ret.ncol <- n.vars + (2L * has.rsq) + has.dev + 2L + nvarying
 		ret <- matrix(NA_real_, ncol=ret.ncol, nrow=ret.nchunk)
 	} else {
 		ret.nchunk <- ncomb * nvariants
@@ -216,54 +218,66 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	}
 
 	comb.sfx <- rep(TRUE, n.fixed)
-	comb.seq <- seq.int(nov)
+	comb.seq <- if(nov != 0L) seq.int(nov) else 0L
 	k <- kv <- 0L
 	ord <- integer(0L)
+
+	#whichNotInt <- !(all.terms %in% interceptLabel)
+	#nullComb <- rep(FALSE, length(all.terms))
+
+	# TODO: has.int is not logical length(has.int) > 1
 
 	for(j in seq.int(ncomb)) {
 		#comb <- c(bitAnd(binPos, j - 1L) != 0L, rep(TRUE, n.fixed))
 		comb <- c(as.logical(intToBits(j - 1L)[comb.seq]), comb.sfx)
-		nvar <- sum(comb)
+
+		nvar <- sum(comb) - nInts
 		if(nvar > m.max || nvar < m.min) next;
-		if(has.int) comb <- c(FALSE, comb)
+		#comb <- { v <- nullComb; v[whichNotInt] <- comb; v }
+
 		if(hasSubset && !eval(subset, structure(as.list(comb), names=all.terms)))
 			next;
 
 		terms1 <- all.terms[comb]
+		terms1[terms1 %in% interceptLabel] <- "1"
+		#DebugPrint(terms1)
+
 		frm <- reformulate(c("1", terms1), response=response, intercept=has.int)
 
 		if(!formulaAllowed(frm, marg.ex)) next;
 		attr(frm, ".Environment") <- env
+
+		if (isMER) frm <- update.formula(frm, attr(all.terms, "random"))
+
+		cl <- global.call
+		cl[[formula.arg]] <- update.formula(global.formula, frm)
 		###
 
+		if(has.start) {
+			clMmat <- cl
+			clMmat[[1L]] <- as.name("model.matrix")
+			clMmat[[formula.arg]] <- update.formula(global.formula, frm)
+			names(clMmat)[2L] <- "object" # XXX
+			cl$start <- cl$start[c(TRUE, globCoefNames0 %in% colnames(eval(clMmat)))]
+		}
 
-		for (ivar in seq.variants) {
+		for (ivar in seq.variants) { ## --- Variants ---------------------------
+			clVariant <- cl
 			if(nvarying) {
 				updateArgs <- sapply(varying.names, function(x)
 					varying[[x]][[variantsIdx[ivar, x]]], simplify=FALSE)
-				cl <- do.call("update.default", c(
-					list(object = list(call = global.call), evaluate = FALSE),
-					updateArgs))
-			} else {
-				cl <- global.call
+				for(i in varying.names) {
+					#DebugPrint(i)
+					#TODO: NULL handling
+					if(!is.null(updateArgs[[i]])) clVariant[[i]] <- updateArgs[[i]]
+				}
 			}
-
-			if(has.start) {
-				cl2 <- cl
-				cl2[[1L]] <- as.name("model.matrix")
-				cl2[[formula.arg]] <- update.formula(global.formula, frm)
-				names(cl2)[2L] <- "object" # XXX
-				cl$start <- cl$start[c(TRUE, globCoefNames0 %in% colnames(eval(cl2)))]
-			}
-			if (isMER) frm <- update.formula(frm, attr(all.terms, "random"))
-			cl[[formula.arg]] <- update.formula(global.formula, frm)
 
 			modelId <- ((j - 1L) * nvariants) + ivar
-
-			if(trace) { cat(modelId, ": "); print(cl)	}
+			if(trace) { cat(modelId, ": "); print(clVariant)	}
 
 			if(evaluate) {
-				fit1 <- tryCatch(eval(cl, parent.frame()), error=function(err) {
+				fit1 <- tryCatch(eval(clVariant, parent.frame()), error=function(err) {
 					err$message <- paste(conditionMessage(err), "(model",
 						modelId, "skipped)", collapse="")
 					class(err) <- c("simpleError", "warning", "condition")
@@ -302,11 +316,10 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			} else { # if evaluate
 				k <- k + 1L # all OK, add model to table
 			}
-			calls[[k]] <- cl
+			calls[[k]] <- clVariant
 
 		} # for (ivar ...)
 	} ### for (j ...)
-
 
 	if(!evaluate) return(calls[seq.int(k)])
 
@@ -335,6 +348,10 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 				labels = variant.names[[i]])
 	}
 
+	i <- seq_along(all.terms)
+	v <- order(termsOrder)
+	ret[, i] <- ret[, v]
+	all.terms <- all.terms[v]
 
 
 	o <- order(ret[, ICName], decreasing = FALSE)

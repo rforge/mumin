@@ -48,6 +48,11 @@ S3method(importance, averaging)
 S3method(importance, model.selection)
 S3method(importance, default)
 
+S3method(Weights, model.selection)
+S3method(Weights, averaging)
+S3method(Weights, data.frame)
+S3method(Weights, default)
+
 S3method(getAllTerms, default)
 S3method(coeffs, default)
 S3method(tTable, default)
@@ -110,7 +115,6 @@ S3method(coefDf, unmarkedFit)
 S3method(nobs, unmarkedFit)
 S3method(logLik, unmarkedFit)
 
-
 S3method(update, gamm)
 S3method(print, gamm)
 S3method(logLik, gamm)
@@ -119,3 +123,4 @@ S3method(nobs, gamm)
 S3method(coeffs, gamm)
 S3method(getAllTerms, gamm)
 S3method(tTable, gamm)
+

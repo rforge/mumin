@@ -39,7 +39,7 @@ Mallows' \emph{Cp} statistic is the residual deviance plus twice the estimate of
 related to AIC (and a multiple of it if the dispersion is known).
 
 ICOMP  (I for informational and COMP for complexity) penalizes the covariance
-complexity of the model rather than the number of free parameters directly.
+complexity of the model, rather than the number of parameters directly.
 
 %\deqn{\mbox{ICOMP}=-2\log L+k\,\log(\frac{tr(\Sigma)}{k})-\log\mid\Sigma\mid}
 %
@@ -61,8 +61,6 @@ Mallows, C. L. (1973) Some Comments on CP. \emph{Technometrics} 15: 661–675
 Bozdogan, H. and Haughton, D.M.A. (1998) Information complexity criteria for
 regression models. \emph{Comp. Stat. & Data Analysis} 28: 51-76
 
-This implementation of ICOMP is a generalized version of \code{ICOMP.lm} in
-package \pkg{icomp} by J. Ferguson.
 }
 
 \seealso{

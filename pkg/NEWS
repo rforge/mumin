@@ -1,21 +1,31 @@
 MuMIn package news:
 
-Version: 1.5.0 (2011-10-16)
-Beetle: new data - beetle mortality, with examples from B&A's book
-dredge: new arguments 'varying', 'm.min' and 'evaluate'
+Version: 1.5.0 (2011-10-18)
+model.avg: removed the argument "method", the standard errors and confidence 
+	intervals are calculated only for coefficients averaged within a subset of 
+	models where they are present (method = "NA"). The "full" coefficients are
+	also returned, but without std. errors
 plot.model.selection: new function to visualize the model selection table
-model.avg: has a new argument "method.var" controlling how variance estimates
-	are averaged. Fixed detecting duplicated models and calculation of
-	importance values
+manuals expanded, examples revised
+load of small improvements, polishings and fixes
+
+Version: 1.4.4 (2011-10-16)
 QAIC: no longer uses model deviance, as it gave biased values.
 ICOMP, Cp: new information criteria 
+model.avg: now performs a smarter check for duplicate models, fixed calculation 
+	of importance values
+model.sel: new alias to 'mod.sel' (eventually will replace 'mod.sel')
+
+Version: 1.4.3 (2011-10-13)
+Beetle: new data - beetle mortality, with examples from B&A's book
+dredge: new arguments 'varying', 'm.min' and 'evaluate'
 manuals modified and corrected 
-example(par.avg) demonstrates a comparison of the two parameter
-	averaging methods
 tests/gamm.R: tests for 'gamm'/'gamm4' support
 
 Version: 1.4.2 (2011-10-11)
 support for 'gamm' and 'gamm4'
+gamm: added a wrapper for gamm, that allows for updating the object (hopefully 
+	needed only temporarily)
 
 Version: 1.4.1 (2011-10-10)
 A few changes to vignette 'gamm'

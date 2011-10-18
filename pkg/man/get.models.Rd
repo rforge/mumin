@@ -5,7 +5,7 @@
 \title{Get models}
 
 \description{
-    Gets list of models from a \code{model.selection} object
+    Generates a list of fitted model objects from a \code{model.selection} table
 }
 
 
@@ -15,14 +15,15 @@ get.models(dd, subset = delta <= 4, ...)
 
 \arguments{
   \item{dd}{ object returned by \code{\link{dredge}}}
-  \item{subset}{subset of models}
-  \item{\dots}{additional parameters passed to \code{update}, for example, in
+  \item{subset}{subset of models, an expression evaluated within the model
+  selection table, see \link[=subset.model.selection]{subset method}}
+  \item{\dots}{additional parameters passed to \code{update}. For example, in
     \code{lme/lmer} one may want to use \code{method = "REML"} while using "ML"
-    for model selection}
+    for model selection.}
 }
 
 \value{
-    \code{\link{list}} of models.
+    \code{\link{list}} of fitted model object.
 }
 
 \author{Kamil Barto\enc{ń}{n}}

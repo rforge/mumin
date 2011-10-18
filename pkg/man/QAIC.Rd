@@ -2,11 +2,10 @@
 \alias{QAIC}
 \alias{QAICc}
 \encoding{utf-8}
-\title{Quasi AIC(c))}
+\title{Quasi AIC or AIC\eqn{_{c}}}
 \description{
 Calculates a modification of Akaike's Information Criterion for overdispersed
-count data (or its version corrected for small sample, \dQuote{quasi AICc}), for
-one or several fitted model objects.
+count data (or its version corrected for small sample, \dQuote{quasi AIC\eqn{_{c}}}), for one or several fitted model objects.
 }
 
 \usage{
@@ -45,7 +44,7 @@ element from the analogous \sQuote{non-quasi} family (see \sQuote{Example}).
 
 \seealso{
 \code{\link{AICc}}, \code{\link[stats]{quasi}} family used for models with
-over-dispersion.
+over-dispersion
 }
 
 \author{Kamil Barto\enc{ń}{n}}

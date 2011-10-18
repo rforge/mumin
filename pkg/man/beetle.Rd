@@ -13,12 +13,13 @@ data(Beetle)
 }
 
 \format{
-\code{Beetle} is a data frame with 4 variables.
+\code{Beetle} is a data frame with 5 elements.
 
 \describe{
    \item{dose}{The dose of CS\eqn{_{2}}{2} in mg/L}
    \item{n.tested}{Number of beetles tested}
    \item{n.killed}{Number of beetles killed}
+   \item{Prop}{A matrix with two columns named \bold{n.killed} and \bold{n.survived}}
    \item{mortality}{Observed mortality rate}
 
 }}
@@ -41,15 +42,15 @@ inference: a practical information-theoretic approach}. 2nd ed.
 data(Beetle)
 
 # Fit a global model with all the considered variables
-globmod <- glm(cbind(n.killed, n.tested- n.killed)~dose + I(dose^2) + log(dose)
-	+ I(log(dose)^2), data=Beetle, family=binomial)
+globmod <- glm(Prop ~ dose + I(dose^2) + log(dose) + I(log(dose)^2),
+    data=Beetle, family=binomial)
 
 
 # A logical expression defining the subset of models to use:
 # * either log(dose) or dose
 # * the quadratic terms can appear only together with linear terms
 msubset <- expression(xor(dose, `log(dose)`) & (dose | !`I(dose^2)`)
-	& (`log(dose)` | !`I(log(dose)^2)`))
+    & (`log(dose)` | !`I(log(dose)^2)`))
 
 
 # Table 4.6
@@ -58,39 +59,40 @@ msubset <- expression(xor(dose, `log(dose)`) & (dose | !`I(dose^2)`)
 # Note the use of 'alist' rather than 'list' in order to keep the 'family'
 # objects unevaluated
 varying.link <- list(family=alist(
-	logit = binomial("logit"),
-	probit = binomial("probit"),
-	cloglog = binomial("cloglog")
-	))
+    logit = binomial("logit"),
+    probit = binomial("probit"),
+    cloglog = binomial("cloglog")
+    ))
 
 (dd12 <- dredge(globmod, subset = msubset, varying = varying.link, rank=AIC))
 
+
 # Table 4.7 "models justifiable a priori"
-(dd3 <- dredge(update(globmod, . ~ dose), m.min = 1, rank=AIC,
-	varying = varying.link))
+(dd3 <- dredge(update(globmod, . ~ dose), fixed = ~dose, rank=AIC,
+    varying = varying.link))
 
 mod3 <- get.models(dd3, 1:3)
 
 # Table 4.8. Predicted mortality probability at dose 40.
 
-# helper function to calculate confidence intervals on logit scale
+# a helper functions to calculate confidence intervals on logit scale
 logit.ci <- function(p, se, quantile = 2) {
-	C. <- exp(quantile * se / (p * (1 - p)))
-	p /(p + (1 - p) * c(C., 1/C.))
+    C. <- exp(quantile * se / (p * (1 - p)))
+    p /(p + (1 - p) * c(C., 1/C.))
 }
 
 pred <- sapply(mod3, predict, newdata=list(dose=40), se.fit=TRUE, type="response")
-pred <- apply(pred, 1, unlist)[,1:2] # simplify
+pred <- apply(pred, 1, unlist)[, 1:2] # simplify
 
 # build the table
 tab <- rbind(pred, par.avg(pred[,"fit"], pred[,"se.fit"], dd3$weight,
-	revised.var = FALSE)[1:2])
+    revised.var = FALSE)[1:2])
 tab <- cbind(
-	c(dd3$weight, NA),
-	tab,
-	matrix(logit.ci(tab[,"fit"], tab[,"se.fit"], quantile = c(rep(1.96, 3), 2)),
-	ncol=2)
-	)
+    c(dd3$weight, NA),
+    tab,
+    matrix(logit.ci(tab[,"fit"], tab[,"se.fit"], quantile = c(rep(1.96, 3), 2)),
+    ncol=2)
+    )
 colnames(tab) <- c("Akaike weight", "Predicted(40)", "SE", "Lower CI", "Upper CI")
 rownames(tab) <- c(as.character(dd3$family), "model averaged")
 
@@ -100,8 +102,8 @@ print(tab, digits=3, na.print="")
 # Figure 4.3
 newdata <- list(dose = seq(min(Beetle$dose), max(Beetle$dose), length.out = 25))
 matplot(newdata$dose, sapply(mod3, predict, newdata, type="response"),
-	type="l", xlab=quote(list("Dose of"~ CS[2],(mg/L))),
-	ylab="Mortality"
+    type="l", xlab=quote(list("Dose of"~ CS[2],(mg/L))),
+    ylab="Mortality"
 )
 
 

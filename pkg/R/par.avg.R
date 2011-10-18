@@ -1,6 +1,6 @@
 `par.avg` <-
 function(x, se, weight, df = NULL, level = 1 - alpha, alpha = 0.05,
-	revised.var = TRUE) {
+	revised.var = TRUE, adjusted = TRUE) {
 
 	if (!(is.numeric(x) && is.numeric(se) && is.numeric(weight)))
 		stop("'x', 'se' and 'weight' must be numeric vectors")
@@ -16,14 +16,13 @@ function(x, se, weight, df = NULL, level = 1 - alpha, alpha = 0.05,
 	x.sqdiff <- (x - wx)^2
 	xvar <- se^2
 
-	do.ase <- !(missing(df) || is.null(df) || all(is.na(df)))
+	do.ase <- adjusted && !(missing(df) || is.null(df) || all(is.na(df)))
 
 	a <- 1 - (alpha / 2)
-
 	if(do.ase) {
 		z <- c(qt(a, df) / qnorm(a))^2
 		i <- is.na(df) & !is.na(x)
-		if (length(i) > 0) z[i] <- 0
+		if (length(i) > 0L) z[i] <- 0
 	}
 
 	if(revised.var) {

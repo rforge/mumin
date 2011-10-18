@@ -21,9 +21,12 @@
 \maketitle
 
 <<echo=FALSE,eval=TRUE,results=hide>>=
+suppressPackageStartupMessages(suppressWarnings({
 library(gamm4)
 library(mgcv)
 library(MuMIn)
+}))
+
 set.seed(0)
 @
 

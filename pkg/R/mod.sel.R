@@ -33,7 +33,7 @@ function(object, ..., rank = NULL, rank.args = NULL) {
 	}
 	if(length(models) == 0L) stop("At least one model must be given")
 
-	.checkModels(models)
+	.checkModels(models, FALSE)
 
 	if(is.null(names(models)) || any(is.na(names(models))))
 		names(models) <- seq_along(models)

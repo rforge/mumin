@@ -22,7 +22,7 @@ function (object, ..., REML = NULL) {
             loglik(x, REML = REML)
         else loglik(x)
         covmat <- vcov(x)
-        k <- attr(ll, "df")
+        k <- nrow(covmat) # attr(ll, "df")
         switch(type, vcov = {
             mat <- covmat
         }, r = {
@@ -35,9 +35,8 @@ function (object, ..., REML = NULL) {
             coefmat <- diag(1/coefs, nrow = ncoef, ncol = ncoef)
             mat <- coefmat %*% covmat %*% coefmat
         })
-        as.vector(-2 * ll + 2 * (k/2 * log(sum(diag(mat))/k) - log(det(mat))/2))
-		# TODO: revise this
-		# ICOMP=-2* LL + k * log(trace(IFIM)/k) - log(det(IFIM))
+        as.vector(-2 * c(ll) + k * log(sum(diag(mat))/k) - log(det(mat)))
+		# ICOMP=-2* LL + k * log(tr(IFIM)/k) - log(det(IFIM))
 		
     })
     if (length(ret) > 1L) {

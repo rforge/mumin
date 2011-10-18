@@ -3,7 +3,7 @@
 \alias{print.model.selection}
 
 \encoding{utf-8}
-\title{Evaluate "all possible" models}
+\title{Automatized model selection}
 \description{
 Automatically generate models with combinations of the terms in the global
 model, with optional rules for inclusion.
@@ -40,10 +40,10 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	\item{subset}{ logical expression indicating models to keep in the resulting
 		set. See \sQuote{Details}. }
-		
+
 	\item{marg.ex}{ a character vector specifying names of variables for which
 	NOT to check for marginality restrictions when generating model formulas. If
-	this argument is set to \code{TRUE}, all combinations of terms are used 
+	this argument is set to \code{TRUE}, all combinations of terms are used
 	(i.e. no checking).}
 
 	\item{trace}{
@@ -108,11 +108,11 @@ always return a scalar. Typical choice for \code{rank} would be "AIC", "QAIC" or
 
 
 The argument \code{subset} acts in a similar fashion to that in the function
-\code{subset} for \code{data.frames}: the model terms can be referred to by name 
+\code{subset} for \code{data.frames}: the model terms can be referred to by name
 as variables in the expression, with the difference that they are always logical
- (i.e. \code{TRUE} if a term exists in the model). The expression can contain 
- any of the \code{global.model} terms (use \code{getAllTerms(global.model)} to 
- list them). It can have a form of an unevaluated \code{call}, \code{expression} 
+ (i.e. \code{TRUE} if a term exists in the model). The expression can contain
+ any of the \code{global.model} terms (use \code{getAllTerms(global.model)} to
+ list them). It can have a form of an unevaluated \code{call}, \code{expression}
  object, or a one sided \code{formula}. See \sQuote{Examples}.
 Compound model terms (such as \sQuote{as-is} expressions within \code{I()} or
 the smooths in \code{gam}) should be treated as non-syntactic names and
@@ -131,8 +131,8 @@ case.
 \code{dredge} returns an object of class \code{model.selection}, being a
 \code{data.frame} with models' coefficients (or \code{TRUE}/\code{FALSE}
 for factors), k, deviance/RSS, R-squared, AIC, AICc, delta and
- \emph{Akaike weight}. This depends on a type of model. Models are ordered 
- according to the used information criterion (lowest on top), specified 
+ \emph{Akaike weight}. This depends on a type of model. Models are ordered
+ according to the used information criterion (lowest on top), specified
  by \code{rank}.
 
 The attribute \code{"calls"} is a list containing the model calls used (arranged
@@ -157,12 +157,17 @@ of interest and its scientific setting} (Burnham and Anderson, 2002).
 \seealso{
 \code{\link{get.models}}, \code{\link{model.avg}}.
 
-There is also \code{\link{subset.model.selection}} method.
+There are \code{\link[=subset.model.selection]{subset}} and \code{plot} methods.
 
 Possible alternatives: \code{\link[glmulti]{glmulti}} in package \pkg{glmulti}
 and \code{\link[bestglm]{bestglm}} (\pkg{bestglm}),
 or \code{\link[AICcmodavg]{aictab}} (\pkg{AICcmodavg}) and
 \code{\link[bbmle]{ICtab}} (\pkg{bbmle}) for "hand-picked" model selection tables.
+
+\code{\link[leaps]{regsubsets}} in package \pkg{leaps} also performs all-subsets
+regression.
+
+
 }
 
 

@@ -4,13 +4,11 @@ require(MuMIn)
 .checkPkg <- function(package) length(.find.package(package, quiet=TRUE)) != 0
 
 # TEST gls --------------------------------------------------------------------------------
-if(.checkPkg("nlme")) {
+#if(.checkPkg("nlme")) {
 library(nlme)
 
 fm1Dial.gls <- gls(rate ~(pressure + I(pressure^2) + I(pressure^3) + I(pressure^4))*QB,
       Dialyzer, method="ML")
-
-Dialyzer
 
 varying <- list(
 	correlation = alist(
@@ -22,6 +20,8 @@ varying <- list(
 	)
 
 dd <- dredge(fm1Dial.gls, m.max=1, m.min=1, fixed=~pressure, varying=varying)
+
+#traceback()
 
 models <- get.models(dd, 1:4)
 ma <- model.avg(models, revised=T)
@@ -67,7 +67,7 @@ confint(ma)
 #ma <- model.avg(gm, revised=F)
 
 detach(package:nlme); rm(list=ls())
-}
+#}
 
 #dredge(fm1, rank=BIC)
 #dredge(fm1, rank=AIC)
@@ -128,20 +128,18 @@ gm <- get.models(dd, 1:4)
 #mod.sel(gm)
 
 ##::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-#maML <- model.avg(gm, method = "NA", rank="AICc", rank.args = list(REML=FALSE))
-#maREML <- model.avg(gm, method = "NA", rank="AICc", rank.args = list(REML=TRUE))
+#maML <- model.avg(gm, rank="AICc", rank.args = list(REML=FALSE))
+#maREML <- model.avg(gm, rank="AICc", rank.args = list(REML=TRUE))
 
 #summary(maML)
 #summary(maREML)
 
 #ma <- model.avg(gm, revised = F)
-summary(maNA <- model.avg(gm, revised = T, method = "NA"))
-summary(ma0 <- model.avg(gm, revised = T, method = "0"))
-confint(maNA)
-confint(ma0)
+summary(ma <- model.avg(gm, revised = T))
+confint(ma)
 
 #dredge(fm2, rank=BIC)
-predict(ma0, data.frame(Sex="Male", Subject="M01", age=8:12))
+predict(ma, data.frame(Sex="Male", Subject="M01", age=8:12))
 
 detach(package:nlme); rm(list=ls())
 }
@@ -155,11 +153,6 @@ data(Orthodont, package = "nlme")
 fm2 <- lmer(distance ~ Sex*age + (1|Subject) + (1|Sex), data = Orthodont, REML=FALSE)
 #fm0 <- lmer(distance ~ 1 + (1|Subject) + (1|Sex), data = Orthodont, REML=FALSE)
 #fm00 <- lm(distance ~ 1 , data = Orthodont)
-
-
-
-#logLik(fm2)/logLik(fm0)
-#logLik(fm2)/logLik(fm00)
 
 dd <- dredge(fm2, trace=T)
 gm <- get.models(dd, 1:4)
@@ -210,12 +203,9 @@ nseq <- function(x, len=length(x)) seq(min(x, na.rm=TRUE), max(x, na.rm=TRUE),
 
 fm1 <- glm(y ~ (X+X1+X2+X3)^2, data = Cement)
 dd <- dredge(fm1, trace=T)
-#dd <- dredge(fm1)
 
 gm <- get.models(dd, 1:10)
-#ma <- model.avg(gm)
-ma <- model.avg(gm, method="NA")
-ma <- model.avg(gm, method="0")
+ma <- model.avg(gm)
 vcov(ma)
 
 summary(ma)

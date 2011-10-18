@@ -111,8 +111,8 @@ getAllTerms.unmarkedFit <- function (x, intercept = FALSE, ...)  {
   t2 <- getAllTerms(f[-2])
   int2 <- attr(t2, "intercept")
   if(intercept && int2) t2 <- c("Int", t2)
-  
-  structure(c(sprintf("psi(%s)",t1), sprintf("p(%s)",t2)), 
+
+  structure(c(sprintf("psi(%s)",t1), sprintf("p(%s)",t2)),
             intercept=c(int1, int2),
 			interceptLabel=c("psi(Int)", "p(Int)")[as.logical(c(int1, int2))]
 			)
@@ -126,7 +126,7 @@ tTable.unmarkedFit <- function (model, ...) {
     rn <- rownames(ret)
     rn[rn=="(Intercept)"] <- "Int"
     rownames(ret) <- paste(y@short.name, "(", rn, ")", sep="")
-    ret 
+    ret
   }))
 }
 

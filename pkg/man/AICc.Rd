@@ -26,13 +26,13 @@ AICc(object, ..., k = 2, REML = NULL)
     If just one object is provided, returns a numeric value with the
     corresponding AIC\eqn{_{c}}; if more than one object are provided, returns a
     \code{data.frame} with rows corresponding to the objects and columns
-    representing the number of parameters in the model (df) and AIC\eqn{_{c}}
+    representing the number of parameters in the model (df) and AIC\eqn{_{c}}.
 }
 
 \note{
-AIC\eqn{_{c}} should be used instead AIC when the the sample size is small in comparison
-to the number of estimated parameters (Burnham & Anderson 2002 recommend it when
-\eqn{n/K < 40})
+AIC\eqn{_{c}} should be used instead AIC when the the sample size is small in
+comparison to the number of estimated parameters (Burnham & Anderson 2002
+recommend it\'s use when \eqn{n / K < 40}).
 
 }
 
@@ -50,7 +50,7 @@ in small samples, \emph{Biometrika} 76: 297–307.
 \seealso{
 Akaike's An Information Criterion: \code{\link[stats]{AIC}}
 
-Other implementations: 
+Other implementations:
 \code{\link[AICcmodavg]{AICc}} in package \pkg{AICcmodavg},
 \code{\link[bbmle]{AICc}} in package \pkg{bbmle} and
 \code{\link[glmulti]{aicc}} in package \pkg{glmulti}
@@ -78,12 +78,13 @@ gm <- get.models(dd, 1:4)
 
 # Because the models originate from 'dredge(..., rank=AICc, REML=FALSE)',
 # the default weights in 'model.avg' are ML based:
-model.avg(gm, method = "NA")
+model.avg(gm)
+
 
 # same result
-#model.avg(gm, method = "NA", rank="AICc", rank.args = list(REML=FALSE))
+#model.avg(gm, rank="AICc", rank.args = list(REML=FALSE))
 # REML based weights
-model.avg(gm, method = "NA", rank="AICc", rank.args = list(REML=TRUE))
+model.avg(gm, rank="AICc", rank.args = list(REML=TRUE))
 
 }
 
