@@ -265,7 +265,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 				updateArgs <- sapply(varying.names, function(x)
 					varying[[x]][[variantsIdx[ivar, x]]], simplify=FALSE)
 				for(i in varying.names) {
-		
+
 					clVariant[i] <- updateArgs[i]
 				}
 			}
@@ -331,6 +331,11 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	ret[tfac] <- lapply(ret[tfac], factor, levels=NaN, labels="+")
 
+	i <- seq_along(all.terms)
+	v <- order(termsOrder)
+	ret[, i] <- ret[, v]
+	all.terms <- all.terms[v]
+
 	colnames(ret) <- c(all.terms, varying.names, "k",
 		if (has.rsq) c("R.sq", "Adj.R.sq"),
 		if (has.dev) if (is.lm) "RSS" else "Dev.",
@@ -338,17 +343,14 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		ICName
 	)
 
+
 	if(nvarying) {
 		variant.names <- lapply(varying, function(x) make.unique(if(is.null(names(x))) as.character(x) else names(x)))
-		for (i in varying.names) ret[, i] <-
+		for (i in varying.names)
+			ret[, i] <-
 			factor(ret[, i], levels = seq_along(variant.names[[i]]),
 				labels = variant.names[[i]])
 	}
-
-	i <- seq_along(all.terms)
-	v <- order(termsOrder)
-	ret[, i] <- ret[, v]
-	all.terms <- all.terms[v]
 
 
 	o <- order(ret[, ICName], decreasing = FALSE)

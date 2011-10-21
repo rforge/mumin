@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.5.2 (2011-10-21)
+dredge: fixed as bug with wrong ordering of column names in the returned 
+	data.frame (thanks to Staffan Roos for reporting it)
+
 Version: 1.5.1 (2011-10-20)
 compatibility with  R prior to 2.13.0: added workarounds for missing generic 
 	function 'nobs'
