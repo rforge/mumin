@@ -1,8 +1,8 @@
 Package: MuMIn
 Type: Package
 Title: Multi-model inference
-Version: 1.5.0
-Date: 2011-10-16
+Version: 1.5.1
+Date: 2011-10-20
 Encoding: UTF-8
 Author: Kamil Bartoń
 Maintainer: Kamil Bartoń <kamil.barton@go2.pl>
@@ -14,3 +14,4 @@ Imports: stats
 Suggests: stats4, nlme, mgcv (>= 1.7.5), lme4 (>= 0.999375-16), gamm4, MASS,
 	nnet, spdep, survival, unmarked, glmmML
 LazyLoad: yes
+BuildVignettes: false

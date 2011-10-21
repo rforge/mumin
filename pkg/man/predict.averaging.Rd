@@ -45,7 +45,7 @@ or the full averaged coefficients.
 In other cases the prediction is obtained by calling \code{predict} on each
 component model and weighted averaging the results, which corresponds to
 assuming that missing coefficients are averaged only over are averaged over a
-subset of models wherein a variable appears. See \sQuote{note} in
+subset of models wherein a variable appears. See \sQuote{Note} in
 \code{\link{model.avg}}.
 
 Predictions on the response scale from generalized models are calculated by

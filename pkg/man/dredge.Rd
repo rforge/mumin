@@ -80,17 +80,16 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 \code{gamm} and \code{gamm4} (the last two should be fitted \emph{via} the
 wrapper \code{MuMIn::\link[MuMIn]{gamm}}).
 
-Models are run one by one by repeated evaluation of the call to
-\code{global.model} with modified formula argument (or \code{fixed} in
-\code{lme}). This method, while robust in that it can be applied to a variety of
-different models is not very efficient and may be considerably time-intensive.
+Models are run one by one by repeated evaluation of modified calls to
+\code{global.model} (in a similar fashion to that of \code{update}. This method,
+while robust in that it can be applied to a variety of different model ofjects
+is not very efficient, and may be time-intensive.
 
 Note that the number of combinations grows exponentially with number of
 predictor variables (\ifelse{latex}{\eqn{2^{N}}}{2^N}). Because there is
 potentially a large number of models to evaluate, to avoid memory overflow the
 fitted model objects are not stored. To get (a subset of) the models, use
-\code{\link{get.models}} with the object returned by \code{dredge} as an
-argument.
+\code{\link{get.models}} on the object returned by \code{dredge}.
 
 Handling interactions, \code{dredge} respects marginality constraints, so
 \dQuote{all possible combinations} do not include models containing interactions
@@ -174,8 +173,8 @@ regression.
 \examples{
 # Example from Burnham and Anderson (2002), page 100:
 data(Cement)
-lm1 <- lm(y ~ ., data = Cement)
-dd <- dredge(lm1)
+fm1 <- lm(y ~ ., data = Cement)
+dd <- dredge(fm1)
 subset(dd, delta < 4)
 
 # Visualize the model selection table:
@@ -187,26 +186,26 @@ plot(dd)
 model.avg(get.models(dd, subset = delta < 4))
 
 #or as a 95\% confidence set:
-top.models <- get.models(dd, cumsum(weight) <= .95)
+confset.95p <- get.models(dd, cumsum(weight) <= .95)
 
-model.avg(top.models) # get averaged coefficients
+model.avg(confset.95p) # get averaged coefficients
 
-#topmost model:
-top.models[[1]]
+#'Best' model
+summary(confset.95p[[1]])
 
 \dontrun{
 # Examples of using 'subset':
 # exclude models containing both X1 and X2
-dredge(lm1, subset = !(X1 & X2))
+dredge(fm1, subset = !(X1 & X2))
 # keep only models containing X3
-dredge(lm1, subset = ~ X3) # subset as a formula
-dredge(lm1, subset = expression(X3)) # subset as expression object
+dredge(fm1, subset = ~ X3) # subset as a formula
+dredge(fm1, subset = expression(X3)) # subset as expression object
 # the same, but more effective:
-dredge(lm1, fixed = "X3")
+dredge(fm1, fixed = "X3")
 
 #Reduce the number of generated models, by including only those with
 # up to 2 terms (and intercept)
-dredge(lm1, m.max = 2)
+dredge(fm1, m.max = 2)
 
 }
 }

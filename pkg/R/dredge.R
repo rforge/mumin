@@ -3,10 +3,9 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		 fixed = NULL, m.max = NA, m.min = 0, subset, marg.ex = NULL, trace = FALSE,
 		 varying = NULL, ...) {
 
-	# XXX
-	#if(!missing(evaluate) && !evaluate) .NotYetUsed("evaluate")
 	rank.custom <- !missing(rank)
-	#dots <- list(...)
+
+
 
 	# *** Rank ***
 	# switch to QAICc if quasi* family and no rank
@@ -25,8 +24,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	ICName <- as.character(attr(IC, "call")[[1L]])
 	# *** Rank ***
 
-
-	### XXXX
 	all.terms <- getAllTerms(global.model, intercept = TRUE)
 	interceptLabel <- attr(all.terms, "interceptLabel")
 	if(is.null(interceptLabel)) interceptLabel <- "(Intercept)"
@@ -38,6 +35,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		error=function(...) terms(global.model))
 
 	response <- if(attr(gterms, "response") == 0L) NULL else "."
+
 
 	if(length(grep(":", all.vars(delete.response(gterms) > 0L))))
 		stop("Variable names in the model formula cannot contain \":\"")
@@ -149,11 +147,11 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	#fixed <- c(fixed, interceptLabel)
 
 	n.fixed <- length(fixed)
-	#DebugPrint(all.terms)
 	termsOrder <- order(all.terms %in% fixed)
-	all.terms <- do.call("structure", c(list(all.terms[termsOrder]), attributes(all.terms)))
-	#DebugPrint(all.terms)
-
+	ordAllTerms <- all.terms[termsOrder]
+	mostattributes(ordAllTerms) <- 	attributes(all.terms)
+	all.terms <- ordAllTerms
+	rm(ordAllTerms)
 
 	llik <- .getLogLik()
 	getK <- function(x) as.vector(attr(llik(x), "df"))
@@ -219,7 +217,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	comb.sfx <- rep(TRUE, n.fixed)
 	comb.seq <- if(nov != 0L) seq.int(nov) else 0L
-	k <- kv <- 0L
+	k <- 0L
 	ord <- integer(0L)
 
 	#whichNotInt <- !(all.terms %in% interceptLabel)
@@ -267,9 +265,8 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 				updateArgs <- sapply(varying.names, function(x)
 					varying[[x]][[variantsIdx[ivar, x]]], simplify=FALSE)
 				for(i in varying.names) {
-					#DebugPrint(i)
-					#TODO: NULL handling
-					if(!is.null(updateArgs[[i]])) clVariant[[i]] <- updateArgs[[i]]
+		
+					clVariant[i] <- updateArgs[i]
 				}
 			}
 

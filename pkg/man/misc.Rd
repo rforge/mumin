@@ -74,18 +74,19 @@ rbindDataFrameList(x)
 
 
 \details{
-	The functions \code{coeffs}, \code{getAllTerms} and \code{tTable} provide an
-	interface between the model and \code{model.avg} (as well as \code{dredge}).
-	Custom methods can be written to provide support for additional classes of
-	models. Vignette \sQuote{\ifelse{html}{\href{/library/MuMIn/doc/gamm.pdf}{Extending
-	\pkg{MuMIn}'s functionality}}{Extending \pkg{MuMIn}'s functionality}} has
-	information describes it in detail.
+	The functions \code{coeffs}, \code{getAllTerms} and \code{tTable} provide
+	interface between the fitted model object and \code{model.avg} (and
+	\code{dredge}). Custom methods can be written to provide support for
+	additional classes of models. The vignette
+	\sQuote{\ifelse{html}{\href{/library/MuMIn/doc/gamm.pdf}{Extending
+	\pkg{MuMIn}'s functionality}}{Extending \pkg{MuMIn}'s functionality}}
+	describes it in more detail.
 }
 
 \note{
 
 \code{coeffs}'s value is in most cases identical to that returned by
-\code{\link{coef}}, the only difference is that it returns fixed
+\code{\link{coef}}, the only difference being it returns fixed
 effects' coefficients for mixed models.
 
 Whimsically, the functions \code{*bindDataFrameList} are not exported from the

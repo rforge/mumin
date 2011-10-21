@@ -34,31 +34,31 @@ importance(x)
 
 # Generate some models
 data(Cement)
-lm1 <- lm(y ~ ., data = Cement)
-dd <- dredge(lm1)
+fm1 <- lm(y ~ ., data = Cement)
+ms1 <- dredge(fm1)
 
 # Importance can be calculated/extracted from various objects:
-importance(dd)
+importance(ms1)
 \dontrun{
-importance(subset(mod.sel(dd), delta <= 4))
-importance(model.avg(dd, subset = delta <= 4))
-importance(subset(dd, delta <= 4))
-importance(get.models(dd, delta <= 4))
+importance(subset(mod.sel(ms1), delta <= 4))
+importance(model.avg(ms1, subset = delta <= 4))
+importance(subset(ms1, delta <= 4))
+importance(get.models(ms1, delta <= 4))
 }
 
 # Re-evaluate the importances according to BIC
 # note that re-ranking involves fitting the models again
 
 # 'nobs' is not used here for backwards compatibility
-lognobs <- log(length(resid(lm1)))
+lognobs <- log(length(resid(fm1)))
 
-importance(subset(mod.sel(dd, rank=AIC, rank.args=list(k = lognobs)),
+importance(subset(mod.sel(ms1, rank = AIC, rank.args = list(k = lognobs)),
 	cumsum(weight) <= .95))
 
 # This gives a different result than previous command, because 'subset' is
 # applied to the original selection table that is ranked with 'AICc'
-importance(model.avg(dd, rank=AIC, rank.args=list(k = lognobs),
-	subset=cumsum(weight) <= .95))
+importance(model.avg(ms1, rank = AIC, rank.args = list(k = lognobs),
+	subset = cumsum(weight) <= .95))
 
 }
 
