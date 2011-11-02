@@ -2,7 +2,7 @@
 function(object, ..., beta = FALSE,
 	#method = c("0", "NA"), method.var = c("NA", "0"),
 	rank = NULL, rank.args = NULL, revised.var = TRUE) {
-	
+
 	if (isTRUE("method" %in% names(match.call())))
 		stop("the argument 'method' is no longer accepted")
 
@@ -41,7 +41,11 @@ function(object, ..., beta = FALSE,
 	all.terms <- all.terms[order(vapply(gregexpr(":", all.terms),
 		function(x) if(x[1L] == -1L) 0L else length(x), numeric(1L)), all.terms)]
 
-	all.model.names <- .makeModelNames(models, all.terms)
+	all.model.names <- modelNames(models, asNumeric = FALSE,
+		withRandomTerms = FALSE, withFamily = FALSE)
+
+
+	#if(is.null(names(models))) names(models) <- all.model.names
 
 	# check if models are unique:
 	mcoeffs <- lapply(models, coeffs)
@@ -51,23 +55,24 @@ function(object, ..., beta = FALSE,
 
 	if (ndups > 0L) {
 		stop("Models are not unique. Duplicates: ",
-			paste(sapply(dup, paste, sep="", collapse=" = "),
+			paste(sapply(dup, paste, sep = "", collapse = " = "),
 				if(ndups > 1L) c(rep(", ", ndups - 2L), ", and ", "") else NULL,
-				collapse="", sep=""))
+				collapse = "", sep = ""))
 	}
 
 	# workaround for different behavior of model.matrix with lme: data argument is required
-	if(any(linherits(models, c(lme=TRUE)))) {
-		model.matrix.lme <- function(object, data=object$data, ...)
-			model.matrix.default(object, data=data, ...)
+	if(any(linherits(models, c(lme = TRUE)))) {
+		model.matrix.lme <- function(object, data = object$data, ...)
+			model.matrix.default(object, data = data, ...)
 	}
 
-	ic <- vapply(models, rank, numeric(1))
-	dev <- if (!is.null(tryCatch(deviance(models[[1L]]), error=.fnull)))
-		vapply(models, deviance, numeric(1)) else NA
+	ic <- vapply(models, rank, numeric(1L))
+	#dev <- if (!is.null(tryCatch(deviance(models[[1L]]), error = .fnull)))
+		#vapply(models, deviance, numeric(1L)) else NA
+	ll <- vapply(models, logLik, numeric(1L))
 	delta <- ic - min(ic)
 	weight <- exp(-delta / 2) / sum(exp(-delta / 2))
-	model.order <- order(weight, decreasing=TRUE)
+	model.order <- order(weight, decreasing = TRUE)
 
 	# DEBUG:
 	# sapply(sapply(sapply(models[model.order], coef), names), paste, collapse="+")
@@ -76,13 +81,12 @@ function(object, ..., beta = FALSE,
 	# ----!!! From now on, everything MUST BE ORDERED by 'weight' !!!-----------
 
 	selection.table <- data.frame(
-		Deviance = dev,	IC = ic, Delta = delta, Weight = weight,
+		logLik = ll, IC = ic, Delta = delta, Weight = weight,
 		row.names = all.model.names
 	)[model.order, ]
 
 	weight <- selection.table$Weight # has been sorted in table
 	models <- models[model.order]
-
 
 	all.par <- unique(names(unlist(mcoeffs)))
 	#all.par <- unique(unlist(lapply(models, function(m) names(coeffs(m)))))
@@ -114,7 +118,6 @@ function(object, ..., beta = FALSE,
 		}, structure(double(npar * 3L),
 		names = c(paste(rep(c("Coef","SE", "DF"), each = npar), all.par, sep = ".")))
 	)) ### << mtable
-
 
 	all.coef <- mtable[, seq_len(npar)] 	# mtable is already sorted by weigth
 	all.se <- mtable[, npar + seq_len(npar)]
@@ -168,7 +171,7 @@ function(object, ..., beta = FALSE,
 	#mmx <- gmm[, cnmmxx[match(colnames(gmm), cnmmxx, nomatch = 0)]]
 
 	mmxs <- tryCatch(cbindDataFrameList(lapply(models, model.matrix)),
-					 error=.fnull)
+					 error = .fnull)
 
 	# Far less efficient:
 	#mmxs <- lapply(models, model.matrix)
@@ -178,9 +181,9 @@ function(object, ..., beta = FALSE,
 
 	# residuals averaged (with brute force)
 	rsd <- tryCatch(apply(vapply(models, residuals, residuals(object)), 1L,
-		weighted.mean, w=weight), error=.fnull)
-	trm <- tryCatch(terms(models[[1]]),
-			error=function(e) terms(formula(models[[1L]])))
+		weighted.mean, w = weight), error = .fnull)
+	trm <- tryCatch(terms(models[[1L]]),
+			error = function(e) terms(formula(models[[1L]])))
 	frm <- reformulate(all.terms,
 				response = attr(trm, "variables")[-1L][[attr(trm, "response")]])
 
@@ -190,7 +193,8 @@ function(object, ..., beta = FALSE,
 		summary = selection.table,
 		coefficients = all.coef,
 		se = all.se,
-		variable.codes = all.terms,
+		variable.codes2 = all.terms,
+		variable.codes = attr(all.model.names, "variables"),
 		avg.model = avg.model,
 		coef.shrinkage = coef.shrink,
 		importance = importance,

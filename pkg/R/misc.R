@@ -11,6 +11,14 @@ if(!("intercept" %in% names(formals(stats::reformulate)))) {
 
 `DebugPrint` <- function(x) { cat(deparse(substitute(x)), "= \n") ; print(x) }
 
+#if (!exists("getElement", mode = "function", where = "package:base", inherits = FALSE)) {
+getElement <- function (object, name) {
+    if (isS4(object))
+		if (.hasSlot(object, name)) slot(object, name) else NULL
+    else object[[name, exact = TRUE]]
+}
+#}
+
 
 # cbind list of data.frames omitting duplicated column (names)
 `cbindDataFrameList` <-
@@ -147,7 +155,8 @@ if (!exists("nobs", mode = "function", where = "package:stats", inherits = FALSE
 	IC
 }
 
-`matchCoef` <- function(m1, m2, all.terms = getAllTerms(m2, intercept = TRUE), beta=FALSE) {
+`matchCoef` <- function(m1, m2, all.terms = getAllTerms(m2, intercept = TRUE),
+	beta = FALSE) {
 	terms1 <- getAllTerms(m1, intercept = TRUE)
 	if(any((terms1 %in% all.terms) == FALSE)) stop("'m1' is not nested within 'm2")
 
@@ -155,7 +164,6 @@ if (!exists("nobs", mode = "function", where = "package:stats", inherits = FALSE
 	#coef1 <- coeffs(m1)
 	coef1 <- if (beta) beta.weights(m1)[, 3L] else coeffs(m1)
 	names(coef1) <- fixCoefNames(names(coef1))
-
 
 	row[terms1] <- NaN
 	cf <- coef1[match(terms1, names(coef1), nomatch=0)]
@@ -212,49 +220,72 @@ function(x) all(vapply(x[-1L], identical, logical(1), x[[1L]]))
 }
 
 
-`.makeModelNames` <- function(models, all.terms) {
-	allterms1 <- lapply(models, getAllTerms)
-	if(missing(all.terms))	all.terms <- unique(unlist(allterms1))
+`modelNames` <- function(models, strict = FALSE, asNumeric = FALSE,
+	withRandomTerms = TRUE, withFamily = TRUE, withArguments = TRUE,
+	fmt = "Model %s %s"
+	) {
 
-	ret <- vapply(allterms1,
-		function(x) paste(match(x, all.terms), collapse="+"),
-		character(1L))
-	if(videntical(ret)) {
-		fam <- sapply(models, function(x) {
-			tryCatch(unlist(family(x)[c("family", "link")]),
-				error=function(e) c("", ""))
+	if(withRandomTerms) {
+		allTermsList <- sapply(models, function(x) {
+			tt <- getAllTerms(x)
+			rtt <- attr(tt, "random.terms")
+			c(tt, if(!is.null(rtt)) paste("(", rtt, ")", sep="") else NULL)
 		})
-		fam <- fam[!apply(fam, 1, videntical), , drop=FALSE]
-		if(nrow(fam) > 0L)
-			ret <- paste(ret, apply(fam, 2,  paste, collapse="."), sep="|")
+	} else {
+		allTermsList <- lapply(models, getAllTerms)
 	}
 
-	cl <- lapply(models, .getCall)
+	allTerms <- unique(unlist(allTermsList))
 
-
-	x <- lapply(cl, function(x) sapply(x[-1L], function(argval) {
-		if(is.numeric(argval)) signif(argval, 3L) else deparse(argval, nlines=1)
-	}))
-	x <- rbindDataFrameList(lapply(lapply(x, t), as.data.frame))
-	x$formula <- x$fixed <- x$model <- x$data <- NULL
-	x <- as.matrix(x)
-	x[is.na(x) | x == "NULL"] <- ""
-	#x[x == "NULL"] <- NA
-
-	#x <- x[, sapply(x, nlevels) != 1L, drop=FALSE]
-	x <- x[, sapply(apply(x, 2, unique), length) != 1L, drop=FALSE]
-
-	x[is.na(x)] <- ""
-	if(ncol(x)) {
-		ret <- paste(ret,
-		gsub("([\"'\\s]+|\\w+ *=)","", apply(x, 1L, paste, collapse="/"), perl=TRUE),
-		sep=":")
+	if(asNumeric) {
+		abvtt <- seq_along(allTerms)
+	} else {
+		abvtt <- allTerms
+		#allVars <- unique(unlist(lapply(lapply(models, formula), all.vars)))
+		allVars <- all.vars(reformulate(allTerms))
+		pat <- paste("\\b", allVars, "\\b", sep="")
+		abx <- abbreviate(paste(toupper(substring(allVars, 1L, 1L)), tolower(substring(allVars, 2L)), sep=""), 1L)
+		#abx <- abbreviate(toupper(allVars), 1)
+		for(i in seq_along(allVars)) abvtt <- gsub(pat[i], abx[i], abvtt, perl=TRUE)
+		abvtt <- gsub("I\\((\\w+)\\)", "\\1", abvtt, perl=TRUE)
+		if(withRandomTerms) #abvtt <- gsub("(1 | (.*%in%)?", "(", abvtt, perl=TRUE)
+		abvtt <- gsub("\\(1 \\| (\\S+)(?: %in%.*)?\\)", "(\\1)", abvtt, perl=TRUE)
 	}
 
-	if(any(duplicated(ret))) {
-		ret <- sprintf("Model %2$s (%1$s)", ret, format(seq_along(models)))
+	ret <- sapply(allTermsList, function(x) paste(abvtt[match(x, allTerms)], collapse="+"))
+
+	if(withFamily && (strict || any(duplicated(ret)))) {
+		fam <- sapply(models, function(x) {
+					tryCatch(unlist(family(x)[c("family", "link")]),
+						error=function(e) c("", ""))
+				})
+		fam <- paste(abbreviate(fam[1,], 4, strict=T,), "(", abbreviate(fam[2,], 1, strict=FALSE), ")", sep="")
+		ret <- paste(ret, fam, sep=" ")
 	}
 
-	#ifelse(vapply(ret, is.null, boolean(1)), seq_along(ret), ret)
+	if(withArguments && (strict || any(duplicated(ret)))) {
+		cl <- lapply(models, .getCall)
+		x <- lapply(cl, function(x) sapply(x[-1L], function(argval) {
+			if(is.numeric(argval)) signif(argval, 3L) else deparse(argval, nlines=1)
+		}))
+		x <- rbindDataFrameList(lapply(lapply(x, t), as.data.frame))
+		x$formula <- x$fixed <- x$model <- x$data <- x$family <- x$cluster <- NULL
+		x <- as.matrix(x)
+		x[is.na(x) | x == "NULL"] <- ""
+		x <- x[, sapply(apply(x, 2, unique), length) != 1L, drop=FALSE]
+		x[is.na(x)] <- ""
+		if(ncol(x)) {
+			ret <- paste(ret,
+			gsub("([\"'\\s]+|\\w+ *=)","", apply(x, 1L, paste, collapse="/"), perl=TRUE),
+			sep=":")
+		}
+	}
+	if(strict || any(duplicated(ret))) {
+		ret <- sprintf(fmt, format(seq_along(models)), ret)
+	}
+
+	if(!asNumeric) {
+		attr(ret, "variables") <- structure(allVars, names = abx)
+	}
 	ret
 }

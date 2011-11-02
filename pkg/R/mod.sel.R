@@ -40,7 +40,7 @@ function(object, ..., rank = NULL, rank.args = NULL) {
 	names(models) <- make.unique(names(models), sep="")
 
 	rank <- .getRank(rank, rank.args = rank.args, object = object)
-	ICname <- deparse(attr(rank,"call")[[1]])
+	ICname <- deparse(attr(rank, "call")[[1L]])
 	all.terms <- unique(unlist(lapply(models, getAllTerms, intercept = TRUE)))
 	all.coef <- fixCoefNames(unique(unlist(lapply(lapply(models, coeffs), names))))
 
@@ -57,7 +57,7 @@ function(object, ..., rank = NULL, rank.args = NULL) {
 		#if(is.null(n)) n <- nobs(x)
 		#c(attr(ll, "df"), n, ll, rank(x))
 		#}, structure(double(4), names=c("k", "nobs", "logLik", ICname)))))
-		}, structure(double(3), names=c("k", "logLik", ICname)))))
+		}, structure(double(3L), names=c("k", "logLik", ICname)))))
 
 	#ret[, "nobs"] <- NULL
 

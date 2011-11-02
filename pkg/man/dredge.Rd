@@ -11,8 +11,9 @@ model, with optional rules for inclusion.
 
 \usage{
 dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
-    fixed = NULL, m.max = NA, m.min = 0, subset, marg.ex = NULL,
-    trace = FALSE, varying = NULL, ...)
+		 fixed = NULL, m.max = NA, m.min = 0, subset, marg.ex = NULL,
+		 trace = FALSE, varying = NULL, extra = NULL, ...)
+
 
 \method{print}{model.selection}(x, abbrev.names = TRUE, ...)
 
@@ -23,40 +24,49 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	\sQuote{Details} for a list of supported types.
     }
 
-	\item{beta}{logical, should standardized coefficients be returned?}
+	\item{beta}{logical, should standardized coefficients be returned? }
 
 	\item{evaluate}{whether to evaluate and rank the models. If \code{FALSE}, a
-	list of model \code{call}s is returned.}
+	list of model \code{call}s is returned. }
 
 	\item{rank}{optional custom rank function (information criterion) to be used
-	instead \code{AICc}, e.g. \code{QAIC} or \code{BIC}. See \sQuote{Details}.}
+	instead \code{AICc}, e.g. \code{QAIC} or \code{BIC}. See \sQuote{Details}. }
 
 	\item{fixed}{optional, either a single sided formula or a character vector
-	giving names of terms to be included in all models.}
+	giving names of terms to be included in all models. }
 
-	\item{m.max, m.min}{optional, maximum and minimum number of terms in a single
-	model (excluding the intercept), \code{m.max} defaults to the number of terms
-	in \code{global.model}.}
+	\item{m.max, m.min}{optionally the maximum and minimum number of terms in a
+	single model (excluding the intercept), \code{m.max} defaults to the number
+	of terms in \code{global.model}. }
 
-	\item{subset}{ logical expression indicating models to keep in the resulting
+	\item{subset}{ logical expression describing models to keep in the resulting
 		set. See \sQuote{Details}. }
 
-	\item{marg.ex}{ a character vector specifying names of variables for which
+	\item{marg.ex}{a character vector specifying names of variables for which
 	NOT to check for marginality restrictions when generating model formulas. If
 	this argument is set to \code{TRUE}, all combinations of terms are used
-	(i.e. no checking).}
+	(i.e. no checking). }
 
-	\item{trace}{
-		if \code{TRUE}, all calls to the fitting function (i.e. updated
-		\code{global.model} calls) are printed. }
+	\item{trace}{if \code{TRUE}, all calls to the fitting function (i.e. updated
+	\code{global.model} calls) are printed before actual fitting takes place. }
 
 	\item{varying}{ optionally, a named list describing the additional arguments
-		to vary between the generated models. Names are the names of the
-		arguments, and each item provides a list of choices. Complex items in
-		the choice list (such as \code{family} objects) should be either named
-		(uniquely) or quoted (unevaluated, e.g. using \code{\link{alist}}, see
-		\code{\link{quote}}), otherwise it may produce rather unpleasant
-		effects. See example in \code{\link{Beetle}. }
+	to vary between the generated models. Names are the names of the arguments,
+	and each item provides a list of choices. Complex items in the choice list
+	(such as \code{family} objects) should be either named (uniquely) or quoted
+	(unevaluated, e.g. using \code{\link{alist}}, see \code{\link{quote}}),
+	otherwise it may produce rather unpleasant effects. See example in
+	\code{\link{Beetle}}. }
+
+	\item{extra}{ optional additional statistics to include in the result,
+	provided as functions, function names or a list of such (best if named
+	or quoted). Similarly as in \code{rank} argument, each function must accept
+	fitted object model as an argument and return (object coercible to) a
+	numeric vector.
+	These can be e.g. additional information criterions or goodness-of-fit
+	statistics. The character string "R^2" is treated in a special way, and will
+	add a \link[=r.squaredLR]{likelihood-ratio based R^2} to the resulting table
+	(this is more efficient than using the \code{r.squaredLR} function itself).
 	}
 
 
@@ -105,14 +115,13 @@ Function \code{rank} must be able to accept model as a first argument and must
 always return a scalar. Typical choice for \code{rank} would be "AIC", "QAIC" or
 "BIC" (\pkg{stats} or \pkg{nlme}).
 
-
 The argument \code{subset} acts in a similar fashion to that in the function
 \code{subset} for \code{data.frames}: the model terms can be referred to by name
 as variables in the expression, with the difference that they are always logical
- (i.e. \code{TRUE} if a term exists in the model). The expression can contain
- any of the \code{global.model} terms (use \code{getAllTerms(global.model)} to
- list them). It can have a form of an unevaluated \code{call}, \code{expression}
- object, or a one sided \code{formula}. See \sQuote{Examples}.
+(i.e. \code{TRUE} if a term exists in the model). The expression can contain
+any of the \code{global.model} terms (use \code{getAllTerms(global.model)} to
+list them). It can have a form of an unevaluated \code{call}, \code{expression}
+object, or a one sided \code{formula}. See \sQuote{Examples}.
 Compound model terms (such as \sQuote{as-is} expressions within \code{I()} or
 the smooths in \code{gam}) should be treated as non-syntactic names and
 enclosed in back-ticks (see \link[base]{Quotes}). Mind the spacing, names
@@ -165,8 +174,6 @@ or \code{\link[AICcmodavg]{aictab}} (\pkg{AICcmodavg}) and
 
 \code{\link[leaps]{regsubsets}} in package \pkg{leaps} also performs all-subsets
 regression.
-
-
 }
 
 
@@ -206,8 +213,26 @@ dredge(fm1, fixed = "X3")
 #Reduce the number of generated models, by including only those with
 # up to 2 terms (and intercept)
 dredge(fm1, m.max = 2)
-
 }
+
+
+# Add R^2 and F-statistics, use the 'extra' argument
+dredge(fm1, m.max = 1, extra = c("R^2", F = function(x) summary(x)$fstatistic[[1]]))
+
+# with summary statistics:
+dredge(fm1, m.max = 1, extra = list(
+    "R[LR]^2" = "R^2",
+    "*" = function(x) {
+        s <- summary(x)
+        c(Rsq = s$r.squared, adjRsq = s$adj.r.squared, F = s$fstatistic[[1]])
+    })
+)
+
+
+# with other information criterions:
+dredge(fm1, m.max = 1, extra = alist(AIC, BIC, ICOMP, Cp))
+
+
 }
 
 \keyword{models}

@@ -58,7 +58,8 @@ List of 13
     which the parameter of interest appears }
 \item{term.names}{ character vector giving names of all terms in the model }
 \item{x, formula}{ the model matrix and formula corresponding to the one that
-	would be used in a single model }
+	would be used in a single model. \code{formula} contains only the averaged
+	coefficients }
 \item{residuals}{ model averaged residuals (response minus fitted values) }
 \item{call}{ the matched call. }
 

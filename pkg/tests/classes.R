@@ -21,6 +21,7 @@ varying <- list(
 
 dd <- dredge(fm1Dial.gls, m.max=1, m.min=1, fixed=~pressure, varying=varying)
 
+dredge(fm1Dial.gls, m.max=1, m.min=1, fixed=~pressure, varying=varying, extra="R^2")
 #traceback()
 
 models <- get.models(dd, 1:4)
@@ -30,10 +31,6 @@ summary(ma)
 
 predict(ma)
 predict(ma, data.frame(QB=300, pressure=seq(0.24, 3, length=10)))
-
-
-
-
 
 #traceback()
 #...
@@ -62,6 +59,7 @@ ma <- model.avg(models, revised=T)
 mod.sel(models)
 
 summary(ma)
+
 confint(ma)
 
 #ma <- model.avg(gm, revised=F)
@@ -342,10 +340,13 @@ rm(list=ls()); detach(package:spdep)
 if (.checkPkg("MASS")) {
 require(MASS)
 
-quine.nb1 <- glm.nb(Days ~ 0+Sex/(Age + Eth*Lrn), data = quine)
+quine.nb1 <- glm.nb(Days ~ 0 + Sex/(Age + Eth*Lrn), data = quine)
 #quine.nb1 <- glm.nb(Days ~ Sex/(Age + Eth*Lrn), data = quine)
 
-models <- get.models(dredge(quine.nb1, marg.ex="Sex"), 1:5)
+ms <- dredge(quine.nb1, marg.ex = "Sex")
+models <- get.models(ms, 1:5)
+summary(model.avg(models))
+
 
 dredge(quine.nb1) # Wrong
 dredge(quine.nb1, marg.ex="Sex") # Right
@@ -359,7 +360,7 @@ pred <- predict(ma, se=TRUE)
 rm(list=ls()); detach(package:MASS)
 }
 
-# TEST quasibinomial ---------------------------------------------------------------------------
+# TEST quasibinomial -----------------------------------------------------------
 
 
 budworm <- data.frame(ldose = rep(0:5, 2), numdead = c(1, 4, 9, 13, 18, 20, 0,
@@ -387,9 +388,9 @@ mod <- get.models(dd, seq(nrow(dd)))
 # so, need to supply them
 ma <- model.avg(mod[1:5], rank="QAICc", rank.args = list(chat = 0.403111))
 
-rm(list=ls());
+rm(list=ls())
 
-# TEST polr {MASS} ---------------------------------------------------------------------------
+# TEST polr {MASS} -------------------------------------------------------------
 #if (.checkPkg("MASS")) {
 #library(MASS)
 #library(MuMIn)
@@ -400,5 +401,26 @@ rm(list=ls());
 #mod <- get.models(dd, 1:6)
 #model.avg(mod)
 #}
+
+
+# TEST coxph -------------------------------------------------------------------
+
+library(survival)
+
+bladder1 <- bladder[bladder$enum < 5, ]
+
+fmcph <- coxph(Surv(stop, event) ~ (rx + size + number) * strata(enum) +  cluster(id), bladder1)
+
+r.squared.coxph <- function(object, ...) {
+	logtest <- -2 * (object$loglik[1L] - object$loglik[2L])
+	c(rsq = 1 - exp(-logtest/object$n), maxrsq = 1 - exp(2 * object$loglik[1L]/object$n))
+}
+
+ms <- dredge(fmcph, fixed=c("cluster(id)", "strata(enum)"), extra = "r.squared.coxph")
+fits <- get.models(ms, delta < 5)
+summary(model.avg(fits))
+
+rm(list=ls())
+detach(package:survival)
 
 # END TESTS

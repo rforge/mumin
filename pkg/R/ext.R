@@ -62,8 +62,6 @@
 `nobs.multinom` <-
 function(object, ...) NROW(fitted(object))
 
-
-
 # No longer needed
 # Extends: nlme
 `nobs.gls` <- function(object, nall = TRUE, ...) {
@@ -87,8 +85,6 @@ function(object, ...) NROW(fitted(object))
 # #Q - the number of grouping levels
 # #ncol - the number of columns in the model matrix for each level of grouping from innermost to outermost
 # #  (last two values are equal to the number of fixed effects and one).
-
-
 
 #(limited) support for unmarked
 
@@ -132,3 +128,8 @@ tTable.unmarkedFit <- function (model, ...) {
 
 coefDf.unmarkedFit <- function(x) rep(NA, length(coef(x)))
 nobs.unmarkedFit <- function(object, ...) unmarked::sampleSize(object)
+
+# family
+`family.gls` <-
+`family.lme` <-
+stats:::family.lm

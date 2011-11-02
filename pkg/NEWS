@@ -1,5 +1,16 @@
 MuMIn package news:
 
+Version: ---- (2011-11-02)
+dredge: uses 'makeArgs' function to generate the updated call - this results in 
+	very flexible interface to modelling functions. 'makeArgs', apart from 
+	previously supported classes, now include methods for 'unmarkedFitOccu', 
+	'unmarkedFitColExt' and several other 'unmarkedFit' objects.
+dredge: new argument 'extra' for additional statistics in the model table
+model.avg: uses now 'modelNames' to get the names. 'modelNames' replaces 
+	'.makeModelNames', it generates the short names in more flexible manner
+r.squared: new function t ocalculate likelihood-ratio based pseudo-R-squared
+
+
 Version: 1.5.2 (2011-10-21)
 dredge: fixed as bug with wrong ordering of column names in the returned 
 	data.frame (thanks to Staffan Roos for reporting it)
