@@ -29,7 +29,7 @@
 		names(cl)[names(cl) == formulaArgName] <- "formula"
 	cl$formula <- update(as.formula(cl$formula), . ~ 1)
 	cl[[1L]] <- as.name("glm")
-	cl$method <- NULL
+	cl$method <- cl$start <- cl$offset <- contrasts <- NULL
 	#cl <- cl[c(TRUE, names(cl)[-1] %in% names(formals(match.fun(cl[[1L]]))))]
 	cl <- cl[c(TRUE, names(cl)[-1] %in% names(formals("glm")))]
 

@@ -1,7 +1,7 @@
 `dredge` <-
 function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		 fixed = NULL, m.max = NA, m.min = 0, subset, marg.ex = NULL,
-		 trace = FALSE, varying = NULL, extra = NULL, ...) {
+		 trace = FALSE, varying, extra, ...) {
 
 	# *** Rank ***
 	rank.custom <- !missing(rank)
@@ -17,7 +17,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	nInts <- sum(attr(allTerms, "intercept"))
 
 	if(length(grep(":", all.vars(reformulate(allTerms))) > 0L))
-		stop("Variable names in the model formula cannot contain \":\"")
+		stop("variable names in the model formula cannot contain \":\"")
 
 	gmEnv <- parent.frame()
 	gmCall <- .getCall(global.model)
@@ -26,15 +26,15 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		gmCall <- substitute(global.model)
 		if(!is.call(gmCall)) {
 			if(inherits(global.model, c("gamm", "gamm4")))
-				message("To use gamm models with 'dredge', use 'MuMIn::gamm' wrapper")
-			stop("Could not retrieve the call to 'global.model'")
+				message("to use gamm models with 'dredge', use 'MuMIn::gamm' wrapper")
+			stop("could not retrieve the call to 'global.model'")
 		}
 		#"For objects without a 'call' component the call to the fitting function \n",
 		#" must be used directly as an argument to 'dredge'.")
 
 		# this is unlikely to happen:
 		if(!exists(as.character(gmCall[[1L]]), parent.frame(), mode="function"))
-			 stop("Could not find function '", gmCall[[1L]], "'")
+			 stop("could not find function '", gmCall[[1L]], "'")
 
 	} else {
 		# if 'update' method does not expand dots, we have a problem
@@ -44,7 +44,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		if(length(is.dotted) > 0L) {
 			substGmCall <- substitute(global.model)
 			if(is.name(substGmCall)) {
-				stop("Call to 'global.model' contains '...' arguments and cannot be updated: ",
+				stop("call to 'global.model' contains '...' arguments and cannot be updated: ",
 					deparse(gmCall, control = NULL))
 			} else {
 				gmCall[is.dotted] <- substitute(global.model)[names(gmCall[is.dotted])]
@@ -63,7 +63,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	}
 
 	#if(names(gmCall)[2] == "") names(gmCall)[2] <- "formula"
-	if(names(gmCall)[2] == "") names(gmCall)[2] <- names(formals(deparse(gmCall[[1]]))[1])
+	if(names(gmCall)[2L] == "") names(gmCall)[2L] <- names(formals(deparse(gmCall[[1]]))[1])
 
 	gmCoefNames <- fixCoefNames(gmCoefNames0)
 	#sglobCoefNames <- fixCoefNames(names(coeffs(global.model)))
@@ -73,11 +73,11 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	formulas <- character(0L)
 
 	if(isTRUE(rankArgs$REML) || (isTRUE(.isREMLFit(global.model)) && is.null(rankArgs$REML)))
-		warning("Comparing models with different fixed effects fitted by REML")
+		warning("comparing models with different fixed effects fitted by REML")
 
 	if (beta && is.null(tryCatch(beta.weights(global.model), error=function(e) NULL,
 		warning=function(e) NULL))) {
-		warning("Do not know how to calculate B-weights for ",
+		warning("do not know how to calculate B-weights for ",
 				class(global.model)[1L], ", argument 'beta' ignored")
 		beta <- FALSE
 	}
@@ -95,7 +95,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 				  + " names of variables or a one-sided formula")
 		}
 		if (!all(fixed %in% allTerms)) {
-			warning("Not all terms in 'fixed' exist in 'global.model'")
+			warning("not all terms in 'fixed' exist in 'global.model'")
 			fixed <- fixed[fixed %in% allTerms]
 		}
 	}
@@ -113,7 +113,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	### BEGIN:
 	## varying BEGIN
-	if(!missing(varying)) {
+	if(!missing(varying) && !is.null(varying)) {
 		#variants <- apply(expand.grid(lapply(varying, seq_along)), 1L,
 			#function(x) sapply(names(varying), function(y) varying[[y]][[x[y]]],
 			#simplify=FALSE))
@@ -132,7 +132,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	## varying END
 
 	## extra BEGIN
-	if(length(extra) != 0L) {
+	if(!missing(extra) && length(extra) != 0L) {
 		extraNames <- sapply(extra, function(x) switch(mode(x),
 			call = deparse(x[[1]]), name = deparse(x), character = , x))
 		if(!is.null(names(extra)))
@@ -161,7 +161,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	nov <- as.integer(n.vars - n.fixed)
 	ncomb <- 2L ^ nov
 
-	if(nov > 31L) stop(gettextf("Maximum number of predictors is 31, but %d is given", nov))
+	if(nov > 31L) stop(gettextf("maximum number of predictors is 31, but %d is given", nov))
 	if(nov > 10L) warning(gettextf("%d predictors will generate up to %.0f possible combinations", nov, ncomb))
 
 	if(evaluate) {
@@ -183,14 +183,13 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			subset <- subset[[2L]]
 		}
 		if(!all(all.vars(subset) %in% allTerms))
-			warning("Not all terms in 'subset' exist in 'global.model'")
+			warning("not all terms in 'subset' exist in 'global.model'")
 	}
 
 	comb.sfx <- rep(TRUE, n.fixed)
 	comb.seq <- if(nov != 0L) seq.int(nov) else 0L
 	k <- 0L
 	ord <- integer(0L)
-
 
 	if(!is.null(gmCall$data)) {
 		if(eval(call("is.data.frame", gmCall$data), gmEnv))
@@ -441,4 +440,3 @@ function(x, abbrev.names = TRUE, ...) {
     }
     return(if (evaluate) eval(call, parent.frame()) else call)
 }
-

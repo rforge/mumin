@@ -4,6 +4,9 @@ export(
 	gamm, Cp, ICOMP, r.squaredLR, null.fit
 )
 
+importFrom(stats, family)
+
+
 # XXX: compatibility with R < 2.13.0
 if (getRversion() >= "2.13.0") {
 importFrom(stats, nobs)
@@ -87,6 +90,12 @@ S3method(tTable, coxph)
 S3method(logLik, coxph)
 S3method(nobs, coxph)
 
+S3method(tTable, survreg)
+S3method(logLik, survreg)
+S3method(nobs, survreg)
+
+
+
 S3method(getAllTerms, lme)
 S3method(coeffs, lme)
 S3method(tTable, lme)
@@ -137,5 +146,6 @@ S3method(makeArgs, unmarkedFitOccu)
 S3method(makeArgs, unmarkedFitColExt)
 S3method(makeArgs, unmarkedFit)
 
+S3method(family, default)
 S3method(family, gls)
 S3method(family, lme)

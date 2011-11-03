@@ -5,7 +5,7 @@
 \title{likelihood-ratio based pseudo R-squared}
 \description{
 Calculate likelihood-ratio based coefficient of determination,
-\eqn{R_{LR}^{2}}{pseudo R^2}
+\ifelse{latex}{\eqn{R_{LR}^{2}}}{pseudo R-squared}
 }
 
 \usage{
@@ -31,15 +31,15 @@ null.fit(x, evaluate = FALSE,
 	Nagelkerke (1991). Note that this is not the same as the classical
 	\sQuote{adjusted R squared}.
 
-	\code{null.fit} returns the fitted \emph{null} model object (if evaluate =
-	TRUE) or an unevaluated call to fit a \emph{null} model.
+	\code{null.fit} returns the fitted \emph{null} model object (if
+	\code{evaluate = TRUE}) or an unevaluated call to fit a \emph{null} model.
 
 }
 
 \details{
 
 This is one of the several pseudo R-squared goodness-of-fit statistics that have
-been proposed (mainly with application in logistic regression models). It is
+been proposed, mainly with application in logistic regression models. It is
 based on an improvement from \emph{null} (intercept only) model to the fitted
 model, and calculated as
 \deqn{
@@ -50,15 +50,15 @@ and the \emph{null} model respectively.
 
 
 For ordinary linear models \eqn{R_{LR}^{2}}{R^2} is consistent with classical
-\eqn{R^{2}}. For discrete models, which likelihood is a product of probabilities
-(such as logistic regression), the maximum \eqn{R_{LR}^{2}}{R^2} is less than 1, and
-equals
+\eqn{R^{2}}{R-squared}. For discrete models, which likelihood is a product of
+probabilities (such as logistic regression), the maximum \eqn{R_{LR}^{2}}{R^2}
+is less than one, and equals
 \deqn{
 max(R_{LR}^{2}) = 1 - \exp(\frac{2}{n}\mathit{logLik}(\textrm{0}))
-}{max(R^2) = 1 - exp(2 / n * \emph{logLik}(0))}
+}{max(R^2) = 1 - exp(2 / n * logLik(0))}
 
-The modification proposed by Nagelkerke (1991) adjusts the \eqn{R_{LR}^{2}} to
-achieve 1 at its maximum:
+The modification proposed by Nagelkerke (1991) adjusts the \eqn{R_{LR}^{2}}{R^2}
+to achieve 1 at its maximum:
 \eqn{
 \bar{R}^{2} = R_{LR}^{2} / \max(R_{LR}^{2})
 }{
@@ -78,12 +78,12 @@ criterions.
 }
 
 \references{
-Cox, D. R. and Snell, E. J. (1989) \emph{The analysis of binary Data}, 2nd ed.
+Cox, D. R. and Snell, E. J. (1989) \emph{The analysis of binary data}, 2nd ed.
 London, Chapman and Hall.
 
 Nagelkerke, N. J. D. (1991) A note on a general definition of the coefficient of
-determination. \emph{Biometrika} 78: 691-692 (and references for original
-formulation therein)
+determination. \emph{Biometrika} 78: 691-692 (and references for the original
+formulation therein).
 }
 
 \seealso{

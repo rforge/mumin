@@ -32,7 +32,8 @@ Chemistry} 24, 1207-1214
 
 \references{
 Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel
-inference: a practical information-theoretic approach}. 2nd ed.
+inference: a practical information-theoretic approach}. 2nd ed. New York,
+Springer-Verlag.
 }
 
 \keyword{datasets}

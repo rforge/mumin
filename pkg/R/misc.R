@@ -193,7 +193,7 @@ function(x) {
 
 
  	if(!all(vapply(responses[-1L], "==", logical(1), responses[[1L]]))) {
-		err("Response differs between models")
+		err("response differs between models")
 		res <- FALSE
 	}
 
@@ -204,7 +204,7 @@ function(x) {
 	nresid <- vapply(models, function(x) nobs(x), numeric(1L)) # , nall=TRUE
 
 	if(!all(datas[-1L] == datas[[1]]) || !all(nresid[-1L] == nresid[[1L]])) {
-		err("Models are not all fitted to the same data")
+		err("models are not all fitted to the same data")
 		res <- FALSE
 	}
 	invisible(res)

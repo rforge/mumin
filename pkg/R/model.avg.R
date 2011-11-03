@@ -135,7 +135,7 @@ function(object, ..., beta = FALSE,
 
 	importance <- apply(weight * p, 2L, sum)
 	names(importance) <- all.terms
-	importance <- sort(importance, decreasing=TRUE)
+	importance <- sort(importance, decreasing = TRUE)
 
 	#if (method == "0")
 	missing.par <- is.na(all.coef)
@@ -223,14 +223,14 @@ function(object, full = FALSE, ...) if(full) object$coef.shrinkage else
 # TODO: predict type="response" + average on response scale
 `predict.averaging` <-
 function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
-	type = c("link", "response"), full = FALSE, ...) {
+	type = c("link", "response"), full = TRUE, ...) {
 
 	type <- match.arg(type)
 	if (!missing(interval)) .NotYetUsed("interval", error = FALSE)
 
 	models <- attr(object, "mList")
 
-	# Benchmark: vapply is ~4x faster !
+	# Benchmark: vapply is ~4x faster
 	#system.time(for(i in 1:1000) sapply(models, inherits, what="gam")) /
 	#system.time(for(i in 1:1000) vapply(models, inherits, logical(1L), what="gam"))
 
@@ -251,7 +251,7 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 			Xnew <- model.matrix(tt, data = newdata, xlev = xlev)
 		}
 
-		Xnew <- Xnew[, match(names(coeff), colnames(Xnew), nomatch = 0)]
+		Xnew <- Xnew[, match(names(coeff), colnames(Xnew), nomatch = 0L)]
 		ret <- (Xnew %*% coeff)[, 1L]
 
 		#if (se.fit) {
@@ -285,7 +285,7 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 			lapply(pred[err], warning)
 			stop(sprintf(ngettext(sum(err), "'predict' for model %s caused error",
 				"'predict' for models %s caused errors"),
-				paste(sQuote(names(models[err])), collapse=", ")))
+				paste(sQuote(names(models[err])), collapse = ", ")))
 		}
 
 
@@ -304,12 +304,12 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 			# TODO: ase!
 			#no.ase <- all(is.na(object$avg.model[,3]))
 			# if(no.ase) 2 else 3
-			ret <- list(fit=apred[1L, ], se.fit=apred[2L, ])
+			ret <- list(fit = apred[1L, ], se.fit = apred[2L, ])
 
 			if (type == "response") {
 				fam <- tryCatch(vapply(models, function(z)
-					unlist(family(z)[c("family", "link")]), character(2)),
-								error=function(e) NULL)
+					unlist(family(z)[c("family", "link")]), character(2L)),
+								error = function(e) NULL)
 
 				if(!is.null(fam)) {
 					if(any(fam[,1] != fam[, -1L]))
@@ -325,7 +325,7 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 				w = object$summary$Weight)
 		} else {
 			stop("'predict' method for the component models returned",
-				 " a value in an unrecognised format")
+				 " a value in unrecognised format")
 		}
 	}
 	return(ret)

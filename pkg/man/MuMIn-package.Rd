@@ -12,21 +12,21 @@ perform model averaging based on information criteria (AIC, AICc and alike).
 \details{
 User level functions include:
 \describe{
-	\item{\code{\link{dredge}}}{performs automated model selection with  
+	\item{\code{\link{dredge}}}{performs automated model selection with
 		subsets of the supplied \sQuote{global} model, and optional
-		choices of other model properties (such as different link functions). 
-		Model set may be generated either with \sQuote{all possible} 
+		choices of other model properties (such as different link functions).
+		Model set may be generated either with \sQuote{all possible}
 		combinations, or tailored according to the conditions specified }
-	\item{\code{\link{model.sel}}}{ creates a model selection table from 
-		handpicked models }	
-	\item{\code{\link{model.avg}}}{ calculates model averaged parameters, 
+	\item{\code{\link{model.sel}}}{ creates a model selection table from
+		hand-picked models }
+	\item{\code{\link{model.avg}}}{ calculates model averaged parameters,
 		with standard errors and confidence intervals }
-	\item{\code{\link{AICc}}}{calculates second-order Akaike information 
+	\item{\code{\link{AICc}}}{calculates second-order Akaike information
 		criterion.}
 }
 
-Model selection can be done according to any information criterion, such as 
-\code{\link{AIC}}, \code{\link{AICc}}, \code{\link{BIC}}, \code{\link{QAIC}}, 
+Model selection can be done according to any information criterion, such as
+\code{\link{AIC}}, \code{\link{AICc}}, \code{\link{BIC}}, \code{\link{QAIC}},
 \code{\link{ICOMP}} or \link{Mallows' Cp}.
 
 }
@@ -35,12 +35,13 @@ Model selection can be done according to any information criterion, such as
 
 \references{
 Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel
-inference: a practical information-theoretic approach}. 2nd ed.
+inference: a practical information-theoretic approach}. 2nd ed. New York,
+Springer-Verlag.
 }
 
 
 \seealso{
-\code{\link{AIC}}, \code{\link{step}} or \code{\link[MASS]{stepAIC}} for stepwise 
+\code{\link{AIC}}, \code{\link{step}} or \code{\link[MASS]{stepAIC}} for stepwise
 model selection by AIC.
 }
 

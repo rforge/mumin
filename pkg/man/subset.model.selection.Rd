@@ -40,7 +40,7 @@ Unlike the method for \code{data.frame}, extracting with only one index (i.e. \c
 
 \seealso{
 \code{\link{dredge}}, \code{\link{subset}} and \code{\link{[.data.frame}} for
-subsetting and extracting from data.frames.
+subsetting and extracting from \code{data.frame}s.
 }
 
 

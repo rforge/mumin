@@ -3,16 +3,16 @@
 \alias{print.model.selection}
 
 \encoding{utf-8}
-\title{Automatized model selection}
+\title{Automated model selection}
 \description{
-Automatically generate models with combinations of the terms in the global
+Generate a set of models with combinations of the terms in the global
 model, with optional rules for inclusion.
 }
 
 \usage{
 dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		 fixed = NULL, m.max = NA, m.min = 0, subset, marg.ex = NULL,
-		 trace = FALSE, varying = NULL, extra = NULL, ...)
+		 trace = FALSE, varying, extra, ...)
 
 
 \method{print}{model.selection}(x, abbrev.names = TRUE, ...)
@@ -65,8 +65,9 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	numeric vector.
 	These can be e.g. additional information criterions or goodness-of-fit
 	statistics. The character string "R^2" is treated in a special way, and will
-	add a \link[=r.squaredLR]{likelihood-ratio based R^2} to the resulting table
-	(this is more efficient than using the \code{r.squaredLR} function itself).
+	add a likelihood-ratio based \eqn{R^{^2}}{R^2} to the
+	resulting table (this is more efficient than using \code{\link{r.squaredLR}}
+	directly).
 	}
 
 
@@ -86,13 +87,14 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 \code{dregde} currently is known to work with \code{lm}, \code{glm},
 \code{rlm}, \code{polr}, \code{multinom}, \code{gam}, \code{gls}, \code{lme},
-\code{lmer}, \code{coxph}, \code{glmmML}, \code{sarlm}, \code{spautolm},
-\code{gamm} and \code{gamm4} (the last two should be fitted \emph{via} the
-wrapper \code{MuMIn::\link[MuMIn]{gamm}}).
+\code{lmer}, \code{coxph}, \code{survreg}, \code{glmmML}, \code{sarlm},
+\code{spautolm}, \code{gamm} and \code{gamm4} (the last two should be fitted
+\emph{via} the wrapper \code{MuMIn::\link[MuMIn]{gamm}}), and several classes of
+models from package \pkg{unmarked}.
 
 Models are run one by one by repeated evaluation of modified calls to
 \code{global.model} (in a similar fashion to that of \code{update}. This method,
-while robust in that it can be applied to a variety of different model ofjects
+while robust in that it can be applied to a variety of different model objects
 is not very efficient, and may be time-intensive.
 
 Note that the number of combinations grows exponentially with number of
@@ -137,14 +139,15 @@ case.
 
 \value{
 \code{dredge} returns an object of class \code{model.selection}, being a
-\code{data.frame} with models' coefficients (or \code{TRUE}/\code{FALSE}
-for factors), k, deviance/RSS, R-squared, AIC, AICc, delta and
- \emph{Akaike weight}. This depends on a type of model. Models are ordered
- according to the used information criterion (lowest on top), specified
- by \code{rank}.
+\code{data.frame} with models' coefficients (or presence/\code{NA} for factors),
+	\emph{df} - number of parameters, log-likelihood, the information criterion
+	value, delta-IC and \emph{Akaike weight}. Models are ordered according to
+	the used information criterion (lowest on top), specified by \code{rank}.
 
 The attribute \code{"calls"} is a list containing the model calls used (arranged
 in the same order as the models).
+
+XXX other attrbutes to describe: "global", "global.call", "rank" and "call"
 
 }
 

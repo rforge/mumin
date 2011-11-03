@@ -32,13 +32,14 @@ AICc(object, ..., k = 2, REML = NULL)
 \note{
 AIC\eqn{_{c}} should be used instead AIC when the the sample size is small in
 comparison to the number of estimated parameters (Burnham & Anderson 2002
-recommend it\'s use when \eqn{n / K < 40}).
+recommend it's use when \eqn{n / K < 40}).
 
 }
 
 \references{
 Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel
-inference: a practical information-theoretic approach}. 2nd ed.
+inference: a practical information-theoretic approach}. 2nd ed. New York,
+Springer-Verlag.
 
 Hurvich, C. M. and Tsai, C.-L. (1989) Regression and time series model selection
 in small samples, \emph{Biometrika} 76: 297–307.

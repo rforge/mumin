@@ -31,7 +31,8 @@ Bliss C. I. (1935) The calculation of the dosage-mortality curve.
 
 \references{
 Burnham, K. P. and Anderson, D. R. (2002) \emph{Model selection and multimodel
-inference: a practical information-theoretic approach}. 2nd ed.
+inference: a practical information-theoretic approach}. 2nd ed. New York,
+Springer-Verlag.
 }
 
 \examples{
@@ -88,7 +89,7 @@ pred <- sapply(mod3, predict, newdata = list(dose = 40), se.fit = TRUE,
 pred <- apply(pred, 1, unlist)[, 1:2] # simplify
 
 # build the table
-tab <- rbind(pred, par.avg(pred[,"fit"], pred[,"se.fit"], Weights(ms3),
+tab <- rbind(pred, par.avg(pred[, "fit"], pred[, "se.fit"], Weights(ms3),
     revised.var = FALSE)[1:2])
 tab <- cbind(
     c(Weights(ms3), NA),
@@ -105,21 +106,21 @@ print(tab, digits = 3, na.print = "")
 # Figure 4.3
 newdata <- list(dose = seq(min(Beetle$dose), max(Beetle$dose), length.out = 25))
 matplot(newdata$dose, sapply(mod3, predict, newdata, type="response"),
-    type = "l", xlab = quote(list("Dose of"~ CS[2],(mg/L))),
-    ylab = "Mortality", col=2:4, lty=3, lwd=1
+    type = "l", xlab = quote(list("Dose of" ~ CS[2],(mg/L))),
+    ylab = "Mortality", col = 2:4, lty = 3, lwd = 1
 )
 
 # add model-averaged prediction with CI, using the same method as above
-pred <- lapply(mod3, predict, newdata, type="response", se.fit = TRUE)
+pred <- lapply(mod3, predict, newdata, type = "response", se.fit = TRUE)
 pred.y <- sapply(pred, "[[", "fit")
 pred.se <- sapply(pred, "[[", "se.fit")
 avpred <- sapply(1:25, function(i) par.avg(pred.y[i, ], pred.se[i, ],
-    weight = Weights(ms3), revised.var=FALSE)[1:2])
+    weight = Weights(ms3), revised.var = FALSE)[1:2])
 avci <- matrix(logit.ci(avpred[1, ], avpred[2, ], quantile = 2), ncol = 2)
 matplot(newdata$dose, cbind(avpred[1, ], avci), type = "l", add = TRUE, lwd = 1,
     lty = c(1, 2, 2), col = 1)
 legend("topleft", NULL, c(as.character(ms3$family), expression(`averaged` \%+-\% CI)),
-    lty = c(3, 3, 3, 1),  col = c(2:4, 1))
+    lty = c(3, 3, 3, 1), col = c(2:4, 1))
 
 }
 

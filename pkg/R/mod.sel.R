@@ -10,7 +10,8 @@ function (object, rank = NULL, rank.args = NULL, ...) {
 	#if(!is.null(rank)) .NotYetUsed("rank")
 	if(!is.null(rank)) {
 		models <- get.models(object, seq.int(nrow(object)))
-		ret <- mod.sel.default(models, rank = .getRank(rank, rank.args = rank.args, object = models[[1]]))
+		ret <- mod.sel.default(models, rank = .getRank(rank,
+			rank.args = rank.args, object = models[[1L]]))
 		return(ret)
 	} else {
 		return(object)
@@ -24,20 +25,20 @@ function(object, ..., rank = NULL, rank.args = NULL) {
 	if (missing(object) && length(models <- list(...)) > 0L) {
 		object <- models[[1L]]
 	} else if (inherits(object, "list")) {
-		if(length(object) ==  0L) stop("At least one model must be given")
+		if(length(object) ==  0L) stop("at least one model must be given")
 		models <- object
 		object <- models[[1L]]
 	} else {
 		models <- list(object, ...)
 		names(models)[1L] <- deparse(substitute(object))
 	}
-	if(length(models) == 0L) stop("At least one model must be given")
+	if(length(models) == 0L) stop("at least one model must be given")
 
 	.checkModels(models, FALSE)
 
 	if(is.null(names(models)) || any(is.na(names(models))))
 		names(models) <- seq_along(models)
-	names(models) <- make.unique(names(models), sep="")
+	names(models) <- make.unique(names(models), sep = "")
 
 	rank <- .getRank(rank, rank.args = rank.args, object = object)
 	ICname <- deparse(attr(rank, "call")[[1L]])
@@ -48,7 +49,8 @@ function(object, ..., rank = NULL, rank.args = NULL) {
 
 	j <- !(all.terms %in% all.coef)
 	d <- as.data.frame(t(sapply(models, matchCoef, all.terms=all.terms)))
-	d[,j] <- lapply(d[,j, drop=FALSE], function(x) factor(is.nan(x), levels=c(F, T), labels=c("", "+")))
+	d[,j] <- lapply(d[,j, drop=FALSE], function(x) factor(is.nan(x),
+		levels=c(F, T), labels=c("", "+")))
 
 	ret <- as.data.frame(t(vapply(models, function(x) {
 		ll <- logLik(x)
@@ -56,8 +58,8 @@ function(object, ..., rank = NULL, rank.args = NULL) {
 		#n <- attr(ll, "nobs")
 		#if(is.null(n)) n <- nobs(x)
 		#c(attr(ll, "df"), n, ll, rank(x))
-		#}, structure(double(4), names=c("k", "nobs", "logLik", ICname)))))
-		}, structure(double(3L), names=c("k", "logLik", ICname)))))
+		#}, structure(double(4), names=c("df", "nobs", "logLik", ICname)))))
+		}, structure(double(3L), names=c("df", "logLik", ICname)))))
 
 	#ret[, "nobs"] <- NULL
 

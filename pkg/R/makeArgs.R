@@ -22,7 +22,7 @@ makeArgs.default <- function(obj, termNames, comb, opt, ...) {
 		idx <- match(coefNames, opt$gmCoefNames)
 
 		if(any(is.na(idx))) {
-			reportProblems <- append(reportProblems, "Cannot subset 'start' argument. Coefficients in generated model do not exist in the global model")
+			reportProblems <- append(reportProblems, "cannot subset 'start' argument. Coefficients in generated model do not exist in the global model")
 		} else {
 			ret$start <- substitute(start[idx], list(start = opt$gmCall$start, idx = idx))
 		}

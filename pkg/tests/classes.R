@@ -420,7 +420,56 @@ ms <- dredge(fmcph, fixed=c("cluster(id)", "strata(enum)"), extra = "r.squared.c
 fits <- get.models(ms, delta < 5)
 summary(model.avg(fits))
 
+fmsrvrg <- survreg(Surv(futime, fustat) ~ ecog.ps + rx, ovarian, dist='weibull',
+    scale=1)
+summary(model.avg(dredge(fmsrvrg), delta  < 4))
+nobs(fmsrvrg)
+
+
+
 rm(list=ls())
 detach(package:survival)
 
 # END TESTS
+
+
+library(MuMIn)
+rm(list=ls(all=T))
+
+
+model1 <- glm(cbind(ncases, ncontrols) ~ agegp + tobgp * alcgp,
+              data = esoph, family = binomial())
+
+ms1 <- dredge(model1, rank=Cp)
+
+plot(dredge(model1, rank=ICOMP))
+plot(dredge(model1, rank=Cp))
+plot(dredge(model1, rank=AICc))
+plot(dredge(model1, rank=BIC))
+
+dredge(model1, rank=BIC, extra="R^2")
+traceback()
+
+summary(model.avg(ms1, delta <=10))
+
+
+summary(model2 <- glm(case ~ age+parity+education+spontaneous+induced,
+                data=infert,family=binomial()))
+
+plot(dredge(model2, rank=BIC, extra="R^2"))
+
+require(survival)
+
+model3 <- clogit(case~spontaneous+induced+strata(stratum),data=infert)
+model3 <- clogit(case~spontaneous+strata(stratum),data=infert)
+
+logLik(model3)
+
+summary(model3)
+tTable(model3)
+getAllTerms(model3)
+r.squaredLR(model3, )
+
+clogit(case~1,data=infert)
+
+dredge(model3)

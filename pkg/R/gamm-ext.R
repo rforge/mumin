@@ -48,7 +48,6 @@ function (object, ...)  stats:::nobs.glm(object$gam, ...)
 `nobs.gamm` <-
 function (object, ...) nobs.glm(object$gam, ...)
 
-
 }
 
 

@@ -84,8 +84,8 @@ modelling functions:
 	\code{multinom} (\pkg{nnet});
 	\code{sarlm}, \code{spautolm} (\pkg{spdep});
 	\code{glmmML} (\pkg{glmmML});
-	\code{coxph} (\pkg{survival});
-	and \code{unmarkedFit} (\pkg{unmarked}).
+	\code{coxph}, \code{survreg} (\pkg{survival});
+	and several models within \code{unmarkedFit} class (\pkg{unmarked}).
 Other classes are also likely to be supported, in particular those
     inheriting from one of the above classes. See package vignette
 	\sQuote{Extending \pkg{MuMIn}'s functionality} for a demonstration on how to
@@ -115,8 +115,6 @@ The \code{coef} method a accepts argument \code{full}, if set to \code{TRUE} the
 \code{logLik} returns a list of \code{\link[stats]{logLik}} objects
     for the component models.
 
-
-
 }
 
 \note{
@@ -129,7 +127,7 @@ The \sQuote{subset} (or \sQuote{conditional}) average only averages over the
 	away from zero. It is, however, an unresolved issue how the variance of this
 	estimate should be calculated, therefore the standard errors and confidence
 	interval are returned only for the subset-averaged coefficients (as from
-	version >= 1.5.0 argument \code{method} is no longer accepted, using it
+	version >= 1.5.0 argument \code{method} is no longer accepted, use of it
 	throws an error).
 
 From version 1.0.1, \code{print} method provides only a concise output
@@ -141,7 +139,9 @@ From version 1.0.1, \code{print} method provides only a concise output
 
 \references{
 Burnham, K. P. and Anderson, D. R (2002) \emph{Model selection and multimodel
-inference: a practical information-theoretic approach}. 2nd ed. }
+inference: a practical information-theoretic approach}. 2nd ed. New York,
+Springer-Verlag.
+}
 
 \author{Kamil Barto\enc{ń}{n}}
 
