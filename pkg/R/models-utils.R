@@ -1,46 +1,3 @@
-# compatibility with older versions of R
-
-if(!("intercept" %in% names(formals(stats::reformulate)))) {
-	`reformulate` <- function (termlabels, response = NULL, intercept = TRUE) {
-		ret <- stats::reformulate(termlabels, response = response)
-		if (!intercept) ret <- update.formula(ret, .~. -1)
-		attr(ret, ".Environment") <- parent.frame()
-		ret
-	}
-}
-
-`DebugPrint` <- function(x) { cat(deparse(substitute(x)), "= \n") ; print(x) }
-
-#if (!exists("getElement", mode = "function", where = "package:base", inherits = FALSE)) {
-getElement <- function (object, name) {
-    if (isS4(object))
-		if (.hasSlot(object, name)) slot(object, name) else NULL
-    else object[[name, exact = TRUE]]
-}
-#}
-
-
-# cbind list of data.frames omitting duplicated column (names)
-`cbindDataFrameList` <-
-function(x) {
-	dfnames <- unlist(lapply(x, colnames))
-	uq <- !duplicated(dfnames)
-	res <- do.call("cbind", x)[,uq]
-	colnames(res) <- dfnames[uq]
-	return(res)
-}
-
-# same for rbind, check colnames and add NA's when any are missing
-`rbindDataFrameList` <-
-function(x) {
-	all.colnames <- unique(unlist(lapply(x, colnames)))
-	x <- lapply(x, function(y) {
-		y[all.colnames[!(all.colnames %in% colnames(y))]] <- NA
-		return(y[all.colnames])
-	})
-	return(do.call("rbind", x))
-}
-
 # test for marginality constraints
 `formulaAllowed` <-
 function(frm, except=NULL) {
@@ -52,47 +9,8 @@ function(frm, except=NULL) {
 	return(all(factors < 2))
 }
 
-# Calculate Akaike weights
-`Weights` <-
-function(x)  UseMethod("Weights")
-
-`Weights.model.selection` <-
-function(x) x[, "weight"] / sum(x[, "weight"])
-
-`Weights.averaging` <-
-function(x) x$summary$Weight
-
-`Weights.data.frame` <-
-function(x) {
-	if(ncol(x) == 2L && colnames(x)[2L] %in% c("AIC", "AICc", "BIC", "QAIC", "QAICc")
-	&& is.numeric(x[, 2L]))
-		Weights.default(x[, 2L])
-	else NA
-}
-
-`Weights.default` <-
-function(x) {
-	delta <- x - min(x)
-	weight <- exp(-delta / 2) / sum(exp(-delta / 2))
-	return (weight)
-}
-
-if (!exists("nobs", mode = "function", where = "package:stats", inherits = FALSE)) {
-
-`nobs` <- function(object, ...) UseMethod("nobs")
-`nobs.default` <- function(object, ...) NROW(resid(object, ...))
-`nobs.glm` <- function (object, ...) sum(!is.na(object$residuals))
-
-}
-
-`coefDf` <- function(x) UseMethod("coefDf")
-`coefDf.lme` <- function(x) x$fixDF$X
-`coefDf.mer` <- function(x) rep(NA, x@dims[["p"]])
-`coefDf.gls` <- function(x) rep(x$dims$N - x$dims$p, x$dims$p)
-`coefDf.default` <- function(x) rep(tryCatch(df.residual(x), error=function(e) NA), length(coef(x)))
 
 # Hidden functions
-
 `.getLogLik` <- function()
 	if ("stats4" %in% loadedNamespaces())
         stats4:::logLik else
@@ -210,15 +128,18 @@ function(x) {
 	invisible(res)
 }
 
-`videntical` <-
-function(x) all(vapply(x[-1L], identical, logical(1), x[[1L]]))
-
-# Check class for each object in a list
-`linherits` <- function(x, whats) {
-	as.logical(vapply(x, inherits, integer(length(whats)), names(whats),
-		which=TRUE)) == whats
+`abbreviateTerms` <- function(x, n = 1L) {
+	ret <- x
+	allVars <- all.vars(reformulate(x))
+	pat <- paste("\\b", allVars, "\\b", sep="")
+	abx <- abbreviate(paste(toupper(substring(allVars, 1L, 1L)), tolower(substring(allVars, 2L)), sep=""), n)
+	for(i in seq_along(allVars)) ret <- gsub(pat[i], abx[i], ret, perl = TRUE)
+	ret <- gsub("I\\((\\w+)\\)", "\\1", ret, perl = TRUE)
+	attr(ret, "variables") <- structure(allVars, names = abx)
+	ret
 }
 
+## do.call("substitute", list(f, sapply(abbreviate(all.names(f,  unique=T), 1), as.name)))
 
 #models <- list(model1, model2)
 
@@ -226,6 +147,8 @@ function(x) all(vapply(x[-1L], identical, logical(1), x[[1L]]))
 	withRandomTerms = TRUE, withFamily = TRUE, withArguments = TRUE,
 	fmt = "Model %s %s"
 	) {
+	
+	# sapply(tt, function(x) paste(sort(match(allt, x)), collapse=""))
 
 	if(withRandomTerms) {
 		allTermsList <- lapply(models, function(x) {
@@ -242,16 +165,10 @@ function(x) all(vapply(x[-1L], identical, logical(1), x[[1L]]))
 	if(asNumeric) {
 		abvtt <- seq_along(allTerms)
 	} else {
-		abvtt <- allTerms
-		#allVars <- unique(unlist(lapply(lapply(models, formula), all.vars)))
-		allVars <- all.vars(reformulate(allTerms))
-		pat <- paste("\\b", allVars, "\\b", sep="")
-		abx <- abbreviate(paste(toupper(substring(allVars, 1L, 1L)), tolower(substring(allVars, 2L)), sep=""), 1L)
-		#abx <- abbreviate(toupper(allVars), 1)
-		for(i in seq_along(allVars)) abvtt <- gsub(pat[i], abx[i], abvtt, perl = TRUE)
-		abvtt <- gsub("I\\((\\w+)\\)", "\\1", abvtt, perl=TRUE)
-		if(withRandomTerms) #abvtt <- gsub("(1 | (.*%in%)?", "(", abvtt, perl = TRUE)
-		abvtt <- gsub("\\(1 \\| (\\S+)(?: %in%.*)?\\)", "(\\1)", abvtt, perl = TRUE)
+		abvtt <- abbreviateTerms(allTerms)
+		variables <- attr(abvtt, "variables")
+		if(withRandomTerms)
+			abvtt <- gsub("\\(1 \\| (\\S+)(?: %in%.*)?\\)", "(\\1)", abvtt, perl = TRUE)
 	}
 
 	ret <- sapply(allTermsList, function(x) paste(abvtt[match(x, allTerms)], collapse="+"))
@@ -261,7 +178,7 @@ function(x) all(vapply(x[-1L], identical, logical(1), x[[1L]]))
 					tryCatch(unlist(family(x)[c("family", "link")]),
 						error=function(e) c("", ""))
 				})
-		fam <- paste(abbreviate(fam[1,], 4, strict=T,), "(", abbreviate(fam[2,], 1, strict=FALSE), ")", sep="")
+		fam <- paste(abbreviate(fam[1,], 4, strict=T), "(", abbreviate(fam[2,], 1, strict=FALSE), ")", sep="")
 		ret <- paste(ret, fam, sep=" ")
 	}
 

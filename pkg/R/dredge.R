@@ -392,17 +392,8 @@ function(x, abbrev.names = TRUE, ...) {
 
 		xterms <- gsub(" ", "", xterms)
 
-		if(abbrev.names) {
-			xterms <- sapply(xterms, function(z) {
-				spl <- strsplit(rep(z, 2L), c("[^\\w\\.]+",  "[\\w\\.$]+"),
-					perl=TRUE)
-				spl[[1]] <- abbreviate(spl[[1]], minlength=3)
-				o <- order(sapply(lapply(spl, `==`, ""), `[[`, 1), decreasing=TRUE)
-				x2 <- unsplit(spl, rep(order(sapply(lapply(spl, `==`, ""),
-					`[[`, 1), decreasing=T), length.out=length(unlist(spl))))
-				return(paste(x2, collapse=""))
-			})
-		}
+		if(abbrev.names)
+			xterms <- abbreviateTerms(xterms, 3L)
 
 		colnames(x)[seq_along(xterms)] <-  xterms
 
@@ -414,8 +405,17 @@ function(x, abbrev.names = TRUE, ...) {
 		}
 
 		cat ("Model selection table \n")
-		i <- sapply(x, is.numeric)
-		x[,i] <- signif(x[,i], 4L)
+		dig <- c("R^2" = 4L, df = 0, logLik = 3, AICc = 1, AICc = 1, AIC = 1, 
+			BIC = 1, QAIC = 1, QAICc = 1, ICOMP = 1, Cp = 1, delta = 2L, weight = 3L)
+		
+		j <- match(colnames(x), names(dig), nomatch = 0)
+
+		i <- sapply(x, is.numeric) & (j == 0L)
+		x[, i] <- signif(x[, i], 4L)
+		
+		for(i in names(dig)[j]) 
+			x[, i] <- round(x[, i], digits = dig[i])
+		
 		print.default(as.matrix(x[, !sapply(x, function(.x) all(is.na(.x)))]),
 					  na.print="", quote=FALSE)
 		if (!is.null(attr(x, "random.terms"))) {
