@@ -94,8 +94,6 @@ S3method(tTable, survreg)
 S3method(logLik, survreg)
 S3method(nobs, survreg)
 
-
-
 S3method(getAllTerms, lme)
 S3method(coeffs, lme)
 S3method(tTable, lme)
@@ -149,3 +147,5 @@ S3method(makeArgs, unmarkedFit)
 S3method(family, default)
 S3method(family, gls)
 S3method(family, lme)
+
+S3method(nobs, rq)

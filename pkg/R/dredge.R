@@ -189,7 +189,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	comb.sfx <- rep(TRUE, n.fixed)
 	comb.seq <- if(nov != 0L) seq.int(nov) else 0L
 	k <- 0L
-	ord <- integer(0L)
+	ord <- extraResult1 <- integer(0L)
 
 	if(!is.null(gmCall$data)) {
 		if(eval(call("is.data.frame", gmCall$data), gmEnv))
@@ -209,7 +209,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		gmDataHead = gmDataHead,
 		gmFormulaEnv = gmFormulaEnv
 		)
-
 
 	for(j in seq.int(ncomb)) {
 		comb <- c(as.logical(intToBits(j - 1L)[comb.seq]), comb.sfx)
@@ -234,7 +233,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		cl <- gmCall
 
 		cl[names(newArgs)] <- newArgs
-
 
 		for (ivar in seq.variants) { ## --- Variants ---------------------------
 			clVariant <- cl
@@ -268,9 +266,19 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 				ord[k] <- modelId
 				ll <- logLik(fit1)
 				ic <- IC(fit1)
+				if(nextra != 0L) {
+					extraResult1 <- applyExtras(fit1)
+					if(length(extraResult1) < nextra) {
+						tmp <- rep(NA_real_, nextra)
+						tmp[match(names(extraResult1), names(extraResult))] <- extraResult1
+						extraResult1 <- tmp
+					}
+					#row1 <- c(row1, extraResult1)
+				}
 				row1 <- c(
 					matchCoef(fit1, all.terms = allTerms, beta = beta)[allTerms],
 					if(nvarying) unlist(variantsIdx[ivar, ]),
+					extraResult1,
 					df = attr(ll, "df"), ll = ll, ic = ic
 				)
 
@@ -280,15 +288,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 					ret <- rbind(ret, matrix(NA, ncol=ret.ncol, nrow=nadd))
 					calls <- c(calls, vector("list", nadd))
 				}
-				if(nextra != 0L) {
-					extraResult1 <- applyExtras(fit1)
-					if(length(extraResult1) < nextra) {
-						tmp <- rep(NA_real_, nextra)
-						tmp[match(names(extraResult1), names(extraResult))] <- extraResult1
-						extraResult1 <- tmp
-					}
-					row1 <- c(row1, extraResult1)
-				}
+
 				ret[k, ] <- row1
 			} else { # if evaluate
 				k <- k + 1L # all OK, add model to table
@@ -316,7 +316,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	#ret[, seq_along(allTerms)] <- ret[, order(termsOrder)]
 	allTerms <- allTerms[v]
 	#colnames(ret) <- c(allTerms0, varying.names, "df", "logLik", ICName)
-	colnames(ret) <- c(allTerms, varying.names, "df", "logLik", ICName, extraNames)
+	colnames(ret) <- c(allTerms, varying.names, extraNames, "df", "logLik", ICName)
 
 	if(nvarying) {
 		variant.names <- lapply(varying, function(x) make.unique(if(is.null(names(x))) as.character(x) else names(x)))

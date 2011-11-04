@@ -166,3 +166,7 @@ nobs.unmarkedFit <- function(object, ...) unmarked::sampleSize(object)
 `family.gls` <-
 `family.lme` <-
 stats:::family.lm
+
+
+`nobs.rq` <-
+function (object, ...) length(object$y)

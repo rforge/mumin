@@ -11,7 +11,7 @@ Model averaging based on an information criterion.
 \usage{
 
 model.avg(object, ..., beta = FALSE, rank = NULL, rank.args = NULL,
-	revised.var = TRUE)
+    revised.var = TRUE)
 }
 
 \arguments{
@@ -85,7 +85,7 @@ modelling functions:
 	\code{sarlm}, \code{spautolm} (\pkg{spdep});
 	\code{glmmML} (\pkg{glmmML});
 	\code{coxph}, \code{survreg} (\pkg{survival});
-	and several models within \code{unmarkedFit} class (\pkg{unmarked}).
+	and several models within the class \code{unmarkedFit} (\pkg{unmarked}).
 Other classes are also likely to be supported, in particular those
     inheriting from one of the above classes. See package vignette
 	\sQuote{Extending \pkg{MuMIn}'s functionality} for a demonstration on how to
@@ -129,6 +129,9 @@ The \sQuote{subset} (or \sQuote{conditional}) average only averages over the
 	interval are returned only for the subset-averaged coefficients (as from
 	version >= 1.5.0 argument \code{method} is no longer accepted, use of it
 	throws an error).
+
+Averaging models with different contrasts for the same factor would yield
+	nonsense results.
 
 From version 1.0.1, \code{print} method provides only a concise output
 	(similarly as for \code{lm}). To print a full summary of the results use

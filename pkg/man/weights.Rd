@@ -4,7 +4,7 @@
 
 \title{Akaike weights}
 \description{
-Calculate or extract Akaike weights (normalized model likelihoods)
+Calculate or extract normalized model likelihoods (\sQuote{Akaike weights})
 }
 
 \usage{

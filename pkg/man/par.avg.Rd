@@ -9,7 +9,7 @@ Averages single model coefficient based on provided weights
 
 \usage{
 par.avg(x, se, weight, df = NULL, level = 1 - alpha, alpha = 0.05,
-revised.var = TRUE, adjusted = TRUE)
+    revised.var = TRUE, adjusted = TRUE)
 
 
 }
@@ -42,8 +42,8 @@ calculated either according to the original equation in Burnham and Anderson
 or a newer, revised formula from Burnham and Anderson (2004, equation 4)
 (if \code{revised.var = TRUE}, this is the default).
 If \code{adjusted = TRUE} (the default) and degrees of freedom are given, the
-confidence intervals are based on adjusted standard error estimator (Burnham and
-Anderson 2002, section 4.3.3).
+confidence intervals are based on adjusted standard error estimator with
+improved coverage (Burnham and Anderson 2002, section 4.3.3).
 
 }
 

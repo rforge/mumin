@@ -59,8 +59,8 @@ data(Cement)
 Cement$X1 <- cut(Cement$X1, 3)
 Cement$X2 <- cut(Cement$X2, 2)
 
-fm1 <- glm(formula = y ~ X + X1 + X2 * X3, data = Cement)
-fm2 <- update(fm1, . ~ . - X - X1)
+fm1 <- glm(formula = y ~ X1 + X2 * X3, data = Cement)
+fm2 <- update(fm1, . ~ . - X1 - X2)
 fm3 <- update(fm1, . ~ . - X2 - X3)
 
 # ranked with AICc by default

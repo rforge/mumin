@@ -27,6 +27,8 @@ importance(x)
 \author{Kamil Barto\enc{ń}{n}}
 
 \seealso{
+\code{\link{Weights}}
+
 \code{\link{dredge}}, \code{\link{model.avg}}, \code{\link{mod.sel}}
 }
 

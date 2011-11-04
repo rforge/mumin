@@ -2,15 +2,14 @@
 \alias{predict.averaging}
 \encoding{utf-8}
 
-\title{Predict Method for the Averaged Model}
+\title{Predict method for the averaged model}
 \description{
 Model-averaged predictions with optional standard errors.
 }
 
 \usage{
 \method{predict}{averaging}(object, newdata = NULL, se.fit = FALSE,
-	interval = NULL, type = c("link", "response"), full = TRUE, ...)
-
+    interval = NULL, type = c("link", "response"), full = TRUE, ...)
 }
 
 \arguments{
@@ -39,14 +38,15 @@ the estimated standard errors.
 }
 
 \details{
-For an ordinary linear model, the predicted values can be averaged either using
-the full averaged coefficients (if argument \code{full = TRUE}, the default), or
-subset-averaged coefficients. In other cases the prediction is obtained by
-calling \code{predict} on each component model and weighted averaging the
-results, which corresponds to the assumption that all predictors are present in
-all models, but those not estimated are equal zero. See \sQuote{Note} in
-\code{\link{model.avg}}. Predictions from component models with standard errors
-are passed to \code{par.avg} and averaged in the same way as the coefficients.
+If all the component models are oridinary linear models, the prediction can be
+made either with the full averaged coefficients (the argument \code{full =
+TRUE} this is the default) or subset-averaged coefficients. Otherwise the
+prediction is obtained by calling \code{predict} on each component model and
+weighted averaging the results, which corresponds to the assumption that all
+predictors are present in all models, but those not estimated are equal zero.
+See \sQuote{Note} in \code{\link{model.avg}}. Predictions from component models
+with standard errors are passed to \code{par.avg} and averaged in the same way
+as the coefficients.
 
 Predictions on the response scale from generalized models are calculated by
 averaging predictions of each model on the link scale, followed by inverse
@@ -72,7 +72,7 @@ require(graphics)
 
 # Example from Burnham and Anderson (2002), page 100:
 data(Cement)
-fm1 <- lm(y ~ X + X1 + X2 + X3 + X4, data = Cement)
+fm1 <- lm(y ~ X1 + X2 + X3 + X4, data = Cement)
 
 ms1 <- dredge(fm1)
 confset.95p <- get.models(ms1, subset=cumsum(weight) <= .95)
@@ -83,7 +83,7 @@ nseq <- function(x, len = length(x)) seq(min(x, na.rm = TRUE),
 
 # New predictors: X1 along the range of original data, other
 # variables held constant at their means
-newdata <- as.data.frame(lapply(lapply(Cement[1:5], mean), rep, 25))
+newdata <- as.data.frame(lapply(lapply(Cement[1:4], mean), rep, 25))
 newdata$X1 <- nseq(Cement$X1, nrow(newdata))
 
 n <- length(confset.95p)
@@ -91,7 +91,7 @@ n <- length(confset.95p)
 # Predictions from each of the models in a set, and with averaged coefficients
 pred <- data.frame(
 	model = sapply(confset.95p, predict, newdata = newdata),
-	averaged.subset = predict(avgm, newdata),
+	averaged.subset = predict(avgm, newdata, full = FALSE),
     averaged.full = predict(avgm, newdata, full = TRUE)
 	)
 

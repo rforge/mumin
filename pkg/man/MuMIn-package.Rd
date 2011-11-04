@@ -10,7 +10,7 @@ perform model averaging based on information criteria (AIC, AICc and alike).
 }
 
 \details{
-User level functions include:
+User-level functions include:
 \describe{
 	\item{\code{\link{dredge}}}{performs automated model selection with
 		subsets of the supplied \sQuote{global} model, and optional
@@ -27,9 +27,12 @@ User level functions include:
 
 Model selection can be done according to any information criterion, such as
 \code{\link{AIC}}, \code{\link{AICc}}, \code{\link{BIC}}, \code{\link{QAIC}},
-\code{\link{ICOMP}} or \link{Mallows' Cp}.
+\code{\link{ICOMP}} or \link{Mallows' Cp}. Most of \R's common model object
+classes are supported.
 
 }
+
+
 
 \author{ Kamil Barto\enc{ń}{n} }
 

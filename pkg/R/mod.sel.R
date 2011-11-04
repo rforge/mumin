@@ -55,28 +55,23 @@ function(object, ..., rank = NULL, rank.args = NULL) {
 	ret <- as.data.frame(t(vapply(models, function(x) {
 		ll <- logLik(x)
 		c(attr(ll, "df"), ll, rank(x))
-		#n <- attr(ll, "nobs")
-		#if(is.null(n)) n <- nobs(x)
-		#c(attr(ll, "df"), n, ll, rank(x))
-		#}, structure(double(4), names=c("df", "nobs", "logLik", ICname)))))
 		}, structure(double(3L), names=c("df", "logLik", ICname)))))
-
-	#ret[, "nobs"] <- NULL
 
 	ret <- cbind(d, ret)
 	ret[, "delta"] <- ret[, ICname] - min(ret[, ICname])
 	ret[, "weight"] <- Weights(ret[,ICname])
 	o <- order(ret[, "delta"], decreasing = FALSE)
+
+	rownames(ret) <- names(models)
 	ret <- ret[o, ]
 
 	attr(ret, "terms") <- all.terms
-	#attr(ret, "terms") <-  unique(unlist(lapply(models, getAllTerms, intercept = FALSE)))
 	attr(ret, "calls") <- lapply(models, .getCall)[o]
+	attr(ret, "order") <- o
 	attr(ret, "rank") <- rank
 	attr(ret, "rank.call") <- attr(rank, "call")
 	attr(ret, "call") <- match.call(expand.dots = TRUE)
 
-	rownames(ret) <- names(models)
 	class(ret) <- c("model.selection", "data.frame")
 	ret
 }

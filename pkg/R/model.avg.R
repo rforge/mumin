@@ -261,8 +261,9 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 		#	return(list(fit = y, se.fit = se))
 		#}
 	} else {
-		# DebugPrint("brute force")
 		# otherwise, use brute force:
+
+		if(full == FALSE) warning("argument 'full' ignored")
 
 		#pred <- if(!missing(newdata))
 		#	lapply(models, predict, newdata = newdata, se.fit = se.fit,...) else

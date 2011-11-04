@@ -2,34 +2,32 @@
 \alias{r.squaredLR}
 \alias{null.fit}
 
-\title{likelihood-ratio based pseudo R-squared}
+\title{likelihood-ratio based pseudo-R-squared}
 \description{
-Calculate likelihood-ratio based coefficient of determination,
-\ifelse{latex}{\eqn{R_{LR}^{2}}}{pseudo R-squared}
+Calculate a coefficient of determination based on the likelihood-ratio test
+(\ifelse{latex}{\eqn{R_{LR}^{2}}}{R_LR-squared})
 }
 
 \usage{
 r.squaredLR(x, null = null.fit(x, TRUE))
 
-null.fit(x, evaluate = FALSE,
-    envir = environment(as.formula(formula(x))))
+null.fit(x, evaluate = FALSE, envir = environment(as.formula(formula(x))))
 }
 
 \arguments{
   \item{x}{a fitted model object}
   \item{null}{a fitted \emph{null} model, if not provided, a \code{glm} with
   only intercept and appropriate family will be used }
-  \item{evaluate}{If \code{TRUE} returns the fitted model object else return the
+  \item{evaluate}{If \code{TRUE} returns the fitted model object else returns a
   call }
   \item{envir}{the environment in which the \emph{null} model is to be
-  evaluated, by default an environment of the original model's formula. }
+  evaluated, defaults to the environment of the original model's formula. }
 }
 
 \value{
-	\code{r.squaredLR} returns a value of \eqn{R_{LR}^{2}}{R^2}, with additional
-	attribute \code{"adj.r.squared"} gives the modification proposed by
-	Nagelkerke (1991). Note that this is not the same as the classical
-	\sQuote{adjusted R squared}.
+	\code{r.squaredLR} returns a value of \eqn{R_{LR}^{2}}{R_LR^2}, and the
+	attribute \code{"adj.r.squared"} gives the Nagelkerke's modified statistic.
+	Note that this is not the same as the classical \sQuote{adjusted R squared}.
 
 	\code{null.fit} returns the fitted \emph{null} model object (if
 	\code{evaluate = TRUE}) or an unevaluated call to fit a \emph{null} model.
@@ -38,23 +36,20 @@ null.fit(x, evaluate = FALSE,
 
 \details{
 
-This is one of the several pseudo R-squared goodness-of-fit statistics that have
-been proposed, mainly with application in logistic regression models. It is
-based on an improvement from \emph{null} (intercept only) model to the fitted
-model, and calculated as
+This goodness-of-fit statistic is is one of the several proposed
+pseudo-R-squared for nonlinear regression models. It is based on an improvement
+from \emph{null} (intercept only) model to the fitted model, and calculated as
 \deqn{
-R_{LR}^{2}=1-\exp(-\frac{2}{n}(\mathit{logLik}(x)-\mathit{logLik}(0)))
+R_{LR}^{2}=1-\exp(-\frac{2}{n}(\log\mathit{Lik}(x)-\log\mathit{Lik}(0)))
 }{R^2 = 1 - exp(-2/n * logLik(x) - logLik(0))}
-where \emph{logLik(x)} and \emph{logLik(0)} are the log likelihoods of the fitted
+where log\emph{Lik(x)} and log\emph{Lik(0)} are the log-likelihoods of the fitted
 and the \emph{null} model respectively.
 
-
-For ordinary linear models \eqn{R_{LR}^{2}}{R^2} is consistent with classical
-\eqn{R^{2}}{R-squared}. For discrete models, which likelihood is a product of
-probabilities (such as logistic regression), the maximum \eqn{R_{LR}^{2}}{R^2}
+For OLS models the value is consistent with classical \eqn{R^{2}}{R-squared}.
+In some cases (e.g. in logistic regression), the maximum \eqn{R_{LR}^{2}}{R_LR^2}
 is less than one, and equals
 \deqn{
-max(R_{LR}^{2}) = 1 - \exp(\frac{2}{n}\mathit{logLik}(\textrm{0}))
+max(R_{LR}^{2}) = 1 - \exp(\frac{2}{n}\log\mathit{Lik}(\textrm{0}))
 }{max(R^2) = 1 - exp(2 / n * logLik(0))}
 
 The modification proposed by Nagelkerke (1991) adjusts the \eqn{R_{LR}^{2}}{R^2}
@@ -65,25 +60,27 @@ to achieve 1 at its maximum:
 Radj^2 = R^2 / max(R^2)
 }
 
-\code{null.fit} tries to guess an intercept only (\emph{null}) model (currently
-only as a \code{glm}), given the provided fitted model object. It is primarily
-intended for internal use.
+\code{null.fit} tries to guess the \emph{null} model call (as a \code{glm}),
+given the provided fitted model object.
 
 }
 
 \note{
-Although this statistic is not related to information theory, it is provided
-here because it may be often useful to compare it with the value of information
-criterions.
+While R\eqn{^{2}}{^2} is a useful as it has the interpretation of the proportion
+of the variance \sQuote{explained}, it performs poorly in model selection, and
+is not suitable for use in the same way as the information criterions.
 }
+
 
 \references{
 Cox, D. R. and Snell, E. J. (1989) \emph{The analysis of binary data}, 2nd ed.
-London, Chapman and Hall.
+London, Chapman and Hall
+
+Magee, L. (1990) R\eqn{^{2}}{^2} measures based on Wald and likelihood ratio joint
+significance tests. \emph{Amer. Stat.} 44: 250-253
 
 Nagelkerke, N. J. D. (1991) A note on a general definition of the coefficient of
-determination. \emph{Biometrika} 78: 691-692 (and references for the original
-formulation therein).
+determination. \emph{Biometrika} 78: 691-692
 }
 
 \seealso{

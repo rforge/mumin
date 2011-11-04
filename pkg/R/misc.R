@@ -220,13 +220,15 @@ function(x) all(vapply(x[-1L], identical, logical(1), x[[1L]]))
 }
 
 
+#models <- list(model1, model2)
+
 `modelNames` <- function(models, strict = FALSE, asNumeric = FALSE,
 	withRandomTerms = TRUE, withFamily = TRUE, withArguments = TRUE,
 	fmt = "Model %s %s"
 	) {
 
 	if(withRandomTerms) {
-		allTermsList <- sapply(models, function(x) {
+		allTermsList <- lapply(models, function(x) {
 			tt <- getAllTerms(x)
 			rtt <- attr(tt, "random.terms")
 			c(tt, if(!is.null(rtt)) paste("(", rtt, ")", sep="") else NULL)
@@ -246,10 +248,10 @@ function(x) all(vapply(x[-1L], identical, logical(1), x[[1L]]))
 		pat <- paste("\\b", allVars, "\\b", sep="")
 		abx <- abbreviate(paste(toupper(substring(allVars, 1L, 1L)), tolower(substring(allVars, 2L)), sep=""), 1L)
 		#abx <- abbreviate(toupper(allVars), 1)
-		for(i in seq_along(allVars)) abvtt <- gsub(pat[i], abx[i], abvtt, perl=TRUE)
+		for(i in seq_along(allVars)) abvtt <- gsub(pat[i], abx[i], abvtt, perl = TRUE)
 		abvtt <- gsub("I\\((\\w+)\\)", "\\1", abvtt, perl=TRUE)
-		if(withRandomTerms) #abvtt <- gsub("(1 | (.*%in%)?", "(", abvtt, perl=TRUE)
-		abvtt <- gsub("\\(1 \\| (\\S+)(?: %in%.*)?\\)", "(\\1)", abvtt, perl=TRUE)
+		if(withRandomTerms) #abvtt <- gsub("(1 | (.*%in%)?", "(", abvtt, perl = TRUE)
+		abvtt <- gsub("\\(1 \\| (\\S+)(?: %in%.*)?\\)", "(\\1)", abvtt, perl = TRUE)
 	}
 
 	ret <- sapply(allTermsList, function(x) paste(abvtt[match(x, allTerms)], collapse="+"))
@@ -272,12 +274,14 @@ function(x) all(vapply(x[-1L], identical, logical(1), x[[1L]]))
 		x$formula <- x$fixed <- x$model <- x$data <- x$family <- x$cluster <- NULL
 		x <- as.matrix(x)
 		x[is.na(x) | x == "NULL"] <- ""
-		x <- x[, sapply(apply(x, 2, unique), length) != 1L, drop=FALSE]
-		x[is.na(x)] <- ""
+		x <- as.data.frame(x)
+		#x <- x[, sapply(apply(x, 2, unique), length) != 1L, drop=FALSE]
+		x <- x[, sapply(lapply(x, unique), length) != 1L, drop=FALSE]
+
 		if(ncol(x)) {
 			ret <- paste(ret,
 			gsub("([\"'\\s]+|\\w+ *=)","", apply(x, 1L, paste, collapse="/"), perl=TRUE),
-			sep=":")
+			sep="'")
 		}
 	}
 	if(strict || any(duplicated(ret))) {

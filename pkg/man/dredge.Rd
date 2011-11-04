@@ -11,8 +11,8 @@ model, with optional rules for inclusion.
 
 \usage{
 dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
-		 fixed = NULL, m.max = NA, m.min = 0, subset, marg.ex = NULL,
-		 trace = FALSE, varying, extra, ...)
+    fixed = NULL, m.max = NA, m.min = 0, subset, marg.ex = NULL,
+    trace = FALSE, varying, extra, ...)
 
 
 \method{print}{model.selection}(x, abbrev.names = TRUE, ...)
@@ -84,13 +84,22 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 
 \details{
-
-\code{dregde} currently is known to work with \code{lm}, \code{glm},
-\code{rlm}, \code{polr}, \code{multinom}, \code{gam}, \code{gls}, \code{lme},
-\code{lmer}, \code{coxph}, \code{survreg}, \code{glmmML}, \code{sarlm},
-\code{spautolm}, \code{gamm} and \code{gamm4} (the last two should be fitted
-\emph{via} the wrapper \code{MuMIn::\link[MuMIn]{gamm}}), and several classes of
-models from package \pkg{unmarked}.
+Fitted model objects that can be used as a \code{global.model} include those
+returned by
+\code{lm}, \code{glm} (package \pkg{stats});
+\code{gam}, \code{gamm} (\pkg{mgcv});
+\code{gamm4} (\pkg{gamm4});
+\code{lme}, \code{gls} (\pkg{nlme});
+\code{lmer} (\pkg{lme4});
+\code{rlm}, \code{glm.nb}, \code{polr} (\pkg{MASS});
+\code{multinom} (\pkg{nnet});
+\code{sarlm}, \code{spautolm} (\pkg{spdep});
+\code{glmmML} (\pkg{glmmML});
+\code{coxph}, \code{survreg} (\pkg{survival});
+\code{rq} (\pkg{quantreg});
+and most models from package \pkg{unmarked}.
+\code{gamm} and \code{gamm4} should be evaluated \emph{via} the wrapper
+\code{MuMIn::\link[MuMIn]{gamm}}.
 
 Models are run one by one by repeated evaluation of modified calls to
 \code{global.model} (in a similar fashion to that of \code{update}. This method,
@@ -98,10 +107,10 @@ while robust in that it can be applied to a variety of different model objects
 is not very efficient, and may be time-intensive.
 
 Note that the number of combinations grows exponentially with number of
-predictor variables (\ifelse{latex}{\eqn{2^{N}}}{2^N}). Because there is
+predictor variables (\ifelse{latex}{\eqn{2^{N}}}{2^N}). Because there can be
 potentially a large number of models to evaluate, to avoid memory overflow the
-fitted model objects are not stored. To get (a subset of) the models, use
-\code{\link{get.models}} on the object returned by \code{dredge}.
+fitted model objects are not stored in the result. To get (a subset of) the
+models, use \code{\link{get.models}} on the object returned by \code{dredge}.
 
 Handling interactions, \code{dredge} respects marginality constraints, so
 \dQuote{all possible combinations} do not include models containing interactions
@@ -146,8 +155,10 @@ case.
 
 The attribute \code{"calls"} is a list containing the model calls used (arranged
 in the same order as the models).
-
-XXX other attrbutes to describe: "global", "global.call", "rank" and "call"
+Other attributes:
+\code{"global"} - the \code{global.model} object,
+\code{"rank"} - the \code{rank} function used,  and \code{"call"} - the matched
+call.
 
 }
 

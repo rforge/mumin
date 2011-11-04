@@ -64,7 +64,7 @@ regression models. \emph{Comp. Stat. & Data Analysis} 28: 51-76
 }
 
 \seealso{
-\code{\link{AIC}}, \code{\link{AICc}} and \code{\link{BIC}}
+\code{\link{AIC}} and \code{\link{BIC}} in \pkg{stats}, \code{\link{AICc}}
 }
 
 % \examples{}
