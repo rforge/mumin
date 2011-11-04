@@ -5,7 +5,7 @@
 \title{Flour beetle mortality data}
 \description{
 Mortality of flour beetles (\emph{Tribolium confusu}) due to exposure to gaseous
-carbon disulfide CS\eqn{_{2}}{2}, from Bliss (1935)
+carbon disulfide CS\eqn{_{2}}{2}, from Bliss (1935).
 }
 
 \usage{
@@ -20,13 +20,12 @@ data(Beetle)
    \item{n.tested}{Number of beetles tested}
    \item{n.killed}{Number of beetles killed}
    \item{Prop}{A matrix with two columns named \bold{n.killed} and \bold{n.survived}}
-   \item{mortality}{Observed mortality rate}
-
+   \item{mortality}{Observed mortality rate.}
 }}
 
 \source{
 Bliss C. I. (1935) The calculation of the dosage-mortality curve.
-\emph{Annals of Applied Biology}, 22: 134–167
+\emph{Annals of Applied Biology}, 22: 134–167.
 }
 
 \references{

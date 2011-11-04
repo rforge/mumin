@@ -13,13 +13,13 @@ Model-averaged predictions with optional standard errors.
 }
 
 \arguments{
-    \item{object}{An object returned by \code{model.avg} }
+    \item{object}{An object returned by \code{model.avg}. }
     \item{newdata}{ An optional data frame in which to look for variables with
-        which to predict. If omitted, the fitted values are used.}
+        which to predict. If omitted, the fitted values are used. }
     \item{se.fit}{logical, indicates if standard errors should be returned.
         This has any effect only if the \code{predict} methods for each of the
-        component models support it.}
-    \item{interval}{Currently not used }
+        component models support it. }
+    \item{interval}{Currently not used. }
     \item{type}{Predictions on response scale are only possible if all
         component models use the same \code{\link[stats]{family}}. See
         \code{\link[stats]{predict.glm}}. }

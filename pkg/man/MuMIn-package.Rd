@@ -6,7 +6,7 @@
 \title{Multi-model inference}
 \description{
 The package \code{MuMIn} contains functions to streamline model selection and
-perform model averaging based on information criteria (AIC, AICc and alike).
+perform model averaging based on information criteria (AIC and alike).
 }
 
 \details{
@@ -16,13 +16,13 @@ User-level functions include:
 		subsets of the supplied \sQuote{global} model, and optional
 		choices of other model properties (such as different link functions).
 		Model set may be generated either with \sQuote{all possible}
-		combinations, or tailored according to the conditions specified }
+		combinations, or tailored according to the conditions specified. }
 	\item{\code{\link{model.sel}}}{ creates a model selection table from
-		hand-picked models }
+		hand-picked models. }
 	\item{\code{\link{model.avg}}}{ calculates model averaged parameters,
-		with standard errors and confidence intervals }
+		with standard errors and confidence intervals. }
 	\item{\code{\link{AICc}}}{calculates second-order Akaike information
-		criterion.}
+		criterion. }
 }
 
 Model selection can be done according to any information criterion, such as

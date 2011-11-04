@@ -2,10 +2,10 @@
 \alias{r.squaredLR}
 \alias{null.fit}
 
-\title{likelihood-ratio based pseudo-R-squared}
+\title{Likelihood-ratio based pseudo-R-squared}
 \description{
 Calculate a coefficient of determination based on the likelihood-ratio test
-(\ifelse{latex}{\eqn{R_{LR}^{2}}}{R_LR-squared})
+(\ifelse{latex}{\eqn{R_{LR}^{2}}}{R_LR-squared}).
 }
 
 \usage{
@@ -15,11 +15,11 @@ null.fit(x, evaluate = FALSE, envir = environment(as.formula(formula(x))))
 }
 
 \arguments{
-  \item{x}{a fitted model object}
+  \item{x}{a fitted model object. }
   \item{null}{a fitted \emph{null} model, if not provided, a \code{glm} with
-  only intercept and appropriate family will be used }
-  \item{evaluate}{If \code{TRUE} returns the fitted model object else returns a
-  call }
+  only intercept and appropriate family will be used. }
+  \item{evaluate}{If \code{TRUE} evaluate the fitted model object else return
+	the call. }
   \item{envir}{the environment in which the \emph{null} model is to be
   evaluated, defaults to the environment of the original model's formula. }
 }
@@ -36,8 +36,8 @@ null.fit(x, evaluate = FALSE, envir = environment(as.formula(formula(x))))
 
 \details{
 
-This goodness-of-fit statistic is is one of the several proposed
-pseudo-R-squared for nonlinear regression models. It is based on an improvement
+This statistic is is one of the several proposed pseudo-R-squared's for 
+nonlinear regression models. It is based on an improvement
 from \emph{null} (intercept only) model to the fitted model, and calculated as
 \deqn{
 R_{LR}^{2}=1-\exp(-\frac{2}{n}(\log\mathit{Lik}(x)-\log\mathit{Lik}(0)))
@@ -47,18 +47,18 @@ and the \emph{null} model respectively.
 
 For OLS models the value is consistent with classical \eqn{R^{2}}{R-squared}.
 In some cases (e.g. in logistic regression), the maximum \eqn{R_{LR}^{2}}{R_LR^2}
-is less than one, and equals
-\deqn{
-max(R_{LR}^{2}) = 1 - \exp(\frac{2}{n}\log\mathit{Lik}(\textrm{0}))
-}{max(R^2) = 1 - exp(2 / n * logLik(0))}
-
-The modification proposed by Nagelkerke (1991) adjusts the \eqn{R_{LR}^{2}}{R^2}
+is less than one. The modification proposed by Nagelkerke (1991) adjusts the 
+\eqn{R_{LR}^{2}}{R^2}
 to achieve 1 at its maximum:
 \eqn{
 \bar{R}^{2} = R_{LR}^{2} / \max(R_{LR}^{2})
 }{
 Radj^2 = R^2 / max(R^2)
 }
+where
+\eqn{
+max(R_{LR}^{2}) = 1 - \exp(\frac{2}{n}\log\mathit{Lik}(\textrm{0}))
+}{max(R^2) = 1 - exp(2 / n * logLik(0))}.
 
 \code{null.fit} tries to guess the \emph{null} model call (as a \code{glm}),
 given the provided fitted model object.
@@ -66,9 +66,10 @@ given the provided fitted model object.
 }
 
 \note{
-While R\eqn{^{2}}{^2} is a useful as it has the interpretation of the proportion
-of the variance \sQuote{explained}, it performs poorly in model selection, and
-is not suitable for use in the same way as the information criterions.
+While R\eqn{^{2}}{^2} is a useful goodness-of-fit measure as it has the 
+interpretation of the proportion of the variance \sQuote{explained}, but it 
+performs poorly in model selection, and is not suitable for use in the same way 
+as the information criterions.
 }
 
 

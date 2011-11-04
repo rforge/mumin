@@ -21,13 +21,13 @@ variables expressed as a percentage of weight.
    \item{X3}{tetracalcium alumino ferrite}
    \item{X4}{dicalcium silicate}
    \item{y}{calories of heat evolved per gram of cement after 180 days of
-	hardening}
+	hardening.}
 }}
 
 \source{
 Woods H., Steinour H.H., Starke H.R. (1932) Effect of composition of Portland
 cement on heat evolved during hardening. \emph{Industrial & Engineering
-Chemistry} 24, 1207-1214
+Chemistry} 24, 1207-1214.
 }
 
 \references{

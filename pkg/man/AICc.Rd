@@ -3,7 +3,7 @@
 \encoding{utf-8}
 \title{Second-order Akaike Information Criterion}
 \description{
-Calculates second-order Akaike information criterion for one or several fitted
+Calculate second-order Akaike information criterion for one or several fitted
 model objects (AIC\eqn{_{c}}{c}, AIC for small samples). }
 
 \usage{
@@ -12,10 +12,10 @@ AICc(object, ..., k = 2, REML = NULL)
 
 \arguments{
   \item{object}{a fitted model object for which there exists a \code{logLik}
-    method, or a \code{logLik} object}
-  \item{\dots}{optionally more fitted model objects}
+    method, or a \code{logLik} object. }
+  \item{\dots}{optionally more fitted model objects. }
   \item{k}{the \sQuote{penalty} per parameter to be used; the default \code{k} =
-    2 is the classical AIC}
+    2 is the classical AIC. }
    \item{REML}{ optional logical value, passed to the \code{logLik} method
     indicating whether the restricted log-likelihood or log-likelihood should be
     used. The default is to use the method used for model estimation.

@@ -5,7 +5,7 @@
 \encoding{utf-8}
 \title{Subsetting model selection table}
 \description{Return subsets of a model selection table returned by
-\code{dredge}.
+	\code{dredge}.
 }
 
 \usage{
@@ -33,7 +33,8 @@ plain \code{data.frame} is returned.
 }
 
 \note{
-Unlike the method for \code{data.frame}, extracting with only one index (i.e. \code{x[i]}) will select rows rather than columns.
+Unlike the method for \code{data.frame}, extracting with only one index 
+(i.e. \code{x[i]}) will select rows rather than columns.
 }
 
 \author{Kamil Barto\enc{ń}{n}}

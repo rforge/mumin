@@ -16,59 +16,57 @@ model.avg(object, ..., beta = FALSE, rank = NULL, rank.args = NULL,
 
 \arguments{
     \item{object}{A fitted model object or a list of such objects. Alternatively
-        an object of class \code{model.selection}. See \sQuote{Details}.}
+        an object of class \code{model.selection}. See \sQuote{Details}. }
 
-    \item{\dots}{ more fitted model objects }
+    \item{\dots}{ more fitted model objects. }
 
-    \item{beta}{Logical, should standardized coefficients be returned?}
+    \item{beta}{Logical, should standardized coefficients be returned? }
 
     \item{rank}{Optional, custom rank function (information criterion) to use
         instead of \code{AICc}, e.g. \code{BIC} or \code{QAIC}, may be omitted
         if \code{object} is a model list returned by \code{get.models}
         or a \code{model.selection} object.
-        See \sQuote{Details}.}
+        See \sQuote{Details}. }
 
     \item{rank.args}{Optional \code{list} of arguments for the \code{rank}
         function. If one is an expression, an \code{x} within it is substituted
-        with a current model.}
+        with a current model. }
 
     \item{revised.var}{Logical, indicating whether to use revised formula for
-        standard errors. See \code{\link{par.avg}}.}
+        standard errors. See \code{\link{par.avg}}. }
 }
 
 \value{
 
 An object of class \code{averaging} is a list with components:
 
-List of 13
 \item{summary}{ a \code{data.frame} with deviance, AICc, Delta and weights
-    for the component models }
+    for the component models. }
 \item{coefficients, se, dfs}{ matrices of component models' coefficients, their
-	standard errors, and degrees of freedom }
+	standard errors, and degrees of freedom. }
 \item{coef.shrinkage}{ a vector of full model-averaged coefficients, see
-	\sQuote{Note} }
+	\sQuote{Note}. }
 \item{variable.codes}{ names of the variables with numerical codes used in
-    \code{summary} }
+    \code{summary}. }
 \item{avg.model}{ the model averaged parameters. A \code{data.frame} containing
     averaged coefficients, unconditional standard error, adjusted SE (if
 	\emph{df}s are available) and z-values (coefficient and SE) and
-	significance (assuming a normal error distribution) }
+	significance (assuming a normal error distribution). }
 \item{importance}{ relative importance of the predictor variables,
     calculated as a sum of the Akaike weights over all of the models in
-    which the parameter of interest appears }
-\item{term.names}{ character vector giving names of all terms in the model }
+    which the parameter of interest appears. }
+\item{term.names}{ character vector giving names of all terms in the model. }
 \item{x, formula}{ the model matrix and formula corresponding to the one that
 	would be used in a single model. \code{formula} contains only the averaged
-	coefficients }
-\item{residuals}{ model averaged residuals (response minus fitted values) }
+	coefficients. }
+\item{residuals}{ model averaged residuals (response minus fitted values). }
 \item{call}{ the matched call. }
 
 In addition, the object has following attributes:
-\item{mList}{ a list of component model objects }
+\item{mList}{ a list of component model objects. }
 \item{beta}{ logical, were standardized coefficients used? }
 \item{revised.var}{ if \code{TRUE}, the standard errors were calculated with the
-	revised formula (See \code{\link{par.avg}}) }
-
+	revised formula (See \code{\link{par.avg}}). }
 }
 
 \details{

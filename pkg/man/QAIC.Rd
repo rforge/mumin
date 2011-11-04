@@ -4,7 +4,7 @@
 \encoding{utf-8}
 \title{Quasi AIC or AIC\eqn{_{c}}{c}}
 \description{
-Calculates a modification of Akaike's Information Criterion for overdispersed
+Calculate a modification of Akaike's Information Criterion for overdispersed
 count data (or its version corrected for small sample,
 \dQuote{quasi-AIC\eqn{_{c}}{c}}), for one or several fitted model objects.
 }
@@ -17,8 +17,8 @@ QAICc(object, ..., chat, k = 2)
 \arguments{
   \item{object}{a fitted model object.}
   \item{\dots}{ optionally, more fitted model objects.}
-  \item{chat}{ \eqn{\hat{c}}{c-hat}, the variance inflation factor }
-  \item{k}{the \sQuote{penalty} per parameter }
+  \item{chat}{ \eqn{\hat{c}}{c-hat}, the variance inflation factor. }
+  \item{k}{the \sQuote{penalty} per parameter. }
 }
 
 \value{

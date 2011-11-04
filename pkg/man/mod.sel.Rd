@@ -8,7 +8,7 @@
 
 \title{model selection table}
 \description{
-Builds a model selection table
+Build a model selection table.
 }
 
 \usage{
@@ -25,7 +25,7 @@ model.sel(object, ...)
 	\item{object}{A fitted model object, a list of such objects, or a
 	\code{"model.selection"} object.}
 
-    \item{\dots}{ More fitted model objects }
+    \item{\dots}{ More fitted model objects. }
 
     \item{rank}{Optional, custom rank function (information criterion) to use
         instead of \code{AICc}, e.g. \code{QAIC} or \code{BIC}, may be omitted
@@ -33,7 +33,7 @@ model.sel(object, ...)
 
     \item{rank.args}{Optional \code{list} of arguments for the \code{rank}
         function. If one is an expression, an \code{x} within it is substituted
-        with a current model.}
+        with a current model. }
 
 }
 
@@ -43,9 +43,6 @@ An object of class \code{"model.selection"} with columns containing useful infor
 about each model: the coefficients, value of the information criterion used, Delta(IC) and weight.
 
 }
-
-% \details{
-% }
 
 \author{Kamil Barto\enc{ń}{n}}
 

@@ -21,8 +21,7 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 \arguments{
 	\item{global.model}{a fitted \sQuote{global} model object. See
-	\sQuote{Details} for a list of supported types.
-    }
+	\sQuote{Details} for a list of supported types. }
 
 	\item{beta}{logical, should standardized coefficients be returned? }
 
@@ -70,9 +69,8 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	directly).
 	}
 
-
   \item{x}{
-    a \code{model.selection} object, returned by \code{dredge}.    }
+    a \code{model.selection} object, returned by \code{dredge}. }
 
   \item{abbrev.names}{ should variable names be abbreviated when printing?
   (useful with many variables). }

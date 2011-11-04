@@ -5,7 +5,7 @@
 \title{Relative variable importance}
 \description{
 Sum of \sQuote{Akaike weights} over all models including the explanatory
-variable
+variable.
 }
 
 \usage{
@@ -14,13 +14,13 @@ importance(x)
 
 \arguments{
 	\item{x}{Either a list of fitted model objects, or a \code{"model.selection"}
-	or \code{"averaging"} object }
+	or \code{"averaging"} object. }
 
 }
 
 \value{
 	a numeric vector of relative importance values, named as the predictor
-	variables
+	variables.
 }
 
 
