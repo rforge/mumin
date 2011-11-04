@@ -66,7 +66,7 @@ given the provided fitted model object.
 }
 
 \note{
-While R\eqn{^{2}}{^2} is a useful goodness-of-fit measure as it has the 
+R\eqn{^{2}}{^2} is a useful goodness-of-fit measure as it has the 
 interpretation of the proportion of the variance \sQuote{explained}, but it 
 performs poorly in model selection, and is not suitable for use in the same way 
 as the information criterions.

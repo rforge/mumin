@@ -15,7 +15,7 @@ User-level functions include:
 	\item{\code{\link{dredge}}}{performs automated model selection with
 		subsets of the supplied \sQuote{global} model, and optional
 		choices of other model properties (such as different link functions).
-		Model set may be generated either with \sQuote{all possible}
+		The set of models may be generated either with \sQuote{all possible}
 		combinations, or tailored according to the conditions specified. }
 	\item{\code{\link{model.sel}}}{ creates a model selection table from
 		hand-picked models. }

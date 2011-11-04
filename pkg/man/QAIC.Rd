@@ -2,7 +2,7 @@
 \alias{QAIC}
 \alias{QAICc}
 \encoding{utf-8}
-\title{Quasi AIC or AIC\eqn{_{c}}{c}}
+\title{Quasi AIC or AICc}
 \description{
 Calculate a modification of Akaike's Information Criterion for overdispersed
 count data (or its version corrected for small sample,
