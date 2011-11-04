@@ -233,8 +233,7 @@ dredge(fm1, m.max = 1, extra = c("R^2", F = function(x) summary(x)$fstatistic[[1
 
 # with summary statistics:
 dredge(fm1, m.max = 1, extra = list(
-    "R[LR]^2" = "R^2",
-    "*" = function(x) {
+    "R^2", "*" = function(x) {
         s <- summary(x)
         c(Rsq = s$r.squared, adjRsq = s$adj.r.squared, F = s$fstatistic[[1]])
     })

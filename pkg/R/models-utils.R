@@ -143,7 +143,23 @@ function(x) {
 
 #models <- list(model1, model2)
 
-`modelNames` <- function(models, strict = FALSE, asNumeric = FALSE,
+`modelNames` <- function(models = NULL, allTerms, uqTerms, ...) {
+	if(missing(allTerms)) 	allTerms <- lapply(models, getAllTerms)
+	if(missing(uqTerms)) 	uqTerms <- unique(unlist(allTerms))
+	
+	ret <- sapply(allTerms, function(x) paste(sort(match(x, uqTerms)), collapse=""))
+
+	if(any(duplicated(ret))) {
+		ret <- sapply(seq_along(ret), function(i) 
+			paste(ret[i], letters[sum(ret[seq.int(i)] == ret[i]) - 1L], sep=""))
+	}
+	attr(ret, "variables") <- structure(seq_along(uqTerms), names = uqTerms)
+	ret
+}
+
+
+
+`modelNames0` <- function(models, strict = FALSE, asNumeric = FALSE,
 	withRandomTerms = TRUE, withFamily = TRUE, withArguments = TRUE,
 	fmt = "Model %s %s"
 	) {

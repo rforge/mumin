@@ -41,8 +41,10 @@ function(object, ..., beta = FALSE,
 	all.terms <- all.terms[order(vapply(gregexpr(":", all.terms),
 		function(x) if(x[1L] == -1L) 0L else length(x), numeric(1L)), all.terms)]
 
-	all.model.names <- modelNames(models, asNumeric = FALSE,
-		withRandomTerms = FALSE, withFamily = FALSE)
+	# all.model.names <- modelNames(models, asNumeric = FALSE,
+		# withRandomTerms = FALSE, withFamily = FALSE)
+		
+	all.model.names <- modelNames(allTerms = allterms1, uqTerms = all.terms)
 
 
 	#if(is.null(names(models))) names(models) <- all.model.names
@@ -385,6 +387,7 @@ function (x, digits = max(3L, getOption("digits") - 3L),
     cat("\nModel summary:\n")
 	print(round(as.matrix(x$summary), 2L), na.print="")
 
+	#cat("\nVariable names abbreviations:\n")
 	cat("\nVariables:\n")
 	print(x$variable.codes, quote=FALSE)
 

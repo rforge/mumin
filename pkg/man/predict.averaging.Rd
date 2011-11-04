@@ -110,7 +110,7 @@ matplot(newdata$X1, cbind(y, y - ci, y + ci), add = TRUE, type="l",
 
 legend("topleft",
     legend=c(lapply(confset.95p, formula),
-        paste(c("subset", "full"), "averaged"), "averaged predictions CI"),
+        paste(c("subset", "full"), "averaged"), "averaged predictions + CI"),
     lty = 1, lwd = c(rep(2,n),3,3,3),  cex = .75, col=1:8)
 
 palette(opal)
