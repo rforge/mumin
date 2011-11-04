@@ -206,7 +206,7 @@ function(x) {
 	}
 
 	if(!asNumeric) {
-		attr(ret, "variables") <- structure(allVars, names = abx)
+		attr(ret, "variables") <- variables
 	}
 	ret
 }
