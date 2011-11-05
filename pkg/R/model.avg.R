@@ -43,7 +43,7 @@ function(object, ..., beta = FALSE,
 
 	# all.model.names <- modelNames(models, asNumeric = FALSE,
 		# withRandomTerms = FALSE, withFamily = FALSE)
-		
+
 	all.model.names <- modelNames(allTerms = allterms1, uqTerms = all.terms)
 
 
@@ -406,7 +406,7 @@ function (x, digits = max(3L, getOption("digits") - 3L),
 	#	"0"="taken to be zero", "NA"="excluded"), "\n")
 
 
-	cat("\nFull model-averaged coefficients:", "\n")
+	cat("\nFull model-averaged coefficients (with shrinkage):", "\n")
 	printCoefmat(matrix(x$coef.shrink, nrow=1L, dimnames =list("", x$term.names)),
 		P.values=FALSE, has.Pvalue=FALSE, cs.ind=seq_along(x$term.names),
 		tst.ind=NULL)

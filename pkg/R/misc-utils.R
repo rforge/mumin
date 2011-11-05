@@ -40,3 +40,23 @@ function(x) all(vapply(x[-1L], identical, logical(1), x[[1L]]))
 	as.logical(vapply(x, inherits, integer(length(whats)), names(whats),
 		which=TRUE)) == whats
 }
+
+# substitute has(a, !b, ...) for !is.na(a) & is.na(b) ..., in expression
+`.substHas` <- function(e) {
+	if(is.expression(e)) e <- e[[1L]]
+	n <- length(e)
+	if(n == 1L) return(e)
+	if(e[[1L]] != "has") {
+		for(i in 1:n) e[[i]] <- .substHas(e[[i]])
+		return(e)
+	}
+	res <- NULL
+	for(i in seq.int(2L, n)) {
+		ex <- if(length(e[[i]]) == 2L && e[[i]][[1L]] == "!")
+			call("is.na", e[[i]][[2L]]) else
+			call("!", call("is.na", e[[i]]))
+		res <- if(i == 2L) ex else call("&", res, ex)
+	}
+	res <- call("(", res)
+	return(res)
+}

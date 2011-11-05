@@ -350,33 +350,39 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 `subset.model.selection` <-
 function(x, subset, select, recalc.weights = TRUE, ...) {
 	if (missing(select)) {
-		e <- substitute(subset)
-		i <- eval(e, x, parent.frame(2L))
+		if(missing(subset)) return(x)
+		e <- .substHas(substitute(subset))
+		#print(e)
+		i <- eval(e, x, parent.frame())
 		return(`[.model.selection`(x, i, recalc.weights = recalc.weights, ...))
 	} else {
 		cl <- match.call(expand.dots = FALSE)
 	    cl <- cl[c(1L, match(names(formals("subset.data.frame")), names(cl), 0L))]
 	    cl[[1L]] <- as.name("subset.data.frame")
-	    return(eval(cl, parent.frame(2L)))
+		ret <- eval(cl, parent.frame())
+		if(recalc.weights && ("weight" %in% colnames(ret)))
+			ret[, 'weight'] <- ret[, 'weight'] / sum(ret[, 'weight'])
+	    return(ret)
 	}
 }
 
 
 `[.model.selection` <-
 function (x, i, j, recalc.weights = TRUE, ...) {
-	res <- `[.data.frame`(x, i, j, ...)
+	ret <- `[.data.frame`(x, i, j, ...)
 	if (missing(j)) {
 		att <- attributes(x)
 		s <- c("row.names", "calls")
 		att[s] <- lapply(att[s], `[`, i)
-		attributes(res) <- att
+		attributes(ret) <- att
 		if(recalc.weights)
-			res$weight <- res$weight / sum(res$weight)
+			ret$weight <- ret$weight / sum(ret$weight)
+			#ret[, 'weight'] <- ret[, 'weight'] / sum(ret[, 'weight'])
 	} else {
-		cls <- class(res)
-		class(res) <- cls[cls != "model.selection"] # numeric or data.frame
+		cls <- class(ret)
+		class(ret) <- cls[cls != "model.selection"] # numeric or data.frame
 	}
-	return(res)
+	return(ret)
 }
 
 `print.model.selection` <-
@@ -405,17 +411,17 @@ function(x, abbrev.names = TRUE, ...) {
 		}
 
 		cat ("Model selection table \n")
-		dig <- c("R^2" = 4L, df = 0, logLik = 3, AICc = 1, AICc = 1, AIC = 1, 
+		dig <- c("R^2" = 4L, df = 0, logLik = 3, AICc = 1, AICc = 1, AIC = 1,
 			BIC = 1, QAIC = 1, QAICc = 1, ICOMP = 1, Cp = 1, delta = 2L, weight = 3L)
-		
+
 		j <- match(colnames(x), names(dig), nomatch = 0)
 
 		i <- sapply(x, is.numeric) & (j == 0L)
 		x[, i] <- signif(x[, i], 4L)
-		
-		for(i in names(dig)[j]) 
+
+		for(i in names(dig)[j])
 			x[, i] <- round(x[, i], digits = dig[i])
-		
+
 		print.default(as.matrix(x[, !sapply(x, function(.x) all(is.na(.x)))]),
 					  na.print="", quote=FALSE)
 		if (!is.null(attr(x, "random.terms"))) {
@@ -425,18 +431,22 @@ function(x, abbrev.names = TRUE, ...) {
 	}
 }
 
-`update.model.selection` <- function (object, ..., evaluate = TRUE) {
-    call <- attr(object, "call")
-    if (is.null(call))
+`update.model.selection` <- function (object, global.model, ..., evaluate = TRUE) {
+    cl <- attr(object, "call")
+    if (is.null(cl))
         stop("need an object with call component")
     extras <- match.call(expand.dots = FALSE)$...
+
+	if(!missing(global.model))
+		extras <- c(list(global.model = substitute(global.model)), extras)
+
     if (length(extras)) {
-        existing <- !is.na(match(names(extras), names(call)))
-        for (a in names(extras)[existing]) call[[a]] <- extras[[a]]
+        existing <- !is.na(match(names(extras), names(cl)))
+        for (a in names(extras)[existing]) cl[a] <- extras[a]
         if (any(!existing)) {
-            call <- c(as.list(call), extras[!existing])
-            call <- as.call(call)
+            cl <- c(as.list(cl), extras[!existing])
+            cl <- as.call(cl)
         }
     }
-    return(if (evaluate) eval(call, parent.frame()) else call)
+    return(if (evaluate) eval(cl, parent.frame()) else cl)
 }

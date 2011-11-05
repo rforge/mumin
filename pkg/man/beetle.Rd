@@ -39,8 +39,6 @@ Springer-Verlag.
 # "Logistic regression example"
 # from Burnham & Anderson (2002) chapter 4.11
 
-library(MuMIn)
-
 data(Beetle)
 
 # Fit a global model with all the considered variables
@@ -66,18 +64,19 @@ varying.link <- list(family = alist(
     cloglog = binomial("cloglog")
     ))
 
-dredge(globmod, subset = msubset, varying = varying.link, rank=AIC)
-
+(ms12 <- dredge(globmod, subset = msubset, varying = varying.link, rank = AIC))
 
 # Table 4.7 "models justifiable a priori"
-(ms3 <- dredge(update(globmod, . ~ dose), fixed = ~dose, rank = AIC,
-    varying = varying.link))
+(ms3 <- subset(ms12, has(dose, !`I(dose^2)`)))
+
+# The same result, but would fit the models again:
+# ms3 <- update(ms12, update(globmod, . ~ dose), subset = , fixed = ~dose)
 
 mod3 <- get.models(ms3, 1:3)
 
 # Table 4.8. Predicted mortality probability at dose 40.
 
-# a helper functions to calculate confidence intervals on logit scale
+# calculate confidence intervals on logit scale
 logit.ci <- function(p, se, quantile = 2) {
     C. <- exp(quantile * se / (p * (1 - p)))
     p /(p + (1 - p) * c(C., 1/C.))
