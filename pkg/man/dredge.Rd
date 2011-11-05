@@ -241,6 +241,11 @@ dredge(fm1, m.max = 1, extra = list(
 
 
 # with other information criterions:
+
+# there is no BIC in R < 2.13.0, so need to add it:
+if(!exists("BIC", mode="function"))
+    BIC <- function(object, ...) AIC(object, k = log(length(resid(object))))
+
 dredge(fm1, m.max = 1, extra = alist(AIC, BIC, ICOMP, Cp))
 
 

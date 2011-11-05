@@ -128,11 +128,17 @@ function(x) {
 	invisible(res)
 }
 
-`abbreviateTerms` <- function(x, n = 1L) {
+`abbreviateTerms` <- function(x, n = 1L, capwords = FALSE) {
 	ret <- x
 	allVars <- all.vars(reformulate(x))
 	pat <- paste("\\b", allVars, "\\b", sep="")
-	abx <- abbreviate(paste(toupper(substring(allVars, 1L, 1L)), tolower(substring(allVars, 2L)), sep=""), n)
+	if(capwords) {
+		abx <- abbreviate(paste(toupper(substring(allVars, 1L, 1L)), 
+			tolower(substring(allVars, 2L)), sep=""), n)
+	} else {
+		abx <- abbreviate(allVars, n)
+	}
+	
 	for(i in seq_along(allVars)) ret <- gsub(pat[i], abx[i], ret, perl = TRUE)
 	ret <- gsub("I\\((\\w+)\\)", "\\1", ret, perl = TRUE)
 	attr(ret, "variables") <- structure(allVars, names = abx)
@@ -149,9 +155,13 @@ function(x) {
 	
 	ret <- sapply(allTerms, function(x) paste(sort(match(x, uqTerms)), collapse=""))
 
-	if(any(duplicated(ret))) {
-		ret <- sapply(seq_along(ret), function(i) 
-			paste(ret[i], letters[sum(ret[seq.int(i)] == ret[i]) - 1L], sep=""))
+	dup <- table(ret)
+	dup <- dup[dup > 1]
+	
+	if(length(dup) > 0) {
+		idup <- which(ret %in% names(dup))
+
+		ret[idup] <- sapply(idup, function(i) paste(ret[i], letters[sum(ret[seq.int(i)] == ret[i])], sep=""))
 	}
 	attr(ret, "variables") <- structure(seq_along(uqTerms), names = uqTerms)
 	ret
