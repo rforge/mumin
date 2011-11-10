@@ -4,7 +4,7 @@
 
 \title{Parameter averaging}
 \description{
-Averages a single model coefficient based on provided weights.
+Average a single model coefficient based on provided weights.
 }
 
 \usage{
@@ -42,8 +42,8 @@ calculated either according to the original equation in Burnham and Anderson
 or a newer, revised formula from Burnham and Anderson (2004, equation 4)
 (if \code{revised.var = TRUE}, this is the default).
 If \code{adjusted = TRUE} (the default) and degrees of freedom are given, the
-confidence intervals are based on adjusted standard error estimator and 
-confidence intervals with improved coverage (see Burnham and Anderson 2002, 
+ adjusted standard error estimator and 
+confidence intervals with improved coverage are returned (see Burnham and Anderson 2002, 
 section 4.3.3).
 
 }

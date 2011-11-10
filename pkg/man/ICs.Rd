@@ -3,20 +3,22 @@
 \alias{Mallows' Cp}
 \alias{Cp}
 \alias{ICOMP}
+\alias{CAICF}
 \encoding{utf-8}
 \title{Various information criteria}
 \description{
-Calculate Mallows' \emph{Cp} and Bozdogan's ICOMP information criterion.
+Calculate Mallows' \emph{Cp} and Bozdogan's ICOMP and CAIFC information criteria.
 }
 
 \usage{
 Cp(object, dispersion = NULL)
 ICOMP(object, ..., REML = NULL)
+CAICF(object, ..., REML = NULL)
 }
 
 \arguments{
-  \item{object}{a fitted model object (in case of ICOMP, a \code{logLik} method
-	must exist for the object). }
+  \item{object}{a fitted model object (in case of ICOMP and CAICF, \code{logLik}
+	and \code{vcov} methods must exist for the object). }
   \item{\dots}{optionally more fitted model objects. }
   \item{dispersion}{the dispersion parameter. If \code{NULL}, it is inferred
 	from object. }

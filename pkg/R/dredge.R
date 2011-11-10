@@ -221,7 +221,8 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		#terms1 <- allTerms[comb]
 		newArgs <- makeArgs(global.model, allTerms[comb], comb, argsOptions)
 
-		formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else attr(newArgs, "formulaList")
+		formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
+			attr(newArgs, "formulaList")
 		if(!all(vapply(formulaList, formulaAllowed, logical(1), marg.ex))) next;
 
 		if(!is.null(attr(newArgs, "problems"))) {
@@ -231,7 +232,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		}
 
 		cl <- gmCall
-
 		cl[names(newArgs)] <- newArgs
 
 		for (ivar in seq.variants) { ## --- Variants ---------------------------
@@ -366,7 +366,6 @@ function(x, subset, select, recalc.weights = TRUE, ...) {
 	}
 }
 
-
 `[.model.selection` <-
 function (x, i, j, recalc.weights = TRUE, ...) {
 	ret <- `[.data.frame`(x, i, j, ...)
@@ -450,3 +449,6 @@ function(x, abbrev.names = TRUE, ...) {
     }
     return(if (evaluate) eval(cl, parent.frame()) else cl)
 }
+
+`coef.model.selection` <- function (object, ...)
+	object[, attr(object, "terms")]

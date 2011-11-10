@@ -68,7 +68,6 @@ varying.link <- list(family = alist(
 
 # Table 4.7 "models justifiable a priori"
 (ms3 <- subset(ms12, has(dose, !`I(dose^2)`)))
-
 # The same result, but would fit the models again:
 # ms3 <- update(ms12, update(globmod, . ~ dose), subset = , fixed = ~dose)
 

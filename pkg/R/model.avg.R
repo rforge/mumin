@@ -44,7 +44,7 @@ function(object, ..., beta = FALSE,
 	# all.model.names <- modelNames(models, asNumeric = FALSE,
 		# withRandomTerms = FALSE, withFamily = FALSE)
 
-	all.model.names <- modelNames(allTerms = allterms1, uqTerms = all.terms)
+	all.model.names <- .modelNames(allTerms = allterms1, uqTerms = all.terms)
 
 
 	#if(is.null(names(models))) names(models) <- all.model.names
@@ -381,10 +381,10 @@ function (object, parm, level = 0.95, ...) {
 function (x, digits = max(3L, getOption("digits") - 3L),
     signif.stars = getOption("show.signif.stars"), ...) {
 
-    cat("\nCall:  ", paste(deparse(x$call), sep = "\n", collapse = "\n"),
+    cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"),
         "\n\n", sep = "")
 
-    cat("\nModel summary:\n")
+    cat("Component models:\n")
 	print(round(as.matrix(x$summary), 2L), na.print="")
 
 	#cat("\nVariable names abbreviations:\n")
@@ -422,7 +422,7 @@ function (x, digits = max(3L, getOption("digits") - 3L),
 
 `print.averaging` <-
 function(x, ...) {
-    cat("\nCall:  ", paste(deparse(x$call), sep = "\n", collapse = "\n"),
+    cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"),
         "\n\n", sep = "")
     cat("Component models:", "\n")
 	comp.names <- rownames(x$summary)

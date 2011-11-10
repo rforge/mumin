@@ -99,10 +99,10 @@ and most models from package \pkg{unmarked}.
 \code{gamm} and \code{gamm4} should be evaluated \emph{via} the wrapper
 \code{MuMIn::\link[MuMIn]{gamm}}.
 
-Models are run one by one by repeated evaluation of modified calls to
-\code{global.model} (in a similar fashion to that of \code{update}. This method,
-while robust in that it can be applied to a variety of different model objects
-is not very efficient, and may be time-intensive.
+Models are fitted one by one through repeated evaluation of modified calls to 
+the \code{global.model} (in a similar fashion as with \code{update}). This 
+method, while robust in that it can be applied to a variety of different model 
+object types is not very efficient, and may be time-intensive.
 
 Note that the number of combinations grows exponentially with number of
 predictor variables (\ifelse{latex}{\eqn{2^{N}}}{2^N}). Because there can be
@@ -148,8 +148,8 @@ case.
 \code{dredge} returns an object of class \code{model.selection}, being a
 \code{data.frame} with models' coefficients (or presence/\code{NA} for factors),
 	\emph{df} - number of parameters, log-likelihood, the information criterion
-	value, delta-IC and \emph{Akaike weight}. Models are ordered according to
-	the used information criterion (lowest on top), specified by \code{rank}.
+	value, delta-IC and \emph{Akaike weight}. Models are ordered by the value of
+	the information criterion specified by \code{rank} (lowest on top).
 
 The attribute \code{"calls"} is a list containing the model calls used (arranged
 in the same order as the models).

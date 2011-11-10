@@ -40,8 +40,8 @@ model.avg(object, ..., beta = FALSE, rank = NULL, rank.args = NULL,
 
 An object of class \code{averaging} is a list with components:
 
-\item{summary}{ a \code{data.frame} with deviance, AICc, Delta and weights
-    for the component models. }
+\item{summary}{ a \code{data.frame} with log-likelihood, IC, Delta(IC) and 
+	Akaike weights for the component models. }
 \item{coefficients, se, dfs}{ matrices of component models' coefficients, their
 	standard errors, and degrees of freedom. }
 \item{coef.shrinkage}{ a vector of full model-averaged coefficients, see
@@ -71,7 +71,7 @@ In addition, the object has following attributes:
 
 \details{
 
-\code{model.avg} has been tested to work with the fitted objects from following
+\code{model.avg} has been tested to work with the fitted objects from the following
 modelling functions:
 	\code{lm}, \code{glm};
 	\code{gam}, \code{gamm} (\pkg{mgcv});
@@ -85,11 +85,11 @@ modelling functions:
 	\code{coxph}, \code{survreg} (\pkg{survival});
 	and several models within the class \code{unmarkedFit} (\pkg{unmarked}).
 Other classes are also likely to be supported, in particular those
-    inheriting from one of the above classes. See package vignette
+    inheriting from one of the above classes. See the vignette
 	\sQuote{Extending \pkg{MuMIn}'s functionality} for a demonstration on how to
 	provide support for other types of models.
 
-\code{model.avg} may be used with a list of models, but also directly a
+\code{model.avg} may be used with a list of models, but also directly with a
 	\code{model.selection} object returned by \code{dredge}. In the latter case,
 	the models from the model selection table are evaluated (with a call to
 	\code{get.models}) prior to averaging.
@@ -125,8 +125,7 @@ The \sQuote{subset} (or \sQuote{conditional}) average only averages over the
 	away from zero. It is, however, an unresolved issue how the variance of this
 	estimate should be calculated, therefore the standard errors and confidence
 	interval are returned only for the subset-averaged coefficients (as from
-	version >= 1.5.0 argument \code{method} is no longer accepted, use of it
-	throws an error).
+	version >= 1.5.0 argument \code{method} is no longer accepted).
 
 Averaging models with different contrasts for the same factor would yield
 	nonsense results.

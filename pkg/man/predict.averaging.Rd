@@ -32,7 +32,7 @@ Model-averaged predictions with optional standard errors.
 }
 
 \value{
-If \code{se.fit = FALSE}, a vector of predictions. If \code{se = TRUE}, a list
+If \code{se.fit = FALSE}, a vector of predictions, otherwise a list
 with components: \code{fit} containing the predictions, and \code{se.fit} with
 the estimated standard errors.
 }
