@@ -1,7 +1,17 @@
-`dredge` <-
-function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
+`pdredge` <-
+function(global.model, cluster = FALSE, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		 fixed = NULL, m.max = NA, m.min = 0, subset, marg.ex = NULL,
-		 trace = FALSE, varying, extra, ...) {
+		 trace = FALSE, varying, extra, check = TRUE,
+		  ...) {
+
+	parChunkLen <- 25L
+
+	#if(missing(cluster) || !inherits(cluster, "cluster"))
+		#stop("a valid 'cluster' must be provided")
+
+	doParallel <- inherits(cluster, "cluster")
+	#if(!doParallel) warning("argument 'cluster' is not a valid cluster") else
+	if(doParallel) parallel::clusterCall(cluster, eval, call("require", "MuMIn"))
 
 	# *** Rank ***
 	rank.custom <- !missing(rank)
@@ -51,6 +61,19 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			}
 		}
 	}
+	logLik <- .getLogLik()
+
+	# parallel: check whether the models would be identical:
+
+	z <- 0
+	TRUE | (z <- 1)
+
+	if(check && doParallel) {
+		if(!videntical(c(list(coef(global.model)),
+			parallel::clusterCall(cluster,
+			function(x) coef(eval(x)), gmCall))))
+			stop("'global.model' evaluated on the cluster differs from the original one")
+	}
 
 	# TODO: other classes: model, fixed, etc...
 	gmFormula <- as.formula(formula(global.model))
@@ -76,7 +99,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		warning("comparing models with different fixed effects fitted by REML")
 
 	if (beta && is.null(tryCatch(beta.weights(global.model), error=function(e) NULL,
-		warning=function(e) NULL))) {
+		warning = function(e) NULL))) {
 		warning("do not know how to calculate B-weights for ",
 				class(global.model)[1L], ", argument 'beta' ignored")
 		beta <- FALSE
@@ -105,8 +128,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	ordAllTerms <- allTerms[termsOrder]
 	#mostattributes(ordAllTerms) <- 	attributes(allTerms)
 	allTerms <- ordAllTerms
-
-	logLik <- .getLogLik()
 
 	isMER <- any(inherits(global.model, c("mer", "lmer", "glmer")))
 	gmFormulaEnv <- attr(gmFormula, ".Environment")
@@ -155,6 +176,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	} else {
 		nextra <- 0L
 		extraNames <- character(0L)
+		#applyExtras <- NULL
 	}
 	## extra END
 
@@ -164,12 +186,13 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	if(nov > 31L) stop(gettextf("maximum number of predictors is 31, but %d is given", nov))
 	if(nov > 10L) warning(gettextf("%d predictors will generate up to %.0f possible combinations", nov, ncomb))
 
+	nmax <- ncomb * nvariants
 	if(evaluate) {
 		ret.nchunk <- 25L
 		ret.ncol <- n.vars + nvarying + 3L + nextra
 		ret <- matrix(NA_real_, ncol = ret.ncol, nrow = ret.nchunk)
 	} else {
-		ret.nchunk <- ncomb * nvariants
+		ret.nchunk <- nmax
 	}
 
 	calls <- vector(mode = "list", length = ret.nchunk)
@@ -210,20 +233,33 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		gmFormulaEnv = gmFormulaEnv
 		)
 
-	for(j in seq.int(ncomb)) {
-		comb <- c(as.logical(intToBits(j - 1L)[comb.seq]), comb.sfx)
+	# BEGIN parallel
+	#parChunkLen <- 25L
+	i.parChunk <- 0L
+	parOpts <- vector(parChunkLen, mode = "list")
+	parCommonProps <- list(gmEnv = gmEnv, IC = IC, logLik = logLik,
+		beta = beta, allTerms = allTerms, nextra = nextra)
+	if(nextra) {
+		parCommonProps$applyExtras <- applyExtras
+		parCommonProps$extraResult <- extraResult
+	}
+	#if(cluster)
+		#clusterVExport(cluster, clustDredgeProps = parCommonProps) else
+		#assign("clustDredgeProps", parCommonProps, envir = .GlobalEnv)
+	# END parallel
+
+	for(i.comb in seq.int(ncomb)) {
+		comb <- c(as.logical(intToBits(i.comb - 1L)[comb.seq]), comb.sfx)
 
 		nvar <- sum(comb) - nInts
 		if(nvar > m.max || nvar < m.min) next;
 		if(hasSubset && !eval(subset, structure(as.list(comb), names=allTerms)))
 			next;
-
-		#terms1 <- allTerms[comb]
 		newArgs <- makeArgs(global.model, allTerms[comb], comb, argsOptions)
 
 		formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
 			attr(newArgs, "formulaList")
-		if(!all(vapply(formulaList, formulaAllowed, logical(1), marg.ex))) next;
+		if(!all(vapply(formulaList, formulaAllowed, logical(1L), marg.ex))) next;
 
 		if(!is.null(attr(newArgs, "problems"))) {
 			print.warnings(structure(vector(mode = "list",
@@ -234,16 +270,15 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		cl <- gmCall
 		cl[names(newArgs)] <- newArgs
 
-		for (ivar in seq.variants) { ## --- Variants ---------------------------
+		for (i.vrnt in seq.variants) { ## --- Variants ---------------------------
 			clVariant <- cl
 			if(nvarying) {
 				newVaryingArgs <- sapply(varying.names, function(x)
-					varying[[x]][[variantsIdx[ivar, x]]], simplify = FALSE)
-				#for(i in varying.names) clVariant[i] <- newVaryingArgs[i]
+					varying[[x]][[variantsIdx[i.vrnt, x]]], simplify = FALSE)
 				clVariant[varying.names] <- newVaryingArgs
 			}
 
-			modelId <- ((j - 1L) * nvariants) + ivar
+			modelId <- ((i.comb - 1L) * nvariants) + i.vrnt
 			if(trace) {
 				cat(modelId, ": ")
 				print(clVariant)
@@ -251,57 +286,67 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			}
 
 			if(evaluate) {
-				# begin row1: (clVariant, gmEnv, modelId, IC(), applyExtras(),
-				#              nextra, allTerms, beta,
-				#              if(nvarying) variantsIdx[ivar] else NULL
-				fit1 <- tryCatch(eval(clVariant, gmEnv), error = function(err) {
-					err$message <- paste(conditionMessage(err), "(model",
-						modelId, "skipped)", collapse = "")
-					class(err) <- c("simpleError", "warning", "condition")
-					warning(err)
-					return(NULL)
-				})
-				if (is.null(fit1)) next;
+				variantId <- if(nvarying) unlist(variantsIdx[i.vrnt, ]) else NULL
 
-				if(nextra != 0L) {
-					extraResult1 <- applyExtras(fit1)
-					if(length(extraResult1) < nextra) {
-						tmp <- rep(NA_real_, nextra)
-						tmp[match(names(extraResult1), names(extraResult))] <- extraResult1
-						extraResult1 <- tmp
+## parallel >>-----------
+				parOpts[[(i.parChunk <- i.parChunk + 1L)]] <-
+					list(call = clVariant, id = modelId, variantId = variantId)
+
+				#cat(i.parChunk, parChunkLen, modelId, nmax, "\n", sep=", ")
+
+				if(i.parChunk == parChunkLen | i.vrnt == nvariants) {
+					if(i.parChunk < parChunkLen) parOpts <- parOpts[seq.int(i.parChunk)]
+
+					if(doParallel) {
+						resultChunk <- parallel::parLapply(cluster, parOpts,
+							parGetMsRow, parCommonProps)
+					} else {
+						resultChunk <- lapply(parOpts, parGetMsRow,
+							parCommonProps)
 					}
-					#row1 <- c(row1, extraResult1)
+
+					i.problems <- sapply(resultChunk, inherits, "condition")
+					for (i in resultChunk[i.problems]) warning(i)
+
+					resultChunk <- resultChunk[!i.problems]
+					nNewRows <- sum(!i.problems)
+
+					ret.nrow <- nrow(ret)
+					if(k + nNewRows > ret.nrow) {
+						nadd <- min(ret.nchunk, (ncomb * nvariants) - ret.nrow)
+						ret <- rbind(ret, matrix(NA, ncol = ret.ncol, nrow = nadd), deparse.level = 0L)
+						calls <- c(calls, vector("list", nadd))
+						ord <- c(ord, integer(nadd))
+					}
+
+					i.new <- seq_len(nNewRows)
+					for(m in i.new) {
+						ret[k + m, ] <- resultChunk[[m]]
+					}
+
+					ord[k + i.new] <- vapply(parOpts[!i.problems], "[[", 1L, "id")
+					calls[k + i.new] <- lapply(parOpts[!i.problems], "[[", "call")
+
+					k <- k + nNewRows
+					i.parChunk <- 0L
 				}
-				ll <- logLik(fit1)
-				row1 <- c(
-					matchCoef(fit1, all.terms = allTerms, beta = beta)[allTerms],
-					if(nvarying) unlist(variantsIdx[ivar, ]),
-					extraResult1, df = attr(ll, "df"), ll = ll, ic = IC(fit1)
-				)
-				## end -> row1
-
+			} else { # if ! evaluate
 				k <- k + 1L # all OK, add model to table
-				ord[k] <- modelId
-
-				ret.nrow <- nrow(ret)
-				if(k > ret.nrow) {
-					nadd <- min(ret.nchunk, (ncomb * nvariants) - ret.nrow)
-					ret <- rbind(ret, matrix(NA, ncol=ret.ncol, nrow=nadd))
-					calls <- c(calls, vector("list", nadd))
-				}
-
-				ret[k, ] <- row1
-			} else { # if evaluate
-				k <- k + 1L # all OK, add model to table
+				calls[[k]] <- clVariant
 			}
-			calls[[k]] <- clVariant
 
-		} # for (ivar ...)
-	} ### for (j ...)
+		} # for (i.vrnt ...)
+	} ### for (i.comb ...)
 
-	if(!evaluate) return(calls[seq.int(k)])
+	if(k == 0L) return(NULL)
+	if(!evaluate) return(calls[seq_len(k)])
 
-	if(k < nrow(ret)) ret <- ret[seq.int(k), , drop=FALSE]
+	if(k < nrow(ret)) {
+		i <- seq_len(k)
+		ret <- ret[i, , drop=FALSE]
+		ord <- ord[i]
+		calls <- calls[i]
+	}
 
 	ret <- as.data.frame(ret)
 	row.names(ret) <- ord
@@ -348,108 +393,54 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	return(ret)
 } ######
 
-`subset.model.selection` <-
-function(x, subset, select, recalc.weights = TRUE, ...) {
-	if (missing(select)) {
-		if(missing(subset)) return(x)
-		e <- .substHas(substitute(subset))
-		#print(e)
-		i <- eval(e, x, parent.frame())
-		return(`[.model.selection`(x, i, recalc.weights = recalc.weights, ...))
-	} else {
-		cl <- match.call(expand.dots = FALSE)
-	    cl <- cl[c(1L, match(names(formals("subset.data.frame")), names(cl), 0L))]
-	    cl[[1L]] <- as.name("subset.data.frame")
-		ret <- eval(cl, parent.frame())
-		if(recalc.weights && ("weight" %in% colnames(ret)))
-			ret[, 'weight'] <- ret[, 'weight'] / sum(ret[, 'weight'])
-	    return(ret)
-	}
-}
+`parGetMsRow` <- function(modelProps, commonProps) {
+	#modelProps <- list(call = clVariant, id = modelId, variantId = variantId)
 
-`[.model.selection` <-
-function (x, i, j, recalc.weights = TRUE, ...) {
-	ret <- `[.data.frame`(x, i, j, ...)
-	if (missing(j)) {
-		att <- attributes(x)
-		s <- c("row.names", "calls")
-		att[s] <- lapply(att[s], `[`, i)
-		attributes(ret) <- att
-		if(recalc.weights)
-			ret$weight <- ret$weight / sum(ret$weight)
-			#ret[, 'weight'] <- ret[, 'weight'] / sum(ret[, 'weight'])
-	} else {
-		cls <- class(ret)
-		class(ret) <- cls[cls != "model.selection"] # numeric or data.frame
-	}
-	return(ret)
-}
+	fit1 <- tryCatch(eval(modelProps$call, commonProps$gmEnv), error = function(err) {
+		err$message <- paste(conditionMessage(err), "(model",
+			modelProps$id, "skipped)", collapse = "")
+		class(err) <- c("simpleError", "warning", "condition")
+		return(err)
+	})
+	if (inherits(fit1, "condition")) return(fit1)
 
-`print.model.selection` <-
-function(x, abbrev.names = TRUE, ...) {
-	if(!is.null(x$weight))
-		x$weight <- round(x$weight, 3L)
-
-	xterms <- attr(x, "terms")
-
-	if(is.null(xterms)) {
-		print.data.frame(x, ...)
-	} else {
-
-		xterms <- gsub(" ", "", xterms)
-
-		if(abbrev.names)
-			xterms <- abbreviateTerms(xterms, 3L)
-
-		colnames(x)[seq_along(xterms)] <-  xterms
-
-		cl <- attr(x, "global.call")
-		if(!is.null(cl)) {
-			cat("Global model call: ")
-			print(cl)
-			cat("---\n")
+	if(commonProps$nextra != 0L) {
+		extraResult1 <- commonProps$applyExtras(fit1)
+		if(length(extraResult1) < commonProps$nextra) {
+			tmp <- rep(NA_real_, commonProps$nextra)
+			tmp[match(names(extraResult1), names(commonProps$extraResult))] <-
+				extraResult1
+			extraResult1 <- tmp
 		}
-
-		cat ("Model selection table \n")
-		dig <- c("R^2" = 4L, df = 0, logLik = 3, AICc = 1, AICc = 1, AIC = 1,
-			BIC = 1, QAIC = 1, QAICc = 1, ICOMP = 1, Cp = 1, delta = 2L, weight = 3L)
-
-		j <- match(colnames(x), names(dig), nomatch = 0)
-
-		i <- sapply(x, is.numeric) & (j == 0L)
-		x[, i] <- signif(x[, i], 4L)
-
-		for(i in names(dig)[j])
-			x[, i] <- round(x[, i], digits = dig[i])
-
-		print.default(as.matrix(x[, !sapply(x, function(.x) all(is.na(.x)))]),
-					  na.print="", quote=FALSE)
-		if (!is.null(attr(x, "random.terms"))) {
-			cat("Random terms:", paste(attr(x, "random.terms"), collapse=", "),
-				"\n")
-		}
-	}
+	} else extraResult1 <- NULL
+	ll <- commonProps$logLik(fit1)
+	c(
+		matchCoef(fit1, all.terms = commonProps$allTerms,
+			beta = commonProps$beta)[commonProps$allTerms],
+		modelProps$variantId,
+		extraResult1, df = attr(ll, "df"),
+		ll = ll,
+		ic = commonProps$IC(fit1)
+	)
 }
 
-`update.model.selection` <- function (object, global.model, ..., evaluate = TRUE) {
-    cl <- attr(object, "call")
-    if (is.null(cl))
-        stop("need an object with call component")
-    extras <- match.call(expand.dots = FALSE)$...
-
-	if(!missing(global.model))
-		extras <- c(list(global.model = substitute(global.model)), extras)
-
-    if (length(extras)) {
-        existing <- !is.na(match(names(extras), names(cl)))
-        for (a in names(extras)[existing]) cl[a] <- extras[a]
-        if (any(!existing)) {
-            cl <- c(as.list(cl), extras[!existing])
-            cl <- as.call(cl)
-        }
-    }
-    return(if (evaluate) eval(cl, parent.frame()) else cl)
-}
-
-`coef.model.selection` <- function (object, ...)
-	object[, attr(object, "terms")]
+#`clusterVExport` <- local({
+#    `getv` <- function(obj)
+#		for (i in names(obj)) assign(i, obj[[i]], envir = .GlobalEnv)
+#	function(cluster, ...) {
+#		Call <- match.call()
+#		Call$cluster <- NULL
+#		Call <- Call[-1L]
+#		vars <- list(...)
+#		vnames <- names(vars)
+#		#if(!all(sapply(Call, is.name))) warning("at least some elements do not have syntactic name")
+#		if(is.null(vnames)) {
+#			names(vars) <- vapply(Call, deparse, character(1), control = NULL,
+#				nlines = 1L)
+#		} else if (any(vnames == "")) {
+#			names(vars) <- ifelse(vnames == "", vapply(Call, deparse, character(1),
+#				control = NULL, nlines = 1L), vnames)
+#		}
+#		clusterCall(cluster, getv, vars)
+#	}
+#})

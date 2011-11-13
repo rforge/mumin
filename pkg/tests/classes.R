@@ -66,6 +66,10 @@ dd <- dredge(fm2, rank=QAIC, chat=deviance(fm2) / df.residual(fm2))
 dd <- dredge(fm2)
 summary(model.avg(dd, subset= delta <= 10))
 
+dredge(fm2, rank=QAIC, chat=deviance(fm2) / df.residual(fm2))
+MuMIn::dredge(fm2, rank=QAIC, chat=deviance(fm2) / df.residual(fm2))
+
+
 subset(dd, delta <= 10)
 mod.sel(get.models(dd, subset=delta <= 10))
 

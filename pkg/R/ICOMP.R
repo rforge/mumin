@@ -26,8 +26,7 @@ function (object, ..., REML = NULL) {
         switch(type, vcov = {
             mat <- covmat
         }, r = {
-            cov <- diag(diag(1/covmat), nrow = nrow(covmat),
-                ncol = ncol(covmat))
+            cov <- diag(diag(1/covmat), nrow = nrow(covmat), ncol = ncol(covmat))
             mat <- sqrt(cov) %*% covmat %*% sqrt(cov)
         }, cv = {
             coefs <- coef(x)
