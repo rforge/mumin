@@ -1,5 +1,5 @@
 `pdredge` <-
-function(global.model, cluster = FALSE, beta = FALSE, evaluate = TRUE, rank = "AICc",
+function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		 fixed = NULL, m.max = NA, m.min = 0, subset, marg.ex = NULL,
 		 trace = FALSE, varying, extra, check = TRUE,
 		  ...) {
@@ -16,7 +16,10 @@ function(global.model, cluster = FALSE, beta = FALSE, evaluate = TRUE, rank = "A
 		# all this is to trick the R-check
 		if(getRversion() < "2.14.0") do.call("require", list("snow")) else
 			do.call("require", list("parallel"))
-		if(!exists("clusterCall", mode = "function")) return(NULL)
+		if(!exists("clusterCall", mode = "function")) {
+			stop("Cannot find function 'clusterCall'")
+			return(NULL)
+		}
 		clusterCall <- get("clusterCall")
 		clusterCall(cluster, "eval", call("require", "MuMIn"))
 		parLapply <- get("parLapply")
@@ -257,53 +260,65 @@ function(global.model, cluster = FALSE, beta = FALSE, evaluate = TRUE, rank = "A
 		parCommonProps$extraResult <- extraResult
 	}
 	if(doParallel) {
-		clusterVExport(cluster, clustDredgeProps = parCommonProps, parGetMsRow)
+		clusterVExport(cluster, clustDredgeProps = parCommonProps)
+		clusterCall(cluster, "do.call", "assign", list("parGetMsRow", 
+			call(":::", "MuMIn", "parGetMsRow"), pos = 1), envir = .GlobalEnv)
+
 	}
 	# END parallel
+	
+	#DebugPrint(ncomb)
 
-	for(i.comb in seq.int(ncomb)) {
-		comb <- c(as.logical(intToBits(i.comb - 1L)[comb.seq]), comb.sfx)
+	for(iComb in seq.int(ncomb)) {
+		# DebugPrint(iComb)
+
+		comb <- c(as.logical(intToBits(iComb - 1L)[comb.seq]), comb.sfx)
 
 		nvar <- sum(comb) - nInts
-		if(nvar > m.max || nvar < m.min) next;
-		if(hasSubset && !eval(subset, structure(as.list(comb), names=allTerms)))
-			next;
-		newArgs <- makeArgs(global.model, allTerms[comb], comb, argsOptions)
+		if(!(nvar > m.max || nvar < m.min) && (!hasSubset || eval(subset, 
+			structure(as.list(comb), names = allTerms)))) {
+		
+			newArgs <- makeArgs(global.model, allTerms[comb], comb, argsOptions)
+			formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
+				attr(newArgs, "formulaList")
+			if(all(vapply(formulaList, formulaAllowed, logical(1L), marg.ex))) {
+				if(!is.null(attr(newArgs, "problems"))) {
+					print.warnings(structure(vector(mode = "list",
+						length = length(attr(newArgs, "problems"))),
+							names = attr(newArgs, "problems")))
+				} # end if <problems>
 
-		formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
-			attr(newArgs, "formulaList")
-		if(all(vapply(formulaList, formulaAllowed, logical(1L), marg.ex))) {
-			if(!is.null(attr(newArgs, "problems"))) {
-				print.warnings(structure(vector(mode = "list",
-					length = length(attr(newArgs, "problems"))),
-						names = attr(newArgs, "problems")))
-			}
+				cl <- gmCall
+				cl[names(newArgs)] <- newArgs
 
-			cl <- gmCall
-			cl[names(newArgs)] <- newArgs
 
-			for (v in seq.variants) { ## --- Variants ---------------------------
-				clVariant <- cl
-				if(nvarying) {
-					newVaryingArgs <- sapply(varying.names, function(x)
-						varying[[x]][[variantsIdx[v, x]]], simplify = FALSE)
-					clVariant[varying.names] <- newVaryingArgs
+				for (v in seq.variants) { ## --- Variants ---------------------------
+					clVariant <- cl
+					if(nvarying) {
+						newVaryingArgs <- sapply(varying.names, function(x)
+							varying[[x]][[variantsIdx[v, x]]], simplify = FALSE)
+						clVariant[varying.names] <- newVaryingArgs
+					}
+
+					modelId <- ((iComb - 1L) * nvariants) + v
+					if(trace) {	cat(modelId, ": "); print(clVariant); utils::flush.console() }
+
+					if(evaluate) {
+						qi <- qi + 1L
+						queued[[(qi)]] <- list(call = clVariant, id = modelId,
+							variantId = if(nvarying) unlist(variantsIdx[v, ]) else NULL)
+					} else { # if !evaluate
+						k <- k + 1L # all OK, add model to table
+						calls[[k]] <- clVariant
+					}
+					#DebugPrint(v)
+					#DebugPrint(qi)
 				}
-
-				modelId <- ((i.comb - 1L) * nvariants) + v
-				if(trace) {	cat(modelId, ": "); print(clVariant); utils::flush.console() }
-
-				if(evaluate) {
-					qi <- qi + 1L
-					queued[[(qi)]] <- list(call = clVariant, id = modelId,
-						variantId = if(nvarying) unlist(variantsIdx[v, ]) else NULL)
-				} else { # if !evaluate
-					k <- k + 1L # all OK, add model to table
-					calls[[k]] <- clVariant
-				}
-			}
-		} # end if formulaAllowed
-		if(evaluate && (qi + nvariants > qlen || i.comb == ncomb)) {
+			} # end if <formulaAllowed>
+		} # end if <subset, m.max >= nvar >= m.min>
+		
+		#DebugPrint(qi + nvariants > qlen || iComb == ncomb)
+		if(evaluate && (qi + nvariants > qlen || iComb == ncomb)) {
 			qseq <- seq_len(qi)
 			qresult <- .getRow(queued[qseq])
 			cat(sprintf("queue done: %d\n", qi))
@@ -328,9 +343,12 @@ function(global.model, cluster = FALSE, beta = FALSE, evaluate = TRUE, rank = "A
 			k <- k + qresultLen
 			qi <- 0L
 		}
-	} ### for (i.comb ...)
+	} ### for (iComb ...)
 
-	if(k == 0L) return(NULL)
+	if(k == 0L) {
+		stop("no rows to return")
+		return(NULL)
+	}
 	if(!evaluate) return(calls[seq_len(k)])
 
 	if(k < nrow(ret)) {
@@ -357,7 +375,8 @@ function(global.model, cluster = FALSE, beta = FALSE, evaluate = TRUE, rank = "A
 	colnames(ret) <- c(allTerms, varying.names, extraNames, "df", "logLik", ICName)
 
 	if(nvarying) {
-		variant.names <- lapply(varying, function(x) make.unique(if(is.null(names(x))) as.character(x) else names(x)))
+		variant.names <- lapply(varying, function(x) 
+			make.unique(if(is.null(names(x))) as.character(x) else names(x)))
 		for (i in varying.names) ret[, i] <-
 			factor(ret[, i], levels = seq_along(variant.names[[i]]),
 				labels = variant.names[[i]])
@@ -383,7 +402,8 @@ function(global.model, cluster = FALSE, beta = FALSE, evaluate = TRUE, rank = "A
 		attr(ret, "random.terms") <- attr(allTerms0, "random.terms")
 
 
-	if(doParallel) clusterCall(cluster, "rm", list = "clustDredgeProps")
+	if(doParallel) clusterCall(cluster, "rm",
+		list = c("parGetMsRow", "clustDredgeProps"),  envir = .GlobalEnv)
 	return(ret)
 } ######
 

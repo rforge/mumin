@@ -1,7 +1,7 @@
 MuMIn package news:
 
-Version: 1.7.0 (2011-11-13)
-pdredge: parralel version of dredge (experimental)
+Version: 1.6.2 (2011-11-13)
+pdredge: parallel version of dredge (experimental)
 
 Version: 1.6.1 (2011-11-11)
 dredge: added generic support for all 'unmarked' models, and fixed some bugs 

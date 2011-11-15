@@ -148,40 +148,12 @@ gm <- get.models(dd, 1:4)
 #predict(ma, data.frame(Sex="Male", Subject="M01", age=8:12))
 
 # TEST dredge with update'd model
-dd <- dredge(update(fm2, REML=FALSE), trace=T)
+# dd <- dredge(update(fm2, REML=FALSE), trace=T)
 
 # update.mer does not expand dots, so here we have a call:
 # lmer(formula = distance ~ Sex + (1 | Subject), data = Orthodont,
 #    REML = ..2, model = ..3)
 dd <- dredge(update(fm2, REML=F, model=F), trace=T)
-
-
-### parallel parallel parallel parallel parallel parallel parallel parallel para
-#if(require(parallel, quietly = TRUE) || require(snow, quietly = TRUE)) {
-if (do.call("require", list("parallel", quietly = TRUE)) ||
-	do.call("require", list("snow", quietly = TRUE))) {
-
-
-	clust <- makeCluster(getOption("cl.cores", 4))
-	clusterExport(clust, "Orthodont")
-	clusterEvalQ(clust, library(lme4))
-
-	print(system.time(pdc <- pdredge(fm2, cluster = clust)$delta))
-	print(system.time(pd1 <- pdredge(fm2, cluster = F)$delta))
-	print(system.time(d1 <- dredge(fm2)$delta))
-
-	stopCluster(clust)
-
-	stopifnot(identical(pdc, pd1) && identical(pd1, d1))
-}
-
-#system.time(pdredge(fm2, cluster = clust))
-#system.time(pdredge(fm2, cluster = F))
-#system.time(dredge(fm2))
-
-#traceback()
-
-### parallel parallel parallel parallel parallel parallel parallel parallel para
 
 
 detach(package:lme4); rm(list=ls())
