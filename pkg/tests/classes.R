@@ -134,7 +134,8 @@ if(.checkPkg("lme4")) {
 library(lme4)
 data(Orthodont, package = "nlme")
 
-fm2 <- lmer(log(distance) ~ Sex*age + (1|Subject) + (1|Sex), data = Orthodont, REML=FALSE)
+Orthodont$rand <- runif(nrow(Orthodont))
+fm2 <- lmer(log(distance) ~ rand*Sex*age + (1|Subject) + (1|Sex), data = Orthodont, REML=FALSE)
 
 #fm0 <- lmer(distance ~ 1 + (1|Subject) + (1|Sex), data = Orthodont, REML=FALSE)
 #fm00 <- lm(distance ~ 1 , data = Orthodont)
@@ -142,7 +143,6 @@ fm2 <- lmer(log(distance) ~ Sex*age + (1|Subject) + (1|Sex), data = Orthodont, R
 dd <- dredge(fm2, trace=T)
 gm <- get.models(dd, 1:4)
 (ma <- model.avg(gm))
-
 
 #predict(ma)
 #predict(ma, data.frame(Sex="Male", Subject="M01", age=8:12))
@@ -154,6 +154,35 @@ dd <- dredge(update(fm2, REML=FALSE), trace=T)
 # lmer(formula = distance ~ Sex + (1 | Subject), data = Orthodont,
 #    REML = ..2, model = ..3)
 dd <- dredge(update(fm2, REML=F, model=F), trace=T)
+
+
+### parallel parallel parallel parallel parallel parallel parallel parallel para
+#if(require(parallel, quietly = TRUE) || require(snow, quietly = TRUE)) {
+if (do.call("require", list("parallel", quietly = TRUE)) ||
+	do.call("require", list("snow", quietly = TRUE))) {
+
+
+	clust <- makeCluster(getOption("cl.cores", 4))
+	clusterExport(clust, "Orthodont")
+	clusterEvalQ(clust, library(lme4))
+
+	print(system.time(pdc <- pdredge(fm2, cluster = clust)$delta))
+	print(system.time(pd1 <- pdredge(fm2, cluster = F)$delta))
+	print(system.time(d1 <- dredge(fm2)$delta))
+
+	stopCluster(clust)
+
+	stopifnot(identical(pdc, pd1) && identical(pd1, d1))
+}
+
+#system.time(pdredge(fm2, cluster = clust))
+#system.time(pdredge(fm2, cluster = F))
+#system.time(dredge(fm2))
+
+#traceback()
+
+### parallel parallel parallel parallel parallel parallel parallel parallel para
+
 
 detach(package:lme4); rm(list=ls())
 }

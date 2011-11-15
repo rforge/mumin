@@ -4,14 +4,33 @@ function(global.model, cluster = FALSE, beta = FALSE, evaluate = TRUE, rank = "A
 		 trace = FALSE, varying, extra, check = TRUE,
 		  ...) {
 
-	parChunkLen <- 25L
+	qlen <- 25L
+	# Imports: clusterCall, clusterApply
 
 	#if(missing(cluster) || !inherits(cluster, "cluster"))
 		#stop("a valid 'cluster' must be provided")
 
 	doParallel <- inherits(cluster, "cluster")
 	#if(!doParallel) warning("argument 'cluster' is not a valid cluster") else
-	if(doParallel) parallel::clusterCall(cluster, eval, call("require", "MuMIn"))
+	if(doParallel) {
+		# all this is to trick the R-check
+		if(getRversion() < "2.14.0") do.call("require", list("snow")) else
+			do.call("require", list("parallel"))
+		if(!exists("clusterCall", mode = "function")) return(NULL)
+		clusterCall <- get("clusterCall")
+		clusterCall(cluster, "eval", call("require", "MuMIn"))
+		parLapply <- get("parLapply")
+		.getRow <- function(X) parLapply(cluster, X, "parGetMsRow")
+		# TODO: fix splitList
+		#resultChunk <- do.call(c, clusterApply(cluster,
+		#	splitList(queued, length(cluster)),
+		#	fun = "lapply", "parGetMsRow"), quote = TRUE)
+
+	} else {
+		.getRow <- function(X) lapply(X, parGetMsRow, parCommonProps)
+		clusterCall <- function(...) NULL
+	}
+
 
 	# *** Rank ***
 	rank.custom <- !missing(rank)
@@ -62,16 +81,10 @@ function(global.model, cluster = FALSE, beta = FALSE, evaluate = TRUE, rank = "A
 		}
 	}
 	logLik <- .getLogLik()
-
 	# parallel: check whether the models would be identical:
-
-	z <- 0
-	TRUE | (z <- 1)
-
 	if(check && doParallel) {
 		if(!videntical(c(list(coef(global.model)),
-			parallel::clusterCall(cluster,
-			function(x) coef(eval(x)), gmCall))))
+			clusterCall(cluster, function(x) coef(eval(x)), gmCall))))
 			stop("'global.model' evaluated on the cluster differs from the original one")
 	}
 
@@ -234,18 +247,18 @@ function(global.model, cluster = FALSE, beta = FALSE, evaluate = TRUE, rank = "A
 		)
 
 	# BEGIN parallel
-	#parChunkLen <- 25L
-	i.parChunk <- 0L
-	parOpts <- vector(parChunkLen, mode = "list")
-	parCommonProps <- list(gmEnv = gmEnv, IC = IC, logLik = logLik,
-		beta = beta, allTerms = allTerms, nextra = nextra)
+	#qlen <- 25L
+	qi <- 0L
+	queued <- vector(qlen, mode = "list")
+	parCommonProps <- list(gmEnv = gmEnv, IC = IC, beta = beta,
+		allTerms = allTerms, nextra = nextra)
 	if(nextra) {
 		parCommonProps$applyExtras <- applyExtras
 		parCommonProps$extraResult <- extraResult
 	}
-	#if(cluster)
-		#clusterVExport(cluster, clustDredgeProps = parCommonProps) else
-		#assign("clustDredgeProps", parCommonProps, envir = .GlobalEnv)
+	if(doParallel) {
+		clusterVExport(cluster, clustDredgeProps = parCommonProps, parGetMsRow)
+	}
 	# END parallel
 
 	for(i.comb in seq.int(ncomb)) {
@@ -259,83 +272,62 @@ function(global.model, cluster = FALSE, beta = FALSE, evaluate = TRUE, rank = "A
 
 		formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
 			attr(newArgs, "formulaList")
-		if(!all(vapply(formulaList, formulaAllowed, logical(1L), marg.ex))) next;
-
-		if(!is.null(attr(newArgs, "problems"))) {
-			print.warnings(structure(vector(mode = "list",
-				length = length(attr(newArgs, "problems"))),
-					names = attr(newArgs, "problems")))
-		}
-
-		cl <- gmCall
-		cl[names(newArgs)] <- newArgs
-
-		for (i.vrnt in seq.variants) { ## --- Variants ---------------------------
-			clVariant <- cl
-			if(nvarying) {
-				newVaryingArgs <- sapply(varying.names, function(x)
-					varying[[x]][[variantsIdx[i.vrnt, x]]], simplify = FALSE)
-				clVariant[varying.names] <- newVaryingArgs
+		if(all(vapply(formulaList, formulaAllowed, logical(1L), marg.ex))) {
+			if(!is.null(attr(newArgs, "problems"))) {
+				print.warnings(structure(vector(mode = "list",
+					length = length(attr(newArgs, "problems"))),
+						names = attr(newArgs, "problems")))
 			}
 
-			modelId <- ((i.comb - 1L) * nvariants) + i.vrnt
-			if(trace) {
-				cat(modelId, ": ")
-				print(clVariant)
-				utils::flush.console()
-			}
+			cl <- gmCall
+			cl[names(newArgs)] <- newArgs
 
-			if(evaluate) {
-				variantId <- if(nvarying) unlist(variantsIdx[i.vrnt, ]) else NULL
-
-## parallel >>-----------
-				parOpts[[(i.parChunk <- i.parChunk + 1L)]] <-
-					list(call = clVariant, id = modelId, variantId = variantId)
-
-				#cat(i.parChunk, parChunkLen, modelId, nmax, "\n", sep=", ")
-
-				if(i.parChunk == parChunkLen | i.vrnt == nvariants) {
-					if(i.parChunk < parChunkLen) parOpts <- parOpts[seq.int(i.parChunk)]
-
-					if(doParallel) {
-						resultChunk <- parallel::parLapply(cluster, parOpts,
-							parGetMsRow, parCommonProps)
-					} else {
-						resultChunk <- lapply(parOpts, parGetMsRow,
-							parCommonProps)
-					}
-
-					i.problems <- sapply(resultChunk, inherits, "condition")
-					for (i in resultChunk[i.problems]) warning(i)
-
-					resultChunk <- resultChunk[!i.problems]
-					nNewRows <- sum(!i.problems)
-
-					ret.nrow <- nrow(ret)
-					if(k + nNewRows > ret.nrow) {
-						nadd <- min(ret.nchunk, (ncomb * nvariants) - ret.nrow)
-						ret <- rbind(ret, matrix(NA, ncol = ret.ncol, nrow = nadd), deparse.level = 0L)
-						calls <- c(calls, vector("list", nadd))
-						ord <- c(ord, integer(nadd))
-					}
-
-					i.new <- seq_len(nNewRows)
-					for(m in i.new) {
-						ret[k + m, ] <- resultChunk[[m]]
-					}
-
-					ord[k + i.new] <- vapply(parOpts[!i.problems], "[[", 1L, "id")
-					calls[k + i.new] <- lapply(parOpts[!i.problems], "[[", "call")
-
-					k <- k + nNewRows
-					i.parChunk <- 0L
+			for (v in seq.variants) { ## --- Variants ---------------------------
+				clVariant <- cl
+				if(nvarying) {
+					newVaryingArgs <- sapply(varying.names, function(x)
+						varying[[x]][[variantsIdx[v, x]]], simplify = FALSE)
+					clVariant[varying.names] <- newVaryingArgs
 				}
-			} else { # if ! evaluate
-				k <- k + 1L # all OK, add model to table
-				calls[[k]] <- clVariant
-			}
 
-		} # for (i.vrnt ...)
+				modelId <- ((i.comb - 1L) * nvariants) + v
+				if(trace) {	cat(modelId, ": "); print(clVariant); utils::flush.console() }
+
+				if(evaluate) {
+					qi <- qi + 1L
+					queued[[(qi)]] <- list(call = clVariant, id = modelId,
+						variantId = if(nvarying) unlist(variantsIdx[v, ]) else NULL)
+				} else { # if !evaluate
+					k <- k + 1L # all OK, add model to table
+					calls[[k]] <- clVariant
+				}
+			}
+		} # end if formulaAllowed
+		if(evaluate && (qi + nvariants > qlen || i.comb == ncomb)) {
+			qseq <- seq_len(qi)
+			qresult <- .getRow(queued[qseq])
+			cat(sprintf("queue done: %d\n", qi))
+			#withoutProblems <- !sapply(qresult, inherits, "condition")
+			withoutProblems <- which(!sapply(qresult, inherits, "condition"))
+			if(!length(withoutProblems)) withoutProblems <- seq_along(qresult)
+			#for (i in qresult[!withoutProblems]) warning(i)
+			lapply(qresult[-withoutProblems], warning)
+			qresult <- qresult[withoutProblems]
+			qresultLen <- length(qresult)
+			retNrow <- nrow(ret)
+			if(k + qresultLen > retNrow) {
+				nadd <- min(ret.nchunk, (ncomb * nvariants) - retNrow)
+				ret <- rbind(ret, matrix(NA, ncol = ret.ncol, nrow = nadd), deparse.level = 0L)
+				calls <- c(calls, vector("list", nadd))
+				ord <- c(ord, integer(nadd))
+			}
+			qseq <- seq_len(qresultLen)
+			for(m in qseq) ret[k + m, ] <- qresult[[m]]
+			ord[k + qseq] <- vapply(queued[withoutProblems], "[[", 1L, "id")
+			calls[k + qseq] <- lapply(queued[withoutProblems], "[[", "call")
+			k <- k + qresultLen
+			qi <- 0L
+		}
 	} ### for (i.comb ...)
 
 	if(k == 0L) return(NULL)
@@ -354,7 +346,7 @@ function(global.model, cluster = FALSE, beta = FALSE, evaluate = TRUE, rank = "A
 	# Convert columns with presence/absence of terms to factors
 	tfac <- which(!(allTerms %in% gmCoefNames))
 
-	ret[tfac] <- lapply(ret[tfac], factor, levels=NaN, labels="+")
+	ret[tfac] <- lapply(ret[tfac], factor, levels = NaN, labels = "+")
 
 	i <- seq_along(allTerms)
 	v <- order(termsOrder)
@@ -390,10 +382,12 @@ function(global.model, cluster = FALSE, beta = FALSE, evaluate = TRUE, rank = "A
 	if (!is.null(attr(allTerms0, "random.terms")))
 		attr(ret, "random.terms") <- attr(allTerms0, "random.terms")
 
+
+	if(doParallel) clusterCall(cluster, "rm", list = "clustDredgeProps")
 	return(ret)
 } ######
 
-`parGetMsRow` <- function(modelProps, commonProps) {
+`parGetMsRow` <- function(modelProps, commonProps = get("clustDredgeProps", .GlobalEnv)) {
 	#modelProps <- list(call = clVariant, id = modelId, variantId = variantId)
 
 	fit1 <- tryCatch(eval(modelProps$call, commonProps$gmEnv), error = function(err) {
@@ -413,9 +407,9 @@ function(global.model, cluster = FALSE, beta = FALSE, evaluate = TRUE, rank = "A
 			extraResult1 <- tmp
 		}
 	} else extraResult1 <- NULL
-	ll <- commonProps$logLik(fit1)
+	ll <-  MuMIn:::.getLogLik()(fit1)
 	c(
-		matchCoef(fit1, all.terms = commonProps$allTerms,
+		MuMIn:::matchCoef(fit1, all.terms = commonProps$allTerms,
 			beta = commonProps$beta)[commonProps$allTerms],
 		modelProps$variantId,
 		extraResult1, df = attr(ll, "df"),
@@ -424,23 +418,33 @@ function(global.model, cluster = FALSE, beta = FALSE, evaluate = TRUE, rank = "A
 	)
 }
 
-#`clusterVExport` <- local({
-#    `getv` <- function(obj)
-#		for (i in names(obj)) assign(i, obj[[i]], envir = .GlobalEnv)
-#	function(cluster, ...) {
-#		Call <- match.call()
-#		Call$cluster <- NULL
-#		Call <- Call[-1L]
-#		vars <- list(...)
-#		vnames <- names(vars)
-#		#if(!all(sapply(Call, is.name))) warning("at least some elements do not have syntactic name")
-#		if(is.null(vnames)) {
-#			names(vars) <- vapply(Call, deparse, character(1), control = NULL,
-#				nlines = 1L)
-#		} else if (any(vnames == "")) {
-#			names(vars) <- ifelse(vnames == "", vapply(Call, deparse, character(1),
-#				control = NULL, nlines = 1L), vnames)
-#		}
-#		clusterCall(cluster, getv, vars)
-#	}
-#})
+`clusterVExport` <- local({
+   `getv` <- function(obj)
+		for (i in names(obj)) assign(i, obj[[i]], envir = .GlobalEnv)
+	function(cluster, ...) {
+		Call <- match.call()
+		Call$cluster <- NULL
+		Call <- Call[-1L]
+		vars <- list(...)
+		vnames <- names(vars)
+		#if(!all(sapply(Call, is.name))) warning("at least some elements do not have syntactic name")
+		if(is.null(vnames)) {
+			names(vars) <- vapply(Call, deparse, character(1), control = NULL,
+				nlines = 1L)
+		} else if (any(vnames == "")) {
+			names(vars) <- ifelse(vnames == "", vapply(Call, deparse, character(1),
+				control = NULL, nlines = 1L), vnames)
+		}
+		get("clusterCall")(cluster, getv, vars)
+		# clusterCall(cluster, getv, vars)
+	}
+})
+
+`splitList` <- function (x, k) {
+    n <- length(x)
+    i <- seq_len(n)
+    if (k >= n)
+        as.list(x)
+    else unname(split.default(x, findInterval(i, seq(0L, n +
+        1L, length = k + 1L))))
+}

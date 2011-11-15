@@ -15,12 +15,11 @@ pdredge(global.model, cluster = FALSE, beta = FALSE, evaluate = TRUE,
 }
 
 \arguments{
-	\item{global.model, beta, evaluate rank, fixed, m.max, m.min, subset}{}
-	\item{marg.ex, trace, varying, extra, ...}{see \code{\link{dredge}}.
-	}
-
+	\item{global.model, beta, evaluate, rank, trace}{
+		see \code{\link{dredge}}. }
+	\item{fixed, m.max, m.min, subset, marg.ex, varying, extra, ...}{
+		see \code{\link{dredge}}. }
 	\item{cluster}{ either a valid cluster object, or \code{FALSE}. }
-
 	\item{check}{ logical, whether to evaluate the \code{global.model} in the
 	cluster	and compare with the original one. Only a simple checking is done. }
 
@@ -30,6 +29,11 @@ pdredge(global.model, cluster = FALSE, beta = FALSE, evaluate = TRUE,
 All the dependencies for fitting the \code{global.model} (including the data,
 all required packages, and any object the modelling function may use) must be
 exported/loaded into the cluster before passing it to \code{pdredge}.
+
+This function is still experimental. 
+Use of \code{pdredge} should be considered only with large datasets and complex 
+	models, for which the standard version takes long time to complete.
+	In other cases \code{pdredge} may even perform slower than \code{dredge}.
 }
 
 
@@ -40,14 +44,20 @@ exported/loaded into the cluster before passing it to \code{pdredge}.
 \author{Kamil Barto\enc{ń}{n}}
 
 \seealso{
-	\code{\link[parallel]{makeCluster}} and other functions in package
-	\pkg{parallel}.
+	\code{makeCluster} and other functions in packages
+	\pkg{parallel} or \pkg{snow}.
 }
 
 
 \examples{
 
-if (require(parallel)) {
+
+# Normally this should be simply "require(parallel) || require(snow)"
+# but this is an ugly trick to avoid both R-check's complaining, and including 
+# the dependency on these packages (it is just temporarily while 'pdredge' 
+# is in experimental stage):
+if (do.call("require", list("parallel", quietly = TRUE)) ||
+	do.call("require", list("snow", quietly = TRUE))) {
 
 # Example(Beetle)
 
@@ -67,12 +77,18 @@ varying.link <- list(family = alist(logit = binomial("logit"),
 clust <- makeCluster(getOption("cl.cores", 2))
 clusterExport(clust, "Beetle100")
 
-system.time(dredge(fm1, subset = msubset, varying = varying.link))
-system.time(pdredge(fm1, cluster = FALSE, subset = msubset, varying = varying.link))
-system.time(pdredge(fm1, cluster = clust, subset = msubset, varying = varying.link))
+# improvement only noticeable when data has about 3000 rows (on Windows 2-core 
+# machine)
+print(system.time(dredge(fm1, subset = msubset, varying = varying.link)))
+print(system.time(pdredge(fm1, cluster = FALSE, subset = msubset, 
+	varying = varying.link)))
+print(system.time(pdredge(fm1, cluster = clust, subset = msubset, 
+	varying = varying.link)))
 
 stopCluster(clust)
+
 }
+
 }
 
 \keyword{models}
