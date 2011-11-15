@@ -10,9 +10,9 @@ model, with optional rules for inclusion.
 }
 
 \usage{
-dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
-    fixed = NULL, m.max = NA, m.min = 0, subset, marg.ex = NULL,
-    trace = FALSE, varying, extra, ...)
+dredge(global.model, beta = FALSE, evaluate = TRUE, 
+    rank = "AICc", fixed = NULL, m.max = NA, m.min = 0, subset, 
+	marg.ex = NULL, trace = FALSE, varying, extra, ...)
 
 
 \method{print}{model.selection}(x, abbrev.names = TRUE, ...)
@@ -229,13 +229,15 @@ dredge(fm1, m.max = 2)
 
 
 # Add R^2 and F-statistics, use the 'extra' argument
-dredge(fm1, m.max = 1, extra = c("R^2", F = function(x) summary(x)$fstatistic[[1]]))
+dredge(fm1, m.max = 1, extra = c("R^2", F = function(x) 
+    summary(x)$fstatistic[[1]]))
 
 # with summary statistics:
 dredge(fm1, m.max = 1, extra = list(
     "R^2", "*" = function(x) {
         s <- summary(x)
-        c(Rsq = s$r.squared, adjRsq = s$adj.r.squared, F = s$fstatistic[[1]])
+        c(Rsq = s$r.squared, adjRsq = s$adj.r.squared, 
+            F = s$fstatistic[[1]])
     })
 )
 
@@ -244,7 +246,8 @@ dredge(fm1, m.max = 1, extra = list(
 
 # there is no BIC in R < 2.13.0, so need to add it:
 if(!exists("BIC", mode="function"))
-    BIC <- function(object, ...) AIC(object, k = log(length(resid(object))))
+    BIC <- function(object, ...) 
+        AIC(object, k = log(length(resid(object))))
 
 dredge(fm1, m.max = 1, extra = alist(AIC, BIC, ICOMP, Cp))
 

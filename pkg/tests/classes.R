@@ -71,7 +71,7 @@ MuMIn::dredge(fm2, rank=QAIC, chat=deviance(fm2) / df.residual(fm2))
 
 
 subset(dd, delta <= 10)
-mod.sel(get.models(dd, subset=delta <= 10))
+mod.sel(get.models(dd, subset = delta <= 10))
 
 
 rm(list=ls())
@@ -260,9 +260,6 @@ ops <- options(warn = -1)
 gam1 <- gam(y ~ s(x0) + s(x1) + s(x2) +  s(x3) + (x1+x2+x3)^2,
 	data = dat, method = "ML")
 
- gam(y ~ s(x0, k=1) + s(x1) + s(x2) +  s(x3) + (x1+x2+x3)^2,
-	data = dat, method = "ML")
-
 dd <- dredge(gam1, subset=!`s(x0)` & (!`s(x1)` | !x1) & (!`s(x2)` | !x2) & (!`s(x3)` | !x3), fixed="x1", trace=T)
 
 gm <- get.models(dd, cumsum(weight) <= .95)
@@ -289,7 +286,7 @@ dd <- dredge(esar1f, m.max=1,  fixed=~PEXPOSURE,
 	varying = list(
 		family = list("CAR", "SAR"),
 		method=list("Matrix_J", "full")
-	), trace=TRUE)
+	), trace=FALSE)
 options(warn=0)
 
 

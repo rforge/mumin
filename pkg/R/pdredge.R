@@ -14,21 +14,22 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 	#if(!doParallel) warning("argument 'cluster' is not a valid cluster") else
 	if(doParallel) {
 		# all this is to trick the R-check
-		if(getRversion() < "2.14.0") do.call("require", list("snow")) else
-			do.call("require", list("parallel"))
-		if(!exists("clusterCall", mode = "function")) {
-			stop("Cannot find function 'clusterCall'")
-			return(NULL)
+		if(!("package:snow" %in% search())) {
+			if(getRversion() < "2.14.0")
+				do.call("require", list("snow", quietly = TRUE)) else
+				do.call("require", list("parallel"))
 		}
+		if(!exists("clusterCall", mode = "function")) 
+			stop("cannot find function 'clusterCall'")
 		clusterCall <- get("clusterCall")
-		clusterCall(cluster, "eval", call("require", "MuMIn"))
 		parLapply <- get("parLapply")
+		
+		clusterCall(cluster, "require", "MuMIn", character.only = TRUE)
 		.getRow <- function(X) parLapply(cluster, X, "parGetMsRow")
 		# TODO: fix splitList
 		#resultChunk <- do.call(c, clusterApply(cluster,
 		#	splitList(queued, length(cluster)),
 		#	fun = "lapply", "parGetMsRow"), quote = TRUE)
-
 	} else {
 		.getRow <- function(X) lapply(X, parGetMsRow, parCommonProps)
 		clusterCall <- function(...) NULL

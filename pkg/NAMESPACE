@@ -1,5 +1,6 @@
 export(
-	AICc, beta.weights, dredge, pdredge, get.models, model.avg, par.avg, QAIC, QAICc,
+	AICc, beta.weights, dredge, pdredge, get.models, pget.models, model.avg, 
+	par.avg, QAIC, QAICc,
 	getAllTerms, coeffs, tTable, Weights, model.sel, mod.sel, importance,
 	gamm, Cp, ICOMP, r.squaredLR, null.fit, model.names, CAICF
 )

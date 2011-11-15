@@ -21,6 +21,28 @@ if (do.call("require", list("parallel", quietly = TRUE)) ||
 	print(system.time(pddc <- pdredge(fm2, cluster = clust)))
 	print(system.time(pdd1 <- pdredge(fm2, cluster = F)))
 	print(system.time(dd1 <- dredge(fm2)))
+	
+	
+	
+	
+# library(unmarked)
+# library(MuMIn)
+# data(mallard)
+# mallardUMF <- unmarkedFramePCount(mallard.y, siteCovs = mallard.site, obsCovs = mallard.obs)
+# (fm.mallard <- pcount(~ ivel+ date + I(date^2) ~ length + elev + forest, mallardUMF, K=30))\
+# (fm.mallard <- pcount(~ ivel+ date + I(date^2) ~ length + elev + forest, mallardUMF, K=30))
+# do.call("require", list("snow", quietly = TRUE))
+# clust <- makeCluster(getOption("cl.cores", 2))
+# clusterCall(clust, "library", "unmarked", character.only = TRUE)
+# clusterExport(clust, "mallardUMF")
+## fm.mallard
+# system.time(pdd <- pdredge(fm.mallard))
+# system.time(pdd <- pdredge(fm.mallard, clust))
+# system.time(pdd1 <- pdredge(fm.mallard, NA))
+# pdd
+# stopCluster(clust)
+	
+	
 
 	stopCluster(clust)
 

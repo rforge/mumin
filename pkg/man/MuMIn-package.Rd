@@ -25,6 +25,9 @@ The collection of functions includes:
 		criterion. }
 }
 
+The function \code{\link{pdredge}} can parallelize model fitting process using 
+a cluster. 
+
 For a complete list of functions, use \code{library(help = "MuMIn")}. 
 
 By default, AIC\eqn{_{c}}{c} is used to rank the models and to obtain model 
