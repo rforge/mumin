@@ -55,12 +55,10 @@ function(object, ..., beta = FALSE,
 	dup <- dup[sapply(dup, length) > 1L]
 	ndups <- length(dup)
 
-	if (ndups > 0L) {
-		stop("Models are not unique. Duplicates: ",
-			paste(sapply(dup, paste, sep = "", collapse = " = "),
-				if(ndups > 1L) c(rep(", ", ndups - 2L), ", and ", "") else NULL,
-				collapse = "", sep = ""))
-	}
+	if (ndups > 0L) stop("Models are not unique. Duplicates: ",
+		prettyEnumStr(sapply(dup, paste, sep = "", collapse = " = "), 
+			quote = "'"))
+
 
 	# workaround for different behavior of model.matrix with lme: data argument is required
 	if(any(linherits(models, c(lme = TRUE)))) {

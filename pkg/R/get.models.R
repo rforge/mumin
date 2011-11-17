@@ -45,14 +45,8 @@ function(object, cluster = NA, subset, ...) {
 	
 	doParallel <- inherits(cluster, "cluster")
 	if(doParallel) {
+		.parallelPkgCheck()
 		# all this is to trick the R-check
-		if(!("package:snow" %in% search())) {
-			if(getRversion() < "2.14.0")
-				do.call("require", list("snow", quietly = TRUE)) else
-				do.call("require", list("parallel"))
-		}
-		if(!exists("clusterCall", mode = "function")) 
-			stop("cannot find function 'clusterCall'")
 		clusterCall <- get("clusterCall")
 		parLapply <- get("parLapply")
 		models <- parLapply(cluster, calls, eval, envir = .GlobalEnv)

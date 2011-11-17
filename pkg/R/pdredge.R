@@ -1,44 +1,26 @@
 `pdredge` <-
 function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		 fixed = NULL, m.max = NA, m.min = 0, subset, marg.ex = NULL,
-		 trace = FALSE, varying, extra, check = TRUE,
+		 trace = FALSE, varying, extra, check = FALSE,
 		  ...) {
-		  
 #FIXME: m.max cannot be 0 - e.g. for intercept only model
 
 	qlen <- 25L
 	# Imports: clusterCall, clusterApply
-	#if(missing(cluster) || !inherits(cluster, "cluster"))
-		#stop("a valid 'cluster' must be provided")
-
 	doParallel <- inherits(cluster, "cluster")
-	#if(!doParallel) warning("argument 'cluster' is not a valid cluster") else
 	if(doParallel) {
-		# all this is to trick the R-check
-		if(!("snow" %in% loadedNamespaces())) {
-			if(getRversion() < "2.14.0")
-				do.call("require", list("snow", quietly = TRUE)) else
-				do.call("require", list("parallel"))
-		}
-		if(!exists("clusterCall", mode = "function")) 
-			stop("cannot find function 'clusterCall'")
+		.parallelPkgCheck() # XXX: workaround to avoid importing from 'parallel'
 		clusterCall <- get("clusterCall")
-		#parLapply <- get("parLapply")
 		clusterApply <- get("clusterApply")
-		
 		clusterCall(cluster, "require", "MuMIn", character.only = TRUE)
 		clusterCall(cluster, "eval", expression(assign("parGetMsRow", 
 			MuMIn:::parGetMsRow, envir = .GlobalEnv), NULL))
-
-		.getRow <- function(X) 	do.call(c, clusterApply(cluster, 
-			splitList(X, length(cluster)), fun = "lapply", "parGetMsRow"),  
-			quote = TRUE)
-		#.getRow <- function(X) parLapply(cluster, X, "parGetMsRow")
+		.getRow <- function(X) clusterApply(cluster, X, fun = "parGetMsRow")
 	} else {
 		.getRow <- function(X) lapply(X, parGetMsRow, parCommonProps)
 		clusterCall <- function(...) NULL
+		message("Not using cluster.")
 	}
-
 
 	# *** Rank ***
 	rank.custom <- !missing(rank)
@@ -67,8 +49,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 		}
 		#"For objects without a 'call' component the call to the fitting function \n",
 		#" must be used directly as an argument to 'dredge'.")
-
-		# this is unlikely to happen:
+		# NB: this is unlikely to happen:
 		if(!exists(as.character(gmCall[[1L]]), parent.frame(), mode="function"))
 			 stop("could not find function '", gmCall[[1L]], "'")
 	} else {
@@ -87,17 +68,9 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 		}
 	}
 	logLik <- .getLogLik()
-	# parallel: check whether the models would be identical:
-	if(check && doParallel) {
-		v <- all.vars(gmCall[!sapply(gmCall, function(x) "~" %in% all.names(x))],
-			functions = FALSE)
-		if(!all(unlist(clusterCall(cluster, "sapply", v, "exists", where = 1), all)))
-			warning("not all required variables exist in the cluster nodes")
-		if(!videntical(c(list(coef(global.model)),
-			clusterCall(cluster, function(x) coef(eval(x)), gmCall))))
-			stop("'global.model' evaluated on the cluster nodes differ from the original one")
 
-	}
+	# parallel: check whether the models would be identical:
+	if(doParallel) testUpdatedObj(cluster, global.model, gmCall, do.eval = check)
 
 	gmCoefNames0 <- names(coeffs(global.model))
 
@@ -107,12 +80,10 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 		stop("'global.model' should not use 'na.action' = ", gmCall$na.action)
 	}
 
-	#if(names(gmCall)[2] == "") names(gmCall)[2] <- "formula"
-	if(names(gmCall)[2L] == "") names(gmCall)[2L] <- names(formals(deparse(gmCall[[1]]))[1])
+	if(names(gmCall)[2L] == "") names(gmCall)[2L] <- 
+		names(formals(deparse(gmCall[[1L]]))[1L])
 
 	gmCoefNames <- fixCoefNames(gmCoefNames0)
-	#sglobCoefNames <- fixCoefNames(names(coeffs(global.model)))
-
 	n.vars <- length(allTerms)
 
 	if(isTRUE(rankArgs$REML) || (isTRUE(.isREMLFit(global.model)) && is.null(rankArgs$REML)))
@@ -120,7 +91,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 
 	if (beta && is.null(tryCatch(beta.weights(global.model), error=function(e) NULL,
 		warning = function(e) NULL))) {
-		warning("do not know how to calculate B-weights for ",
+		warning("do not know how to calculate beta weights for ",
 				class(global.model)[1L], ", argument 'beta' ignored")
 		beta <- FALSE
 	}
@@ -146,22 +117,15 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 	n.fixed <- length(fixed)
 	termsOrder <- order(allTerms %in% fixed)
 	ordAllTerms <- allTerms[termsOrder]
-	#mostattributes(ordAllTerms) <- 	attributes(allTerms)
 	allTerms <- ordAllTerms
-
 	isMER <- any(inherits(global.model, c("mer", "lmer", "glmer")))
-
 	gmFormula <- as.formula(formula(global.model))
 	gmFormulaEnv <- attr(gmFormula, ".Environment")
 
 	### BEGIN:
 	## varying BEGIN
 	if(!missing(varying) && !is.null(varying)) {
-		#variants <- apply(expand.grid(lapply(varying, seq_along)), 1L,
-			#function(x) sapply(names(varying), function(y) varying[[y]][[x[y]]],
-			#simplify=FALSE))
 		variantsIdx <- expand.grid(lapply(varying, seq_along))
-		#nvariants <- nrow(variantsIdx)
 		seq.variants <- seq.int(nrow(variantsIdx))
 		nvarying <- length(varying)
 		varying.names <- names(varying)
@@ -189,7 +153,6 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 		extra <- sapply(extra, match.fun, simplify = FALSE)
 		applyExtras <- function(x) unlist(lapply(extra, function(f) f(x)))
 		extraResult <- applyExtras(global.model)
-
 		if(!is.numeric(extraResult))
 			stop("function in 'extra' returned non-numeric result")
 
@@ -198,16 +161,13 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 	} else {
 		nextra <- 0L
 		extraNames <- character(0L)
-		#applyExtras <- NULL
 	}
 	## extra END
 
 	nov <- as.integer(n.vars - n.fixed)
 	ncomb <- 2L ^ nov
-
 	if(nov > 31L) stop(gettextf("maximum number of predictors is 31, but %d is given", nov))
 	if(nov > 10L) warning(gettextf("%d predictors will generate up to %.0f possible combinations", nov, ncomb))
-
 	nmax <- ncomb * nvariants
 	if(evaluate) {
 		ret.nchunk <- 25L
@@ -253,7 +213,6 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 		)
 
 	# BEGIN parallel
-	#qlen <- 25L
 	qi <- 0L
 	queued <- vector(qlen, mode = "list")
 	parCommonProps <- list(gmEnv = gmEnv, IC = IC, beta = beta,
@@ -262,12 +221,10 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 		parCommonProps$applyExtras <- applyExtras
 		parCommonProps$extraResult <- extraResult
 	}
-	if(doParallel) {
-		clusterVExport(cluster, clustDredgeProps = parCommonProps)
-	}
+	if(doParallel) clusterVExport(cluster, clustDredgeProps = parCommonProps)
 	# END parallel
 	
-	retColIdx <- if(nvarying) -n.vars - seq_len(nvarying) else TRUE # XXX: move up
+	retColIdx <- if(nvarying) -n.vars - seq_len(nvarying) else TRUE
 
 	for(iComb in seq.int(ncomb)) {
 		comb <- c(as.logical(intToBits(iComb - 1L)[comb.seq]), comb.sfx)
@@ -365,9 +322,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 	i <- seq_along(allTerms)
 	v <- order(termsOrder)
 	ret[, i] <- ret[, v]
-	#ret[, seq_along(allTerms)] <- ret[, order(termsOrder)]
 	allTerms <- allTerms[v]
-	#colnames(ret) <- c(allTerms0, varying.names, "df", "logLik", ICName)
 	colnames(ret) <- c(allTerms, varying.names, extraNames, "df", "logLik", ICName)
 
 	if(nvarying) {
@@ -397,14 +352,13 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 	if (!is.null(attr(allTerms0, "random.terms")))
 		attr(ret, "random.terms") <- attr(allTerms0, "random.terms")
 
-
 	if(doParallel) clusterCall(cluster, "rm",
 		list = c("parGetMsRow", "clustDredgeProps"), envir = .GlobalEnv)
 	return(ret)
 } ######
 
 `parGetMsRow` <- function(modelProps, commonProps = get("clustDredgeProps", .GlobalEnv)) {
-	#modelProps <- list(call = clVariant, id = modelId)
+	### modelProps <- list(call = clVariant, id = modelId)
 
 	fit1 <- tryCatch(eval(modelProps$call, commonProps$gmEnv), error = function(err) {
 		err$message <- paste(conditionMessage(err), "(model",
@@ -438,34 +392,4 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 	cl[[1]] <- as.name("dredge")
 	if(!identical(c(dd), c(eval(cl)))) stop("buuu...") 
 	dd
-}
-
-`clusterVExport` <- local({
-   `getv` <- function(obj)
-		for (i in names(obj)) assign(i, obj[[i]], envir = .GlobalEnv)
-	function(cluster, ...) {
-		Call <- match.call()
-		Call$cluster <- NULL
-		Call <- Call[-1L]
-		vars <- list(...)
-		vnames <- names(vars)
-		#if(!all(sapply(Call, is.name))) warning("at least some elements do not have syntactic name")
-		if(is.null(vnames)) {
-			names(vars) <- vapply(Call, deparse, character(1), control = NULL,
-				nlines = 1L)
-		} else if (any(vnames == "")) {
-			names(vars) <- ifelse(vnames == "", vapply(Call, deparse, character(1),
-				control = NULL, nlines = 1L), vnames)
-		}
-		get("clusterCall")(cluster, getv, vars)
-		# clusterCall(cluster, getv, vars)
-	}
-})
-
-`splitList` <- function (x, k) {
-    n <- length(x)
-    ret <- unname(split.default(x, findInterval(seq_len(n), seq(0L, n +
-        1L, length = k + 1L))))
-	if(k > n) ret <- c(ret, vector(k - n, mode = "list"))
-	ret
 }

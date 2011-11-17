@@ -10,7 +10,7 @@ Parallelized version of \code{dredge}.
 \usage{
 pdredge(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
     rank = "AICc", fixed = NULL, m.max = NA, m.min = 0, subset,
-    marg.ex = NULL, trace = FALSE, varying, extra, check = TRUE,
+    marg.ex = NULL, trace = FALSE, varying, extra, check = FALSE,
     ...)
 }
 
@@ -22,8 +22,7 @@ pdredge(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	\item{cluster}{ either a valid \code{cluster} object, or \code{NA} for a
 		single threaded execution. }
 	\item{check}{ logical, whether to evaluate the \code{global.model} in the
-		cluster	and compare with the original one. Only a simple checking is
-		done. }
+		cluster and compare with the original one using \code{all.equal}. }
 
 }
 
@@ -34,10 +33,15 @@ All the dependencies for fitting the \code{global.model}, including the data,
 	nodes, as well as the required packages must be loaded thereinto 
 	(e.g. \emph{via} \code{clusterCall(..., library, \var{"package"}, 
 	character.only = TRUE)}), before the cluster is used by \code{pdredge}.
+	\code{pdredge} tries to check whether all variables and functions used in 
+	the call to \code{global.model} are present in the cluster nodes' 
+	\code{.GlobalEnv}, and also, if \code{check} is \code{TRUE}, will compare 
+	the \code{global.model} updated at the cluster nodes with the one given as 
+	argument. This additional test will, however, slow down the execution.
 
 This function is still largely experimental. Use of it should be considered
 	mainly with large datasets and complex models, for which the standard
-	version takes long time to complete. Otherwise there may be no perceptible
+	version takes a long time to complete. Otherwise there may be no perceptible
 	improvement or even the parallel version may perform worse than a
 	single-threaded one.
 }
