@@ -69,16 +69,14 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	#sglobCoefNames <- fixCoefNames(names(coeffs(global.model)))
 
 	n.vars <- length(allTerms)
-	ret <- numeric(0L)
-	formulas <- character(0L)
 
 	if(isTRUE(rankArgs$REML) || (isTRUE(.isREMLFit(global.model)) && is.null(rankArgs$REML)))
-		warning("comparing models with different fixed effects fitted by REML")
+		warning("comparing models fitted by REML")
 
 	if (beta && is.null(tryCatch(beta.weights(global.model), error=function(e) NULL,
 		warning=function(e) NULL))) {
 		warning("do not know how to calculate B-weights for ",
-				class(global.model)[1L], ", argument 'beta' ignored")
+				sQuote(class(global.model)[1L]), ", argument 'beta' ignored")
 		beta <- FALSE
 	}
 

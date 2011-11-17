@@ -3,10 +3,11 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 		 fixed = NULL, m.max = NA, m.min = 0, subset, marg.ex = NULL,
 		 trace = FALSE, varying, extra, check = TRUE,
 		  ...) {
+		  
+#FIXME: m.max cannot be 0 - e.g. for intercept only model
 
 	qlen <- 25L
 	# Imports: clusterCall, clusterApply
-
 	#if(missing(cluster) || !inherits(cluster, "cluster"))
 		#stop("a valid 'cluster' must be provided")
 
@@ -14,7 +15,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 	#if(!doParallel) warning("argument 'cluster' is not a valid cluster") else
 	if(doParallel) {
 		# all this is to trick the R-check
-		if(!("package:snow" %in% search())) {
+		if(!("snow" %in% loadedNamespaces())) {
 			if(getRversion() < "2.14.0")
 				do.call("require", list("snow", quietly = TRUE)) else
 				do.call("require", list("parallel"))
@@ -22,14 +23,17 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 		if(!exists("clusterCall", mode = "function")) 
 			stop("cannot find function 'clusterCall'")
 		clusterCall <- get("clusterCall")
-		parLapply <- get("parLapply")
+		#parLapply <- get("parLapply")
+		clusterApply <- get("clusterApply")
 		
 		clusterCall(cluster, "require", "MuMIn", character.only = TRUE)
-		.getRow <- function(X) parLapply(cluster, X, "parGetMsRow")
-		# TODO: fix splitList
-		#resultChunk <- do.call(c, clusterApply(cluster,
-		#	splitList(queued, length(cluster)),
-		#	fun = "lapply", "parGetMsRow"), quote = TRUE)
+		clusterCall(cluster, "eval", expression(assign("parGetMsRow", 
+			MuMIn:::parGetMsRow, envir = .GlobalEnv), NULL))
+
+		.getRow <- function(X) 	do.call(c, clusterApply(cluster, 
+			splitList(X, length(cluster)), fun = "lapply", "parGetMsRow"),  
+			quote = TRUE)
+		#.getRow <- function(X) parLapply(cluster, X, "parGetMsRow")
 	} else {
 		.getRow <- function(X) lapply(X, parGetMsRow, parCommonProps)
 		clusterCall <- function(...) NULL
@@ -50,11 +54,10 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 	nInts <- sum(attr(allTerms, "intercept"))
 
 	if(length(grep(":", all.vars(reformulate(allTerms))) > 0L))
-		stop("variable names in the model formula cannot contain \":\"")
+		stop("variable names in the formula cannot contain \":\"")
 
 	gmEnv <- parent.frame()
 	gmCall <- .getCall(global.model)
-
 	if (is.null(gmCall)) {
 		gmCall <- substitute(global.model)
 		if(!is.call(gmCall)) {
@@ -68,7 +71,6 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 		# this is unlikely to happen:
 		if(!exists(as.character(gmCall[[1L]]), parent.frame(), mode="function"))
 			 stop("could not find function '", gmCall[[1L]], "'")
-
 	} else {
 		# if 'update' method does not expand dots, we have a problem
 		# with expressions like ..1, ..2 in the call.
@@ -87,13 +89,16 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 	logLik <- .getLogLik()
 	# parallel: check whether the models would be identical:
 	if(check && doParallel) {
+		v <- all.vars(gmCall[!sapply(gmCall, function(x) "~" %in% all.names(x))],
+			functions = FALSE)
+		if(!all(unlist(clusterCall(cluster, "sapply", v, "exists", where = 1), all)))
+			warning("not all required variables exist in the cluster nodes")
 		if(!videntical(c(list(coef(global.model)),
 			clusterCall(cluster, function(x) coef(eval(x)), gmCall))))
-			stop("'global.model' evaluated on the cluster differs from the original one")
+			stop("'global.model' evaluated on the cluster nodes differ from the original one")
+
 	}
 
-	# TODO: other classes: model, fixed, etc...
-	gmFormula <- as.formula(formula(global.model))
 	gmCoefNames0 <- names(coeffs(global.model))
 
 	# Check for na.omit
@@ -109,8 +114,6 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 	#sglobCoefNames <- fixCoefNames(names(coeffs(global.model)))
 
 	n.vars <- length(allTerms)
-	ret <- numeric(0L)
-	formulas <- character(0L)
 
 	if(isTRUE(rankArgs$REML) || (isTRUE(.isREMLFit(global.model)) && is.null(rankArgs$REML)))
 		warning("comparing models with different fixed effects fitted by REML")
@@ -147,6 +150,8 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 	allTerms <- ordAllTerms
 
 	isMER <- any(inherits(global.model, c("mer", "lmer", "glmer")))
+
+	gmFormula <- as.formula(formula(global.model))
 	gmFormulaEnv <- attr(gmFormula, ".Environment")
 
 	### BEGIN:
@@ -227,15 +232,9 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 	}
 
 	comb.sfx <- rep(TRUE, n.fixed)
-	comb.seq <- if(nov != 0L) seq.int(nov) else 0L
+	comb.seq <- if(nov != 0L) seq_len(nov) else 0L
 	k <- 0L
 	ord <- extraResult1 <- integer(0L)
-
-	if(!is.null(gmCall$data)) {
-		if(eval(call("is.data.frame", gmCall$data), gmEnv))
-			gmDataHead <- eval(call("head", gmCall$data, 1), gmEnv) else
-			gmDataHead <- gmCall$data
-	} else gmDataHead <- NULL
 
 	argsOptions <- list(
 		response = attr(allTerms0, "response"),
@@ -246,7 +245,10 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 		gmEnv = gmEnv,
 		allTerms = allTerms0,
 		gmCoefNames = gmCoefNames,
-		gmDataHead = gmDataHead,
+		gmDataHead = if(!is.null(gmCall$data)) {
+			if(eval(call("is.data.frame", gmCall$data), gmEnv))
+				eval(call("head", gmCall$data, 1L), gmEnv) else gmCall$data
+			} else NULL,
 		gmFormulaEnv = gmFormulaEnv
 		)
 
@@ -262,17 +264,12 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 	}
 	if(doParallel) {
 		clusterVExport(cluster, clustDredgeProps = parCommonProps)
-		clusterCall(cluster, "do.call", "assign", list("parGetMsRow", 
-			call(":::", "MuMIn", "parGetMsRow"), pos = 1), envir = .GlobalEnv)
-
 	}
 	# END parallel
 	
-	#DebugPrint(ncomb)
+	retColIdx <- if(nvarying) -n.vars - seq_len(nvarying) else TRUE # XXX: move up
 
 	for(iComb in seq.int(ncomb)) {
-		# DebugPrint(iComb)
-
 		comb <- c(as.logical(intToBits(iComb - 1L)[comb.seq]), comb.sfx)
 
 		nvar <- sum(comb) - nInts
@@ -292,38 +289,35 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 				cl <- gmCall
 				cl[names(newArgs)] <- newArgs
 
-
 				for (v in seq.variants) { ## --- Variants ---------------------------
+					modelId <- ((iComb - 1L) * nvariants) + v
 					clVariant <- cl
 					if(nvarying) {
 						newVaryingArgs <- sapply(varying.names, function(x)
 							varying[[x]][[variantsIdx[v, x]]], simplify = FALSE)
 						clVariant[varying.names] <- newVaryingArgs
 					}
-
-					modelId <- ((iComb - 1L) * nvariants) + v
-					if(trace) {	cat(modelId, ": "); print(clVariant); utils::flush.console() }
-
+					
+					if(trace) {
+						cat(modelId, ": "); print(clVariant);
+						utils::flush.console()
+						}
 					if(evaluate) {
 						qi <- qi + 1L
-						queued[[(qi)]] <- list(call = clVariant, id = modelId,
-							variantId = if(nvarying) unlist(variantsIdx[v, ]) else NULL)
+						queued[[(qi)]] <- list(call = clVariant, id = modelId)
 					} else { # if !evaluate
 						k <- k + 1L # all OK, add model to table
 						calls[[k]] <- clVariant
 					}
-					#DebugPrint(v)
-					#DebugPrint(qi)
 				}
 			} # end if <formulaAllowed>
 		} # end if <subset, m.max >= nvar >= m.min>
 		
-		#DebugPrint(qi + nvariants > qlen || iComb == ncomb)
-		if(evaluate && (qi + nvariants > qlen || iComb == ncomb)) {
+		if(evaluate && qi && (qi + nvariants > qlen || iComb == ncomb)) {
+			#DebugPrint(paste(qi, nvariants, qlen, iComb, ncomb))
 			qseq <- seq_len(qi)
 			qresult <- .getRow(queued[qseq])
-			cat(sprintf("queue done: %d\n", qi))
-			#withoutProblems <- !sapply(qresult, inherits, "condition")
+			cat(sprintf("queue done: %d\n", qi)) # DEBUG
 			withoutProblems <- which(!sapply(qresult, inherits, "condition"))
 			if(!length(withoutProblems)) withoutProblems <- seq_along(qresult)
 			#for (i in qresult[!withoutProblems]) warning(i)
@@ -338,7 +332,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 				ord <- c(ord, integer(nadd))
 			}
 			qseq <- seq_len(qresultLen)
-			for(m in qseq) ret[k + m, ] <- qresult[[m]]
+			for(m in qseq) ret[k + m, retColIdx] <- qresult[[m]]
 			ord[k + qseq] <- vapply(queued[withoutProblems], "[[", 1L, "id")
 			calls[k + qseq] <- lapply(queued[withoutProblems], "[[", "call")
 			k <- k + qresultLen
@@ -346,25 +340,26 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 		}
 	} ### for (iComb ...)
 
-	if(k == 0L) {
-		stop("no rows to return")
-		return(NULL)
-	}
+	if(k == 0L) stop("the result is empty")
 	if(!evaluate) return(calls[seq_len(k)])
 
 	if(k < nrow(ret)) {
 		i <- seq_len(k)
-		ret <- ret[i, , drop=FALSE]
+		ret <- ret[i, , drop = FALSE]
 		ord <- ord[i]
 		calls <- calls[i]
 	}
-
+	
+	if(nvarying) {
+		varlev <- ord %% nvariants; varlev[varlev == 0L] <- nvariants
+		ret[, n.vars + seq_len(nvarying) ] <- as.matrix(variantsIdx)[varlev, ]
+	}
+	
 	ret <- as.data.frame(ret)
 	row.names(ret) <- ord
 
 	# Convert columns with presence/absence of terms to factors
 	tfac <- which(!(allTerms %in% gmCoefNames))
-
 	ret[tfac] <- lapply(ret[tfac], factor, levels = NaN, labels = "+")
 
 	i <- seq_along(allTerms)
@@ -404,12 +399,12 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 
 
 	if(doParallel) clusterCall(cluster, "rm",
-		list = c("parGetMsRow", "clustDredgeProps"),  envir = .GlobalEnv)
+		list = c("parGetMsRow", "clustDredgeProps"), envir = .GlobalEnv)
 	return(ret)
 } ######
 
 `parGetMsRow` <- function(modelProps, commonProps = get("clustDredgeProps", .GlobalEnv)) {
-	#modelProps <- list(call = clVariant, id = modelId, variantId = variantId)
+	#modelProps <- list(call = clVariant, id = modelId)
 
 	fit1 <- tryCatch(eval(modelProps$call, commonProps$gmEnv), error = function(err) {
 		err$message <- paste(conditionMessage(err), "(model",
@@ -428,15 +423,21 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 			extraResult1 <- tmp
 		}
 	} else extraResult1 <- NULL
-	ll <-  MuMIn:::.getLogLik()(fit1)
-	c(
-		MuMIn:::matchCoef(fit1, all.terms = commonProps$allTerms,
-			beta = commonProps$beta)[commonProps$allTerms],
-		modelProps$variantId,
+	ll <- MuMIn:::.getLogLik()(fit1)
+	c(	MuMIn:::matchCoef(fit1, all.terms = commonProps$allTerms,
+			beta = commonProps$beta), # [commonProps$allTerms]
 		extraResult1, df = attr(ll, "df"),
 		ll = ll,
 		ic = commonProps$IC(fit1)
 	)
+}
+
+.test_pdredge <- function(dd) {
+	cl <- attr(dd, "call")
+	cl$cluster <- cl$check <- NULL
+	cl[[1]] <- as.name("dredge")
+	if(!identical(c(dd), c(eval(cl)))) stop("buuu...") 
+	dd
 }
 
 `clusterVExport` <- local({
@@ -463,9 +464,8 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE, rank = "AICc
 
 `splitList` <- function (x, k) {
     n <- length(x)
-    i <- seq_len(n)
-    if (k >= n)
-        as.list(x)
-    else unname(split.default(x, findInterval(i, seq(0L, n +
+    ret <- unname(split.default(x, findInterval(seq_len(n), seq(0L, n +
         1L, length = k + 1L))))
+	if(k > n) ret <- c(ret, vector(k - n, mode = "list"))
+	ret
 }

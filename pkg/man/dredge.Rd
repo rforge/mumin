@@ -12,7 +12,7 @@ model, with optional rules for inclusion.
 \usage{
 dredge(global.model, beta = FALSE, evaluate = TRUE, 
     rank = "AICc", fixed = NULL, m.max = NA, m.min = 0, subset, 
-	marg.ex = NULL, trace = FALSE, varying, extra, ...)
+    marg.ex = NULL, trace = FALSE, varying, extra, ...)
 
 
 \method{print}{model.selection}(x, abbrev.names = TRUE, ...)

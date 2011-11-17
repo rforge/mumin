@@ -73,21 +73,37 @@ function(frm, except=NULL) {
 	IC
 }
 
-`matchCoef` <- function(m1, m2, all.terms = getAllTerms(m2, intercept = TRUE),
-	beta = FALSE) {
-	terms1 <- getAllTerms(m1, intercept = TRUE)
+
+`matchCoef` <- function(m1, m2, 
+	all.terms = getAllTerms(m2, intercept = TRUE),
+	beta = FALSE,
+	terms1 = getAllTerms(m1, intercept = TRUE),
+	coef1 = if (beta) beta.weights(m1)[, 3L] else coeffs(m1))
+	{
 	if(any((terms1 %in% all.terms) == FALSE)) stop("'m1' is not nested within 'm2")
-
-	row <- structure(rep(NA, length(all.terms)), names=all.terms)
-	#coef1 <- coeffs(m1)
-	coef1 <- if (beta) beta.weights(m1)[, 3L] else coeffs(m1)
+	row <- structure(rep(NA, length(all.terms)), names = all.terms)
 	names(coef1) <- fixCoefNames(names(coef1))
-
 	row[terms1] <- NaN
-	cf <- coef1[match(terms1, names(coef1), nomatch=0)]
+	cf <- coef1[match(terms1, names(coef1), nomatch = 0)]
 	row[names(cf)]  <- cf
 	row
 }
+
+# `matchCoef` <- function(m1, m2, all.terms = getAllTerms(m2, intercept = TRUE),
+	# beta = FALSE) {
+	# terms1 <- getAllTerms(m1, intercept = TRUE)
+	# if(any((terms1 %in% all.terms) == FALSE)) stop("'m1' is not nested within 'm2")
+
+	# row <- structure(rep(NA, length(all.terms)), names=all.terms)
+	# #coef1 <- coeffs(m1)
+	# coef1 <- if (beta) beta.weights(m1)[, 3L] else coeffs(m1)
+	# names(coef1) <- fixCoefNames(names(coef1))
+
+	# row[terms1] <- NaN
+	# cf <- coef1[match(terms1, names(coef1), nomatch=0)]
+	# row[names(cf)]  <- cf
+	# row
+# }
 
 #sorts alphabetically interaction components in model term names
 `fixCoefNames` <-
