@@ -48,12 +48,12 @@ function(object, cluster = NA, subset, ...) {
 		.parallelPkgCheck()
 		# all this is to trick the R-check
 		clusterCall <- get("clusterCall")
-		parLapply <- get("parLapply")
-		models <- parLapply(cluster, calls, eval, envir = .GlobalEnv)
+		clusterApply <- get("clusterApply")
+		models <- clusterApply(cluster, calls, "eval", envir = .GlobalEnv)
 	} else {
 		glo <- attr(object, "global")
 		env <- attr(tryCatch(terms(glo), error = function(...) terms(formula(glo))),
-		".Environment")
+			".Environment")
 		models <- lapply(calls, eval, envir = env)
 	}
 	
