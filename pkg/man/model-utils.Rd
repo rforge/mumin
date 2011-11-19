@@ -1,21 +1,21 @@
-\name{Miscellaneous}
-\alias{Miscellaneous}
-\alias{miscellaneous}
+\name{Model utilities}
+\alias{MuMIn-model-utils}
 \alias{coeffs}
 \alias{model.names}
 \alias{beta.weights}
 \alias{tTable}
+\alias{coefTable}
 \alias{getAllTerms}
 \alias{getAllTerms.terms}
 
-
-\alias{cbindDataFrameList}
-\alias{rbindDataFrameList}
-
 \encoding{utf-8}
+\newcommand{\href}{#2}
 
-\title{Helper functions}
+\title{Fitted model utilities}
 \description{
+These functions extract or calculate various values from provided model
+	objects(s). They are mainly meant for internal use, but may be also useful
+	for end-users.
 
 \code{beta.weights} computes standardized coefficients (beta weights) for
 	a model;
@@ -24,8 +24,8 @@
 
 \code{getAllTerms} extracts independent variable names from a model object;
 
-\code{tTable} extracts a table of coefficients, standard errors, and p-values
-from a model object;
+\code{coefTable} extracts a table of coefficients, standard errors and, when
+	possible, associated p-values from a model object;
 
 \code{model.names} generates shorthand numeric names for one or several fitted
 models.
@@ -37,15 +37,15 @@ beta.weights(model)
 coeffs(model)
 getAllTerms(x, ...)
 \method{getAllTerms}{terms}(x, offset = TRUE, intercept = FALSE, ...)
+coefTable(model, dispersion = NULL, ...)
 tTable(model, ...)
 model.names(object, ..., labels = NULL)
-
-cbindDataFrameList(x)
-rbindDataFrameList(x)
 }
-
 \arguments{
   \item{model}{a fitted model object. }
+  \item{dispersion}{ the dispersion parameter. Applies to
+	\code{glm} only. See \code{\link{summary.glm}}.
+	}
   \item{object}{a fitted model object or a list of such objects. }
   \item{x}{a fitted model object or a \code{\link{formula}}.
 	for \code{*bindDataFrameList}, a list of \code{data.frames}. }
@@ -61,7 +61,6 @@ rbindDataFrameList(x)
 	In other functions often not used.
   }
 }
-
 
 \details{
 	The functions \code{coeffs}, \code{getAllTerms} and \code{tTable} provide
@@ -79,8 +78,7 @@ rbindDataFrameList(x)
 \code{\link{coef}}, the only difference being it returns fixed
 effects' coefficients for mixed models.
 
-Whimsically, the functions \code{*bindDataFrameList} are not exported from the
-name space, \cr use \code{MuMIn:::cbindDataFrameList} to access them.
+Use of \code{tTable} is deprecated in favour of \code{coefTable}.
 
 }
 

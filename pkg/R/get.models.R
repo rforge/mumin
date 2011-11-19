@@ -2,9 +2,10 @@
 function(object, subset, ...) {
 	calls <- attr(object, "calls")
 	if(is.null(calls)) stop("object has no 'calls' attribute")
-	
+
 	if(!missing(subset)) {
 	    r <- eval(substitute(subset), object, parent.frame())
+		if(is.character(r)) r <- match(r, dimnames(object)[[1L]])
 		calls <- calls[r]
 	}
 	glo <- attr(object, "global")
@@ -15,7 +16,7 @@ function(object, subset, ...) {
 
 	naNames <- names(newargs)
 	if(length(newargs))  for(i in seq_along(calls)) calls[[i]][naNames] <- newargs
-	
+
 	env <- attr(tryCatch(terms(glo), error = function(...) terms(formula(glo))),
 		".Environment")
 
@@ -31,9 +32,10 @@ function(object, subset, ...) {
 function(object, cluster = NA, subset, ...) {
 	calls <- attr(object, "calls")
 	if(is.null(calls)) stop("object has no 'calls' attribute")
-	
+
 	if(!missing(subset)) {
 	    r <- eval(substitute(subset), object, parent.frame())
+		if(is.character(r)) r <- match(r, dimnames(object)[[1L]])
 		calls <- calls[r]
 	}
 	newargs <- match.call()
@@ -42,7 +44,7 @@ function(object, cluster = NA, subset, ...) {
 
 	naNames <- names(newargs)
 	if(length(newargs)) for(i in seq_along(calls)) calls[[i]][naNames] <- newargs
-	
+
 	doParallel <- inherits(cluster, "cluster")
 	if(doParallel) {
 		.parallelPkgCheck()
@@ -56,7 +58,7 @@ function(object, cluster = NA, subset, ...) {
 			".Environment")
 		models <- lapply(calls, eval, envir = env)
 	}
-	
+
 	attr(models, "rank.call") <- attr(object, "rank.call")
 	attr(models, "rank") <- attr(object, "rank")
 

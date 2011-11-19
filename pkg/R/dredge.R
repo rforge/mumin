@@ -297,6 +297,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		} # for (ivar ...)
 	} ### for (j ...)
 
+	names(calls) <- ord
 	if(!evaluate) return(calls[seq.int(k)])
 
 	if(k < nrow(ret)) ret <- ret[seq.int(k), , drop=FALSE]
@@ -351,7 +352,6 @@ function(x, subset, select, recalc.weights = TRUE, ...) {
 	if (missing(select)) {
 		if(missing(subset)) return(x)
 		e <- .substHas(substitute(subset))
-		#print(e)
 		i <- eval(e, x, parent.frame())
 		return(`[.model.selection`(x, i, recalc.weights = recalc.weights, ...))
 	} else {
@@ -369,13 +369,17 @@ function(x, subset, select, recalc.weights = TRUE, ...) {
 function (x, i, j, recalc.weights = TRUE, ...) {
 	ret <- `[.data.frame`(x, i, j, ...)
 	if (missing(j)) {
-		att <- attributes(x)
 		s <- c("row.names", "calls")
-		att[s] <- lapply(att[s], `[`, i)
-		attributes(ret) <- att
+		k <- match(dimnames(ret)[[1L]], dimnames(x)[[1L]])
+		attrib <- attributes(x)
+		attrib[s] <- lapply(attrib[s], `[`, k)
+		attributes(ret) <- attrib
 		if(recalc.weights)
 			ret$weight <- ret$weight / sum(ret$weight)
 			#ret[, 'weight'] <- ret[, 'weight'] / sum(ret[, 'weight'])
+
+		if(!is.null(warningList <- attr(ret, "warnings")))
+			attr(ret, "warnings") <- warningList[sapply(warningList, attr, "id") %in% rownames(ret)]
 	} else {
 		cls <- class(ret)
 		class(ret) <- cls[cls != "model.selection"] # numeric or data.frame
@@ -384,23 +388,17 @@ function (x, i, j, recalc.weights = TRUE, ...) {
 }
 
 `print.model.selection` <-
-function(x, abbrev.names = TRUE, ...) {
+function(x, abbrev.names = TRUE, warnings = TRUE, ...) {
 	if(!is.null(x$weight))
 		x$weight <- round(x$weight, 3L)
-
 	xterms <- attr(x, "terms")
-
 	if(is.null(xterms)) {
 		print.data.frame(x, ...)
 	} else {
-
 		xterms <- gsub(" ", "", xterms)
-
-		if(abbrev.names)
-			xterms <- abbreviateTerms(xterms, 3L)
+		if(abbrev.names) xterms <- abbreviateTerms(xterms, 3L)
 
 		colnames(x)[seq_along(xterms)] <-  xterms
-
 		cl <- attr(x, "global.call")
 		if(!is.null(cl)) {
 			cat("Global model call: ")
@@ -408,23 +406,23 @@ function(x, abbrev.names = TRUE, ...) {
 			cat("---\n")
 		}
 
-		cat ("Model selection table \n")
+		cat("Model selection table \n")
 		dig <- c("R^2" = 4L, df = 0, logLik = 3, AICc = 1, AICc = 1, AIC = 1,
 			BIC = 1, QAIC = 1, QAICc = 1, ICOMP = 1, Cp = 1, delta = 2L, weight = 3L)
 
 		j <- match(colnames(x), names(dig), nomatch = 0)
-
 		i <- sapply(x, is.numeric) & (j == 0L)
 		x[, i] <- signif(x[, i], 4L)
+		for(i in names(dig)[j]) x[, i] <- round(x[, i], digits = dig[i])
 
-		for(i in names(dig)[j])
-			x[, i] <- round(x[, i], digits = dig[i])
-
-		print.default(as.matrix(x[, !sapply(x, function(.x) all(is.na(.x)))]),
-					  na.print="", quote=FALSE)
+		print.default(as.matrix(x)[, !sapply(x, function(.x) all(is.na(.x))),
+			drop = FALSE], na.print = "", quote = FALSE)
 		if (!is.null(attr(x, "random.terms"))) {
 			cat("Random terms:", paste(attr(x, "random.terms"), collapse=", "),
 				"\n")
+		}
+		if (warnings && getOption("warn") != -1L && !is.null(attr(x, "warnings"))) {
+			cat("\n"); print.warnings(attr(x, "warnings"))
 		}
 	}
 }

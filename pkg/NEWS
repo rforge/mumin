@@ -1,5 +1,15 @@
 MuMIn package news:
 
+Version: 1.6.4 (2011-11-18)
+coefTable: replaces 'tTable' (which still exists, but is deprecated), it 
+	accepts an argument 'dispersion'. The dispersion parameter can be also 
+	passed from 'model.avg'.
+pdredge: collects all the warnings and errors which occur during fitting, and 
+	stores them. They are printed below the table.
+	The function does more thorough checking of the cluster nodes' environment,
+	for possible missing variables and functions.
+get.models:  "subset" argument can be now a character vector giving model names.
+
 Version: 1.6.3 (2011-11-15)
 pget.models: new function, parallel version of 'get.models'.
 (p)get.models: important change of the default behaviour: without the 'subset' 

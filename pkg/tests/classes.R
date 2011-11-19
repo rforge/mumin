@@ -67,8 +67,6 @@ dd <- dredge(fm2)
 summary(model.avg(dd, subset= delta <= 10))
 
 dredge(fm2, rank=QAIC, chat=deviance(fm2) / df.residual(fm2))
-MuMIn::dredge(fm2, rank=QAIC, chat=deviance(fm2) / df.residual(fm2))
-
 
 subset(dd, delta <= 10)
 mod.sel(get.models(dd, subset = delta <= 10))
@@ -79,8 +77,9 @@ rm(list=ls())
 # TEST glmmML --------------------------------------------------------------------
 
 if(.checkPkg("glmmML")) {
-
+#require(MuMIn)
 library(glmmML)
+set.seed(100)
 dat <- data.frame(y = rbinom(100, prob = rep(runif(20), rep(5, 20)), size = 1),
 	x = rnorm(100), x2 = rnorm(100), id = factor(rep(1:20, rep(5, 20))))
 
@@ -164,7 +163,14 @@ if(.checkPkg("nlme")) {
 data(Orthodont, package = "nlme")
 
 fm1 <- lm(distance ~ Sex*age + age*Sex, data = Orthodont)
-dd <- dredge(fm1, trace=T)
+
+dispersion <- function(object) {
+	wts <- weights(object); if(is.null(wts)) wts <- 1
+	sum((wts * resid(object, type="working")^2)[wts > 0]) / df.residual(object)
+}
+
+
+dd <- dredge(fm1, extra = alist(dispersion))
 gm <- get.models(dd, 1:4)
 ma <- model.avg(gm, revised=F)
 
@@ -191,6 +197,7 @@ fm1 <- glm(y ~ (X1+X2+X3+X4)^2, data = Cement)
 dd <- dredge(fm1, trace=T)
 
 gm <- get.models(dd, 1:10)
+
 ma <- model.avg(gm)
 vcov(ma)
 
@@ -318,8 +325,6 @@ predict(ma)[1:10]
 rm(list=ls()); detach(package:spdep)
 
 } # library(spdep)
-
-
 
 # TEST glm.nb ---------------------------------------------------------------------------
 if (.checkPkg("MASS")) {

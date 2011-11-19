@@ -16,7 +16,11 @@ The collection of functions includes:
 		subsets of the supplied \sQuote{global} model, and optional
 		choices of other model properties (such as different link functions).
 		The set of models may be generated either with \sQuote{all possible}
-		combinations, or tailored according to the conditions specified. }
+		combinations, or tailored according to the conditions specified.
+		
+		\code{\link{pdredge}} does the same, but can parallelize model fitting 
+		process using a cluster.
+		}
 	\item{\code{\link{model.sel}}}{creates a model selection table from
 		hand-picked models. }
 	\item{\code{\link{model.avg}}}{ calculates model averaged parameters,
@@ -25,8 +29,6 @@ The collection of functions includes:
 		criterion. }
 }
 
-The function \code{\link{pdredge}} can parallelize model fitting process using 
-a cluster. 
 
 For a complete list of functions, use \code{library(help = "MuMIn")}. 
 

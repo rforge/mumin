@@ -4,7 +4,6 @@
 	return(if(ret$visible) ret$value else invisible(ret$value))
 }
 
-
 #if (!exists("getElement", mode = "function", where = "package:base", inherits = FALSE)) {
 `getElement` <- function (object, name) {
     if (isS4(object))
@@ -35,7 +34,7 @@ function(x) {
 }
 
 `videntical` <-
-function(x) all(vapply(x[-1L], identical, logical(1), x[[1L]]))
+function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 
 # Check class for each object in a list
 `linherits` <- function(x, whats) {
@@ -70,7 +69,7 @@ function(x) all(vapply(x[-1L], identical, logical(1), x[[1L]]))
 			if(identical(quote, TRUE)) quote <- '"'
 			if(is.character(quote)) x <- paste(quote, x, quote, sep = "")
 		}
-	paste(x, if(n > 1L) c(rep(sep, n - 2L), sep.last, "") else NULL, 
+	paste(x, if(n > 1L) c(rep(sep, n - 2L), sep.last, "") else NULL,
 		collapse = "", sep = "")
 }
 
@@ -83,15 +82,19 @@ function(x) all(vapply(x[-1L], identical, logical(1), x[[1L]]))
 # }
 
 
-`.parallelPkgCheck` <- function() {
+`.parallelPkgCheck` <- function(quiet = FALSE) {
 	# all this is to trick the R-check
 	if(!("snow" %in% loadedNamespaces())) {
-		if(getRversion() < "2.14.0")
-			do.call("require", list("snow", quietly = TRUE)) else
-			do.call("require", list("parallel"))
+		if(getRversion() < "2.14.0") {
+			if(length(.find.package("snow", quiet = TRUE)))
+				do.call("require", list("snow"))
+		} else if(length(.find.package("parallel", quiet = TRUE)))
+			do.call("require", list("parallel", quiet = TRUE))
 	}
-	if(!exists("clusterCall", mode = "function")) 
-		stop("cannot find function 'clusterCall'")	
+	if(!exists("clusterCall", mode = "function")) {
+		if(quiet) return(FALSE) else
+			stop("cannot find function 'clusterCall'")
+	} else return(TRUE)
 }
 
 `clusterVExport` <- local({
@@ -108,7 +111,7 @@ function(x) all(vapply(x[-1L], identical, logical(1), x[[1L]]))
 			names(vars) <- vapply(Call, deparse, character(1L), control = NULL,
 				nlines = 1L)
 		} else if (any(vnames == "")) {
-			names(vars) <- ifelse(vnames == "", vapply(Call, deparse, 
+			names(vars) <- ifelse(vnames == "", vapply(Call, deparse,
 				character(1L), control = NULL, nlines = 1L), vnames)
 		}
 		get("clusterCall")(cluster, getv, vars)
@@ -117,7 +120,7 @@ function(x) all(vapply(x[-1L], identical, logical(1), x[[1L]]))
 })
 
 # test if 'x' can be updated (in current environment or on a cluster)
-`testUpdatedObj` <- function(cluster = NA, x, call = .getCall(x), 
+`testUpdatedObj` <- function(cluster = NA, x, call = .getCall(x),
 	do.eval = FALSE) {
 	xname <- deparse(substitute(x))
 	doParallel <- inherits(cluster, "cluster")
@@ -143,13 +146,13 @@ function(x) all(vapply(x[-1L], identical, logical(1), x[[1L]]))
 			"variables %s not found%s"), prettyEnumStr(z, quote = "'"), whereStr))
 		}
 	vfun <- all.vars(call, functions = TRUE)
-	if(!all(z <- unlist(csapply(vfun[!(vfun %in% v)], "exists", 
+	if(!all(z <- unlist(csapply(vfun[!(vfun %in% v)], "exists",
 		mode = "function", where = 1L)))) {
 		zz <- unique(names(z[!z]))
 		stop(sprintf(ngettext(length(zz), "function %s not found%s",
 			"functions %s not found%s"), prettyEnumStr(zz, quote = "'"), whereStr))
 		}
-		
+
 	if(do.eval && !missing(x)) {
 		if(doParallel) {
 			# XXX: Import: clusterCall

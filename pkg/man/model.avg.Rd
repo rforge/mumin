@@ -11,36 +11,41 @@ Model averaging based on an information criterion.
 \usage{
 
 model.avg(object, ..., beta = FALSE, rank = NULL, rank.args = NULL,
-    revised.var = TRUE)
+    revised.var = TRUE, dispersion = NULL)
 }
 
 \arguments{
-    \item{object}{A fitted model object or a list of such objects. Alternatively
-        an object of class \code{model.selection}. See \sQuote{Details}. }
+	\item{object}{ a fitted model object or a list of such objects.
+		Alternatively an object of class \code{model.selection}. See
+		\sQuote{Details}. }
 
     \item{\dots}{ more fitted model objects. }
 
-    \item{beta}{Logical, should standardized coefficients be returned? }
+    \item{beta}{ logical, should standardized coefficients be returned? }
 
-    \item{rank}{Optional, custom rank function (information criterion) to use
-        instead of \code{AICc}, e.g. \code{BIC} or \code{QAIC}, may be omitted
-        if \code{object} is a model list returned by \code{get.models}
-        or a \code{model.selection} object.
-        See \sQuote{Details}. }
+	\item{rank}{ optionally, a custom rank function (information criterion) to
+		use instead of \code{AICc}, e.g. \code{BIC} or \code{QAIC}, may be
+		omitted if \code{object} is a model list returned by \code{get.models}
+		or a \code{model.selection} object. See \sQuote{Details}. }
 
-    \item{rank.args}{Optional \code{list} of arguments for the \code{rank}
+    \item{rank.args}{ optional \code{list} of arguments for the \code{rank}
         function. If one is an expression, an \code{x} within it is substituted
         with a current model. }
 
-    \item{revised.var}{Logical, indicating whether to use revised formula for
+    \item{revised.var}{ logical, indicating whether to use revised formula for
         standard errors. See \code{\link{par.avg}}. }
+
+	\item{dispersion}{ the dispersion parameter for the family used. See
+		\code{\link{summary.glm}}. This value is used only with the model types
+		which accept it (currently only \code{glm}), and will be
+		silently ignored otherwise. }
 }
 
 \value{
 
 An object of class \code{averaging} is a list with components:
 
-\item{summary}{ a \code{data.frame} with log-likelihood, IC, Delta(IC) and 
+\item{summary}{ a \code{data.frame} with log-likelihood, IC, Delta(IC) and
 	Akaike weights for the component models. }
 \item{coefficients, se, dfs}{ matrices of component models' coefficients, their
 	standard errors, and degrees of freedom. }
@@ -167,6 +172,8 @@ fm1 <- lm(y ~ ., data = Cement)
 
 #models with delta.aicc < 4
 summary(model.avg(get.models(ms1, subset = delta < 4))) # get averaged coefficients
+
+
 
 #or as a 95\% confidence set:
 confset.95p <- get.models(ms1, cumsum(weight) <= .95)
