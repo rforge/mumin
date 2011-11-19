@@ -137,10 +137,14 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			extraNames <- ifelse(names(extra) != "", names(extra), extraNames)
 
 		extra <- structure(as.list(unique(extra)), names = extraNames)
-		if("R^2" %in% extra) {
+
+		if(any(c("adjR^2", "R^2") %in% extra)) {
 			null.fit <- null.fit(global.model, TRUE, gmFormulaEnv)
 			extra[extra == "R^2"][[1L]] <- function(x) r.squaredLR(x, null.fit)
+			extra[extra == "adjR^2"][[1L]] <-
+				function(x) attr(r.squaredLR(x, null.fit), "adj.r.squared")
 		}
+
 		extra <- sapply(extra, match.fun, simplify = FALSE)
 		applyExtras <- function(x) unlist(lapply(extra, function(f) f(x)))
 		extraResult <- applyExtras(global.model)
@@ -388,7 +392,7 @@ function (x, i, j, recalc.weights = TRUE, ...) {
 }
 
 `print.model.selection` <-
-function(x, abbrev.names = TRUE, warnings = TRUE, ...) {
+function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 	if(!is.null(x$weight))
 		x$weight <- round(x$weight, 3L)
 	xterms <- attr(x, "terms")
@@ -421,7 +425,7 @@ function(x, abbrev.names = TRUE, warnings = TRUE, ...) {
 			cat("Random terms:", paste(attr(x, "random.terms"), collapse=", "),
 				"\n")
 		}
-		if (warnings && getOption("warn") != -1L && !is.null(attr(x, "warnings"))) {
+		if (warnings && !is.null(attr(x, "warnings"))) {
 			cat("\n"); print.warnings(attr(x, "warnings"))
 		}
 	}

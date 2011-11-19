@@ -153,9 +153,11 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 			extraNames <- ifelse(names(extra) != "", names(extra), extraNames)
 
 		extra <- structure(as.list(unique(extra)), names = extraNames)
-		if("R^2" %in% extra) {
+		if(any(c("adjR^2", "R^2") %in% extra)) {
 			null.fit <- null.fit(global.model, TRUE, gmFormulaEnv)
 			extra[extra == "R^2"][[1L]] <- function(x) r.squaredLR(x, null.fit)
+			extra[extra == "adjR^2"][[1L]] <- 
+				function(x) attr(r.squaredLR(x, null.fit), "adj.r.squared")
 		}
 		extra <- sapply(extra, match.fun, simplify = FALSE)
 		applyExtras <- function(x) unlist(lapply(extra, function(f) f(x)))
@@ -233,7 +235,8 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 
 	retColIdx <- if(nvarying) -n.vars - seq_len(nvarying) else TRUE
 
-	warningList <- NULL
+	warningList <- list()
+	# qlen <- 4 ## DEBUG: !!!!
 
 	for(iComb in seq.int(ncomb)) {
 		comb <- c(as.logical(intToBits(iComb - 1L)[comb.seq]), comb.sfx)
@@ -287,27 +290,34 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 
 			if(any(vapply(qresult, is.null, TRUE)))
 				stop("some results returned from cluster node are NULL. \n",
-					"This may indicate problems with the cluster node",
-					domain = "R-MuMIn")
+					"This should not happen and may indicate problems with ",
+					"the cluster node", domain = "R-MuMIn")
 			haveProblems <- logical(qi)
-			for (i in qseq) {
-				for(w in qresult[[i]]$warnings) {
-					wi <- length(warningList) + 1L
-					warningList[[wi]] <- conditionCall(w)
-					names(warningList)[wi] <-  paste(conditionMessage(w),
-						" (in model ", queued[[i]]$id, ")", sep = "")
-					attr(warningList[[wi]], "id") <- queued[[i]]$id
+			
+			nadd <- sum(sapply(qresult, function(x) inherits(x$value, "condition")
+				+ length(x$warnings)))
+			wi <- length(warningList)
+			if(nadd) warningList <- c(warningList, vector(nadd, mode = "list"))
+			
+			# DEBUG: print(sprintf("Added %d warnings, now is %d", nadd, length(warningList)))
+
+			for (i in qseq)
+				for(cond in c(qresult[[i]]$warnings, 
+					if(inherits(qresult[[i]]$value, "condition")) 
+						list(qresult[[i]]$value))) {
+						wi <- wi + 1L
+						warningList[[wi]] <- if(is.null(conditionCall(cond)))
+							queued[[i]]$call else conditionCall(cond)
+						if(inherits(cond, "error")) {
+							haveProblems[i] <- TRUE
+							msgsfx <- "(model %d skipped)"
+						} else 
+							msgsfx <- "(in model %d)"
+						names(warningList)[wi] <- paste(conditionMessage(cond),
+							 gettextf(msgsfx, queued[[i]]$id))
+						attr(warningList[[wi]], "id") <- queued[[i]]$id
 				}
-				if(inherits(qresult[[i]]$value, "condition")) {
-					wi <- length(warningList) + 1L
-					err <- qresult[[i]]$value
-					warningList[[wi]] <- conditionCall(err)
-					names(warningList)[wi] <- paste(conditionMessage(err),
-						"(model", queued[[i]]$id, "skipped)")
-					attr(warningList[[wi]], "id") <- queued[[i]]$id
-					haveProblems[i] <- TRUE
-				}
-			}
+			
 			withoutProblems <- which(!haveProblems)
 			qrows <- lapply(qresult[withoutProblems], "[[", "value")
 			qresultLen <- length(qrows)
@@ -385,7 +395,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		call = match.call(expand.dots = TRUE)
 	)
 
-	if(!is.null(warningList)) {
+	if(length(warningList)) {
 		class(warningList) <- c("warnings", "list")
 		attr(ret, "warnings") <- warningList
 	}

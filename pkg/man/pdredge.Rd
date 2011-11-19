@@ -15,51 +15,51 @@ pdredge(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 }
 
 \arguments{
-	\item{global.model, beta, evaluate, rank}{
-		see \code{\link{dredge}}. }
-	\item{fixed, m.max, m.min, subset, marg.ex, varying, extra, ...}{
-		see \code{\link{dredge}}. }
-	\item{trace}{ displays the generated calls, but may not work as expected
-		since the models are evaluated in batches rather than one by one. }
-	\item{cluster}{ either a valid \code{cluster} object, or \code{NA} for a
-		single threaded execution. }
-	\item{check}{ logical, whether to evaluate the \code{global.model} in the
-		cluster and compare with the original one using \code{all.equal}. }
+    \item{global.model, beta, evaluate, rank}{
+        see \code{\link{dredge}}. }
+    \item{fixed, m.max, m.min, subset, marg.ex, varying, extra, ...}{
+        see \code{\link{dredge}}. }
+    \item{trace}{ displays the generated calls, but may not work as expected
+        since the models are evaluated in batches rather than one by one. }
+    \item{cluster}{ either a valid \code{cluster} object, or \code{NA} for a
+        single threaded execution. }
+    \item{check}{ logical, whether to evaluate the \code{global.model} in the
+        cluster and compare with the original one using \code{all.equal}. }
 
 }
 
 \details{
 All the dependencies for fitting the \code{global.model}, including the data,
-	and any objects the modelling function will use, must be
-	exported (\emph{via} e.g. \code{clusterExport}) into the clurter worker
-	nodes, as well as the required packages must be loaded thereinto
-	(e.g. \emph{via} \code{clusterEvalQ(..., library(package))}, before the
-	cluster is used by \code{pdredge}.
+    and any objects the modelling function will use, must be
+    exported (\emph{via} e.g. \code{clusterExport}) into the clurter worker
+    nodes, as well as the required packages must be loaded thereinto
+    (e.g. \emph{via} \code{clusterEvalQ(..., library(package))}, before the
+    cluster is used by \code{pdredge}.
 
-	\code{pdredge} tries to check whether all the variables and functions used in
-	the call to \code{global.model} are present in the cluster nodes'
-	\code{.GlobalEnv} before proceeding further, and also, if \code{check} is
-	\code{TRUE}, it will compare the \code{global.model} updated at the cluster
-	nodes with the one given as argument. This additional test will, however,
-	slow down the execution.
+    \code{pdredge} tries to check whether all the variables and functions used in
+    the call to \code{global.model} are present in the cluster nodes'
+    \code{.GlobalEnv} before proceeding further, and also, if \code{check} is
+    \code{TRUE}, it will compare the \code{global.model} updated at the cluster
+    nodes with the one given as argument. This additional test will, however,
+    slow down the execution.
 
 This function is still largely experimental. Use of it should be considered
-	mainly with large datasets and complex models, for which the standard
-	version takes a long time to complete. Otherwise there may be no perceptible
-	improvement or even the parallel version may perform worse than a
-	single-threaded one.
+    mainly with large datasets and complex models, for which the standard
+    version takes a long time to complete. Otherwise there may be no perceptible
+    improvement or even the parallel version may perform worse than a
+    single-threaded one.
 }
 
 
 \value{
- See \code{\link{dredge}} and \code{\link{get.models}}.
+ See \code{\link{dredge}}.
 }
 
 \author{Kamil Barto\enc{ń}{n}}
 
 \seealso{
-	\code{makeCluster} and other cluster related functions in packages
-	\pkg{parallel} or \pkg{snow}.
+    \code{makeCluster} and other cluster related functions in packages
+    \pkg{parallel} or \pkg{snow}.
 }
 
 
@@ -87,7 +87,7 @@ fm1 <- glm(Prop ~ dose + I(dose^2) + log(dose) + I(log(dose)^2),
 msubset <- expression(xor(dose, `log(dose)`) & (dose | !`I(dose^2)`)
     & (`log(dose)` | !`I(log(dose)^2)`))
 varying.link <- list(family = alist(logit = binomial("logit"),
-	probit = binomial("probit"), cloglog = binomial("cloglog") ))
+    probit = binomial("probit"), cloglog = binomial("cloglog") ))
 
 # Set up the cluster
 clust <- makeCluster(getOption("cl.cores", 2))
@@ -96,9 +96,9 @@ clusterExport(clust, "Beetle100")
 # noticeable gain only when data has about 3000 rows (on Windows 2 core machine)
 print(system.time(dredge(fm1, subset = msubset, varying = varying.link)))
 print(system.time(pdredge(fm1, cluster = FALSE, subset = msubset,
-	varying = varying.link)))
+    varying = varying.link)))
 print(system.time(pdredge(fm1, cluster = clust, subset = msubset,
-	varying = varying.link)))
+    varying = varying.link)))
 
 \dontrun{
 # a time consuming example with 'unmarked' model
@@ -107,43 +107,34 @@ library(unmarked)
 data(mallard)
 mallardUMF <- unmarkedFramePCount(mallard.y, siteCovs = mallard.site, obsCovs = mallard.obs)
 (ufm.mallard <- pcount(~ ivel + date + I(date^2) ~ length + elev + forest, mallardUMF, K = 30))
-clusterCall(clust, "library", "unmarked", character.only = TRUE)
+invisible(clusterCall(clust, "library", "unmarked", character.only = TRUE))
 clusterExport(clust, "mallardUMF")
 
-# 'stats4' is needed for AIC to work with unmarked-models but is not loaded
-# automatically with unmarked.
+# 'stats4' is needed for AIC to work with unmarkedFit objects but is not loaded
+# automatically with 'unmarked'.
 require(stats4)
-clusterCall(clust, "library", "stats4", character.only = TRUE)
-
-
+invisible(clusterCall(clust, "library", "stats4", character.only = TRUE))
 
 #system.time(print(pdd1 <- pdredge(ufm.mallard,
 #   subset = `p(date)` | !`p(I(date^2))`, rank = AIC)))
 
 system.time(print(pdd2 <- pdredge(ufm.mallard, clust,
-	subset = `p(date)` | !`p(I(date^2))`, rank = AIC)))
-
-ss <- ~ `p(date)` | !`p(I(date^2))`
-
-pdd2 <- pdredge(ufm.mallard, clust, subset = ss, rank = AIC)
+    subset = `p(date)` | !`p(I(date^2))`, rank = AIC, extra = "adjR^2")))
 
 
 # best models and null model
-subset(pdd, delta < 2 | df == min(df))
+subset(pdd2, delta < 2 | df == min(df))
 
 # Compare with the model selection table from unmarked
 # the statistics should be identical:
 models <- pget.models(pdd2, clust, delta < 2 | df == min(df))
 
 modSel(fitList(fits = structure(models, names = model.names(models,
-	labels = getAllTerms(ufm.mallard)))), nullmod = "(Null)")
-subset(pdd, delta < 2 | df == min(df))
-
-
+    labels = getAllTerms(ufm.mallard)))), nullmod = "(Null)")
 }
 
-
 stopCluster(clust)
+
 \dontshow{ \} }
 
 }
