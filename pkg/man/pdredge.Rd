@@ -67,7 +67,7 @@ This function is still largely experimental. Use of it should be considered
 
 \dontshow{
 # Normally this should be simply "require(parallel) || require(snow)",
-# but here we resort to and (ugly) trick to avoid MuMIn's dependency on one of
+# but here we resort to an (ugly) trick to avoid MuMIn's dependency on one of
 # these packages and still pass R-check (it is just temporary solution, while
 # 'pdredge' as well as the 'parallel' package are in experimental stage):
 if(MuMIn:::.parallelPkgCheck(quiet = TRUE)) \{
@@ -90,10 +90,12 @@ varying.link <- list(family = alist(logit = binomial("logit"),
     probit = binomial("probit"), cloglog = binomial("cloglog") ))
 
 # Set up the cluster
-clust <- makeCluster(getOption("cl.cores", 2))
+clust <- try(makeCluster(getOption("cl.cores", 2), type = "SOCK"))
+if(inherits(clust, "cluster")) {
+
 clusterExport(clust, "Beetle100")
 
-# noticeable gain only when data has about 3000 rows (on Windows 2 core machine)
+# noticeable gain only when data has about 3000 rows (Windows 2-core machine)
 print(system.time(dredge(fm1, subset = msubset, varying = varying.link)))
 print(system.time(pdredge(fm1, cluster = FALSE, subset = msubset,
     varying = varying.link)))
@@ -101,17 +103,19 @@ print(system.time(pdredge(fm1, cluster = clust, subset = msubset,
     varying = varying.link)))
 
 \dontrun{
-# a time consuming example with 'unmarked' model
-# based on example(pcount):
+# A time consuming example with 'unmarked' model, based on example(pcount).
+# Having enough patience, you can run this with 'demo(pdredge.pcount)'.
 library(unmarked)
 data(mallard)
-mallardUMF <- unmarkedFramePCount(mallard.y, siteCovs = mallard.site, obsCovs = mallard.obs)
-(ufm.mallard <- pcount(~ ivel + date + I(date^2) ~ length + elev + forest, mallardUMF, K = 30))
-invisible(clusterCall(clust, "library", "unmarked", character.only = TRUE))
+mallardUMF <- unmarkedFramePCount(mallard.y, siteCovs = mallard.site,
+    obsCovs = mallard.obs)
+(ufm.mallard <- pcount(~ ivel + date + I(date^2) ~ length + elev + forest,
+    mallardUMF, K = 30))
+clusterEvalQ(clust, library(unmarked))
 clusterExport(clust, "mallardUMF")
 
-# 'stats4' is needed for AIC to work with unmarkedFit objects but is not loaded
-# automatically with 'unmarked'.
+# 'stats4' is needed for AIC to work with unmarkedFit objects but is not
+# loaded automatically with 'unmarked'.
 require(stats4)
 invisible(clusterCall(clust, "library", "stats4", character.only = TRUE))
 
@@ -134,6 +138,10 @@ modSel(fitList(fits = structure(models, names = model.names(models,
 }
 
 stopCluster(clust)
+
+} else # if(! inherits(clust, "cluster"))
+message("Could not set up the cluster")
+
 
 \dontshow{ \} }
 

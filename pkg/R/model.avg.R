@@ -175,7 +175,7 @@ function(object, ..., beta = FALSE,
 		coefficients = all.coef,
 		se = all.se,
 		#variable.codes2 = all.terms,
-		variable.codes = attr(all.model.names, "variables"),
+		term.codes = attr(all.model.names, "variables"),
 		avg.model = avg.model,
 		coef.shrinkage = coef.shrink,
 		importance = importance,
@@ -188,7 +188,7 @@ function(object, ..., beta = FALSE,
 		dfs = all.df
 	)
 
-	attr(ret, "mList") <- models
+	attr(ret, "modelList") <- models
 	#attr(ret, "method") <- method # c("Coefficient" = method, "Variance" = method.var)
 	attr(ret, "beta") <- beta
 	attr(ret, "revised.var") <- revised.var
@@ -209,7 +209,7 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 	type <- match.arg(type)
 	if (!missing(interval)) .NotYetUsed("interval", error = FALSE)
 
-	models <- attr(object, "mList")
+	models <- attr(object, "modelList")
 
 	# Benchmark: vapply is ~4x faster
 	#system.time(for(i in 1:1000) sapply(models, inherits, what="gam")) /
@@ -359,11 +359,11 @@ function (x, digits = max(3L, getOption("digits") - 3L),
         "\n\n", sep = "")
 
     cat("Component models:\n")
-	print(round(as.matrix(x$summary), 2L), na.print="")
+	print(round(as.matrix(x$summary), 2L), na.print = "")
 
 	#cat("\nVariable names abbreviations:\n")
-	cat("\nVariables:\n")
-	print(x$variable.codes, quote = FALSE)
+	cat("\nTerm codes:\n")
+	print.default(x$term.codes, quote = FALSE)
 
 	cat("\nModel-averaged coefficients:\n")
 	#no.ase <- all(is.na(x$avg.model[,3]))
@@ -399,7 +399,7 @@ function(x, ...) {
 #`vcov.averaging` <- function (object, full = FALSE, ...) {
 `vcov.averaging` <- function (object, ...) {
 	full <- FALSE
-	models <- attr(object, "mList")
+	models <- attr(object, "modelList")
 	vcovs <- lapply(lapply(models, vcov), as.matrix)
 	names.all <- object$term.names
 	nvars <- length(names.all)
@@ -431,5 +431,5 @@ function(x, ...) {
 }
 
 `logLik.averaging` <- function (object, ...)
-	return(structure(lapply(attr(object, "mList"), .getLogLik()),
+	return(structure(lapply(attr(object, "modelList"), .getLogLik()),
 			  names = rownames(object$summary)))

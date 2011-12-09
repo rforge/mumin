@@ -12,29 +12,24 @@ fm1Dial.gls <- gls(rate ~(pressure + I(pressure^2) + I(pressure^3) + I(pressure^
 
 varying <- list(
 	correlation = alist(
-		AR1_0.771=corAR1(0.771, form = ~ 1 | Subject),
-		AR1=corAR1(),
-		NULL
-		),
+		AR1_0.771=corAR1(0.771, form = ~ 1 | Subject), 	AR1=corAR1(), NULL),
 	weights = alist(vp.press=varPower(form = ~ pressure), NULL)
 	)
 
-dd <- dredge(fm1Dial.gls, m.max=1, m.min=1, fixed=~pressure, varying=varying, extra="R^2")
+dd <- dredge(fm1Dial.gls, m.max = 1, m.min = 1, fixed=~pressure, varying =
+	varying, extra = "R^2")
 models <- get.models(dd, 1:4)
 ma <- model.avg(models, revised=T)
 
 summary(ma)
 predict(ma)
-predict(ma, data.frame(QB=300, pressure=seq(0.24, 3, length=10)))
+predict(ma, data.frame(QB = 300, pressure = seq(0.24, 3, length = 10)))
 
 # example(corGaus)
 fm1BW.lme <- lme(weight ~ Time * Diet, data = BodyWeight, random = ~ Time, method="ML")
 
 varying <- list(
-	correlation = alist(
-		corExp(form = ~ Time),
-		corGaus(form = ~ Time)
-		),
+	correlation = alist(corExp(form = ~ Time), corGaus(form = ~ Time)),
 	weights = alist(NULL, varPower())
 )
 
@@ -113,7 +108,6 @@ gm <- get.models(dd, 1:4)
 ##::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 #maML <- model.avg(gm, rank="AICc", rank.args = list(REML=FALSE))
 #maREML <- model.avg(gm, rank="AICc", rank.args = list(REML=TRUE))
-
 #summary(maML)
 #summary(maREML)
 
@@ -130,6 +124,7 @@ detach(package:nlme); rm(list=ls())
 # TEST lmer -------------------------------------------------------------------------------
 if(.checkPkg("lme4")) {
 
+set.seed(1)
 library(lme4)
 data(Orthodont, package = "nlme")
 
@@ -142,12 +137,6 @@ fm2 <- lmer(log(distance) ~ rand*Sex*age + (1|Subject) + (1|Sex), data = Orthodo
 dd <- dredge(fm2, trace=T)
 gm <- get.models(dd, 1:4)
 (ma <- model.avg(gm))
-
-#predict(ma)
-#predict(ma, data.frame(Sex="Male", Subject="M01", age=8:12))
-
-# TEST dredge with update'd model
-# dd <- dredge(update(fm2, REML=FALSE), trace=T)
 
 # update.mer does not expand dots, so here we have a call:
 # lmer(formula = distance ~ Sex + (1 | Subject), data = Orthodont,
@@ -187,8 +176,6 @@ rm(list=ls())
 
 # TEST glm --------------------------------------------------------------------------------
 data(Cement, package = "MuMIn")
-
-#invisible(lapply(dir("e:/Dokumenty/R-Forge/mumin/pkg/R", pattern="\\.R$", full.names = T), source, keep.source =F, echo=F))
 
 nseq <- function(x, len=length(x)) seq(min(x, na.rm=TRUE), max(x, na.rm=TRUE),
 	length=len)

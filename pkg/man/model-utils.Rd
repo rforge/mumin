@@ -11,9 +11,9 @@
 \encoding{utf-8}
 \newcommand{\href}{#2}
 
-\title{Fitted model utilities}
+\title{Model utility functions}
 \description{
-These functions extract or calculate various values from provided model
+These functions extract or calculate various values from provided fitted model
 	objects(s). They are mainly meant for internal use, but may be also useful
 	for end-users.
 
@@ -34,11 +34,15 @@ models.
 
 \usage{
 beta.weights(model)
+
 coeffs(model)
+
 getAllTerms(x, ...)
 \method{getAllTerms}{terms}(x, offset = TRUE, intercept = FALSE, ...)
+
 coefTable(model, dispersion = NULL, ...)
-tTable(model, ...)
+tTable(model, ...) # deprecated
+
 model.names(object, ..., labels = NULL)
 }
 \arguments{
@@ -47,8 +51,7 @@ model.names(object, ..., labels = NULL)
 	\code{glm} only. See \code{\link{summary.glm}}.
 	}
   \item{object}{a fitted model object or a list of such objects. }
-  \item{x}{a fitted model object or a \code{\link{formula}}.
-	for \code{*bindDataFrameList}, a list of \code{data.frames}. }
+  \item{x}{a fitted model object or a \code{formula}. }
   \item{offset}{should \sQuote{offset} terms be included? }
   \item{intercept}{should terms names include the intercept?}
   \item{labels}{optionally, a character vector with names of all the terms,
@@ -63,8 +66,8 @@ model.names(object, ..., labels = NULL)
 }
 
 \details{
-	The functions \code{coeffs}, \code{getAllTerms} and \code{tTable} provide
-	interface between the fitted model object and \code{model.avg} (and
+	The functions \code{coeffs}, \code{getAllTerms} and \code{coefTable} provide
+	interface between the model object and \code{model.avg} (and
 	\code{dredge}). Custom methods can be written to provide support for
 	additional classes of models. The vignette
 	\sQuote{\ifelse{html}{\href{/library/MuMIn/doc/gamm.pdf}{Extending

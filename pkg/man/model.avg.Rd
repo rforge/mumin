@@ -51,15 +51,15 @@ An object of class \code{averaging} is a list with components:
 	standard errors, and degrees of freedom. }
 \item{coef.shrinkage}{ a vector of full model-averaged coefficients, see
 	\sQuote{Note}. }
-\item{variable.codes}{ names of the variables with numerical codes used in
-    \code{summary}. }
+\item{term.codes}{ names of the terms with numerical codes used in
+	the \code{summary}. }
 \item{avg.model}{ the model averaged parameters. A \code{data.frame} containing
     averaged coefficients, unconditional standard error, adjusted SE (if
 	\emph{df}s are available) and z-values (coefficient and SE) and
 	significance (assuming a normal error distribution). }
-\item{importance}{ relative importance of the predictor variables,
-    calculated as a sum of the Akaike weights over all of the models in
-    which the parameter of interest appears. }
+\item{importance}{ relative importance of the predictor variables (including
+	interactions), calculated as a sum of the \emph{Akaike weights} over all of
+	the models in which the parameter of interest appears. }
 \item{term.names}{ character vector giving names of all terms in the model. }
 \item{x, formula}{ the model matrix and formula corresponding to the one that
 	would be used in a single model. \code{formula} contains only the averaged
@@ -68,7 +68,7 @@ An object of class \code{averaging} is a list with components:
 \item{call}{ the matched call. }
 
 In addition, the object has following attributes:
-\item{mList}{ a list of component model objects. }
+\item{modelList}{ a list of component model objects. }
 \item{beta}{ logical, were standardized coefficients used? }
 \item{revised.var}{ if \code{TRUE}, the standard errors were calculated with the
 	revised formula (See \code{\link{par.avg}}). }
@@ -76,8 +76,8 @@ In addition, the object has following attributes:
 
 \details{
 
-\code{model.avg} has been tested to work with the fitted objects from the following
-modelling functions:
+\code{model.avg} has been tested to work with the fitted objects from the
+ following modelling functions:
 	\code{lm}, \code{glm};
 	\code{gam}, \code{gamm} (\pkg{mgcv});
 	\code{gamm4} (\pkg{gamm4});
@@ -88,11 +88,9 @@ modelling functions:
 	\code{sarlm}, \code{spautolm} (\pkg{spdep});
 	\code{glmmML} (\pkg{glmmML});
 	\code{coxph}, \code{survreg} (\pkg{survival});
-	and several models within the class \code{unmarkedFit} (\pkg{unmarked}).
-Other classes are also likely to be supported, in particular those
-    inheriting from one of the above classes. See the vignette
-	\sQuote{Extending \pkg{MuMIn}'s functionality} for a demonstration on how to
-	provide support for other types of models.
+	and models within the class \code{unmarkedFit} (\pkg{unmarked}).
+Other classes are also likely to be supported, in particular those inheriting
+from one of the above classes.
 
 \code{model.avg} may be used with a list of models, but also directly with a
 	\code{model.selection} object returned by \code{dredge}. In the latter case,
@@ -155,6 +153,9 @@ Springer-Verlag.
 See \code{\link{par.avg}} for more details of model averaged parameter
 calculation.
 
+Vignette \sQuote{Extending \pkg{MuMIn}'s functionality} demonstrates how to
+provide support for other types of models.
+
 \code{\link{dredge}}, \code{\link{get.models}} \cr
 \code{\link{AICc}} has examples of averaging models fitted by REML.
 
@@ -171,14 +172,14 @@ fm1 <- lm(y ~ ., data = Cement)
 (ms1 <- dredge(fm1))
 
 #models with delta.aicc < 4
-summary(model.avg(get.models(ms1, subset = delta < 4))) # get averaged coefficients
+summary(model.avg(get.models(ms1, subset = delta < 4)))
 
 
 
 #or as a 95\% confidence set:
 confset.95p <- get.models(ms1, cumsum(weight) <= .95)
 
-avgmod.95p <- model.avg(confset.95p) # get averaged coefficients
+avgmod.95p <- model.avg(confset.95p)
 confint(avgmod.95p)
 
 
