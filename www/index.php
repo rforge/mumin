@@ -2,9 +2,9 @@
 <!-- It can be changed as liked or replaced by other content -->
 <?php
 
-$domain=ereg_replace('[^\.]*\.(.*)$','\1',$_SERVER['HTTP_HOST']);
-$group_name=ereg_replace('([^\.]*)\..*$','\1',$_SERVER['HTTP_HOST']);
-$themeroot='http://r-forge.r-project.org/themes/rforge/';
+$domain = preg_replace('/[^\.]*\.(.*)$/','\1',$_SERVER['HTTP_HOST']);
+$group_name = preg_replace('/([^\.]*)\..*$/','\1',$_SERVER['HTTP_HOST']);
+$themeroot = 'http://r-forge.r-project.org/themes/rforge/';
 
 echo '<?xml version="1.0" encoding="UTF-8"?>';
 ?>
@@ -46,8 +46,26 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 <b><a href="http://r-forge.r-project.org/R/?group_id=346">Download</a></b></p>
 
 
+<p>The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
 
-<p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
+<hr />
+
+<p>Alternatively, download packages from here (only if above methods did not work):</p>
+
+<?php
+
+$pkg_types = array('tar.gz' => 'Package source', 'zip' => 'Windows zip');
+
+$pattern = "/^MuMIn_(.+)\\.(tar\\.gz|zip)+$/";
+$d = dir(".");
+while (false !== ($entry = $d->read())) {
+	preg_match($pattern, $entry, $matches);
+	if (empty($matches)) continue;
+
+	echo "<div><b>${pkg_types[$matches[2]]}</b>: <a href=\"$entry\">version $matches[1]</a></div>";
+}
+$d->close();
+?> 
 
 </body>
 </html>
