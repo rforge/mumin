@@ -39,14 +39,13 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 <p>Install stable version from CRAN (recommended):</p>
 <p><tt style="font-weight:bold; color: #005f8c;">&gt; install.packages("MuMIn")</tt></p>
 
-<p>Install development version on R-forge (use at your own risk): <br />
+<p>Install development version from R-forge (use at own risk): <br />
 <p><tt style="font-weight:bold; color: #005f8c;">&gt; install.packages("MuMIn", repos="http://R-Forge.R-project.org")</tt></p>
 
 
 <b><a href="http://r-forge.r-project.org/R/?group_id=346">Download</a></b></p>
 
-
-<p>The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
+<p>The <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>project summary page</strong></a>. </p>
 
 <hr />
 
