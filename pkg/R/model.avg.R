@@ -27,14 +27,13 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 		return(eval(cl2, parent.frame()))
 	}
 
-
-
 	ct <- attr(object, "coefTables")
 	coefNames <- if(!is.null(attr(object, "global")))
 		names(coeffs(attr(object, "global"))) else
 		unique(unlist(lapply(ct, rownames)))
 	coefNames <- coefNames[order(vapply(gregexpr(":", coefNames),
 		function(x) if(x[1L] == -1L) 0L else length(x), numeric(1L)), coefNames)]
+	coefNames <- fixCoefNames(coefNames)
 
 	nCoef <- length(coefNames)
 	nModels <- length(ct)
@@ -60,8 +59,8 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 	all.terms <- unique(unlist(allterms1))
 	all.model.names <- .modelNames(allTerms = allterms1, uqTerms = all.terms)
 
-	mstab <- object[, -(seq_len(ncol(object) - 4L))]
-	colnames(mstab)[3:4] <- c("Delta", "Weight")
+	mstab <- object[, -(seq_len(ncol(object) - 5L))]
+	colnames(mstab)[4:5] <- c("Delta", "Weight")
 	rownames(mstab) <- all.model.names
 
 	ret <- list(
@@ -81,6 +80,7 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 	)
 
 	attr(ret, "beta") <- attr(object, "beta")
+	attr(ret, "nobs") <- attr(object, "nobs")
 	attr(ret, "revised.var") <- revised.var
 	class(ret) <- "averaging"
 	return(ret)
@@ -142,7 +142,8 @@ function(object, ..., beta = FALSE,
 	ic <- vapply(models, rank, numeric(1L))
 	#dev <- if (!is.null(tryCatch(deviance(models[[1L]]), error = .fnull)))
 		#vapply(models, deviance, numeric(1L)) else NA
-	ll <- vapply(models, logLik, numeric(1L))
+	logLiks <- lapply(models, logLik)
+	#ll <- vapply(models, logLik, numeric(1L))
 	delta <- ic - min(ic)
 	weight <- exp(-delta / 2) / sum(exp(-delta / 2))
 	model.order <- order(weight, decreasing = TRUE)
@@ -154,7 +155,8 @@ function(object, ..., beta = FALSE,
 	# sapply(models, function(x) paste(match(getAllTerms(x), all.terms), collapse="+"))
 
 	# ----!!! From now on, everything MUST BE ORDERED by 'weight' !!!-----------
-	mstab <- cbind(logLik = ll, IC = ic, Delta = delta, Weight = weight,
+	mstab <- cbind(df = vapply(logLiks, attr, numeric(1L), "df"),
+		logLik = as.numeric(logLiks), IC = ic, Delta = delta, Weight = weight,
 		deparse.level = 0)
 	rownames(mstab) <- all.model.names
 	mstab <- mstab[model.order, ]
@@ -218,7 +220,7 @@ function(object, ..., beta = FALSE,
 
     names(all.terms) <- seq_along(all.terms)
 
-	colnames(mstab)[2L] <- ICname
+	colnames(mstab)[3L] <- ICname
 
 
 	missing.par <- is.na(coefArray[, 1L, ])
@@ -264,6 +266,7 @@ function(object, ..., beta = FALSE,
 
 	attr(ret, "modelList") <- models
 	attr(ret, "beta") <- beta
+	attr(ret, "nobs") <- nobs(object)
 	attr(ret, "revised.var") <- revised.var
 	class(ret) <- "averaging"
 	return(ret)
@@ -283,7 +286,6 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 	if (!missing(interval)) .NotYetUsed("interval", error = FALSE)
 
 	models <- attr(object, "modelList")
-
 	if(is.null(models)) stop("cannot predict without model list")
 
 	# Benchmark: vapply is ~4x faster
@@ -483,6 +485,8 @@ function(x, ...) {
 `vcov.averaging` <- function (object, ...) {
 	full <- FALSE
 	models <- attr(object, "modelList")
+	if(is.null(models)) stop("cannot predict without model list")
+
 	vcovs <- lapply(lapply(models, vcov), as.matrix)
 	names.all <- object$term.names
 	nvars <- length(names.all)
@@ -513,6 +517,14 @@ function(x, ...) {
 	return(res)
 }
 
-`logLik.averaging` <- function (object, ...)
-	return(structure(lapply(attr(object, "modelList"), .getLogLik()),
-			  names = rownames(object$summary)))
+`logLik.averaging` <- function (object, ...) {
+	models <- attr(object, "modelList")
+	if(is.null(models)) {
+		nobs <- attr(object, "nobs")
+		apply(object$summary, 1L, function(x) structure(list(x[2L]),
+			df = x[1L], nobs = nobs, class = "logLik"))
+	} else {
+		structure(lapply(attr(object, "modelList"), .getLogLik()),
+			names = rownames(object$summary))
+	}
+}

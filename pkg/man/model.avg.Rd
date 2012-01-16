@@ -23,9 +23,8 @@ model.avg(object, ..., revised.var = TRUE)
 }
 
 \arguments{
-	\item{object}{ a fitted model object or a list of such objects.
-		Alternatively an object of class \code{model.selection}. See
-		\sQuote{Details}. }
+	\item{object}{ a fitted model object or a list of such objects, or a 
+		\code{model.selection} object. See \sQuote{Details}. }
 
     \item{\dots}{ more fitted model objects. }
 

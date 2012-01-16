@@ -186,6 +186,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		ret.nchunk <- 25L
 		ret.ncol <- n.vars + nvarying + 3L + nextra
 		ret <- matrix(NA_real_, ncol = ret.ncol, nrow = ret.nchunk)
+		retCoefTable <- vector(ret.nchunk, mode = "list")
 	} else {
 		ret.nchunk <- nmax
 	}
@@ -331,6 +332,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 			retNrow <- nrow(ret)
 			if(k + qresultLen > retNrow) {
 				nadd <- min(ret.nchunk, nmax - retNrow)
+				retCoefTable <- c(retCoefTable, vector(nadd, mode = "list"))
 				ret <- rbind(ret, matrix(NA, ncol = ret.ncol, nrow = nadd),
 					deparse.level = 0L)
 				calls <- c(calls, vector("list", nadd))
@@ -340,6 +342,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 			for(m in qseqOK) ret[k + m, retColIdx] <- qrows[[m]]
 			ord[k + qseqOK] <- vapply(queued[withoutProblems], "[[", 1L, "id")
 			calls[k + qseqOK] <- lapply(queued[withoutProblems], "[[", "call")
+			retCoefTable[k + qseqOK] <- lapply(qresult[withoutProblems], "[[", "coefTable")
 			k <- k + qresultLen
 			qi <- 0L
 		}
@@ -358,6 +361,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		ret <- ret[i, , drop = FALSE]
 		ord <- ord[i]
 		calls <- calls[i]
+		retCoefTable <- retCoefTable[i]
 	}
 
 	if(nvarying) {
@@ -390,6 +394,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	ret <- ret[o, ]
 	ret$delta <- ret[, ICName] - min(ret[, ICName])
 	ret$weight <- exp(-ret$delta / 2) / sum(exp(-ret$delta / 2))
+	retCoefTable <- retCoefTable[o]
 
 	ret <- structure(ret,
 		class = c("model.selection", "data.frame"),
@@ -401,6 +406,10 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		rank.call = attr(IC, "call"),
 		call = match.call(expand.dots = TRUE)
 	)
+
+
+	attr(ret, "coefTables") <- retCoefTable
+	attr(ret, "nobs") <- nobs(global.model)
 
 	if(length(warningList)) {
 		class(warningList) <- c("warnings", "list")

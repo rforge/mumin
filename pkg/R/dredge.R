@@ -357,6 +357,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	)
 
 	attr(ret, "coefTables") <- retCoefTable
+	attr(ret, "nobs") <- nobs(global.model)
 
 	if (!is.null(attr(allTerms0, "random.terms")))
 		attr(ret, "random.terms") <- attr(allTerms0, "random.terms")

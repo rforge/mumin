@@ -87,8 +87,11 @@ function(frm, except = NULL) {
 	pos <- match(terms1, names(coef1), nomatch = 0L)
 	cf <- coef1[pos]
 	row[names(cf)] <- cf
-	if(allCoef) attr(row, "coefTable") <-
-		cbind(coefTable(m1)[, 1L:2L, drop = FALSE], df = coefDf(m1))
+	if(allCoef) {
+		ct <- cbind(coefTable(m1)[, 1L:2L, drop = FALSE], df = coefDf(m1))
+		rownames(ct) <- fixCoefNames(rownames(ct))
+		attr(row, "coefTable") <- ct
+	}
 	row
 }
 
