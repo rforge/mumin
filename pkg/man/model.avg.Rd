@@ -1,5 +1,7 @@
 \name{model.avg}
 \alias{model.avg}
+\alias{model.avg.default}
+\alias{model.avg.model.selection}
 \alias{print.averaging}
 \encoding{utf-8}
 
@@ -10,8 +12,14 @@ Model averaging based on an information criterion.
 
 \usage{
 
-model.avg(object, ..., beta = FALSE, rank = NULL, rank.args = NULL,
+model.avg(object, ..., revised.var = TRUE)
+
+\method{model.avg}{default}(object, ..., beta = FALSE, rank = NULL, rank.args = NULL,
     revised.var = TRUE, dispersion = NULL)
+
+\method{model.avg}{model.selection}(object, subset, fit = FALSE, ..., revised.var = TRUE)
+
+
 }
 
 \arguments{
@@ -39,6 +47,14 @@ model.avg(object, ..., beta = FALSE, rank = NULL, rank.args = NULL,
 		\code{\link{summary.glm}}. This value is used only with the model types
 		which accept it (currently only \code{glm}), and will be
 		silently ignored otherwise. }
+
+	\item{subset}{ see \code{\link[=subset.model.selection]{subset}} method for
+		\code{model.selection} object. }
+
+	\item{fit}{ if \code{TRUE}, the component models are fitted using
+		\code{get.models}. See \sQuote{Details}.
+	}
+
 }
 
 \value{
@@ -47,10 +63,10 @@ An object of class \code{averaging} is a list with components:
 
 \item{summary}{ a \code{data.frame} with log-likelihood, IC, Delta(IC) and
 	Akaike weights for the component models. }
-\item{coefficients, se, dfs}{ matrices of component models' coefficients, their
-	standard errors, and degrees of freedom. }
 \item{coef.shrinkage}{ a vector of full model-averaged coefficients, see
 	\sQuote{Note}. }
+\item{coefArray}{ an \code{array} of component models' coefficients, their
+	standard errors, and degrees of freedom. }
 \item{term.codes}{ names of the terms with numerical codes used in
 	the \code{summary}. }
 \item{avg.model}{ the model averaged parameters. A \code{data.frame} containing
@@ -92,12 +108,18 @@ In addition, the object has following attributes:
 Other classes are also likely to be supported, in particular those inheriting
 from one of the above classes.
 
-\code{model.avg} may be used with a list of models, but also directly with a
-	\code{model.selection} object returned by \code{dredge}. In the latter case,
-	the models from the model selection table are evaluated (with a call to
-	\code{get.models}) prior to averaging.
-    A warning is given if the \code{subset} argument is not provided, and the
-	default \code{delta <= 4} will be used.
+\code{model.avg} may be used either with a list of models, or directly with a
+	\code{model.selection} object (e.g. returned by \code{dredge}). In the
+	latter case, the models from the model selection table are not evaluated
+	unless the argument \code{fit} is set to \code{TRUE} or some additional
+	arguments are present (such as \code{rank} or \code{dispersion}). This
+	results in much faster calculation, but has certain drawbacks, because the
+	fitted component model objects are not stored and some methods (e.g.
+	\code{predict}, \code{fitted}, \code{model.matrix} or \code{vcov}) would not
+	be available with the returned object.
+	Otherwise, \code{get.models} is called prior to averaging, and \dots are
+	passed to it.
+
 
 \code{rank} is found by a call to \code{\link[base]{match.fun}} and typically is
     specified as a function or a symbol (e.g. a back-quoted name) or a character
@@ -173,8 +195,6 @@ fm1 <- lm(y ~ ., data = Cement)
 
 #models with delta.aicc < 4
 summary(model.avg(get.models(ms1, subset = delta < 4)))
-
-
 
 #or as a 95\% confidence set:
 confset.95p <- get.models(ms1, cumsum(weight) <= .95)

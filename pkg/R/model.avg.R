@@ -1,16 +1,96 @@
 `model.avg` <-
+function (object, ..., revised.var = TRUE) {
+	if (isTRUE("method" %in% names(match.call())))
+		stop("argument 'method' is no longer accepted")
+
+	UseMethod("model.avg")
+}
+
+`model.avg.model.selection` <-
+function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
+
+	if(!missing(subset)) {
+		cl <- match.call()
+		cl[[1L]] <- as.name("subset")
+		names(cl)[2L] <- "x"
+		object <- eval(cl[1L:3L], parent.frame())
+	}
+	if(fit || length(list(...))) {
+		cl <- match.call()
+		cl$fit <- NULL
+		arg1 <- names(cl)[-(1L:2L)] %in% names(formals("model.avg.default"))
+		cl1 <- cl[c(TRUE, TRUE, !arg1)]
+		cl1[[1L]] <- as.name("get.models")
+		cl2 <- cl[c(TRUE, TRUE, arg1)]
+		cl2[[2L]] <- cl1
+		cl2[[1L]] <- as.name("model.avg")
+		return(eval(cl2, parent.frame()))
+	}
+
+
+
+	ct <- attr(object, "coefTables")
+	coefNames <- if(!is.null(attr(object, "global")))
+		names(coeffs(attr(object, "global"))) else
+		unique(unlist(lapply(ct, rownames)))
+	coefNames <- coefNames[order(vapply(gregexpr(":", coefNames),
+		function(x) if(x[1L] == -1L) 0L else length(x), numeric(1L)), coefNames)]
+
+	nCoef <- length(coefNames)
+	nModels <- length(ct)
+	#browser() ##### DEBUG
+	coefArray <- array(NA_real_, dim = c(nModels, 3L, nCoef),
+		dimnames = list(NULL, c("Estimate", "SE", "df"), coefNames))
+	for(i in seq_along(ct)) {
+		z <- ct[[i]]
+		coefArray[i, seq_len(ncol(z)), ] <- t(z[match(coefNames, rownames(z)), ])
+	}
+	weight <- object$weight / sum(object$weight)
+	avgcoef <- array(dim = c(nCoef, 5L), dimnames = list(coefNames, c("Estimate",
+		"Std. Err.", "Adjusted SE", "Lower CI", "Upper CI")))
+	for(i in seq_len(nCoef))
+		avgcoef[i, ] <- par.avg(coefArray[, 1L, i], coefArray[, 2L, i], weight,
+			df = coefArray[, 3L, i], revised.var = revised.var)
+
+	missing.par <- is.na(coefArray[, 1L, ])
+	coef.shrink <- avgcoef[, 1L] *
+		colSums(array(weight * as.double(!missing.par), dim = c(nModels, nCoef)))
+
+	allterms1 <- lapply(attr(object, "calls"), function(x) getAllTerms(formula(x)))
+	all.terms <- unique(unlist(allterms1))
+	all.model.names <- .modelNames(allTerms = allterms1, uqTerms = all.terms)
+
+	mstab <- object[, -(seq_len(ncol(object) - 4L))]
+	colnames(mstab)[3:4] <- c("Delta", "Weight")
+	rownames(mstab) <- all.model.names
+
+	ret <- list(
+		summary = as.data.frame(mstab),
+		term.codes = attr(all.model.names, "variables"),
+		avg.model = avgcoef,
+		coef.shrinkage = coef.shrink,
+		coefArray = coefArray,
+		importance = importance(object),
+		beta = attr(object, "beta"),
+		term.names = coefNames,
+		x = NULL,
+		residuals = NULL,
+		formula = if(!is.null(attr(object, "global")))
+			formula(attr(object, "global")) else NULL,
+		call = match.call()
+	)
+
+	attr(ret, "beta") <- attr(object, "beta")
+	attr(ret, "revised.var") <- revised.var
+	class(ret) <- "averaging"
+	return(ret)
+}
+
+
+`model.avg.default` <-
 function(object, ..., beta = FALSE,
 	rank = NULL, rank.args = NULL, revised.var = TRUE,
 	dispersion = NULL) {
-
-	if (isTRUE("method" %in% names(match.call())))
-		stop("the argument 'method' is no longer accepted")
-
-	if(inherits(object, "model.selection")) {
-		if(!("subset" %in% names(match.call(get.models))))
-			warning("'subset' argument is missing. Using all models by default")
-		object <- get.models(object, ...)
-	}
 
 	if (inherits(object, "list")) {
 		models <- object
@@ -23,8 +103,8 @@ function(object, ..., beta = FALSE,
         rank <- .getRank(rank, rank.args = rank.args, object = object)
 	}
 
-	nmodels <- length(models)
-	if(nmodels == 1L) stop("only one model supplied. Nothing to do")
+	nModels <- length(models)
+	if(nModels == 1L) stop("only one model supplied. Nothing to do")
 	.checkModels(models)
 
     alpha <- 0.05
@@ -67,7 +147,7 @@ function(object, ..., beta = FALSE,
 	weight <- exp(-delta / 2) / sum(exp(-delta / 2))
 	model.order <- order(weight, decreasing = TRUE)
 
-	#if(!is.null(dispersion)) dispersion <- rep(dispersion, length.out = nmodels)
+	#if(!is.null(dispersion)) dispersion <- rep(dispersion, length.out = nModels)
 
 	# DEBUG:
 	# sapply(sapply(sapply(models[model.order], coef), names), paste, collapse="+")
@@ -79,7 +159,7 @@ function(object, ..., beta = FALSE,
 	rownames(mstab) <- all.model.names
 	mstab <- mstab[model.order, ]
 	if(!is.null(dispersion)) {
-		dispersion <- rep(dispersion, length.out = nmodels)[model.order]
+		dispersion <- rep(dispersion, length.out = nModels)[model.order]
 		mstab <- cbind(mstab, Dispersion = dispersion)
 	}
 
@@ -89,12 +169,14 @@ function(object, ..., beta = FALSE,
 	allCoefNames <- unique(unlist(lapply(mcoeffs, names)))
 	allCoefNames <- allCoefNames[order(vapply(gregexpr(":", allCoefNames),
 		function(x) if(x[1L] == -1L) 0L else length(x), numeric(1L)), allCoefNames)]
-	npar <- length(allCoefNames)
+	nCoef <- length(allCoefNames)
 
 	if (beta)	response.sd <- sd(model.response(model.frame(object)))
 
-	all.coef <- all.se <- all.df <- matrix(NA_real_, nrow = nmodels, ncol = npar)
-	for (i in seq_len(nmodels)) {
+	coefArray <- array(NA_real_, dim = c(nModels, 3L, nCoef),
+		dimnames = list(rownames(mstab),  c("Estimate", "Std. Error", "df"), allCoefNames))
+
+	for (i in seq_len(nModels)) {
 		m <- models[[i]]
 		coefmat <- coefTable(m, dispersion = dispersion[i])
 		ncoef <- NROW(coefmat)
@@ -102,13 +184,11 @@ function(object, ..., beta = FALSE,
 			#if(is.null(mdf) || !length(mdf)) mdf <- rep(NA, ncoef)
 			if (beta) coefmat[, 1L:2L] <- coefmat[, 1L:2L] * sd(model.matrix(m)) / response.sd
 			j <- match(rownames(coefmat), allCoefNames)
-			all.coef[i, j] <- coefmat[, 1L]
-			all.se[i, j] <- coefmat[, 2L]
+			coefArray[i, 1L:2L, j] <- t(coefmat[, 1L:2L])
 			mdf <- coefDf(m)[!is.na(coeffs(m))]
-			if(!is.null(mdf) && length(mdf)) all.df[i, j] <- mdf
+			if(!is.null(mdf) && length(mdf)) coefArray[i, 3L, j] <- mdf
 		}
 	}
-	rownames(all.se) <- rownames(all.coef) <- rownames(mstab)
 
 	# Benchmark: 3.7x faster
 	#system.time(for(i in 1:10000) t(array(unlist(p), dim=c(length(all.terms),length(models)))))
@@ -121,32 +201,30 @@ function(object, ..., beta = FALSE,
 	names(importance) <- all.terms
 	importance <- sort(importance, decreasing = TRUE)
 
-	missing.par <- is.na(all.coef)
-
 	avg.model <- t(vapply(seq_along(allCoefNames),
 		function(i) par.avg(
-			all.coef[, i],
-			se = all.se[, i],
+			coefArray[, 1L, i],
+			se = coefArray[, 2L, i],
 			weight = weight,
-			df = all.df[, i],
+			df = coefArray[, 3L, i],
 			alpha = alpha,
 			revised.var = revised.var),
 		double(5L)))
 
 	avg.model[is.nan(avg.model)] <- NA
 
-
 	dimnames(avg.model) <- list(allCoefNames, c("Estimate", "Std. Err.",
 		"Adjusted SE", "Lower CI", "Upper CI"))
 
-	colnames(all.coef) <- colnames(all.se) <- colnames(all.df) <- allCoefNames
     names(all.terms) <- seq_along(all.terms)
 
 	colnames(mstab)[2L] <- ICname
 
-	coef.shrink <- avg.model[, 1] *
+
+	missing.par <- is.na(coefArray[, 1L, ])
+	coef.shrink <- avg.model[, 1L] *
 		#colSums(weight * !is.na(all.coef))
-		colSums(array(weight * as.double(!missing.par), dim = dim(all.coef)))
+		colSums(array(weight * as.double(!missing.par), dim = c(nModels, nCoef)))
 
 	#global.mm <- model.matrix(fit)
 	#cnmmxx2 <- unique(unlist(lapply(gm, function(x) names(coef(x)))))
@@ -169,28 +247,22 @@ function(object, ..., beta = FALSE,
 	frm <- reformulate(all.terms,
 				response = attr(trm, "variables")[-1L][[attr(trm, "response")]])
 
-	#print(colSums(weight) * array(as.double(!is.na(all.coef)), dim=dim(all.coef)))
-
 	ret <- list(
 		summary = as.data.frame(mstab),
-		coefficients = all.coef,
-		se = all.se,
-		#variable.codes2 = all.terms,
 		term.codes = attr(all.model.names, "variables"),
 		avg.model = avg.model,
 		coef.shrinkage = coef.shrink,
+		coefArray = coefArray,
 		importance = importance,
 		beta = beta,
 		term.names = allCoefNames,
 		x = mmxs,
 		residuals = rsd,
 		formula = frm,
-		call = match.call(),
-		dfs = all.df
+		call = match.call()
 	)
 
 	attr(ret, "modelList") <- models
-	#attr(ret, "method") <- method # c("Coefficient" = method, "Variance" = method.var)
 	attr(ret, "beta") <- beta
 	attr(ret, "revised.var") <- revised.var
 	class(ret) <- "averaging"
@@ -211,6 +283,8 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 	if (!missing(interval)) .NotYetUsed("interval", error = FALSE)
 
 	models <- attr(object, "modelList")
+
+	if(is.null(models)) stop("cannot predict without model list")
 
 	# Benchmark: vapply is ~4x faster
 	#system.time(for(i in 1:1000) sapply(models, inherits, what="gam")) /
@@ -262,7 +336,7 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 		cl <- as.call(cl)
 		pred <- lapply(models, function(x) {
 			cl[[2L]] <- x
-			tryCatch(eval(cl), error=function(e) e)
+			tryCatch(eval(cl), error = function(e) e)
 		})
 
 		err <- sapply(pred, inherits, "condition")
@@ -328,29 +402,28 @@ function (object, ...) {
 	no.ase <- all(is.na(cf[, 3L]))
 	z <- abs(cf[,1] / cf[, if(no.ase) 2L else 3L])
 	pval <- 2 * pnorm(z, lower.tail = FALSE)
-	coefmat <- cbind(cf[, if(no.ase) 1L:2L else 1L:3L],
+	object$coefmat <- cbind(cf[, if(no.ase) 1L:2L else 1L:3L],
 					 `z value` = z,
 					 `Pr(>|z|)` = zapsmall(pval))
-	object$coefmat <- coefmat
-	structure(object, class=c("summary.averaging", "averaging"))
+	structure(object, class = c("summary.averaging", "averaging"))
 }
 
 `confint.averaging` <-
 function (object, parm, level = 0.95, ...) {
-    cf <- object$coefficients
+    cf <- object$coefArray[, 1L, ]
     pnames <- colnames(cf)
     if (missing(parm)) parm <- pnames
 		else if (is.numeric(parm)) parm <- pnames[parm]
 
     a2 <- 1 - level
     a <- a2 / 2
-    se <- object$se
+    se <- object$coefArray[, 2L, ]
     wts <- object$summary$Weight
-    dfs <- object$dfs
+    dfs <- object$coefArray[, 3L, ]
     ci <- t(sapply(parm, function(i)
-		par.avg(cf[,i], se[,i], wts, object$dfs[, i], alpha = a2)))[, 4L:5L]
+		par.avg(cf[,i], se[,i], wts, dfs[, i], alpha = a2)))[, 4L:5L]
     pct <- stats:::format.perc(c(a, 1L - a), 3L)
-	
+
 	ci[is.na(object$coef.shrinkage), ] <- NA_real_
     colnames(ci) <- pct
     return(ci)
@@ -386,7 +459,7 @@ function (x, digits = max(3L, getOption("digits") - 3L),
 	#if (no.ase) cat("Confidence intervals are unadjusted \n")
 
 	cat("\nFull model-averaged coefficients (with shrinkage):", "\n")
-	printCoefmat(matrix(x$coef.shrink, nrow = 1L,
+	printCoefmat(matrix(x$coef.shrinkage, nrow = 1L,
 		dimnames = list("", x$term.names)), P.values = FALSE,
 		has.Pvalue = FALSE, cs.ind = seq_along(x$term.names), tst.ind = NULL)
 
@@ -419,14 +492,14 @@ function(x, ...) {
 
 	#vcov0 <- matrix(NA, nrow=nvars, ncol = nvars,	dimnames = list(names.all, names.all))
 	vcov0 <- matrix(if(full) 0 else NA, nrow = nvars,
-		ncol=nvars,	dimnames = list(names.all, names.all))
+		ncol = nvars,	dimnames = list(names.all, names.all))
 
 	vcovs2 <- lapply(vcovs, function(v) {
 		i <- match(dimnames(v)[[1L]], names.all)
-		vcov0[i,i] <- v
+		vcov0[i, i] <- v
 		return(vcov0)
 	})
-	b1 <- object$coefficients
+	b1 <- object$coefArray[, 1L, ]
 	if(full) b1[is.na(b1)] <- 0
 
 	avgb <- object$avg.model[, 1L]

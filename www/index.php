@@ -31,7 +31,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 <!-- get project title  -->
 <!-- own website starts here, the following may be changed as you like -->
 
-<h1>R package 'MuMIn' - multi-model inference</h1>
+<h1>MuMIn - R package for model selection and <b>mu</b>lti-<b>m</b>odel <b>in</b>ference</h1>
 
 <!-- end of project description -->
 

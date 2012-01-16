@@ -163,3 +163,12 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 			stop(gettextf("updated '%s' differs from the original one",	xname))
 	}
 }
+
+`tryCatchWE` <- function (expr) {
+	Warnings <- NULL
+	list(value = withCallingHandlers(tryCatch(expr, error = function(e) e),
+		warning = function(w) {
+			Warnings <<- c(Warnings, list(w))
+			invokeRestart("muffleWarning")
+		}), warnings = Warnings)
+}

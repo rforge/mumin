@@ -31,8 +31,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		}
 		#"For objects without a 'call' component the call to the fitting function \n",
 		#" must be used directly as an argument to 'dredge'.")
-
-		# NB: this is unlikely to happen:
+		# NB: the below is unlikely to happen:
 		if(!exists(as.character(gmCall[[1L]]), parent.frame(), mode="function"))
 			 stop("could not find function '", gmCall[[1L]], "'")
 
@@ -162,6 +161,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		ret.nchunk <- 25L
 		ret.ncol <- n.vars + nvarying + 3L + nextra
 		ret <- matrix(NA_real_, ncol = ret.ncol, nrow = ret.nchunk)
+		retCoefTable <- vector(ret.nchunk, mode = "list")
 	} else {
 		ret.nchunk <- nmax
 	}
@@ -266,27 +266,28 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 					#row1 <- c(row1, extraResult1)
 				}
 				ll <- logLik(fit1)
-				row1 <- c(
-					matchCoef(fit1, all.terms = allTerms, beta = beta)[allTerms],
-					extraResult1, df = attr(ll, "df"), ll = ll, ic = IC(fit1)
+				mcoef1 <- matchCoef(fit1, all.terms = allTerms, beta = beta,
+					allCoef = TRUE)
+				row1 <- c(mcoef1[allTerms], extraResult1,
+					df = attr(ll, "df"), ll = ll, ic = IC(fit1)
 				)
 				## end -> row1
 
 				k <- k + 1L # all OK, add model to table
 
-
 				ret.nrow <- nrow(ret)
-				if(k > ret.nrow) {
+				if(k > ret.nrow) { # append if necesarry
 					nadd <- min(ret.nchunk, nmax - ret.nrow)
-
-				ret <- rbind(ret, matrix(NA, ncol = ret.ncol, nrow = nadd),
-					deparse.level = 0L)
-					calls <- c(calls, vector("list", nadd))
+					retCoefTable <- c(retCoefTable, vector(nadd, mode = "list"))
+					ret <- rbind(ret, matrix(NA, ncol = ret.ncol, nrow = nadd),
+						deparse.level = 0L)
+						calls <- c(calls, vector("list", nadd))
 					ord <- c(ord, integer(nadd))
 				}
-				ord[k] <- modelId
 
+				ord[k] <- modelId
 				ret[k, retColIdx] <- row1
+				retCoefTable[[k]] <- attr(mcoef1, "coefTable")
 			} else { # if evaluate
 				k <- k + 1L # all OK, add model to table
 			}
@@ -304,6 +305,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		ret <- ret[i, , drop = FALSE]
 		ord <- ord[i]
 		calls <- calls[i]
+		retCoefTable <- retCoefTable[i]
 	}
 
 	if(nvarying) {
@@ -337,6 +339,8 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	o <- order(ret[, ICName], decreasing = FALSE)
 	ret <- ret[o, ]
+	retCoefTable <- retCoefTable[o]
+
 	ret$delta <- ret[, ICName] - min(ret[, ICName])
 	ret$weight <- exp(-ret$delta / 2) / sum(exp(-ret$delta / 2))
 
@@ -347,9 +351,12 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		global.call = gmCall,
 		terms = allTerms,
 		rank = IC,
-		rank.call = attr(IC,"call"),
+		rank.call = attr(IC, "call"),
+		beta = beta,
 		call = match.call(expand.dots = TRUE)
 	)
+
+	attr(ret, "coefTables") <- retCoefTable
 
 	if (!is.null(attr(allTerms0, "random.terms")))
 		attr(ret, "random.terms") <- attr(allTerms0, "random.terms")
@@ -379,7 +386,7 @@ function(x, subset, select, recalc.weights = TRUE, ...) {
 function (x, i, j, recalc.weights = TRUE, ...) {
 	ret <- `[.data.frame`(x, i, j, ...)
 	if (missing(j)) {
-		s <- c("row.names", "calls")
+		s <- c("row.names", "calls", "coefTables")
 		k <- match(dimnames(ret)[[1L]], dimnames(x)[[1L]])
 		attrib <- attributes(x)
 		attrib[s] <- lapply(attrib[s], `[`, k)

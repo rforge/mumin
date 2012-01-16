@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.7.0 (2012-01-16)
+model. use 'model.selection' without refitting the modelsavg:
+dredge: coefficient tables added to the result (attribute "coefTables")
+
 Version: 1.6.6 (2012-01-07)
 model.avg: fixed error occurring when non-estimable coefficients existed in the 
 	component models (problem reported by Annabel Smith)

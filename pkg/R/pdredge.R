@@ -13,15 +13,19 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		clusterApply <- get("clusterApply")
 		clusterCall(cluster, "require", "MuMIn", character.only = TRUE)
 
-		#if(.packageName == "MuMIn") { ### DEBUG
-		clusterCall(cluster, "eval", expression(assign("parGetMsRow",
-				MuMIn:::parGetMsRow, envir = .GlobalEnv), NULL))
-		#} else {
-		#	#DEBUG
-		#	clusterVExport(cluster, parGetMsRow)
-		#}
+		clusterCall(cluster, assign, "assignFromNs", function(name, asName = name,
+			ns = "MuMIn") {
+			assign(asName, get(name, loadNamespace(ns)), envir = .GlobalEnv)
+			invisible(NULL)
+		}, envir = .GlobalEnv)
+
+		clusterCall(cluster, "assignFromNs", ".getLogLik")
+		clusterCall(cluster, "assignFromNs", "tryCatchWE")
+		clusterCall(cluster, "assignFromNs", "matchCoef")
+		clusterCall(cluster, "assignFromNs", "parGetMsRow")
 
 		.getRow <- function(X) clusterApply(cluster, X, fun = "parGetMsRow")
+
 	} else {
 		.getRow <- function(X) lapply(X, parGetMsRow, parCommonProps)
 		clusterCall <- function(...) NULL
@@ -156,7 +160,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		if(any(c("adjR^2", "R^2") %in% extra)) {
 			null.fit <- null.fit(global.model, TRUE, gmFormulaEnv)
 			extra[extra == "R^2"][[1L]] <- function(x) r.squaredLR(x, null.fit)
-			extra[extra == "adjR^2"][[1L]] <- 
+			extra[extra == "adjR^2"][[1L]] <-
 				function(x) attr(r.squaredLR(x, null.fit), "adj.r.squared")
 		}
 		extra <- sapply(extra, match.fun, simplify = FALSE)
@@ -232,7 +236,8 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		parCommonProps$applyExtras <- applyExtras
 		parCommonProps$extraResult <- extraResult
 	}
-	if(doParallel) clusterVExport(cluster, clustDredgeProps = parCommonProps)
+	if(doParallel) clusterVExport(cluster, clustDredgeProps = parCommonProps,
+		tryCatchWE)
 	# END parallel
 
 	retColIdx <- if(nvarying) -n.vars - seq_len(nvarying) else TRUE
@@ -295,17 +300,17 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 					"This should not happen and may indicate problems with ",
 					"the cluster node", domain = "R-MuMIn")
 			haveProblems <- logical(qi)
-			
+
 			nadd <- sum(sapply(qresult, function(x) inherits(x$value, "condition")
 				+ length(x$warnings)))
 			wi <- length(warningList)
 			if(nadd) warningList <- c(warningList, vector(nadd, mode = "list"))
-			
+
 			# DEBUG: print(sprintf("Added %d warnings, now is %d", nadd, length(warningList)))
 
 			for (i in qseq)
-				for(cond in c(qresult[[i]]$warnings, 
-					if(inherits(qresult[[i]]$value, "condition")) 
+				for(cond in c(qresult[[i]]$warnings,
+					if(inherits(qresult[[i]]$value, "condition"))
 						list(qresult[[i]]$value))) {
 						wi <- wi + 1L
 						warningList[[wi]] <- if(is.null(conditionCall(cond)))
@@ -313,13 +318,13 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 						if(inherits(cond, "error")) {
 							haveProblems[i] <- TRUE
 							msgsfx <- "(model %d skipped)"
-						} else 
+						} else
 							msgsfx <- "(in model %d)"
 						names(warningList)[wi] <- paste(conditionMessage(cond),
 							 gettextf(msgsfx, queued[[i]]$id))
 						attr(warningList[[wi]], "id") <- queued[[i]]$id
 				}
-			
+
 			withoutProblems <- which(!haveProblems)
 			qrows <- lapply(qresult[withoutProblems], "[[", "value")
 			qresultLen <- length(qrows)
@@ -393,7 +398,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		global.call = gmCall,
 		terms = allTerms,
 		rank = IC,
-		rank.call = attr(IC,"call"),
+		rank.call = attr(IC, "call"),
 		call = match.call(expand.dots = TRUE)
 	)
 
@@ -406,38 +411,33 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		attr(ret, "random.terms") <- attr(allTerms0, "random.terms")
 
 	if(doParallel) clusterCall(cluster, "rm",
-		list = c("parGetMsRow", "clustDredgeProps"), envir = .GlobalEnv)
+		list = c("parGetMsRow", "clustDredgeProps", ".getLogLik", "tryCatchWE",
+			"matchCoef", "parGetMsRow"), envir = .GlobalEnv)
 	return(ret)
 } ######
 
-`parGetMsRow` <- function(modv, comv = get("clustDredgeProps", .GlobalEnv)) {
-	### modv <- list(call = clVariant, id = modelId)
-	tryCatchWE <- function (expr) {
-		Warnings <- NULL
-		list(value = withCallingHandlers(tryCatch(expr, error = function(e) e),
-			warning = function(w) {
-				Warnings <<- c(Warnings, list(w))
-				invokeRestart("muffleWarning")
-			}), warnings = Warnings)
-	}
 
-	result <- tryCatchWE(eval(modv$call, comv$gmEnv))
+`parGetMsRow` <- function(modv, Z = get("clustDredgeProps", .GlobalEnv)) {
+	### modv <- list(call = clVariant, id = modelId)
+	result <- tryCatchWE(eval(modv$call, Z$gmEnv))
 	if (inherits(result$value, "condition")) return(result)
 
 	fit1 <- result$value
-	if(comv$nextra != 0L) {
-		extraResult1 <- comv$applyExtras(fit1)
-		if(length(extraResult1) < comv$nextra) {
-			tmp <- rep(NA_real_, comv$nextra)
-			tmp[match(names(extraResult1), names(comv$extraResult))] <-
+	if(Z$nextra != 0L) {
+		extraResult1 <- Z$applyExtras(fit1)
+		if(length(extraResult1) < Z$nextra) {
+			tmp <- rep(NA_real_, Z$nextra)
+			tmp[match(names(extraResult1), names(Z$extraResult))] <-
 				extraResult1
 			extraResult1 <- tmp
 		}
 	} else extraResult1 <- NULL
-	ll <- MuMIn:::.getLogLik()(fit1)
-	list(value = c(MuMIn:::matchCoef(fit1, all.terms = comv$allTerms,
-		beta = comv$beta), extraResult1, df = attr(ll, "df"), ll = ll,
-		ic = comv$IC(fit1)),
+	ll <- .getLogLik()(fit1)
+	mcoef <- matchCoef(fit1, all.terms = Z$allTerms, beta = Z$beta, allCoef = TRUE)
+
+	list(value = c(mcoef, extraResult1, df = attr(ll, "df"), ll = ll,
+		ic = Z$IC(fit1)),
+		coefTable = attr(mcoef, "coefTable"),
 		warnings = result$warnings)
 }
 
@@ -445,6 +445,6 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	cl <- attr(dd, "call")
 	cl$cluster <- cl$check <- NULL
 	cl[[1]] <- as.name("dredge")
-	if(!identical(c(dd), c(eval(cl)))) stop("buuu...")
+	if(!identical(c(dd), c(eval(cl)))) stop("Whoops...")
 	dd
 }

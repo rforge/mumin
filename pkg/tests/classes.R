@@ -53,19 +53,18 @@ detach(package:nlme); rm(list=ls())
 d.AD <- data.frame(counts =c(18,17,15,20,10,20,25,13,12), outcome = gl(3,1,9),
 treatment = gl(3,3))
 #fm2 <- glm(counts ~ outcome + treatment, family=quasipoisson(), data=d.AD)
-fm2 <- glm(counts ~ outcome + treatment, family=poisson(), data=d.AD)
+fm2 <- glm(counts ~ outcome * treatment, family=poisson(), data=d.AD)
 
 #dd <- dredge(fm2)
 #summary(model.avg(dd, subset= delta <= 10))
-dd <- dredge(fm2, rank=QAIC, chat=deviance(fm2) / df.residual(fm2))
-dd <- dredge(fm2)
-summary(model.avg(dd, subset= delta <= 10))
+dd <- dredge(fm2, rank = QAIC, chat = deviance(fm2) / df.residual(fm2))
+# dd <- dredge(fm2)
+# summary(model.avg(dd, subset= delta <= 10))
 
 dredge(fm2, rank=QAIC, chat=deviance(fm2) / df.residual(fm2))
 
 subset(dd, delta <= 10)
 mod.sel(get.models(dd, subset = delta <= 10))
-
 
 rm(list=ls())
 
@@ -97,6 +96,12 @@ fm2 <- lme(distance ~ Sex*age + age*Sex, data = Orthodont,
 
 # Model selection: ranking by AICc which uses ML
 dd <- dredge(fm2, trace=T, rank="AICc", REML=FALSE)
+
+#attr(dd, "coefTables")
+#mod <- get.models(dd)
+#matchCoef(mod[[5]], fm2, allCoef = T)
+#mod[[5]]
+
 
 #attr(dd, "rank.call")
 
@@ -184,7 +189,6 @@ fm1 <- glm(y ~ (X1+X2+X3+X4)^2, data = Cement)
 dd <- dredge(fm1, trace=T)
 
 gm <- get.models(dd, 1:10)
-
 ma <- model.avg(gm)
 vcov(ma)
 
@@ -328,7 +332,9 @@ dredge(quine.nb1) # Wrong
 dredge(quine.nb1, marg.ex="Sex") # Right
 ma <- model.avg(dredge(quine.nb1, marg.ex="Sex"), subset=cumsum(weight)<=.9999)
 
-pred <- predict(ma, se=TRUE)
+# Cannot predict with this 'averaging'
+#pred <- predict(ma, se=TRUE)
+
 #pred <- cbind(pred$fit, pred$fit - (2 * pred$se.fit), pred$fit + (2 * pred$se.fit))
 #matplot(pred, type="l")
 #matplot(family(quine.nb1)$linkinv(pred), type="l")

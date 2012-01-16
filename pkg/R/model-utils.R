@@ -77,14 +77,18 @@ function(frm, except = NULL) {
 	all.terms = getAllTerms(m2, intercept = TRUE),
 	beta = FALSE,
 	terms1 = getAllTerms(m1, intercept = TRUE),
-	coef1 = if (beta) beta.weights(m1)[, 3L] else coeffs(m1))
-	{
+	coef1 = if (beta) beta.weights(m1)[, 3L] else coeffs(m1),
+	allCoef = FALSE
+	) {
 	if(any((terms1 %in% all.terms) == FALSE)) stop("'m1' is not nested within 'm2")
 	row <- structure(rep(NA, length(all.terms)), names = all.terms)
 	names(coef1) <- fixCoefNames(names(coef1))
 	row[terms1] <- NaN
-	cf <- coef1[match(terms1, names(coef1), nomatch = 0)]
-	row[names(cf)]  <- cf
+	pos <- match(terms1, names(coef1), nomatch = 0L)
+	cf <- coef1[pos]
+	row[names(cf)] <- cf
+	if(allCoef) attr(row, "coefTable") <-
+		cbind(coefTable(m1)[, 1L:2L, drop = FALSE], df = coefDf(m1))
 	row
 }
 
