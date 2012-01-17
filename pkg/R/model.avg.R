@@ -31,9 +31,7 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 	coefNames <- if(!is.null(attr(object, "global")))
 		names(coeffs(attr(object, "global"))) else
 		unique(unlist(lapply(ct, rownames)))
-	coefNames <- coefNames[order(vapply(gregexpr(":", coefNames),
-		function(x) if(x[1L] == -1L) 0L else length(x), numeric(1L)), coefNames)]
-	coefNames <- fixCoefNames(coefNames)
+	coefNames <- fixCoefNames(coefNames, sort = TRUE)
 
 	nCoef <- length(coefNames)
 	nModels <- length(ct)
@@ -168,9 +166,8 @@ function(object, ..., beta = FALSE,
 	weight <- mstab[, "Weight"] # has been sorted in table
 	models <- models[model.order]
 
-	allCoefNames <- unique(unlist(lapply(mcoeffs, names)))
-	allCoefNames <- allCoefNames[order(vapply(gregexpr(":", allCoefNames),
-		function(x) if(x[1L] == -1L) 0L else length(x), numeric(1L)), allCoefNames)]
+	allCoefNames <- fixCoefNames(unique(unlist(lapply(mcoeffs, names))), sort = TRUE)
+
 	nCoef <- length(allCoefNames)
 
 	if (beta)	response.sd <- sd(model.response(model.frame(object)))
@@ -181,8 +178,10 @@ function(object, ..., beta = FALSE,
 	for (i in seq_len(nModels)) {
 		m <- models[[i]]
 		coefmat <- coefTable(m, dispersion = dispersion[i])
-		ncoef <- NROW(coefmat)
-		if(ncoef > 0L) {
+		rownames(coefmat) <- fixCoefNames(rownames(coefmat))
+
+		#ncoef <- NROW(coefmat)
+		if(NROW(coefmat) > 0L) {
 			#if(is.null(mdf) || !length(mdf)) mdf <- rep(NA, ncoef)
 			if (beta) coefmat[, 1L:2L] <- coefmat[, 1L:2L] * sd(model.matrix(m)) / response.sd
 			j <- match(rownames(coefmat), allCoefNames)

@@ -193,29 +193,32 @@ fm1 <- lm(y ~ ., data = Cement)
 (ms1 <- dredge(fm1))
 
 #models with delta.aicc < 4
-summary(model.avg(get.models(ms1, subset = delta < 4)))
+summary(model.avg(ms1, subset = delta < 4))
 
 #or as a 95\% confidence set:
-confset.95p <- get.models(ms1, cumsum(weight) <= .95)
-
-avgmod.95p <- model.avg(confset.95p)
+avgmod.95p <- model.avg(ms1, cumsum(weight) <= .95)
 confint(avgmod.95p)
 
-
 \dontrun{
-# The same result
-model.avg(ms1, cumsum(weight) <= .95)
+# The same result, but re-fitting the models via 'get.models'
+models <- get.models(ms1, cumsum(weight) <= .95)
+model.avg(models)
+
+# Force re-fitting the component models
+model.avg(ms1, cumsum(weight) <= .95, fit = TRUE)
+# Models are also fitted if additional arguments are given
+model.avg(ms1, cumsum(weight) <= .95, rank = "AIC")
 }
 
 \dontrun{
 # using BIC (Schwarz's Bayesian criterion) to rank the models
-BIC <- function(x) AIC(x, k=log(length(residuals(x))))
-model.avg(confset.95p, rank=BIC)
+BIC <- function(x) AIC(x, k = log(length(residuals(x))))
+model.avg(confset.95p, rank = BIC)
 # the same result, using AIC directly, with argument k
 # 'x' in a quoted 'rank' argument is substituted with a model object
 # (in this case it does not make much sense as the number of observations is
 # common to all models)
-model.avg(confset.95p, rank=AIC, rank.args=alist(k=log(length(residuals(x)))))
+model.avg(confset.95p, rank = AIC, rank.args = alist(k = log(length(residuals(x)))))
 }
 
 }

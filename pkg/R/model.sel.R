@@ -2,15 +2,15 @@
 
 `model.sel` <-
 `mod.sel` <-
-function (object, ...) UseMethod("mod.sel")
+function (object, ...) UseMethod("model.sel")
 
 
-`mod.sel.model.selection` <-
+`model.sel.model.selection` <-
 function (object, rank = NULL, rank.args = NULL, ...) {
 	#if(!is.null(rank)) .NotYetUsed("rank")
 	if(!is.null(rank)) {
 		models <- get.models(object, seq.int(nrow(object)))
-		ret <- mod.sel.default(models, rank = .getRank(rank,
+		ret <- model.sel.default(models, rank = .getRank(rank,
 			rank.args = rank.args, object = models[[1L]]))
 		return(ret)
 	} else {
@@ -19,7 +19,7 @@ function (object, rank = NULL, rank.args = NULL, ...) {
 }
 
 
-`mod.sel.default` <-
+`model.sel.default` <-
 function(object, ..., rank = NULL, rank.args = NULL) {
 
 	if (missing(object) && length(models <- list(...)) > 0L) {
@@ -42,15 +42,23 @@ function(object, ..., rank = NULL, rank.args = NULL) {
 
 	rank <- .getRank(rank, rank.args = rank.args, object = object)
 	ICname <- deparse(attr(rank, "call")[[1L]])
-	all.terms <- unique(unlist(lapply(models, getAllTerms, intercept = TRUE)))
+	all.terms <- lapply(models, getAllTerms, intercept = TRUE)
+	random.terms <- lapply(all.terms, attr, "random.terms")
+	all.terms <- unique(unlist(all.terms))
 	all.coef <- fixCoefNames(unique(unlist(lapply(lapply(models, coeffs), names))))
 
 	logLik <- .getLogLik()
 
 	j <- !(all.terms %in% all.coef)
-	d <- as.data.frame(t(sapply(models, matchCoef, all.terms=all.terms)))
-	d[,j] <- lapply(d[,j, drop=FALSE], function(x) factor(is.nan(x),
-		levels=c(F, T), labels=c("", "+")))
+	#d <- as.data.frame(t(sapply(models, matchCoef, all.terms = all.terms)))
+
+	mcoeflist <- lapply(models, matchCoef, all.terms = all.terms, allCoef = TRUE)
+	d <- as.data.frame(do.call("rbind", mcoeflist))
+
+	retCoefTable <-	lapply(mcoeflist, attr, "coefTable")
+
+	d[,j] <- lapply(d[,j, drop = FALSE], function(x) factor(is.nan(x),
+		levels = TRUE, labels = "+"))
 
 	ret <- as.data.frame(t(vapply(models, function(x) {
 		ll <- logLik(x)
@@ -71,6 +79,10 @@ function(object, ..., rank = NULL, rank.args = NULL) {
 	attr(ret, "rank") <- rank
 	attr(ret, "rank.call") <- attr(rank, "call")
 	attr(ret, "call") <- match.call(expand.dots = TRUE)
+	attr(ret, "coefTables") <- retCoefTable[o]
+
+	if (!all(sapply(random.terms, is.null)))
+		attr(ret, "random.terms") <- random.terms
 
 	class(ret) <- c("model.selection", "data.frame")
 	ret

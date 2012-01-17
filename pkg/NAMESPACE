@@ -47,8 +47,8 @@ S3method("[", model.selection)
 S3method(update, model.selection)
 S3method(coef, model.selection)
 
-S3method(mod.sel, model.selection)
-S3method(mod.sel, default)
+S3method(model.sel, model.selection)
+S3method(model.sel, default)
 
 S3method(model.avg, model.selection)
 S3method(model.avg, default)

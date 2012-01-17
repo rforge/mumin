@@ -140,8 +140,25 @@ fm2 <- lmer(log(distance) ~ rand*Sex*age + (1|Subject) + (1|Sex), data = Orthodo
 #fm00 <- lm(distance ~ 1 , data = Orthodont)
 
 dd <- dredge(fm2, trace=T)
-gm <- get.models(dd, 1:4)
+gm <- get.models(dd, 1:6)
 (ma <- model.avg(gm))
+
+fm1 <- lmer(log(distance) ~ rand*Sex*age + (1|Sex), data = Orthodont, REML=FALSE)
+fm2 <- lmer(log(distance) ~ rand*age + (1|Subject), data = Orthodont, REML=FALSE)
+fm4 <- lmer(log(distance) ~ age + (1|Sex) + (1|Subject), data = Orthodont, REML=FALSE)
+fm2a <- lmer(log(distance) ~ age + (1|Subject), data = Orthodont, REML=FALSE)
+fm2b <- lmer(log(distance) ~ Sex + (1|Subject), data = Orthodont, REML=FALSE)
+fm3 <- lm(log(distance) ~ age, data = Orthodont)
+
+models <- list(fm4, fm1, fm3, fm2, fm2a, fm2b)
+dd2 <- model.sel(models)
+
+ma0 <- model.avg(get.models(dd2))
+ma1 <- model.avg(dd2)
+
+summary(ma1)
+
+stopifnot(isTRUE(all.equal(ma0$avg.model, ma1$avg.model)))
 
 # update.mer does not expand dots, so here we have a call:
 # lmer(formula = distance ~ Sex + (1 | Subject), data = Orthodont,

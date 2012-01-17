@@ -97,9 +97,13 @@ function(frm, except = NULL) {
 
 #sorts alphabetically interaction components in model term names
 `fixCoefNames` <-
-function(x) {
+function(x, sort = FALSE) {
 	if(!is.character(x)) return(x)
-	return(sapply(lapply(strsplit(x, ":"), sort), paste, collapse=":"))
+	ret <- sapply(lapply(strsplit(x, ":"), sort), paste, collapse = ":")
+	if(sort)
+		ret[order(vapply(gregexpr(":", ret),
+			function(x) if(x[1L] == -1L) 0L else length(x), numeric(1L)), ret)]
+	else ret
 }
 
 #Tries to find out whether the models are fitted to the same data

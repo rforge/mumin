@@ -359,9 +359,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	attr(ret, "coefTables") <- retCoefTable
 	attr(ret, "nobs") <- nobs(global.model)
 
-	if (!is.null(attr(allTerms0, "random.terms")))
-		attr(ret, "random.terms") <- attr(allTerms0, "random.terms")
-
 	return(ret)
 } ######
 
@@ -387,7 +384,7 @@ function(x, subset, select, recalc.weights = TRUE, ...) {
 function (x, i, j, recalc.weights = TRUE, ...) {
 	ret <- `[.data.frame`(x, i, j, ...)
 	if (missing(j)) {
-		s <- c("row.names", "calls", "coefTables")
+		s <- c("row.names", "calls", "coefTables", "random.terms")
 		k <- match(dimnames(ret)[[1L]], dimnames(x)[[1L]])
 		attrib <- attributes(x)
 		attrib[s] <- lapply(attrib[s], `[`, k)
@@ -417,12 +414,16 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 		if(abbrev.names) xterms <- abbreviateTerms(xterms, 3L)
 
 		colnames(x)[seq_along(xterms)] <-  xterms
-		cl <- attr(x, "global.call")
-		if(!is.null(cl)) {
+
+		globcl <- attr(x, "global.call")
+		if(!is.null(globcl)) {
 			cat("Global model call: ")
-			print(cl)
+			print(globcl)
 			cat("---\n")
-		}
+			random.terms <- attr(getAllTerms(attr(x, "global")), "random.terms")
+			if(!is.null(random.terms)) random.terms <- list(random.terms)
+		} else
+			random.terms <- attr(x, "random.terms")
 
 		cat("Model selection table \n")
 		dig <- c("R^2" = 4L, df = 0L, logLik = 3L, AICc = 1L, AICc = 1L, AIC = 1L,
@@ -435,9 +436,27 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 
 		print.default(as.matrix(x)[, !sapply(x, function(.x) all(is.na(.x))),
 			drop = FALSE], na.print = "", quote = FALSE)
-		if (!is.null(attr(x, "random.terms"))) {
-			cat("Random terms:", paste(attr(x, "random.terms"), collapse=", "),
-				"\n")
+
+		if (!is.null(random.terms)) {
+
+			ran <- sapply(lapply(random.terms[!sapply(random.terms, is.null)],
+				sort), prettyEnumStr, quote = sQuote)
+
+			cat("Random terms: \n")
+
+			#print(unique(ran))
+
+			#x <- dd
+
+
+			if(length(uqran <- unique(ran)) > 1L) {
+				n <- table(ran)
+				x <- tapply(names(ran), ran, prettyEnumStr,
+					quote = FALSE, sep.last = ", ")
+				for(i in seq_along(x))
+					cat(ngettext(n[i], "model ", "models "), x[i], ": ",
+						names(x[i]), "\n", sep = "")
+			} else	cat("all models", ": ", uqran, "\n", sep = "")
 		}
 		if (warnings && !is.null(attr(x, "warnings"))) {
 			cat("\n"); print.warnings(attr(x, "warnings"))
