@@ -215,15 +215,13 @@ plot(dd)
 
 
 # Model average models with delta AICc < 4
-model.avg(get.models(dd, subset = delta < 4))
+model.avg(dd, subset = delta < 4)
 
 #or as a 95\% confidence set:
-confset.95p <- get.models(dd, cumsum(weight) <= .95)
-
-model.avg(confset.95p) # get averaged coefficients
+model.avg(dd, subset = cumsum(weight) <= .95) # get averaged coefficients
 
 #'Best' model
-summary(confset.95p[[1]])
+summary(get.models(dd, 1))[[1]]
 
 \dontrun{
 # Examples of using 'subset':

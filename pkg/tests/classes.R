@@ -102,7 +102,6 @@ dd <- dredge(fm2, trace=T, rank="AICc", REML=FALSE)
 #matchCoef(mod[[5]], fm2, allCoef = T)
 #mod[[5]]
 
-
 #attr(dd, "rank.call")
 
 # Get models (which are fitted by REML, like the global model)
@@ -129,6 +128,8 @@ detach(package:nlme); rm(list=ls())
 # TEST lmer -------------------------------------------------------------------------------
 if(.checkPkg("lme4")) {
 
+## TODO: Clean it up!
+
 set.seed(1)
 library(lme4)
 data(Orthodont, package = "nlme")
@@ -153,12 +154,23 @@ fm3 <- lm(log(distance) ~ age, data = Orthodont)
 models <- list(fm4, fm1, fm3, fm2, fm2a, fm2b)
 dd2 <- model.sel(models)
 
+# Comparing model.avg on model list and applied directly:
 ma0 <- model.avg(get.models(dd2))
 ma1 <- model.avg(dd2)
 
 summary(ma1)
-
 stopifnot(isTRUE(all.equal(ma0$avg.model, ma1$avg.model)))
+
+# Comparing re-ranked model.sel on model list and applied directly:
+msBIC <- model.sel(models, rank = "BIC")
+msAIC <- model.sel(models, rank = "AIC")
+msBIC2 <- model.sel(get.models(msAIC), rank = "BIC")
+msBIC3 <- model.sel(msAIC, rank = "BIC")
+msAIC2 <- model.sel(msBIC3, rank = "AIC")
+msAIC3 <- model.sel(get.models(msAIC2), rank = "AIC")
+all.equal(msAIC2, msAIC)
+# !all.equal(msAIC3, msAIC)
+# !all.equal(msBIC2, msBIC)
 
 # update.mer does not expand dots, so here we have a call:
 # lmer(formula = distance ~ Sex + (1 | Subject), data = Orthodont,

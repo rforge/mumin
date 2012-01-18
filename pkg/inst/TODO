@@ -6,6 +6,6 @@ TODO list for the MuMIn package:
         may be used with lme for that purpose
 **  add a 'keep' argument for 'dredge' to return (a subset of) models (similarly
         as in 'model.avg' attr(*, 'modelList'))
-**  allow model.avg directly on dredge output without re-fitting the models
-        (add the list of coeffficient tables as attribute). Note that prediction
-		would be not allowed on such an averaged model
+*   consistent ordering of columns in 'model.selection' tables
+*   the same argument order in all 'model.sel' methods (add rank argument to the
+        generic function)

@@ -40,8 +40,8 @@ mod.sel(object, ...)
 \value{
 
 An object of class \code{"model.selection"} with columns containing useful
-information about each model: the coefficients, value of the information
-criterion used, Delta(IC) and weight.
+information about each model: the coefficients, df, log-likelihood, the value of
+the information criterion used, Delta(IC) and \sQuote{Akaike weight}.
 
 }
 
@@ -61,12 +61,16 @@ fm1 <- glm(formula = y ~ X1 + X2 * X3, data = Cement)
 fm2 <- update(fm1, . ~ . - X1 - X2)
 fm3 <- update(fm1, . ~ . - X2 - X3)
 
-# ranked with AICc by default
-model.sel(fm1, fm2, fm3)
+## ranked with AICc by default
+(msAICc <- model.sel(fm1, fm2, fm3))
 
-
-# ranked with BIC
+## ranked with BIC
 model.sel(fm1, fm2, fm3, rank = AIC, rank.args = alist(k = log(nobs(x))))
+# or
+# model.sel(msAICc, rank = AIC, rank.args = alist(k = log(nobs(x))))
+# or
+# update(msAICc, rank = AIC, rank.args = alist(k = log(nobs(x))))
+
 
 }
 

@@ -46,13 +46,13 @@ S3method(subset, model.selection)
 S3method("[", model.selection)
 S3method(update, model.selection)
 S3method(coef, model.selection)
+S3method(logLik, model.selection)
 
 S3method(model.sel, model.selection)
 S3method(model.sel, default)
 
 S3method(model.avg, model.selection)
 S3method(model.avg, default)
-
 
 S3method(plot, model.selection)
 

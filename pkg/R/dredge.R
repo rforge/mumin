@@ -353,11 +353,11 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		rank = IC,
 		rank.call = attr(IC, "call"),
 		beta = beta,
-		call = match.call(expand.dots = TRUE)
+		call = match.call(expand.dots = TRUE),
+		coefTables = retCoefTable,
+		nobs = nobs(global.model)
 	)
 
-	attr(ret, "coefTables") <- retCoefTable
-	attr(ret, "nobs") <- nobs(global.model)
 
 	return(ret)
 } ######
@@ -384,7 +384,7 @@ function(x, subset, select, recalc.weights = TRUE, ...) {
 function (x, i, j, recalc.weights = TRUE, ...) {
 	ret <- `[.data.frame`(x, i, j, ...)
 	if (missing(j)) {
-		s <- c("row.names", "calls", "coefTables", "random.terms")
+		s <- c("row.names", "calls", "coefTables", "random.terms", "order")
 		k <- match(dimnames(ret)[[1L]], dimnames(x)[[1L]])
 		attrib <- attributes(x)
 		attrib[s] <- lapply(attrib[s], `[`, k)
@@ -486,3 +486,9 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 
 `coef.model.selection` <- function (object, ...)
 	object[, attr(object, "terms")]
+
+`logLik.model.selection` <- function (object, ...) {
+	nobs <- attr(object, "nobs")
+	apply(object[, c("df", "logLik")], 1L, function(x) structure(list(x[[2L]]),
+		df = x[[1L]], nobs = nobs, class = "logLik"))
+}

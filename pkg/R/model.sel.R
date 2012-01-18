@@ -9,13 +9,26 @@ function (object, ...) UseMethod("model.sel")
 function (object, rank = NULL, rank.args = NULL, ...) {
 	#if(!is.null(rank)) .NotYetUsed("rank")
 	if(!is.null(rank)) {
-		models <- get.models(object, seq.int(nrow(object)))
-		ret <- model.sel.default(models, rank = .getRank(rank,
-			rank.args = rank.args, object = models[[1L]]))
+		rank <- .getRank(rank, rank.args = rank.args)
+		ic <- tryCatch(sapply(logLik(object), rank), error = function(e) e)
+		if(!inherits(ic, "error") && is.numeric(ic)) {
+			oldRankCol <- as.character(attr(attr(object, "rank"), "call")[[1L]])
+			rankCol <- as.character(attr(rank, "call")[[1L]])
+			colnames(object)[colnames(object) == oldRankCol] <- rankCol
+			object[, rankCol] <- ic
+			object$delta <- ic - min(ic)
+			object$weight <- Weights(ic)
+			ret <- object[order(ic), ]
+			#attr(ret, "order") <- o
+			attr(ret, "rank") <- rank
+			attr(ret, "rank.call") <- attr(rank, "call")
+		} else {
+			message("'rank' cannot be applied to 'logLik' object. Recreating model fits.")
+			models <- get.models(object, seq.int(nrow(object)))
+			ret <- model.sel.default(models, rank = rank)
+		}
 		return(ret)
-	} else {
-		return(object)
-	}
+	} else return(object)
 }
 
 
@@ -60,10 +73,17 @@ function(object, ..., rank = NULL, rank.args = NULL) {
 	d[,j] <- lapply(d[,j, drop = FALSE], function(x) factor(is.nan(x),
 		levels = TRUE, labels = "+"))
 
-	ret <- as.data.frame(t(vapply(models, function(x) {
+	ret <- vapply(models, function(x) {
 		ll <- logLik(x)
-		c(attr(ll, "df"), ll, rank(x))
-		}, structure(double(3L), names=c("df", "logLik", ICname)))))
+		ic <- tryCatch(rank(x), error = function(e) e)
+		if(inherits(ic, "error")) {
+			ic$call <- sys.call(sys.nframe() - 4L)
+			ic$message <- gettextf("evaluating 'rank' for an object failed with message: %s", ic$message)
+			stop(ic)
+		}
+		c(attr(ll, "df"), ll, ic)
+		}, structure(double(3L), names=c("df", "logLik", ICname)))
+	ret <- as.data.frame(t(ret))
 
 	ret <- cbind(d, ret)
 	ret[, "delta"] <- ret[, ICname] - min(ret[, ICname])
@@ -80,6 +100,7 @@ function(object, ..., rank = NULL, rank.args = NULL) {
 	attr(ret, "rank.call") <- attr(rank, "call")
 	attr(ret, "call") <- match.call(expand.dots = TRUE)
 	attr(ret, "coefTables") <- retCoefTable[o]
+	attr(ret, "nobs") <- nobs(models[[1L]])
 
 	if (!all(sapply(random.terms, is.null)))
 		attr(ret, "random.terms") <- random.terms
