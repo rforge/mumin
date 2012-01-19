@@ -28,9 +28,12 @@ fm4oc <- occu(~veght ~veght+habitat, umfOccu)
 # dredge(fm2oc, eval=F, fixed=~psi(habitat))
 
 (dd <- dredge(fm2oc, fixed=~psi(habitat)))
+model.sel(dd, rank = "AIC")
+models <- get.models(dd[1:3])
 
-#attr(dd, "terms")
-#coef(fm4oc)
+summary(model.avg(models))
+summary(model.avg(dd[1:3]))
+summary(model.avg(model.sel(dd, rank = "AIC")[1:3]))
 
 stopifnot(!any(is.na(dd[, "psi(habitat)"])))
 

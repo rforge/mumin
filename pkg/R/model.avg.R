@@ -2,9 +2,9 @@
 function (object, ..., revised.var = TRUE) {
 	if (isTRUE("method" %in% names(match.call())))
 		stop("argument 'method' is no longer accepted")
-
 	UseMethod("model.avg")
 }
+
 
 `model.avg.model.selection` <-
 function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
@@ -24,42 +24,56 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 		cl2 <- cl[c(TRUE, TRUE, arg1)]
 		cl2[[2L]] <- cl1
 		cl2[[1L]] <- as.name("model.avg")
+		#message("recreating the model objects")
 		return(eval(cl2, parent.frame()))
 	}
 
 	ct <- attr(object, "coefTables")
-	coefNames <- if(!is.null(attr(object, "global")))
-		names(coeffs(attr(object, "global"))) else
-		unique(unlist(lapply(ct, rownames)))
-	coefNames <- fixCoefNames(coefNames, sort = TRUE)
+	#coefNames <- if(!is.null(attr(object, "global")))
+		#names(coeffs(attr(object, "global"))) else
+	coefNames <- fixCoefNames(unique(unlist(lapply(ct, rownames))), sort = TRUE)
 
 	nCoef <- length(coefNames)
 	nModels <- length(ct)
-	#browser() ##### DEBUG
 	coefArray <- array(NA_real_, dim = c(nModels, 3L, nCoef),
-		dimnames = list(NULL, c("Estimate", "SE", "df"), coefNames))
+		dimnames = list(NULL, c("Estimate", "Std. Error", "df"), coefNames))
 	for(i in seq_along(ct)) {
 		z <- ct[[i]]
+		coefArray[i, 1:3, ]
 		coefArray[i, seq_len(ncol(z)), ] <- t(z[match(coefNames, rownames(z)), ])
 	}
 	weight <- object$weight / sum(object$weight)
+
 	avgcoef <- array(dim = c(nCoef, 5L), dimnames = list(coefNames, c("Estimate",
 		"Std. Err.", "Adjusted SE", "Lower CI", "Upper CI")))
 	for(i in seq_len(nCoef))
 		avgcoef[i, ] <- par.avg(coefArray[, 1L, i], coefArray[, 2L, i], weight,
 			df = coefArray[, 3L, i], revised.var = revised.var)
 
+
 	missing.par <- is.na(coefArray[, 1L, ])
 	coef.shrink <- avgcoef[, 1L] *
 		colSums(array(weight * as.double(!missing.par), dim = c(nModels, nCoef)))
 
-	allterms1 <- lapply(attr(object, "calls"), function(x) getAllTerms(formula(x)))
-	all.terms <- unique(unlist(allterms1))
-	all.model.names <- .modelNames(allTerms = allterms1, uqTerms = all.terms)
+	#allterms1 <- lapply(attr(object, "calls"), function(x)
+		#getAllTerms(as.formula(x[[switch(as.character(x[[1L]]),
+			#lme=, lme.formula= "fixed", gls= "model", "formula")]])))
+
+	all.terms <- attr(object, "terms")
+	all.vterms <- all.terms[!(all.terms %in% attr(all.terms, "interceptLabel")
+		| apply(is.na(object[, all.terms]), 2L, all))]
+
+	allterms1 <- apply(!is.na(object[, all.vterms, drop = FALSE]), 1L, function(x) all.vterms[x])
+
+
+	#all.terms <- unique(unlist(allterms1))
+	all.model.names <- .modelNames(allTerms = allterms1, uqTerms = all.vterms)
 
 	mstab <- object[, -(seq_len(ncol(object) - 5L))]
 	colnames(mstab)[4:5] <- c("Delta", "Weight")
 	rownames(mstab) <- all.model.names
+
+	avgcoef[is.nan(avgcoef)] <- NA
 
 	ret <- list(
 		summary = as.data.frame(mstab),
@@ -111,6 +125,7 @@ function(object, ..., beta = FALSE,
 
 	allterms1 <- lapply(models, getAllTerms)
 	all.terms <- unique(unlist(allterms1))
+
 	# sort by level (main effects first)
 	all.terms <- all.terms[order(vapply(gregexpr(":", all.terms),
 		function(x) if(x[1L] == -1L) 0L else length(x), numeric(1L)), all.terms)]
@@ -155,7 +170,7 @@ function(object, ..., beta = FALSE,
 	# ----!!! From now on, everything MUST BE ORDERED by 'weight' !!!-----------
 	mstab <- cbind(df = vapply(logLiks, attr, numeric(1L), "df"),
 		logLik = as.numeric(logLiks), IC = ic, Delta = delta, Weight = weight,
-		deparse.level = 0)
+		deparse.level = 0L)
 	rownames(mstab) <- all.model.names
 	mstab <- mstab[model.order, ]
 	if(!is.null(dispersion)) {
@@ -166,14 +181,15 @@ function(object, ..., beta = FALSE,
 	weight <- mstab[, "Weight"] # has been sorted in table
 	models <- models[model.order]
 
+	#interceptLabel <- unique(unlist(lapply(allterms1, attr, "interceptLabel")))
 	allCoefNames <- fixCoefNames(unique(unlist(lapply(mcoeffs, names))), sort = TRUE)
-
+	#allCoefNames <- allCoefNames[order(!(allCoefNames %in% interceptLabel))]
 	nCoef <- length(allCoefNames)
 
 	if (beta)	response.sd <- sd(model.response(model.frame(object)))
 
 	coefArray <- array(NA_real_, dim = c(nModels, 3L, nCoef),
-		dimnames = list(rownames(mstab),  c("Estimate", "Std. Error", "df"), allCoefNames))
+		dimnames = list(rownames(mstab), c("Estimate", "Std. Error", "df"), allCoefNames))
 
 	for (i in seq_len(nModels)) {
 		m <- models[[i]]
@@ -185,6 +201,7 @@ function(object, ..., beta = FALSE,
 			#if(is.null(mdf) || !length(mdf)) mdf <- rep(NA, ncoef)
 			if (beta) coefmat[, 1L:2L] <- coefmat[, 1L:2L] * sd(model.matrix(m)) / response.sd
 			j <- match(rownames(coefmat), allCoefNames)
+
 			coefArray[i, 1L:2L, j] <- t(coefmat[, 1L:2L])
 			mdf <- coefDf(m)[!is.na(coeffs(m))]
 			if(!is.null(mdf) && length(mdf)) coefArray[i, 3L, j] <- mdf
@@ -202,7 +219,7 @@ function(object, ..., beta = FALSE,
 	names(importance) <- all.terms
 	importance <- sort(importance, decreasing = TRUE)
 
-	avg.model <- t(vapply(seq_along(allCoefNames),
+	avgcoef <- t(vapply(seq_along(allCoefNames),
 		function(i) par.avg(
 			coefArray[, 1L, i],
 			se = coefArray[, 2L, i],
@@ -212,18 +229,16 @@ function(object, ..., beta = FALSE,
 			revised.var = revised.var),
 		double(5L)))
 
-	avg.model[is.nan(avg.model)] <- NA
+	avgcoef[is.nan(avgcoef)] <- NA
 
-	dimnames(avg.model) <- list(allCoefNames, c("Estimate", "Std. Err.",
+	dimnames(avgcoef) <- list(allCoefNames, c("Estimate", "Std. Err.",
 		"Adjusted SE", "Lower CI", "Upper CI"))
 
     names(all.terms) <- seq_along(all.terms)
-
 	colnames(mstab)[3L] <- ICname
 
-
 	missing.par <- is.na(coefArray[, 1L, ])
-	coef.shrink <- avg.model[, 1L] *
+	coef.shrink <- avgcoef[, 1L] *
 		#colSums(weight * !is.na(all.coef))
 		colSums(array(weight * as.double(!missing.par), dim = c(nModels, nCoef)))
 
@@ -251,7 +266,7 @@ function(object, ..., beta = FALSE,
 	ret <- list(
 		summary = as.data.frame(mstab),
 		term.codes = attr(all.model.names, "variables"),
-		avg.model = avg.model,
+		avg.model = avgcoef,
 		coef.shrinkage = coef.shrink,
 		coefArray = coefArray,
 		importance = importance,
@@ -274,7 +289,6 @@ function(object, ..., beta = FALSE,
 `coef.averaging` <-
 function(object, full = FALSE, ...) if(full) object$coef.shrinkage else
 	object$avg.model[, 1L]
-
 
 # TODO: predict type="response" + average on response scale
 `predict.averaging` <-
@@ -495,7 +509,9 @@ function(x, ...) {
 
 	#vcov0 <- matrix(NA, nrow=nvars, ncol = nvars,	dimnames = list(names.all, names.all))
 	vcov0 <- matrix(if(full) 0 else NA, nrow = nvars,
-		ncol = nvars,	dimnames = list(names.all, names.all))
+		ncol = nvars, dimnames = list(names.all, names.all))
+
+	v <- vcovs[[1]]
 
 	vcovs2 <- lapply(vcovs, function(v) {
 		i <- match(dimnames(v)[[1L]], names.all)

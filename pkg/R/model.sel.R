@@ -4,7 +4,6 @@
 `mod.sel` <-
 function (object, ...) UseMethod("model.sel")
 
-
 `model.sel.model.selection` <-
 function (object, rank = NULL, rank.args = NULL, ...) {
 	#if(!is.null(rank)) .NotYetUsed("rank")
@@ -55,9 +54,9 @@ function(object, ..., rank = NULL, rank.args = NULL) {
 
 	rank <- .getRank(rank, rank.args = rank.args, object = object)
 	ICname <- deparse(attr(rank, "call")[[1L]])
-	all.terms <- lapply(models, getAllTerms, intercept = TRUE)
-	random.terms <- lapply(all.terms, attr, "random.terms")
-	all.terms <- unique(unlist(all.terms))
+	allTermsList <- lapply(models, getAllTerms, intercept = TRUE)
+	random.terms <- lapply(allTermsList, attr, "random.terms")
+	all.terms <- unique(unlist(allTermsList))
 	all.coef <- fixCoefNames(unique(unlist(lapply(lapply(models, coeffs), names))))
 
 	logLik <- .getLogLik()
@@ -90,21 +89,33 @@ function(object, ..., rank = NULL, rank.args = NULL) {
 	ret[, "weight"] <- Weights(ret[,ICname])
 	o <- order(ret[, "delta"], decreasing = FALSE)
 
-	rownames(ret) <- names(models)
-	ret <- ret[o, ]
+	descrf <- modelDescr(models)
+	descrf$model <- NULL
+	if(nlevels(descrf$family) == 1L) descrf$family <- NULL
+	if(ncol(descrf)) {
+		i <- seq_len(length(all.terms))
+		ret <- cbind(ret[, i], descrf, ret[, -i])
+	}
 
-	attr(ret, "terms") <- all.terms
-	attr(ret, "calls") <- lapply(models, .getCall)[o]
-	attr(ret, "order") <- o
-	attr(ret, "rank") <- rank
-	attr(ret, "rank.call") <- attr(rank, "call")
-	attr(ret, "call") <- match.call(expand.dots = TRUE)
-	attr(ret, "coefTables") <- retCoefTable[o]
-	attr(ret, "nobs") <- nobs(models[[1L]])
+	rownames(ret) <- names(models)
+
+	ret <- structure(
+		ret[o, ],
+		terms = structure(all.terms, interceptLabel =
+			unique(unlist(lapply(allTermsList, attr, "interceptLabel")))),
+		calls = lapply(models, .getCall)[o],
+		order = o,
+		rank = rank,
+		rank.call = attr(rank, "call"),
+		call = match.call(expand.dots = TRUE),
+		nobs = nobs(models[[1L]]),
+		coefTables = retCoefTable[o],
+		vCols = colnames(descrf),
+		class = c("model.selection", "data.frame")
+	)
 
 	if (!all(sapply(random.terms, is.null)))
 		attr(ret, "random.terms") <- random.terms
 
-	class(ret) <- c("model.selection", "data.frame")
 	ret
 }

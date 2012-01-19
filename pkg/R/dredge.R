@@ -265,9 +265,11 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 					}
 					#row1 <- c(row1, extraResult1)
 				}
-				ll <- logLik(fit1)
+
 				mcoef1 <- matchCoef(fit1, all.terms = allTerms, beta = beta,
 					allCoef = TRUE)
+
+				ll <- logLik(fit1)
 				row1 <- c(mcoef1[allTerms], extraResult1,
 					df = attr(ll, "df"), ll = ll, ic = IC(fit1)
 				)
@@ -344,22 +346,20 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	ret$delta <- ret[, ICName] - min(ret[, ICName])
 	ret$weight <- exp(-ret$delta / 2) / sum(exp(-ret$delta / 2))
 
-	ret <- structure(ret,
+	structure(ret,
 		class = c("model.selection", "data.frame"),
 		calls = calls[o],
 		global = global.model,
 		global.call = gmCall,
-		terms = allTerms,
+		terms = structure(allTerms, interceptLabel = interceptLabel),
 		rank = IC,
 		rank.call = attr(IC, "call"),
 		beta = beta,
 		call = match.call(expand.dots = TRUE),
 		coefTables = retCoefTable,
-		nobs = nobs(global.model)
+		nobs = nobs(global.model),
+		vCols = varying.names
 	)
-
-
-	return(ret)
 } ######
 
 `subset.model.selection` <-
@@ -404,8 +404,8 @@ function (x, i, j, recalc.weights = TRUE, ...) {
 
 `print.model.selection` <-
 function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
-	if(!is.null(x$weight))
-		x$weight <- round(x$weight, 3L)
+	orig.x <- x
+	if(!is.null(x$weight)) x$weight <- round(x$weight, 3L)
 	xterms <- attr(x, "terms")
 	if(is.null(xterms)) {
 		print.data.frame(x, ...)
@@ -434,21 +434,33 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 		x[, i] <- signif(x[, i], 4L)
 		for(i in names(dig)[j]) x[, i] <- round(x[, i], digits = dig[i])
 
+		vLegend <- character(0)
+		if(abbrev.names) {
+			vCols <- attr(x, "vCols")
+			if(!is.null(vCols)) {
+				for(i in vCols) {
+					z <- x[, i]
+					lev <- levels(z)
+					z[z %in% c("", "NULL")] <- NA
+					z <- z[drop = TRUE]
+					shlev <- paste(substr(i, 1, 1), seq(nlevels(z)), sep="")
+					x[, i] <- factor(z, labels = shlev)
+					vLegend <- c(vLegend, paste(i, ": ", paste(shlev, "=",
+						sQuote(levels(z)), collapse = ", "), sep = ""))
+				}
+			}
+		}
+
 		print.default(as.matrix(x)[, !sapply(x, function(.x) all(is.na(.x))),
 			drop = FALSE], na.print = "", quote = FALSE)
 
-		if (!is.null(random.terms)) {
+		if(abbrev.names && length(vLegend))
+			cat("Abbreviations:", vLegend, sep = "\n")
 
+		if (!is.null(random.terms)) {
 			ran <- sapply(lapply(random.terms[!sapply(random.terms, is.null)],
 				sort), prettyEnumStr, quote = sQuote)
-
 			cat("Random terms: \n")
-
-			#print(unique(ran))
-
-			#x <- dd
-
-
 			if(length(uqran <- unique(ran)) > 1L) {
 				n <- table(ran)
 				x <- tapply(names(ran), ran, prettyEnumStr,
@@ -462,6 +474,7 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 			cat("\n"); print.warnings(attr(x, "warnings"))
 		}
 	}
+	invisible(orig.x)
 }
 
 `update.model.selection` <- function (object, global.model, ..., evaluate = TRUE) {

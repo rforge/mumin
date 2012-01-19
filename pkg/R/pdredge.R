@@ -401,15 +401,14 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		calls = calls[o],
 		global = global.model,
 		global.call = gmCall,
-		terms = allTerms,
+		terms = structure(allTerms, interceptLabel = interceptLabel),
 		rank = IC,
 		rank.call = attr(IC, "call"),
-		call = match.call(expand.dots = TRUE)
+		call = match.call(expand.dots = TRUE),
+		coefTables = retCoefTable,
+		nobs = nobs(global.model),
+		vCols = varying.names
 	)
-
-
-	attr(ret, "coefTables") <- retCoefTable
-	attr(ret, "nobs") <- nobs(global.model)
 
 	if(length(warningList)) {
 		class(warningList) <- c("warnings", "list")

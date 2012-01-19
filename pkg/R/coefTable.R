@@ -1,15 +1,18 @@
 `tTable` <-
 function (model, ...) 	{
 	.Deprecated("coefTable")
-	UseMethod("coefTable")
+	coefTable(model, ...)
 }
 
 `coefTable` <-
-function (model, dispersion = NULL, ...) 	UseMethod("coefTable")
+function (model, dispersion = NULL, ...) UseMethod("coefTable")
+
 
 `coefTable.default` <-
 function(model, dispersion = NULL, ...)
-return(summary(model, dispersion = dispersion)$coefficients)
+	summary(model, dispersion = dispersion)$coefficients
+
+
 
 `coefTable.gam` <-
 function(model, dispersion = NULL, ...) {

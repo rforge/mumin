@@ -7,7 +7,7 @@ require(MuMIn)
 #if(.checkPkg("nlme")) {
 library(nlme)
 
-fm1Dial.gls <- gls(rate ~(pressure + I(pressure^2) + I(pressure^3) + I(pressure^4))*QB,
+fm1Dial.gls <- gls(rate ~(pressure + I(pressure^2) + I(pressure^3))*QB,
       Dialyzer, method="ML")
 
 varying <- list(
@@ -16,14 +16,23 @@ varying <- list(
 	weights = alist(vp.press=varPower(form = ~ pressure), NULL)
 	)
 
-dd <- dredge(fm1Dial.gls, m.max = 1, m.min = 1, fixed=~pressure, varying =
+dd <- dredge(fm1Dial.gls, m.max = 2, m.min = 1, fixed=~pressure, varying =
 	varying, extra = "R^2")
+
+#dd <- dredge(fm1Dial.gls, m.max = 1, m.min = 1, extra = "R^2")
+
+
 models <- get.models(dd, 1:4)
 ma <- model.avg(models, revised=T)
+ms <- model.sel(models)
+print(ms, abbr = F)
+print(ms, abbr = T)
 
 summary(ma)
 predict(ma)
-predict(ma, data.frame(QB = 300, pressure = seq(0.24, 3, length = 10)))
+#predict(ma, data.frame(QB = 300, pressure = seq(0.24, 3, length = 10)))
+predict(ma, Dialyzer[1:5, ])
+
 
 # example(corGaus)
 fm1BW.lme <- lme(weight ~ Time * Diet, data = BodyWeight, random = ~ Time, method="ML")
@@ -37,10 +46,20 @@ dd <- dredge(fm1BW.lme, m.max=1, fixed=~Time, varying=varying)
 #dd <- dredge(fm1, trace=T)
 models <- get.models(dd, 1:4)
 ma <- model.avg(models, revised=T)
+
+
+summary(ma <- model.avg(models[1:4]))
+summary(model.avg(dd[1:4]))
+
+model.avg(dd[1:4])
+
+logLik(dd)
+
 mod.sel(models)
 summary(ma)
 confint(ma)
-#ma <- model.avg(gm, revised=F)
+predict(ma)
+
 
 detach(package:nlme); rm(list=ls())
 #}
@@ -154,6 +173,8 @@ fm3 <- lm(log(distance) ~ age, data = Orthodont)
 models <- list(fm4, fm1, fm3, fm2, fm2a, fm2b)
 dd2 <- model.sel(models)
 
+
+
 # Comparing model.avg on model list and applied directly:
 ma0 <- model.avg(get.models(dd2))
 ma1 <- model.avg(dd2)
@@ -214,14 +235,20 @@ data(Cement, package = "MuMIn")
 nseq <- function(x, len=length(x)) seq(min(x, na.rm=TRUE), max(x, na.rm=TRUE),
 	length=len)
 
-fm1 <- glm(y ~ (X1+X2+X3+X4)^2, data = Cement)
-dd <- dredge(fm1, trace=T)
+fm1 <- glm(y ~ (X1+X2+X3)^2, data = Cement)
 
+dd <- dredge(fm1)
 gm <- get.models(dd, 1:10)
-ma <- model.avg(gm)
+summary(ma <- model.avg(gm))
+
+vcov(fm1)
 vcov(ma)
 
-summary(ma)
+summary(ma1  <- model.avg(dd[1:10]))
+summary(ma2 <- model.avg(model.sel(dd[1:10], rank = "AICc")))
+
+all.equal(ma$avg.model, ma1$avg.mode)
+
 predict(ma) == predict(ma, Cement)
 predict(ma, se.fit=T)
 predict(ma, lapply(Cement, nseq))
@@ -243,6 +270,7 @@ gm <- get.models(dd, 1:10)
 ma <- model.avg(gm)
 stopifnot(all(predict(ma) == predict(ma, Cement)))
 predict(ma, lapply(Cement, nseq, len=30), se.fit=TRUE)
+vcov(ma)
 
 rm(list=ls()); detach(package:MASS)
 
@@ -263,8 +291,12 @@ bwt <- with(birthwt, data.frame(
 options(contrasts = c("contr.treatment", "contr.poly"))
 bwt.mu <- multinom(low ~ ., data = bwt)
 dd <- dredge(bwt.mu, trace=T)
+
+
 gm <- get.models(dd, seq(nrow(dd)))
 ma <- model.avg(gm)
+
+model.avg(dd)
 summary(ma)
 #predict(bwt.mu)
 # predict(ma) // Cannot average factors!
@@ -354,12 +386,13 @@ quine.nb1 <- glm.nb(Days ~ 0 + Sex/(Age + Eth*Lrn), data = quine)
 #quine.nb1 <- glm.nb(Days ~ Sex/(Age + Eth*Lrn), data = quine)
 
 ms <- dredge(quine.nb1, marg.ex = "Sex")
-models <- get.models(ms, 1:5)
+
+models <- get.models(ms )
 summary(model.avg(models))
 
 dredge(quine.nb1) # Wrong
 dredge(quine.nb1, marg.ex="Sex") # Right
-ma <- model.avg(dredge(quine.nb1, marg.ex="Sex"), subset=cumsum(weight)<=.9999)
+ma <- model.avg(dredge(quine.nb1, marg.ex="Sex"), subset = cumsum(weight)<=.9999)
 
 # Cannot predict with this 'averaging'
 #pred <- predict(ma, se=TRUE)
