@@ -459,11 +459,12 @@ r.squared.coxph <- function(object, ...) {
 }
 
 ms <- dredge(fmcph, fixed=c("cluster(id)", "strata(enum)"), extra = "r.squared.coxph")
+
 fits <- get.models(ms, delta < 5)
 summary(model.avg(fits))
 
 fmsrvrg <- survreg(Surv(futime, fustat) ~ ecog.ps + rx, ovarian, dist='weibull',
-    scale=1)
+    scale = 1)
 summary(model.avg(dredge(fmsrvrg), delta  < 4))
 # nobs(fmsrvrg)
 

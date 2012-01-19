@@ -19,3 +19,59 @@ stats:::family.lm
 
 `nobs.rq` <-
 function (object, ...) length(object$y)
+
+
+# coxme:
+
+`logLik.coxme` <-
+function(object, type = c("integrated", "penalized"), ...) {
+	type <- match.arg(type)
+	i <- which(type == c("integrated", "penalized"))[1L]
+	ret <- object$loglik[[i + 1L]]
+	attr(ret, "df") <- object$df[i]
+	attr(ret, "nobs") <- object$n[1L]
+	class(ret) <- "logLik"
+	ret
+}
+
+`nobs.coxme` <-
+function (object, ...) object$n[1L]
+
+`getAllTerms.coxme` <- function (x, ...)  {
+	ret <- MuMIn:::getAllTerms.terms(terms(x))
+	random <- x$formulaList$random
+	attr(ret, "random.terms") <- as.character(random)
+	f <- as.name(".")
+	for(f1 in random) f <- call("+", f, f1)
+	attr(ret, "random") <- call("~", as.name("."), f)
+	attr(ret, "intercept") <- 0L
+	attr(ret, "interceptLabel") <- NULL
+	ret
+}
+
+`formula.coxme` <- function (x, ...)  {
+	ret <- x$formulaList$fixed
+	f <- ret[[3L]]
+	for(f1 in x$formulaList$random) f <- call("+", f, f1)
+	ret[[3L]] <- f
+	ret
+}
+
+`coefTable.coxme` <- function (model, ...)  {
+	# code from coxme:::print.coxme
+	beta <- model$coefficients
+	nvar <- length(beta)
+	if(nvar) {
+		diag <- get("diag", getNamespace("Matrix"))
+		nfrail <- nrow(model$var) - nvar
+		se <- sqrt(diag(model$var)[nfrail + 1L:nvar])
+	} else se <- NULL
+	cbind("Estimate" = beta, "Std. Error" = se)
+}
+
+`makeArgs.coxme` <- function(obj, termNames, comb, opt, ...) {
+	ret <- makeArgs.default(obj, termNames, comb, opt)
+	f <- .Internal(update.formula(as.formula(ret$formula), as.formula(. ~ . + 1)))
+	ret$formula <- update.formula(f, opt$random)
+	ret
+}

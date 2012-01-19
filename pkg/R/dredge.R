@@ -72,7 +72,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		warning("comparing models fitted by REML")
 
 	if (beta && is.null(tryCatch(beta.weights(global.model), error=function(e) NULL,
-		warning=function(e) NULL))) {
+		warning = function(e) NULL))) {
 		warning("do not know how to calculate beta weights for ",
 				class(global.model)[1L], ", argument 'beta' ignored")
 		beta <- FALSE

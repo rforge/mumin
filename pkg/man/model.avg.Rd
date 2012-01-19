@@ -103,6 +103,7 @@ In addition, the object has following attributes:
 	\code{sarlm}, \code{spautolm} (\pkg{spdep});
 	\code{glmmML} (\pkg{glmmML});
 	\code{coxph}, \code{survreg} (\pkg{survival});
+	\code{coxme} (\pkg{coxme});
 	and models within the class \code{unmarkedFit} (\pkg{unmarked}).
 Other classes are also likely to be supported, in particular those inheriting
 from one of the above classes.

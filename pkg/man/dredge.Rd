@@ -99,7 +99,7 @@ returned by
 \code{multinom} (\pkg{nnet});
 \code{sarlm}, \code{spautolm} (\pkg{spdep});
 \code{glmmML} (\pkg{glmmML});
-\code{coxph}, \code{survreg} (\pkg{survival});
+\code{coxph}, \code{survreg} (\pkg{survival}) and \code{coxme} (\pkg{coxme});
 \code{rq} (\pkg{quantreg});
 and all models from package \pkg{unmarked}.
 \code{gamm} and \code{gamm4} should be evaluated \emph{via} the wrapper

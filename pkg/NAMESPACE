@@ -151,9 +151,17 @@ S3method(makeArgs, unmarkedFit)
 # S3method(makeArgs, unmarkedFitOccu)
 # S3method(makeArgs, unmarkedFitColExt)
 S3method(makeArgs, unmarkedFitDS)
+S3method(makeArgs, coxph)
 
 S3method(family, default)
 S3method(family, gls)
 S3method(family, lme)
 
 S3method(nobs, rq)
+
+S3method(coefTable, coxme)
+S3method(makeArgs, coxme)
+S3method(formula, coxme)
+S3method(getAllTerms, coxme)
+S3method(nobs, coxme)
+S3method(logLik, coxme)
