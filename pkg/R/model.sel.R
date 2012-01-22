@@ -115,7 +115,7 @@ function(object, ..., rank = NULL, rank.args = NULL) {
 	)
 
 	if (!all(sapply(random.terms, is.null)))
-		attr(ret, "random.terms") <- random.terms
+		attr(ret, "random.terms") <- random.terms[o]
 
 	ret
 }

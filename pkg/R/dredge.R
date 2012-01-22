@@ -102,22 +102,24 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	allTerms <- ordAllTerms
 	isMER <- any(inherits(global.model, c("mer", "lmer", "glmer")))
 	gmFormula <- as.formula(formula(global.model))
-	gmFormulaEnv <- attr(gmFormula, ".Environment")
+	gmFormulaEnv <- environment(gmFormula)
 
 	### BEGIN:
 	## varying BEGIN
 	if(!missing(varying) && !is.null(varying)) {
-		variantsIdx <- expand.grid(lapply(varying, seq_along))
-		seq.variants <- seq.int(nrow(variantsIdx))
 		nvarying <- length(varying)
 		varying.names <- names(varying)
+		fvarying <- unlist(varying, recursive = FALSE)
+		vlen <- vapply(varying, length, 1L)
+		nvariants <- prod(vlen)
+		variants <- as.matrix(expand.grid(split(seq_len(sum(vlen)),
+			rep(seq_along(varying), vlen))))
 	} else {
-		variantsIdx <- NULL
-		seq.variants <- 1L
+		variants <- NULL
+		nvariants <- 1L
 		nvarying <- 0L
 		varying.names <- character(0L)
 	}
-	nvariants <- length(seq.variants)
 	## varying END
 
 	## extra BEGIN
@@ -152,10 +154,10 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	## extra END
 
 	nov <- as.integer(n.vars - n.fixed)
-	ncomb <- 2L ^ nov
+	ncomb <- (2L ^ nov) * nvariants
 
 	if(nov > 31L) stop(gettextf("maximum number of predictors is 31, but %d is given", nov))
-	if(nov > 10L) warning(gettextf("%d predictors will generate up to %.0f possible combinations", nov, ncomb))
+	#if(nov > 10L) warning(gettextf("%d predictors will generate up to %.0f combinations", nov, ncomb))
 	nmax <- ncomb * nvariants
 	if(evaluate) {
 		ret.nchunk <- 25L
@@ -204,98 +206,101 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	retColIdx <- if(nvarying) -n.vars - seq_len(nvarying) else TRUE
 
+	prevJComb <- 0L
 	for(iComb in seq.int(ncomb)) {
-		comb <- c(as.logical(intToBits(iComb - 1L)[comb.seq]), comb.sfx)
+		jComb <- ceiling(iComb / nvariants)
+		if(jComb != prevJComb) {
+			comb <- c(as.logical(intToBits(jComb - 1L)[comb.seq]), comb.sfx)
 
-		nvar <- sum(comb) - nInts
-		if(nvar > m.max || nvar < m.min) next;
-		if(hasSubset && !eval(subset, structure(as.list(comb), names=allTerms)))
-			next;
+			nvar <- sum(comb) - nInts
+			if(nvar > m.max || nvar < m.min) next;
+			if(hasSubset && !eval(subset, structure(as.list(comb), names=allTerms)))
+				next;
 
-		#terms1 <- allTerms[comb]
-		newArgs <- makeArgs(global.model, allTerms[comb], comb, argsOptions)
+			newArgs <- makeArgs(global.model, allTerms[comb], comb, argsOptions)
 
-		formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
-			attr(newArgs, "formulaList")
-		if(!all(vapply(formulaList, formulaAllowed, logical(1L), marg.ex))) next;
+			formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
+				attr(newArgs, "formulaList")
+			if(!all(vapply(formulaList, formulaAllowed, logical(1L), marg.ex))) next;
 
-		if(!is.null(attr(newArgs, "problems"))) {
-			print.warnings(structure(vector(mode = "list",
-				length = length(attr(newArgs, "problems"))),
-					names = attr(newArgs, "problems")))
-		} # end if <problems>
-		# ivar j
+			if(!is.null(attr(newArgs, "problems"))) {
+				print.warnings(structure(vector(mode = "list",
+					length = length(attr(newArgs, "problems"))),
+						names = attr(newArgs, "problems")))
+			} # end if <problems>
+			# ivar j
 
-		cl <- gmCall
-		cl[names(newArgs)] <- newArgs
+			cl <- gmCall
+			cl[names(newArgs)] <- newArgs
+		} #  end if(jComb != prevJComb)
 
-		for (v in seq.variants) { ## --- Variants ---------------------------
-			modelId <- ((iComb - 1L) * nvariants) + v
-			clVariant <- cl
-			if(nvarying) {
-				newVaryingArgs <- sapply(varying.names, function(x)
-					varying[[x]][[variantsIdx[v, x]]], simplify = FALSE)
-				clVariant[varying.names] <- newVaryingArgs
-			}
+		## --- Variants ---------------------------
 
-			if(trace) {
-				cat(modelId, ": "); print(clVariant)
-				utils::flush.console()
-			}
+		modelId <- iComb
+		clVariant <- cl
+		if (nvarying) {
+			v <- (iComb - 1L) %% nvariants + 1L
+			clVariant[varying.names] <- fvarying[variants[v, ]]
+		}
 
-			if(evaluate) {
-				# begin row1: (clVariant, gmEnv, modelId, IC(), applyExtras(),
-				#              nextra, allTerms, beta,
-				#              if(nvarying) variantsIdx[v] else NULL
-				fit1 <- tryCatch(eval(clVariant, gmEnv), error = function(err) {
-					err$message <- paste(conditionMessage(err), "(model",
-						modelId, "skipped)", collapse = "")
-					class(err) <- c("simpleError", "warning", "condition")
-					warning(err)
-					return(NULL)
-				})
-				if (is.null(fit1)) next;
+		if(trace) {
+			cat(modelId, ": "); print(clVariant)
+			utils::flush.console()
+		}
 
-				if(nextra != 0L) {
-					extraResult1 <- applyExtras(fit1)
-					if(length(extraResult1) < nextra) {
-						tmp <- rep(NA_real_, nextra)
-						tmp[match(names(extraResult1), names(extraResult))] <- extraResult1
-						extraResult1 <- tmp
-					}
-					#row1 <- c(row1, extraResult1)
+		if(evaluate) {
+			# begin row1: (clVariant, gmEnv, modelId, IC(), applyExtras(),
+			#              nextra, allTerms, beta,
+			#              if(nvarying) variantsIdx[v] else NULL
+			fit1 <- tryCatch(eval(clVariant, gmEnv), error = function(err) {
+				err$message <- paste(conditionMessage(err), "(model",
+					modelId, "skipped)", collapse = "")
+				class(err) <- c("simpleError", "warning", "condition")
+				warning(err)
+				return(NULL)
+			})
+
+			if (is.null(fit1)) next;
+
+			if(nextra != 0L) {
+				extraResult1 <- applyExtras(fit1)
+				if(length(extraResult1) < nextra) {
+					tmp <- rep(NA_real_, nextra)
+					tmp[match(names(extraResult1), names(extraResult))] <- extraResult1
+					extraResult1 <- tmp
 				}
-
-				mcoef1 <- matchCoef(fit1, all.terms = allTerms, beta = beta,
-					allCoef = TRUE)
-
-				ll <- logLik(fit1)
-				row1 <- c(mcoef1[allTerms], extraResult1,
-					df = attr(ll, "df"), ll = ll, ic = IC(fit1)
-				)
-				## end -> row1
-
-				k <- k + 1L # all OK, add model to table
-
-				ret.nrow <- nrow(ret)
-				if(k > ret.nrow) { # append if necesarry
-					nadd <- min(ret.nchunk, nmax - ret.nrow)
-					retCoefTable <- c(retCoefTable, vector(nadd, mode = "list"))
-					ret <- rbind(ret, matrix(NA, ncol = ret.ncol, nrow = nadd),
-						deparse.level = 0L)
-						calls <- c(calls, vector("list", nadd))
-					ord <- c(ord, integer(nadd))
-				}
-
-				ord[k] <- modelId
-				ret[k, retColIdx] <- row1
-				retCoefTable[[k]] <- attr(mcoef1, "coefTable")
-			} else { # if evaluate
-				k <- k + 1L # all OK, add model to table
+				#row1 <- c(row1, extraResult1)
 			}
-			calls[[k]] <- clVariant
 
-		} # for (v ...)
+			mcoef1 <- matchCoef(fit1, all.terms = allTerms, beta = beta,
+				allCoef = TRUE)
+
+			ll <- logLik(fit1)
+			row1 <- c(mcoef1[allTerms], extraResult1,
+				df = attr(ll, "df"), ll = ll, ic = IC(fit1)
+			)
+			## end -> row1
+
+			k <- k + 1L # all OK, add model to table
+
+			ret.nrow <- nrow(ret)
+			if(k > ret.nrow) { # append if necesarry
+				nadd <- min(ret.nchunk, nmax - ret.nrow)
+				retCoefTable <- c(retCoefTable, vector(nadd, mode = "list"))
+				ret <- rbind(ret, matrix(NA, ncol = ret.ncol, nrow = nadd),
+					deparse.level = 0L)
+					calls <- c(calls, vector("list", nadd))
+				ord <- c(ord, integer(nadd))
+			}
+
+			ord[k] <- modelId
+			ret[k, retColIdx] <- row1
+			retCoefTable[[k]] <- attr(mcoef1, "coefTable")
+		} else { # if evaluate
+			k <- k + 1L # all OK, add model to table
+		}
+		calls[[k]] <- clVariant
+
 	} ### for (iComb ...)
 
 	if(k == 0L) stop("the result is empty")
@@ -312,7 +317,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	if(nvarying) {
 		varlev <- ord %% nvariants; varlev[varlev == 0L] <- nvariants
-		ret[, n.vars + seq_len(nvarying) ] <- as.matrix(variantsIdx)[varlev, ]
+		ret[, n.vars + seq_len(nvarying)] <- variants[varlev, ]
 	}
 
 	ret <- as.data.frame(ret)
@@ -321,7 +326,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	# Convert columns with presence/absence of terms to factors
 	tfac <- which(!(allTerms %in% gmCoefNames))
 
-	ret[tfac] <- lapply(ret[tfac], factor, levels=NaN, labels="+")
+	ret[tfac] <- lapply(ret[tfac], factor, levels = NaN, labels="+")
 
 	i <- seq_along(allTerms)
 	v <- order(termsOrder)
@@ -334,9 +339,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	if(nvarying) {
 		variant.names <- lapply(varying, function(x)
 			make.unique(if(is.null(names(x))) as.character(x) else names(x)))
-		for (i in varying.names) ret[, i] <-
-			factor(ret[, i], levels = seq_along(variant.names[[i]]),
-				labels = variant.names[[i]])
+		for (i in varying.names) ret[, i] <- factor(ret[, i], labels = variant.names[[i]])
 	}
 
 	o <- order(ret[, ICName], decreasing = FALSE)
@@ -410,7 +413,7 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 	if(is.null(xterms)) {
 		print.data.frame(x, ...)
 	} else {
-		xterms <- gsub(" ", "", xterms)
+		xterms <- gsub(" ", "", xterms, fixed = TRUE)
 		if(abbrev.names) xterms <- abbreviateTerms(xterms, 3L)
 
 		colnames(x)[seq_along(xterms)] <-  xterms
@@ -422,33 +425,50 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 			cat("---\n")
 			random.terms <- attr(getAllTerms(attr(x, "global")), "random.terms")
 			if(!is.null(random.terms)) random.terms <- list(random.terms)
-		} else
-			random.terms <- attr(x, "random.terms")
+		} else random.terms <- attr(x, "random.terms")
 
 		cat("Model selection table \n")
-		dig <- c("R^2" = 4L, df = 0L, logLik = 3L, AICc = 1L, AICc = 1L, AIC = 1L,
-			BIC = 1L, QAIC = 1L, QAICc = 1L, ICOMP = 1L, Cp = 1L, delta = 2L, weight = 3L)
+		dig <- c("R^2" = 4L, df = 0L, logLik = 3L, AICc = 1L, AICc = 1L,
+			AIC = 1L, BIC = 1L, QAIC = 1L, QAICc = 1L, ICOMP = 1L, Cp = 1L,
+			delta = 2L,	weight = 3L)
 
 		j <- match(colnames(x), names(dig), nomatch = 0L)
 		i <- sapply(x, is.numeric) & (j == 0L)
 		x[, i] <- signif(x[, i], 4L)
 		for(i in names(dig)[j]) x[, i] <- round(x[, i], digits = dig[i])
 
-		vLegend <- character(0)
+		vLegend <- character(0L)
 		if(abbrev.names) {
 			vCols <- attr(x, "vCols")
+			vlen <- nchar(vCols)
+			i <- vCols[1L]
+
 			if(!is.null(vCols)) {
 				for(i in vCols) {
 					z <- x[, i]
 					lev <- levels(z)
-					z[z %in% c("", "NULL")] <- NA
-					z <- z[drop = TRUE]
-					shlev <- paste(substr(i, 1, 1), seq(nlevels(z)), sep="")
+					lev <- lev[!(lev %in% c("", "NULL"))]
+					z <- factor(z, levels = lev)
+					shlev <- gsub("((?<=F)ALSE|(?<=T)RUE|~1\\|| +)", "", lev,
+						perl = TRUE, ignore.case = TRUE)
+					shlev <- abbreviate2(shlev, nchar(i))
+					#shlev <- paste(substr(i, 1, 1), seq(nlevels(z)), sep="")
 					x[, i] <- factor(z, labels = shlev)
-					vLegend <- c(vLegend, paste(i, ": ", paste(shlev, "=",
-						sQuote(levels(z)), collapse = ", "), sep = ""))
+					if(any(j <- shlev != lev)) vLegend <- c(vLegend, paste(i,
+						": ", paste(shlev[j], "=", sQuote(lev[j]),
+						collapse = ", "), sep = ""))
 				}
 			}
+		}
+
+		uqran <- unique(unlist(random.terms))
+		abbran <- abbreviate(gsub("1 | ", "", uqran, fixed = T), 1L)
+		colran <- vapply(random.terms, function(s) paste(abbran[match(s, uqran)],
+			collapse = "+"), "")
+
+		if(addrandcol <- length(unique(colran)) > 1L) {
+			k <- which(colnames(x) == "df")[1L]
+			x <- cbind(x[, 1L:(k - 1L)], random = colran, x[, k:ncol(x)])
 		}
 
 		print.default(as.matrix(x)[, !sapply(x, function(.x) all(is.na(.x))),
@@ -457,18 +477,16 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 		if(abbrev.names && length(vLegend))
 			cat("Abbreviations:", vLegend, sep = "\n")
 
-		if (!is.null(random.terms)) {
-			ran <- sapply(lapply(random.terms[!sapply(random.terms, is.null)],
-				sort), prettyEnumStr, quote = sQuote)
-			cat("Random terms: \n")
-			if(length(uqran <- unique(ran)) > 1L) {
-				n <- table(ran)
-				x <- tapply(names(ran), ran, prettyEnumStr,
-					quote = FALSE, sep.last = ", ")
-				for(i in seq_along(x))
-					cat(ngettext(n[i], "model ", "models "), x[i], ": ",
-						names(x[i]), "\n", sep = "")
-			} else	cat("all models", ": ", uqran, "\n", sep = "")
+		if(!is.null(random.terms)) {
+			if(addrandcol) {
+				cat("Random terms: \n")
+				cat(paste(abbran, "=", sQuote(uqran)), sep = "\n")
+			} else {
+				cat("Random terms (all models): \n")
+				cat(paste(sQuote(uqran)), sep = ", ")
+				cat("\n")
+			}
+
 		}
 		if (warnings && !is.null(attr(x, "warnings"))) {
 			cat("\n"); print.warnings(attr(x, "warnings"))
@@ -479,8 +497,7 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 
 `update.model.selection` <- function (object, global.model, ..., evaluate = TRUE) {
     cl <- attr(object, "call")
-    if (is.null(cl))
-        stop("need an object with call component")
+    if (is.null(cl)) stop("need an object with call component")
     extras <- match.call(expand.dots = FALSE)$...
 
 	if(!missing(global.model))

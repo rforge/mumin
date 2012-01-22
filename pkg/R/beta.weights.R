@@ -7,6 +7,6 @@ function(model) {
 	coefmat <- coefTable(model)[, 1L:2L]
 	ret <- cbind(coefmat, coefmat * bx)
 	dimnames(ret) <- list(names(model$coefficients),
-		c("Estimate", "Std. Err.", "Beta", "Std. Err. Beta"))
+		c("Estimate", "Std. Error", "Beta", "Std. Err. Beta"))
 	return (ret)
 }

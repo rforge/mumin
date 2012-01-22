@@ -45,7 +45,7 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 	weight <- object$weight / sum(object$weight)
 
 	avgcoef <- array(dim = c(nCoef, 5L), dimnames = list(coefNames, c("Estimate",
-		"Std. Err.", "Adjusted SE", "Lower CI", "Upper CI")))
+		"Std. Error", "Adjusted SE", "Lower CI", "Upper CI")))
 	for(i in seq_len(nCoef))
 		avgcoef[i, ] <- par.avg(coefArray[, 1L, i], coefArray[, 2L, i], weight,
 			df = coefArray[, 3L, i], revised.var = revised.var)
@@ -182,6 +182,7 @@ function(object, ..., beta = FALSE,
 	models <- models[model.order]
 
 	#interceptLabel <- unique(unlist(lapply(allterms1, attr, "interceptLabel")))
+
 	allCoefNames <- fixCoefNames(unique(unlist(lapply(mcoeffs, names))), sort = TRUE)
 	#allCoefNames <- allCoefNames[order(!(allCoefNames %in% interceptLabel))]
 	nCoef <- length(allCoefNames)
@@ -231,7 +232,7 @@ function(object, ..., beta = FALSE,
 
 	avgcoef[is.nan(avgcoef)] <- NA
 
-	dimnames(avgcoef) <- list(allCoefNames, c("Estimate", "Std. Err.",
+	dimnames(avgcoef) <- list(allCoefNames, c("Estimate", "Std. Error",
 		"Adjusted SE", "Lower CI", "Upper CI"))
 
     names(all.terms) <- seq_along(all.terms)
@@ -543,3 +544,5 @@ function(x, ...) {
 			names = rownames(object$summary))
 	}
 }
+
+`coefTable.averaging` <- function (model, ...)  model$avg.model[, 1:2]

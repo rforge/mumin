@@ -16,11 +16,7 @@ varying <- list(
 	weights = alist(vp.press=varPower(form = ~ pressure), NULL)
 	)
 
-dd <- dredge(fm1Dial.gls, m.max = 2, m.min = 1, fixed=~pressure, varying =
-	varying, extra = "R^2")
-
-#dd <- dredge(fm1Dial.gls, m.max = 1, m.min = 1, extra = "R^2")
-
+dd <- dredge(fm1Dial.gls, m.max = 2, m.min = 1, fixed=~pressure, varying = varying, extra = "R^2")
 
 models <- get.models(dd, 1:4)
 ma <- model.avg(models, revised=T)
@@ -239,9 +235,13 @@ fm1 <- glm(y ~ (X1+X2+X3)^2, data = Cement)
 
 dd <- dredge(fm1)
 gm <- get.models(dd, 1:10)
-summary(ma <- model.avg(gm))
 
-vcov(fm1)
+summary(ma <- model.avg(gm))
+#summary(ma1<-model.avg(dd, 1:10))
+#summary(ma2<-model.avg(dd[1:10]))
+
+
+#vcov(fm1)
 vcov(ma)
 
 summary(ma1  <- model.avg(dd[1:10]))
@@ -458,10 +458,11 @@ r.squared.coxph <- function(object, ...) {
 	c(rsq = 1 - exp(-logtest/object$n), maxrsq = 1 - exp(2 * object$loglik[1L]/object$n))
 }
 
-ms <- dredge(fmcph, fixed=c("cluster(id)", "strata(enum)"), extra = "r.squared.coxph")
+ms <- dredge(fmcph, fixed=c("cluster(id)", "strata(enum)"), extra = list(R2="r.squared.coxph"))
 
 fits <- get.models(ms, delta < 5)
 summary(model.avg(fits))
+
 
 fmsrvrg <- survreg(Surv(futime, fustat) ~ ecog.ps + rx, ovarian, dist='weibull',
     scale = 1)

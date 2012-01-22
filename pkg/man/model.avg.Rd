@@ -23,7 +23,7 @@ model.avg(object, ..., revised.var = TRUE)
 }
 
 \arguments{
-	\item{object}{ a fitted model object or a list of such objects, or a 
+	\item{object}{ a fitted model object or a list of such objects, or a
 		\code{model.selection} object. See \sQuote{Details}. }
 
     \item{\dots}{ more fitted model objects. }
@@ -189,6 +189,7 @@ averaging.
 \examples{
 
 # Example from Burnham and Anderson (2002), page 100:
+library(MuMIn)
 data(Cement)
 fm1 <- lm(y ~ ., data = Cement)
 (ms1 <- dredge(fm1))
@@ -202,8 +203,8 @@ confint(avgmod.95p)
 
 \dontrun{
 # The same result, but re-fitting the models via 'get.models'
-models <- get.models(ms1, cumsum(weight) <= .95)
-model.avg(models)
+confset.95p <- get.models(ms1, cumsum(weight) <= .95)
+model.avg(confset.95p)
 
 # Force re-fitting the component models
 model.avg(ms1, cumsum(weight) <= .95, fit = TRUE)

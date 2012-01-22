@@ -70,6 +70,8 @@ S3method(coeffs, default)
 S3method(coefTable, default)
 S3method(coefDf, default)
 
+S3method(coefTable, averaging)
+
 S3method(AICc, default)
 
 S3method(AICc, logLik)
@@ -165,3 +167,12 @@ S3method(formula, coxme)
 S3method(getAllTerms, coxme)
 S3method(nobs, coxme)
 S3method(logLik, coxme)
+S3method(coeffs, coxme)
+
+S3method(coeffs, lmekin)
+S3method(makeArgs, lmekin)
+S3method(coefTable, lmekin)
+S3method(coefTable, lmekin)
+S3method(formula, lmekin)
+S3method(nobs, lmekin)
+S3method(logLik, lmekin)

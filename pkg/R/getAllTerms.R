@@ -107,6 +107,7 @@ function(x, ...) getAllTerms(lme4::formula(x), ...)
 `getAllTerms.coxph` <- function (x, ...) {
 	ret <- getAllTerms.default(x, ...)
 	attr(ret, "intercept") <- 0L
+	attr(ret, "interceptLabel") <- NULL
 	return(ret)
 }
 

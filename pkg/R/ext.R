@@ -9,7 +9,7 @@
 	fam <- cl$family
 	if(is.null(fam)) fam <- formals(match.fun(cl[[1L]]))$family
 	if(is.null(fam)) return(gaussian())
-	switch(mode(fam), call=eval(fam), name =, character = match.fun(fam)())
+	switch(mode(fam), call = eval(fam), name =, character = match.fun(fam)())
 }
 
 
@@ -34,10 +34,22 @@ function(object, type = c("integrated", "penalized"), ...) {
 	ret
 }
 
+`logLik.lmekin` <-
+function(object, ...) {
+	ret <- object$loglik
+	attr(ret, "nobs") <- object$n
+	attr(ret, "df") <- length(object$coefficients$fixed) +
+		length(object$coefficients$random) + 1L
+	class(ret) <- "logLik"
+	ret
+}
+
 `nobs.coxme` <-
+`nobs.lmekin` <-
 function (object, ...) object$n[1L]
 
-`getAllTerms.coxme` <- function (x, ...)  {
+`getAllTerms.coxme` <-
+function(x, ...)  {
 	ret <- MuMIn:::getAllTerms.terms(terms(x))
 	random <- x$formulaList$random
 	attr(ret, "random.terms") <- as.character(random)
@@ -49,7 +61,8 @@ function (object, ...) object$n[1L]
 	ret
 }
 
-`formula.coxme` <- function (x, ...)  {
+`formula.coxme` <-
+function(x, ...)  {
 	ret <- x$formulaList$fixed
 	f <- ret[[3L]]
 	for(f1 in x$formulaList$random) f <- call("+", f, f1)
@@ -57,9 +70,17 @@ function (object, ...) object$n[1L]
 	ret
 }
 
-`coefTable.coxme` <- function (model, ...)  {
+`formula.lmekin` <-
+function(x, ...) eval(x$call$formula, parent.frame())
+
+
+`coefTable.coxme` <-
+`coefTable.lmekin` <-
+function(model, ...)  {
 	# code from coxme:::print.coxme
-	beta <- model$coefficients
+	beta <- model$coefficients # for class coxme:
+	if(is.list(beta) && !is.null(beta$fixed))
+		beta <- beta$fixed # for class lmekin and older coxme
 	nvar <- length(beta)
 	if(nvar) {
 		diag <- get("diag", getNamespace("Matrix"))
@@ -69,7 +90,20 @@ function (object, ...) object$n[1L]
 	cbind("Estimate" = beta, "Std. Error" = se)
 }
 
-`makeArgs.coxme` <- function(obj, termNames, comb, opt, ...) {
+`coeffs.coxme` <-
+`coeffs.lmekin` <-
+function(model) {
+	# for class coxme:
+	ret <- model$coefficients
+	# for class lmekin and older coxme
+	if(is.list(ret) && !is.null(ret$fixed)) return(ret$fixed)
+	ret
+}
+
+
+`makeArgs.coxme` <-
+`makeArgs.lmekin` <-
+function(obj, termNames, comb, opt, ...) {
 	ret <- makeArgs.default(obj, termNames, comb, opt)
 	f <- .Internal(update.formula(as.formula(ret$formula), as.formula(. ~ . + 1)))
 	ret$formula <- update.formula(f, opt$random)

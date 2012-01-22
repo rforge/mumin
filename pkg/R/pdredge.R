@@ -56,8 +56,6 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 			if(inherits(global.model, c("gamm", "gamm4")))
 				message("for 'gamm' models use 'MuMIn::gamm' wrapper")
 			stop("could not retrieve the call to 'global.model'")
-
-
 		}
 		#"For objects without a 'call' component the call to the fitting function \n",
 		#" must be used directly as an argument to 'dredge'.")

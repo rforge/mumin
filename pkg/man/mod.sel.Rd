@@ -41,8 +41,9 @@ mod.sel(object, ...)
 
 An object of class \code{"model.selection"} with columns containing useful
 information about each model: the coefficients, df, log-likelihood, the value of
-the information criterion used, Delta(IC) and \sQuote{Akaike weight}.
-
+the information criterion used, Delta(IC) and \sQuote{Akaike weight}. If any
+arguments differ between the modelling function calls, the result will include
+additional columns showing them (except for formulas and some other arguments).
 }
 
 \author{Kamil Barto\enc{ń}{n}}

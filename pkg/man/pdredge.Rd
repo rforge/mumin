@@ -90,7 +90,9 @@ varying.link <- list(family = alist(logit = binomial("logit"),
     probit = binomial("probit"), cloglog = binomial("cloglog") ))
 
 # Set up the cluster
-clust <- try(makeCluster(getOption("cl.cores", 2), type = "SOCK"))
+clusterType <- if(length(.find.package("snow", quiet = TRUE))) "SOCK" else "PSOCK"
+clust <- try(makeCluster(getOption("cl.cores", 2), type = clusterType))
+
 if(inherits(clust, "cluster")) {
 
 clusterExport(clust, "Beetle100")
