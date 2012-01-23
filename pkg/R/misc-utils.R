@@ -15,7 +15,7 @@
 # cbind list of data.frames omitting duplicated column (names)
 `cbindDataFrameList` <-
 function(x) {
-	dfnames <- unlist(lapply(x, colnames))
+	dfnames <- unlist(lapply(x, colnames), use.names = FALSE)
 	uq <- !duplicated(dfnames)
 	res <- do.call("cbind", x)[,uq]
 	colnames(res) <- dfnames[uq]
@@ -25,7 +25,7 @@ function(x) {
 # same for rbind, check colnames and add NA's when any are missing
 `rbindDataFrameList` <-
 function(x) {
-	all.colnames <- unique(unlist(lapply(x, colnames)))
+	all.colnames <- unique(unlist(lapply(x, colnames), use.names = FALSE))
 	x <- lapply(x, function(y) {
 		y[all.colnames[!(all.colnames %in% colnames(y))]] <- NA
 		return(y[all.colnames])

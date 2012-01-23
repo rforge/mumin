@@ -4,6 +4,7 @@ zz <- data.frame(x=runif(15), f1=gl(3,5), f2=factor(rep(1:2,c(10,5))))
 zz$y <- 100*zz$x + as.numeric(zz$f1)*10 * as.numeric(zz$f2)
 
 nafit <- lm(y~f1*f2*x, zz)
+
 gm <- get.models(dredge(nafit))
 ma <- model.avg(gm)
 

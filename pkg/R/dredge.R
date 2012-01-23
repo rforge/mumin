@@ -461,7 +461,7 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 			}
 		}
 
-		uqran <- unique(unlist(random.terms))
+		uqran <- unique(unlist(random.terms, use.names = FALSE))
 		abbran <- abbreviate(gsub("1 | ", "", uqran, fixed = T), 1L)
 		colran <- vapply(random.terms, function(s) paste(abbran[match(s, uqran)],
 			collapse = "+"), "")
@@ -519,6 +519,10 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 
 `logLik.model.selection` <- function (object, ...) {
 	nobs <- attr(object, "nobs")
-	apply(object[, c("df", "logLik")], 1L, function(x) structure(list(x[[2L]]),
-		df = x[[1L]], nobs = nobs, class = "logLik"))
+	n <- nrow(object)
+	ret <- vector(n, mode = "list")
+	for(i in 1:n) ret[[i]] <-
+		structure(object[i, "logLik"], df = object[i, "df"], nobs = nobs,
+			class = "logLik")
+	ret
 }

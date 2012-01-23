@@ -31,7 +31,8 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 	ct <- attr(object, "coefTables")
 	#coefNames <- if(!is.null(attr(object, "global")))
 		#names(coeffs(attr(object, "global"))) else
-	coefNames <- fixCoefNames(unique(unlist(lapply(ct, rownames))), sort = TRUE)
+	coefNames <- fixCoefNames(unique(unlist(lapply(ct, rownames),
+		use.names = FALSE)), sort = TRUE)
 
 	nCoef <- length(coefNames)
 	nModels <- length(ct)
@@ -124,7 +125,7 @@ function(object, ..., beta = FALSE,
 	ICname <- deparse(attr(rank,"call")[[1L]])
 
 	allterms1 <- lapply(models, getAllTerms)
-	all.terms <- unique(unlist(allterms1))
+	all.terms <- unique(unlist(allterms1, use.names = FALSE))
 
 	# sort by level (main effects first)
 	all.terms <- all.terms[order(vapply(gregexpr(":", all.terms),
@@ -181,8 +182,6 @@ function(object, ..., beta = FALSE,
 	weight <- mstab[, "Weight"] # has been sorted in table
 	models <- models[model.order]
 
-	#interceptLabel <- unique(unlist(lapply(allterms1, attr, "interceptLabel")))
-
 	allCoefNames <- fixCoefNames(unique(unlist(lapply(mcoeffs, names))), sort = TRUE)
 	#allCoefNames <- allCoefNames[order(!(allCoefNames %in% interceptLabel))]
 	nCoef <- length(allCoefNames)
@@ -196,16 +195,10 @@ function(object, ..., beta = FALSE,
 		m <- models[[i]]
 		coefmat <- coefTable(m, dispersion = dispersion[i])
 		rownames(coefmat) <- fixCoefNames(rownames(coefmat))
-
-		#ncoef <- NROW(coefmat)
 		if(NROW(coefmat) > 0L) {
-			#if(is.null(mdf) || !length(mdf)) mdf <- rep(NA, ncoef)
 			if (beta) coefmat[, 1L:2L] <- coefmat[, 1L:2L] * sd(model.matrix(m)) / response.sd
 			j <- match(rownames(coefmat), allCoefNames)
-
-			coefArray[i, 1L:2L, j] <- t(coefmat[, 1L:2L])
-			mdf <- coefDf(m)[!is.na(coeffs(m))]
-			if(!is.null(mdf) && length(mdf)) coefArray[i, 3L, j] <- mdf
+			coefArray[i, 1L:3L, j] <- t(coefmat)
 		}
 	}
 
@@ -227,8 +220,8 @@ function(object, ..., beta = FALSE,
 			weight = weight,
 			df = coefArray[, 3L, i],
 			alpha = alpha,
-			revised.var = revised.var),
-		double(5L)))
+			revised.var = revised.var), double(5L)))
+
 
 	avgcoef[is.nan(avgcoef)] <- NA
 

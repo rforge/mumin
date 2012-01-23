@@ -26,6 +26,8 @@ fm2oc <- occu(~veght+habitat ~veght*habitat, umfOccu)
 fm3oc <- occu(~habitat ~veght+habitat, umfOccu)
 fm4oc <- occu(~veght ~veght+habitat, umfOccu)
 
+MuMIn:::fixCoefNames(names(coef(fm2oc)))
+
 # dredge(fm2oc, eval=F, fixed=~psi(habitat))
 
 (dd <- dredge(fm2oc, fixed = ~psi(habitat)))

@@ -74,22 +74,6 @@ function(x, ...)  {
 function(x, ...) eval(x$call$formula, parent.frame())
 
 
-`coefTable.coxme` <-
-`coefTable.lmekin` <-
-function(model, ...)  {
-	# code from coxme:::print.coxme
-	beta <- model$coefficients # for class coxme:
-	if(is.list(beta) && !is.null(beta$fixed))
-		beta <- beta$fixed # for class lmekin and older coxme
-	nvar <- length(beta)
-	if(nvar) {
-		diag <- get("diag", getNamespace("Matrix"))
-		nfrail <- nrow(model$var) - nvar
-		se <- sqrt(diag(model$var)[nfrail + 1L:nvar])
-	} else se <- NULL
-	cbind("Estimate" = beta, "Std. Error" = se)
-}
-
 `coeffs.coxme` <-
 `coeffs.lmekin` <-
 function(model) {

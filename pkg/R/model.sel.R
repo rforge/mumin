@@ -56,8 +56,9 @@ function(object, ..., rank = NULL, rank.args = NULL) {
 	ICname <- deparse(attr(rank, "call")[[1L]])
 	allTermsList <- lapply(models, getAllTerms, intercept = TRUE)
 	random.terms <- lapply(allTermsList, attr, "random.terms")
-	all.terms <- unique(unlist(allTermsList))
-	all.coef <- fixCoefNames(unique(unlist(lapply(lapply(models, coeffs), names))))
+	all.terms <- unique(unlist(allTermsList, use.names = FALSE))
+	all.coef <- fixCoefNames(unique(unlist(lapply(lapply(models, coeffs), names),
+		use.names = FALSE)))
 
 	logLik <- .getLogLik()
 
