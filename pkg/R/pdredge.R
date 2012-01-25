@@ -81,8 +81,6 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	# parallel: check whether the models would be identical:
 	if(doParallel) testUpdatedObj(cluster, global.model, gmCall, do.eval = check)
 
-	gmCoefNames0 <- names(coeffs(global.model))
-
 	# Check for na.omit
 	if (!is.null(gmCall$na.action) &&
 		as.character(gmCall$na.action) %in% c("na.omit", "na.exclude")) {
@@ -92,7 +90,8 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	if(names(gmCall)[2L] == "") names(gmCall)[2L] <-
 		names(formals(deparse(gmCall[[1L]]))[1L])
 
-	gmCoefNames <- fixCoefNames(gmCoefNames0)
+	gmCoefNames <- fixCoefNames(names(coeffs(global.model)))
+
 	n.vars <- length(allTerms)
 
 	if(isTRUE(rankArgs$REML) || (isTRUE(.isREMLFit(global.model)) && is.null(rankArgs$REML)))
@@ -110,7 +109,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	# fixed variables:
 	if (!is.null(fixed)) {
 		if (inherits(fixed, "formula")) {
-			if (fixed[[1]] != "~" || length(fixed) != 2L)
+			if (fixed[[1L]] != "~" || length(fixed) != 2L)
 				warning("'fixed' should be a one-sided formula")
 			fixed <- c(getAllTerms(fixed))
 		} else if (!is.character(fixed)) {
@@ -125,26 +124,27 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	fixed <- c(fixed, allTerms[allTerms %in% interceptLabel])
 	n.fixed <- length(fixed)
 	termsOrder <- order(allTerms %in% fixed)
-	ordAllTerms <- allTerms[termsOrder]
-	allTerms <- ordAllTerms
-	isMER <- any(inherits(global.model, c("mer", "lmer", "glmer")))
-	gmFormula <- as.formula(formula(global.model))
-	gmFormulaEnv <- attr(gmFormula, ".Environment")
+	allTerms <- allTerms[termsOrder]
+	gmFormulaEnv <- environment(as.formula(formula(global.model), env = gmEnv))
+	# TODO: gmEnv <- gmFormulaEnv ???
 
 	### BEGIN:
 	## varying BEGIN
 	if(!missing(varying) && !is.null(varying)) {
-		variantsIdx <- expand.grid(lapply(varying, seq_along))
-		seq.variants <- seq.int(nrow(variantsIdx))
 		nvarying <- length(varying)
 		varying.names <- names(varying)
+		fvarying <- unlist(varying, recursive = FALSE)
+		vlen <- vapply(varying, length, 1L)
+		nvariants <- prod(vlen)
+		variants <- as.matrix(expand.grid(split(seq_len(sum(vlen)),
+			rep(seq_along(varying), vlen))))
 	} else {
-		variantsIdx <- NULL
-		seq.variants <- 1L
+		variants <- NULL
+		nvariants <- 1L
 		nvarying <- 0L
 		varying.names <- character(0L)
 	}
-	nvariants <- length(seq.variants)
+
 	## varying END
 
 	## extra BEGIN
@@ -176,9 +176,9 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	## extra END
 
 	nov <- as.integer(n.vars - n.fixed)
-	ncomb <- 2L ^ nov
+	ncomb <- (2L ^ nov) * nvariants
 	if(nov > 31L) stop(gettextf("maximum number of predictors is 31, but %d is given", nov))
-	if(nov > 10L) warning(gettextf("%d predictors will generate up to %.0f possible combinations", nov, ncomb))
+	# if(nov > 10L) warning(gettextf("%d predictors will generate up to %.0f possible combinations", nov, ncomb))
 	nmax <- ncomb * nvariants
 	if(evaluate) {
 		ret.nchunk <- 25L
@@ -195,7 +195,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		if(!tryCatch(is.language(subset), error = function(e) FALSE))
 			subset <- substitute(subset)
 		if(inherits(subset, "formula")) {
-			if (subset[[1]] != "~" || length(subset) != 2L)
+			if (subset[[1L]] != "~" || length(subset) != 2L)
 				stop("'subset' should be a one-sided formula")
 			subset <- subset[[2L]]
 		}
@@ -208,7 +208,6 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	k <- 0L
 	extraResult1 <- integer(0L)
 	ord <- integer(ret.nchunk)
-
 
 	argsOptions <- list(
 		response = attr(allTerms0, "response"),
@@ -244,51 +243,52 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	warningList <- list()
 	# qlen <- 4 ## DEBUG: !!!!
 
+	prevJComb <- 0L
 	for(iComb in seq.int(ncomb)) {
-		comb <- c(as.logical(intToBits(iComb - 1L)[comb.seq]), comb.sfx)
+		jComb <- ceiling(iComb / nvariants)
+		if(jComb != prevJComb) {
+			prevJComb <- jComb
+			isok <- TRUE
+			comb <- c(as.logical(intToBits(jComb - 1L)[comb.seq]), comb.sfx)
+			nvar <- sum(comb) - nInts
+			if(!(nvar > m.max || nvar < m.min) && (!hasSubset || eval(subset,
+				structure(as.list(comb), names = allTerms)))) {
+				newArgs <- makeArgs(global.model, allTerms[comb], comb, argsOptions)
+				formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
+					attr(newArgs, "formulaList")
+				if(all(vapply(formulaList, formulaAllowed, logical(1L), marg.ex))) {
+					if(!is.null(attr(newArgs, "problems"))) {
+						print.warnings(structure(vector(mode = "list",
+							length = length(attr(newArgs, "problems"))),
+								names = attr(newArgs, "problems")))
+					} # end if <problems>
+					cl <- gmCall
+					cl[names(newArgs)] <- newArgs
+				} else isok <- FALSE # end if <formulaAllowed>
+			} else isok <- FALSE # end if <subset, m.max >= nvar >= m.min>
+		} #  end if(jComb != prevJComb)
 
-		nvar <- sum(comb) - nInts
-		if(!(nvar > m.max || nvar < m.min) && (!hasSubset || eval(subset,
-			structure(as.list(comb), names = allTerms)))) {
+		if(isok) {
+			## --- Variants ---------------------------
+			clVariant <- cl
+			if(nvarying) clVariant[varying.names] <-
+				fvarying[variants[(iComb - 1L) %% nvariants + 1L, ]]
 
-			newArgs <- makeArgs(global.model, allTerms[comb], comb, argsOptions)
-			formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
-				attr(newArgs, "formulaList")
-			if(all(vapply(formulaList, formulaAllowed, logical(1L), marg.ex))) {
-				if(!is.null(attr(newArgs, "problems"))) {
-					print.warnings(structure(vector(mode = "list",
-						length = length(attr(newArgs, "problems"))),
-							names = attr(newArgs, "problems")))
-				} # end if <problems>
+			if(trace) {
+				cat(iComb, ": "); print(clVariant)
+				utils::flush.console()
+			}
+			if(evaluate) {
+				qi <- qi + 1L
+				queued[[(qi)]] <- list(call = clVariant, id = iComb)
+			} else { # if !evaluate
+				k <- k + 1L # all OK, add model to table
+				calls[[k]] <- clVariant
+			}
+		} # if isok
 
-				cl <- gmCall
-				cl[names(newArgs)] <- newArgs
-
-				for (v in seq.variants) { ## --- Variants ---------------------------
-					modelId <- ((iComb - 1L) * nvariants) + v
-					clVariant <- cl
-					if(nvarying) {
-						newVaryingArgs <- sapply(varying.names, function(x)
-							varying[[x]][[variantsIdx[v, x]]], simplify = FALSE)
-						clVariant[varying.names] <- newVaryingArgs
-					}
-
-					if(trace) {
-						cat(modelId, ": "); print(clVariant)
-						utils::flush.console()
-						}
-					if(evaluate) {
-						qi <- qi + 1L
-						queued[[(qi)]] <- list(call = clVariant, id = modelId)
-					} else { # if !evaluate
-						k <- k + 1L # all OK, add model to table
-						calls[[k]] <- clVariant
-					}
-				}
-			} # end if <formulaAllowed>
-		} # end if <subset, m.max >= nvar >= m.min>
-
-		if(evaluate && qi && (qi + nvariants > qlen || iComb == ncomb)) {
+		#if(evaluate && qi && (qi + nvariants > qlen || iComb == ncomb)) {
+		if(evaluate && qi && (qi > qlen || iComb == ncomb)) {
 			#DebugPrint(paste(qi, nvariants, qlen, iComb, ncomb))
 			qseq <- seq_len(qi)
 			qresult <- .getRow(queued[qseq])
@@ -364,7 +364,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 
 	if(nvarying) {
 		varlev <- ord %% nvariants; varlev[varlev == 0L] <- nvariants
-		ret[, n.vars + seq_len(nvarying) ] <- as.matrix(variantsIdx)[varlev, ]
+		ret[, n.vars + seq_len(nvarying)] <- variants[varlev, ]
 	}
 
 	ret <- as.data.frame(ret)
@@ -384,15 +384,15 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		variant.names <- lapply(varying, function(x)
 			make.unique(if(is.null(names(x))) as.character(x) else names(x)))
 		for (i in varying.names) ret[, i] <-
-			factor(ret[, i], levels = seq_along(variant.names[[i]]),
-				labels = variant.names[[i]])
+			factor(ret[, i], labels = variant.names[[i]])
 	}
 
 	o <- order(ret[, ICName], decreasing = FALSE)
 	ret <- ret[o, ]
+	retCoefTable <- retCoefTable[o]
+
 	ret$delta <- ret[, ICName] - min(ret[, ICName])
 	ret$weight <- exp(-ret$delta / 2) / sum(exp(-ret$delta / 2))
-	retCoefTable <- retCoefTable[o]
 
 	ret <- structure(ret,
 		class = c("model.selection", "data.frame"),
@@ -402,6 +402,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		terms = structure(allTerms, interceptLabel = interceptLabel),
 		rank = IC,
 		rank.call = attr(IC, "call"),
+		beta = beta,
 		call = match.call(expand.dots = TRUE),
 		coefTables = retCoefTable,
 		nobs = nobs(global.model),

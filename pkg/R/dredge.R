@@ -16,6 +16,12 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	if(is.null(interceptLabel)) interceptLabel <- "(Intercept)"
 	nInts <- sum(attr(allTerms, "intercept"))
 
+	#XXX: use.ranef <- FALSE
+	#if(use.ranef && inherits(global.model, "mer")) {
+		#allTerms <- c(allTerms, paste("(", attr(allTerms0, "random.terms"), ")",
+			#sep = ""))
+	#}
+
 	if(length(grep(":", all.vars(reformulate(allTerms))) > 0L))
 		stop("variable names in the formula cannot contain \":\"")
 
@@ -31,7 +37,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		}
 		#"For objects without a 'call' component the call to the fitting function \n",
 		#" must be used directly as an argument to 'dredge'.")
-		# NB: the below is unlikely to happen:
+		# NB: this is unlikely to happen:
 		if(!exists(as.character(gmCall[[1L]]), parent.frame(), mode="function"))
 			 stop("could not find function '", gmCall[[1L]], "'")
 
@@ -51,9 +57,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	}
 	logLik <- .getLogLik()
 
-	# TODO: other classes: model, fixed, etc...
-	gmCoefNames0 <- names(coeffs(global.model))
-
 	# Check for na.omit
 	if (!is.null(gmCall$na.action) &&
 		as.character(gmCall$na.action) %in% c("na.omit", "na.exclude")) {
@@ -63,7 +66,10 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	if(names(gmCall)[2L] == "") names(gmCall)[2L] <-
 		names(formals(deparse(gmCall[[1L]]))[1L])
 
-	gmCoefNames <- fixCoefNames(gmCoefNames0)
+	# TODO: other classes: model, fixed, etc...
+		#gmCoefNames0 <- names(coeffs(global.model))
+		#gmCoefNames <- fixCoefNames(gmCoefNames0)
+	gmCoefNames <- fixCoefNames(names(coeffs(global.model)))
 	#sglobCoefNames <- fixCoefNames(names(coeffs(global.model)))
 
 	n.vars <- length(allTerms)
@@ -83,7 +89,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	# fixed variables:
 	if (!is.null(fixed)) {
 		if (inherits(fixed, "formula")) {
-			if (fixed[[1]] != "~" || length(fixed) != 2L)
+			if (fixed[[1L]] != "~" || length(fixed) != 2L)
 				warning("'fixed' should be a one-sided formula")
 			fixed <- c(getAllTerms(fixed))
 		} else if (!is.character(fixed)) {
@@ -98,11 +104,9 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	fixed <- c(fixed, allTerms[allTerms %in% interceptLabel])
 	n.fixed <- length(fixed)
 	termsOrder <- order(allTerms %in% fixed)
-	ordAllTerms <- allTerms[termsOrder]
-	allTerms <- ordAllTerms
-	isMER <- any(inherits(global.model, c("mer", "lmer", "glmer")))
-	gmFormula <- as.formula(formula(global.model))
-	gmFormulaEnv <- environment(gmFormula)
+	allTerms <- allTerms[termsOrder]
+	gmFormulaEnv <- environment(as.formula(formula(global.model), env = gmEnv))
+	# TODO: gmEnv <- gmFormulaEnv ???
 
 	### BEGIN:
 	## varying BEGIN
@@ -210,33 +214,34 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	for(iComb in seq.int(ncomb)) {
 		jComb <- ceiling(iComb / nvariants)
 		if(jComb != prevJComb) {
+			isok <- TRUE
+			prevJComb <- jComb
 			comb <- c(as.logical(intToBits(jComb - 1L)[comb.seq]), comb.sfx)
-
 			nvar <- sum(comb) - nInts
-			if(nvar > m.max || nvar < m.min) next;
-			if(hasSubset && !eval(subset, structure(as.list(comb), names=allTerms)))
+
+			if(nvar > m.max || nvar < m.min || (hasSubset &&
+				!eval(subset, structure(as.list(comb), names = allTerms)))) {
+				isok <- FALSE
 				next;
-
+			}
 			newArgs <- makeArgs(global.model, allTerms[comb], comb, argsOptions)
-
 			formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
 				attr(newArgs, "formulaList")
-			if(!all(vapply(formulaList, formulaAllowed, logical(1L), marg.ex))) next;
-
+			if(!all(vapply(formulaList, formulaAllowed, logical(1L), marg.ex)))  {
+				isok <- FALSE; next;
+			}
 			if(!is.null(attr(newArgs, "problems"))) {
 				print.warnings(structure(vector(mode = "list",
 					length = length(attr(newArgs, "problems"))),
 						names = attr(newArgs, "problems")))
 			} # end if <problems>
-			# ivar j
 
 			cl <- gmCall
 			cl[names(newArgs)] <- newArgs
 		} #  end if(jComb != prevJComb)
 
+		if(!isok) next;
 		## --- Variants ---------------------------
-
-		modelId <- iComb
 		clVariant <- cl
 		if (nvarying) {
 			v <- (iComb - 1L) %% nvariants + 1L
@@ -244,7 +249,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		}
 
 		if(trace) {
-			cat(modelId, ": "); print(clVariant)
+			cat(iComb, ": "); print(clVariant)
 			utils::flush.console()
 		}
 
@@ -254,7 +259,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			#              if(nvarying) variantsIdx[v] else NULL
 			fit1 <- tryCatch(eval(clVariant, gmEnv), error = function(err) {
 				err$message <- paste(conditionMessage(err), "(model",
-					modelId, "skipped)", collapse = "")
+					iComb, "skipped)", collapse = "")
 				class(err) <- c("simpleError", "warning", "condition")
 				warning(err)
 				return(NULL)
@@ -293,7 +298,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 				ord <- c(ord, integer(nadd))
 			}
 
-			ord[k] <- modelId
+			ord[k] <- iComb
 			ret[k, retColIdx] <- row1
 			retCoefTable[[k]] <- attr(mcoef1, "coefTable")
 		} else { # if evaluate
@@ -331,15 +336,14 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	i <- seq_along(allTerms)
 	v <- order(termsOrder)
 	ret[, i] <- ret[, v]
-	#ret[, seq_along(allTerms)] <- ret[, order(termsOrder)]
 	allTerms <- allTerms[v]
-	#colnames(ret) <- c(allTerms0, varying.names, "df", "logLik", ICName)
 	colnames(ret) <- c(allTerms, varying.names, extraNames, "df", "logLik", ICName)
 
 	if(nvarying) {
 		variant.names <- lapply(varying, function(x)
 			make.unique(if(is.null(names(x))) as.character(x) else names(x)))
-		for (i in varying.names) ret[, i] <- factor(ret[, i], labels = variant.names[[i]])
+		for (i in varying.names) ret[, i] <-
+			factor(ret[, i], labels = variant.names[[i]])
 	}
 
 	o <- order(ret[, ICName], decreasing = FALSE)
@@ -451,7 +455,7 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 					z <- factor(z, levels = lev)
 					shlev <- gsub("((?<=F)ALSE|(?<=T)RUE|~1\\|| +)", "", lev,
 						perl = TRUE, ignore.case = TRUE)
-					shlev <- abbreviate2(shlev, nchar(i))
+					shlev <- abbreviate(shlev, nchar(i))
 					#shlev <- paste(substr(i, 1, 1), seq(nlevels(z)), sep="")
 					x[, i] <- factor(z, labels = shlev)
 					if(any(j <- shlev != lev)) vLegend <- c(vLegend, paste(i,

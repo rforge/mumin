@@ -92,9 +92,7 @@ varying.link <- list(family = alist(logit = binomial("logit"),
 # Set up the cluster
 clusterType <- if(length(.find.package("snow", quiet = TRUE))) "SOCK" else "PSOCK"
 clust <- try(makeCluster(getOption("cl.cores", 2), type = clusterType))
-
-if(inherits(clust, "cluster")) {
-
+\dontshow{if(inherits(clust, "cluster")) \{ }
 clusterExport(clust, "Beetle100")
 
 # noticeable gain only when data has about 3000 rows (Windows 2-core machine)
@@ -140,12 +138,11 @@ modSel(fitList(fits = structure(models, names = model.names(models,
 }
 
 stopCluster(clust)
-
-} else # if(! inherits(clust, "cluster"))
+\dontshow{ 
+\} else # if(! inherits(clust, "cluster"))
 message("Could not set up the cluster")
-
-
-\dontshow{ \} }
+\} 
+}
 
 }
 

@@ -20,6 +20,12 @@ if(MuMIn:::.parallelPkgCheck(quiet = TRUE)) {
 		print(system.time(pddc <- pdredge(fm2, cluster = clust)))
 		print(system.time(pdd1 <- pdredge(fm2, cluster = FALSE)))
 		print(system.time(dd1 <- dredge(fm2)))
+		
+		print(pddc)
+		print(pdd1)
+		print(dd1)
+		
+		#print(all.equal(pddc, dd1))
 
 
 		ma1 <- model.avg(pdd1, beta = FALSE)

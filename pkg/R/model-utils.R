@@ -89,6 +89,7 @@ function(frm, except = NULL) {
 	pos <- match(terms1, fxdCoefNames, nomatch = 0L)
 	row[fxdCoefNames[pos]] <- coef1[pos]
 	if(allCoef) {
+
 		#cfmat <- coefTable(m1) # [match(rownames(ct), names(coef1)), ]
 		#cfmat <- matrix(NA, nrow = length(coef1), ncol = 3L,
 			#dimnames = list(fxdCoefNames, c("Est.", "SD", "df")))
@@ -198,16 +199,15 @@ function(frm, except = NULL) {
 	ret <- x
 	allVars <- all.vars(reformulate(x))
 	allVars <- gsub("Intercept", "Int", allVars, fixed = TRUE)
-	pat <- paste("\\b", allVars, "\\b", sep="")
-	if(capwords) {
-		abx <- abbreviate(paste(toupper(substring(allVars, 1L, 1L)),
-			tolower(substring(allVars, 2L)), sep=""), n)
-	} else {
-		abx <- abbreviate(allVars, n)
-	}
+	pat <- paste("\\b", allVars, "\\b", sep = "")
+	abx <- if(capwords)
+		abbreviate(paste(toupper(substring(allVars, 1L, 1L)),
+			tolower(substring(allVars, 2L)), sep = ""), n)
+		else abbreviate(allVars, n)
 
 	for(i in seq_along(allVars)) ret <- gsub(pat[i], abx[i], ret, perl = TRUE)
 	ret <- gsub("I\\((\\w+)\\)", "\\1", ret, perl = TRUE)
+	ret <- gsub(" ", "", ret, fixed = TRUE)
 	attr(ret, "variables") <- structure(allVars, names = abx)
 	ret
 }
@@ -219,11 +219,8 @@ function(frm, except = NULL) {
 		if(length(object) ==  0L) stop("at least one model must be given")
 		models <- object
 		object <- models[[1L]]
-	} else {
-		models <- list(object, ...)
-	}
+	} else models <- list(object, ...)
 	if(length(models) == 0L) stop("at least one model must be given")
-
 	.modelNames(models = models, uqTerms = labels)
 }
 
@@ -256,7 +253,7 @@ function(frm, except = NULL) {
 		allTermsList <- lapply(models, function(x) {
 			tt <- getAllTerms(x)
 			rtt <- attr(tt, "random.terms")
-			c(tt, if(!is.null(rtt)) paste("(", rtt, ")", sep="") else NULL)
+			c(tt, if(!is.null(rtt)) paste("(", rtt, ")", sep = "") else NULL)
 		})
 		allTerms <- unique(unlist(allTermsList))
 		abvtt <- abbreviateTerms(allTerms)

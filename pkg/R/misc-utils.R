@@ -48,7 +48,7 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 	n <- length(e)
 	if(n == 1L) return(e)
 	if(e[[1L]] != "has") {
-		for(i in 1:n) e[[i]] <- .substHas(e[[i]])
+		for(i in 1L:n) e[[i]] <- .substHas(e[[i]])
 		return(e)
 	}
 	res <- NULL
