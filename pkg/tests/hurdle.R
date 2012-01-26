@@ -1,4 +1,4 @@
-library(pscl)
+suppressPackageStartupMessages(library(pscl))
 library(MuMIn)
 data(bioChemists)
 
@@ -30,8 +30,14 @@ fm_zinb <- zeroinfl(art ~ phd + mar, data = bioChemists, dist = "negbin")
 
 fmh1dot <- hurdle(art ~ ., data = bioChemists, dist = "negbin",
     zero.dist = "negbin")
-dd2 <- dredge(fmh1dot, m.min = 1, m.max = 1, eval = T)
-summary(model.avg(dd2))
+
+dd2 <- dredge(fmh1dot, m.min = 1, m.max = 1, eval = T, trace = T)
+
+mod <- get.models(dd2[1:4])
+
+summary(model.avg(mod))
+summary(model.avg(dd2[1:4]))
+#summary(model.avg(dd2))
 #coef(fmh1dot)
 #coefTable(fmh1dot)
 #summary(fmh1dot)

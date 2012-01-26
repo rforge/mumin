@@ -138,52 +138,42 @@ function(object, ..., beta = FALSE,
 	#if(is.null(names(models))) names(models) <- all.model.names
 
 	# check if models are unique:
-	mcoeffs <- lapply(models, coeffs)
+	if(!is.null(dispersion)) dispersion <- rep(dispersion, length.out = nModels)
+	coefTables <- vector(nModels, mode = "list")
+	for(i in seq_len(nModels)) coefTables[[i]] <-
+		coefTable(models[[i]], dispersion = dispersion[i])
+	mcoeffs <- lapply(coefTables, "[", , 1L)
+
 	dup <- unique(sapply(mcoeffs, function(i) which(sapply(mcoeffs, identical, i))))
 	dup <- dup[sapply(dup, length) > 1L]
-	ndups <- length(dup)
-
-	if (ndups > 0L) stop("models are not unique. Duplicates: ",
+	if (length(dup) > 0L) stop("models are not unique. Duplicates: ",
 		prettyEnumStr(sapply(dup, paste, sep = "", collapse = " = "),
 			quote = "'"))
 
-	# workaround for different behavior of model.matrix with lme: data argument is required
+	# workaround for different behaviour of model.matrix with lme: data argument is required
 	if(any(linherits(models, c(lme = TRUE)))) {
 		model.matrix.lme <- function(object, data = object$data, ...)
 			model.matrix.default(object, data = data, ...)
 	}
 
 	ic <- vapply(models, rank, numeric(1L))
-	#dev <- if (!is.null(tryCatch(deviance(models[[1L]]), error = .fnull)))
-		#vapply(models, deviance, numeric(1L)) else NA
 	logLiks <- lapply(models, logLik)
-	#ll <- vapply(models, logLik, numeric(1L))
 	delta <- ic - min(ic)
 	weight <- exp(-delta / 2) / sum(exp(-delta / 2))
 	model.order <- order(weight, decreasing = TRUE)
-
-	#if(!is.null(dispersion)) dispersion <- rep(dispersion, length.out = nModels)
-
-	# DEBUG:
-	# sapply(sapply(sapply(models[model.order], coef), names), paste, collapse="+")
-	# sapply(models, function(x) paste(match(getAllTerms(x), all.terms), collapse="+"))
 
 	# ----!!! From now on, everything MUST BE ORDERED by 'weight' !!!-----------
 	mstab <- cbind(df = vapply(logLiks, attr, numeric(1L), "df"),
 		logLik = as.numeric(logLiks), IC = ic, Delta = delta, Weight = weight,
 		deparse.level = 0L)
+	if(!is.null(dispersion)) mstab <- cbind(mstab, Dispersion = dispersion)
 	rownames(mstab) <- all.model.names
 	mstab <- mstab[model.order, ]
-	if(!is.null(dispersion)) {
-		dispersion <- rep(dispersion, length.out = nModels)[model.order]
-		mstab <- cbind(mstab, Dispersion = dispersion)
-	}
-
 	weight <- mstab[, "Weight"] # has been sorted in table
 	models <- models[model.order]
+	coefTables <- coefTables[model.order]
 
 	allCoefNames <- fixCoefNames(unique(unlist(lapply(mcoeffs, names))), sort = TRUE)
-	#allCoefNames <- allCoefNames[order(!(allCoefNames %in% interceptLabel))]
 	nCoef <- length(allCoefNames)
 
 	if (beta)	response.sd <- sd(model.response(model.frame(object)))
@@ -192,11 +182,11 @@ function(object, ..., beta = FALSE,
 		dimnames = list(rownames(mstab), c("Estimate", "Std. Error", "df"), allCoefNames))
 
 	for (i in seq_len(nModels)) {
-		m <- models[[i]]
-		coefmat <- coefTable(m, dispersion = dispersion[i])
+		coefmat <- coefTables[[i]]
 		rownames(coefmat) <- fixCoefNames(rownames(coefmat))
 		if(NROW(coefmat) > 0L) {
-			if (beta) coefmat[, 1L:2L] <- coefmat[, 1L:2L] * sd(model.matrix(m)) / response.sd
+			if (beta) coefmat[, 1L:2L] <- coefmat[, 1L:2L] *
+				sd(model.matrix(models[[i]])) / response.sd
 			j <- match(rownames(coefmat), allCoefNames)
 			coefArray[i, 1L:3L, j] <- t(coefmat)
 		}

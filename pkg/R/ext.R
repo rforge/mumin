@@ -46,7 +46,6 @@ function(object, ...) {
 
 `nobs.coxme` <-
 `nobs.lmekin` <-
-`nobs.hurdle` <-
 function (object, ...) object$n[1L]
 
 `getAllTerms.coxme` <-
@@ -141,7 +140,15 @@ function(obj, termNames, comb, opt, ...) {
 	ret
 }
 
-
 `coefTable.zeroinfl` <-
-`coefTable.hurdle` <- function(model, ...)
+function(model, ...)
 	.makeCoefTable(coef(model), sqrt(diag(vcov(model, ...))))
+
+`coefTable.hurdle` <- function(model, ...) {
+	cts <- summary(model)$coefficients
+	ct <- do.call("rbind", unname(cts))
+	cfnames <- paste(rep(names(cts), vapply(cts, nrow, 1L)), "_", rownames(ct),
+		sep = "")
+	.makeCoefTable(ct[, 1L], ct[, 2L], coefNames = cfnames)
+	#.makeCoefTable(coef(model), sqrt(diag(vcov(model, ...))))
+}

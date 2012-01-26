@@ -411,7 +411,7 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 	if(is.null(xterms)) {
 		print.data.frame(x, ...)
 	} else {
-		if(abbrev.names) xterms <- abbreviateTerms(gsub(" ", "", xterms, fixed = TRUE), 3L)
+		if(abbrev.names) xterms <- abbreviateTerms(xterms, 3L)
 
 		colnames(x)[seq_along(xterms)] <-  xterms
 		globcl <- attr(x, "global.call")
@@ -437,18 +437,17 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 		if(abbrev.names) {
 			vCols <- attr(x, "vCols")
 			vlen <- nchar(vCols)
-			i <- vCols[1L]
-
 			if(!is.null(vCols)) {
 				for(i in vCols) {
 					z <- x[, i]
 					lev <- levels(z)
 					lev <- lev[!(lev %in% c("", "NULL"))]
 					z <- factor(z, levels = lev)
-					shlev <- gsub("((?<=F)ALSE|(?<=T)RUE|~(1\\|)?| +)", "", lev,
-						perl = TRUE, ignore.case = TRUE)
-					shlev <- abbreviate(shlev, nchar(i))
-					#shlev <- paste(substr(i, 1, 1), seq(nlevels(z)), sep="")
+					n <- nchar(i)
+					for(k in seq.int(n, 1L)) {
+						shlev <- abbreviateTerms(lev, k, deflate = TRUE)
+						if(all(nchar(shlev) <= n)) break;
+					}
 					x[, i] <- factor(z, labels = shlev)
 					if(any(j <- shlev != lev)) vLegend <- c(vLegend, paste(i,
 						": ", paste(shlev[j], "=", sQuote(lev[j]),
@@ -458,7 +457,8 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 		}
 
 		uqran <- unique(unlist(random.terms, use.names = FALSE))
-		abbran <- abbreviate(gsub("1 | ", "", uqran, fixed = TRUE), 1L)
+		abbran <- abbreviateTerms(gsub("1 | ", "", uqran, fixed = TRUE), 1L,
+			deflate = TRUE)
 		colran <- vapply(random.terms, function(s) paste(abbran[match(s, uqran)],
 			collapse = "+"), "")
 
