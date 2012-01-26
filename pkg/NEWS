@@ -1,10 +1,13 @@
 MuMIn package news:
 
-Version: 1.7.0 (2012-01-22)
+Version: 1.7.1 (2012-01-26)
+hurdle models (package 'pscf')
+
+Version: 1.7.0 (2012-01-25)
 This version adds possibility to model average and re-rank (with another IC) a 
-	model selection table without re-evaluating the models. Models from package 
-	'coxme' are now supported. Model seletion tables include now extra columns 
-	showing differences in attributes of the modelling function call.
+	model selection table without recreating the fitted models. Models from 
+	package 'coxme' are now supported. Model selection tables include now extra 
+	columns showing differences in attributes of the modelling function call.
 model.avg: use 'model.selection' without refitting the models. Fixed a problem 
 	with averaging different types of models together (happened when 'df's were 
 	available only for some of component models)

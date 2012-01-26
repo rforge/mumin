@@ -99,8 +99,10 @@ clusterExport(clust, "Beetle100")
 print(system.time(dredge(fm1, subset = msubset, varying = varying.link)))
 print(system.time(pdredge(fm1, cluster = FALSE, subset = msubset,
     varying = varying.link)))
-print(system.time(pdredge(fm1, cluster = clust, subset = msubset,
+print(system.time(pdd <- pdredge(fm1, cluster = clust, subset = msubset,
     varying = varying.link)))
+	
+print(pdd)
 
 \dontrun{
 # A time consuming example with 'unmarked' model, based on example(pcount).

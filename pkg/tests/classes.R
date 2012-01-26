@@ -146,6 +146,14 @@ data(Orthodont, package = "nlme")
 Orthodont$rand <- runif(nrow(Orthodont))
 fm2 <- lmer(log(distance) ~ rand*Sex*age + (1|Subject) + (1|Sex), data = Orthodont, REML=FALSE)
 
+
+#fm2 <- lmer(log(distance) ~ Sex*age + (1|Subject) + (Sex|Subject),
+	#data = Orthodont, REML = F)
+#
+#MuMIn:::abbreviateTerms(at1)
+#abbreviateTerms(at1)
+#reformulate(at1)
+
 #fm0 <- lmer(distance ~ 1 + (1|Subject) + (1|Sex), data = Orthodont, REML=FALSE)
 #fm00 <- lm(distance ~ 1 , data = Orthodont)
 

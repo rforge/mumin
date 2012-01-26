@@ -26,7 +26,8 @@ model.avg(object, ..., revised.var = TRUE)
 	\item{object}{ a fitted model object or a list of such objects, or a
 		\code{model.selection} object. See \sQuote{Details}. }
 
-    \item{\dots}{ more fitted model objects. }
+    \item{\dots}{ for default method, more fitted model objects. Otherwise,
+		arguments that are passed to the default method. }
 
     \item{beta}{ logical, should standardized coefficients be returned? }
 
@@ -43,9 +44,8 @@ model.avg(object, ..., revised.var = TRUE)
         standard errors. See \code{\link{par.avg}}. }
 
 	\item{dispersion}{ the dispersion parameter for the family used. See
-		\code{\link{summary.glm}}. This value is used only with the model types
-		which accept it (currently only \code{glm}), and will be
-		silently ignored otherwise. }
+		\code{\link{summary.glm}}. This is used currently only with \code{glm}, 
+		is silently ignored otherwise. }
 
 	\item{subset}{ see \code{\link[=subset.model.selection]{subset}} method for
 		\code{model.selection} object. }
@@ -91,8 +91,8 @@ In addition, the object has following attributes:
 
 \details{
 
-\code{model.avg} has been tested to work with the fitted objects from the
- following modelling functions:
+\code{model.avg} works with the fitted objects produced by the following 
+modelling functions:
 	\code{lm}, \code{glm};
 	\code{gam}, \code{gamm} (\pkg{mgcv});
 	\code{gamm4} (\pkg{gamm4});
@@ -103,10 +103,12 @@ In addition, the object has following attributes:
 	\code{sarlm}, \code{spautolm} (\pkg{spdep});
 	\code{glmmML} (\pkg{glmmML});
 	\code{coxph}, \code{survreg} (\pkg{survival});
-	\code{coxme} (\pkg{coxme});
+	\code{coxme}, \code{lmekin} (\pkg{coxme});
+	\code{hurdle}, \code{zeroinfl} (\pkg{pscl});
 	and models within the class \code{unmarkedFit} (\pkg{unmarked}).
-Other classes are also likely to be supported, in particular those inheriting
-from one of the above classes.
+Other classes are also likely to be supported, in particular those inheriting 
+from one of the above classes. In general, the models averaged may belong to 
+different types, provided they use the same data and response.
 
 \code{model.avg} may be used either with a list of models, or directly with a
 	\code{model.selection} object (e.g. returned by \code{dredge}). In the
@@ -114,12 +116,11 @@ from one of the above classes.
 	unless the argument \code{fit} is set to \code{TRUE} or some additional
 	arguments are present (such as \code{rank} or \code{dispersion}). This
 	results in much faster calculation, but has certain drawbacks, because the
-	fitted component model objects are not stored and some methods (e.g.
+	fitted component model objects are not stored, and some methods (e.g.
 	\code{predict}, \code{fitted}, \code{model.matrix} or \code{vcov}) would not
 	be available with the returned object.
 	Otherwise, \code{get.models} is called prior to averaging, and \dots are
 	passed to it.
-
 
 \code{rank} is found by a call to \code{\link[base]{match.fun}} and typically is
     specified as a function or a symbol (e.g. a back-quoted name) or a character

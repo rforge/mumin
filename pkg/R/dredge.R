@@ -3,28 +3,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		 fixed = NULL, m.max = NA, m.min = 0, subset, marg.ex = NULL,
 		 trace = FALSE, varying, extra, ...) {
 
-	# *** Rank ***
-	rank.custom <- !missing(rank)
-	rankArgs <- list(...)
-	IC <- .getRank(rank, rankArgs)
-	ICName <- as.character(attr(IC, "call")[[1L]])
-
-	allTerms <- allTerms0 <- getAllTerms(global.model, intercept = TRUE)
-
-	# Intercept(s)
-	interceptLabel <- attr(allTerms, "interceptLabel")
-	if(is.null(interceptLabel)) interceptLabel <- "(Intercept)"
-	nInts <- sum(attr(allTerms, "intercept"))
-
-	#XXX: use.ranef <- FALSE
-	#if(use.ranef && inherits(global.model, "mer")) {
-		#allTerms <- c(allTerms, paste("(", attr(allTerms0, "random.terms"), ")",
-			#sep = ""))
-	#}
-
-	if(length(grep(":", all.vars(reformulate(allTerms))) > 0L))
-		stop("variable names in the formula cannot contain \":\"")
-
 	gmEnv <- parent.frame()
 	gmCall <- .getCall(global.model)
 
@@ -40,7 +18,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		# NB: this is unlikely to happen:
 		if(!exists(as.character(gmCall[[1L]]), parent.frame(), mode="function"))
 			 stop("could not find function '", gmCall[[1L]], "'")
-
 	} else {
 		# if 'update' method does not expand dots, we have a problem
 		# with expressions like ..1, ..2 in the call.
@@ -55,6 +32,30 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 				substitute(global.model)[names(gmCall[is.dotted])]
 		}
 	}
+
+	# *** Rank ***
+	rank.custom <- !missing(rank)
+	rankArgs <- list(...)
+	IC <- .getRank(rank, rankArgs)
+	ICName <- as.character(attr(IC, "call")[[1L]])
+
+	allTerms <- allTerms0 <- getAllTerms(global.model, intercept = TRUE,
+		data = eval(gmCall$data, envir = gmEnv))
+
+	# Intercept(s)
+	interceptLabel <- attr(allTerms, "interceptLabel")
+	if(is.null(interceptLabel)) interceptLabel <- "(Intercept)"
+	nInts <- sum(attr(allTerms, "intercept"))
+
+	#XXX: use.ranef <- FALSE
+	#if(use.ranef && inherits(global.model, "mer")) {
+		#allTerms <- c(allTerms, paste("(", attr(allTerms0, "random.terms"), ")",
+			#sep = ""))
+	#}
+
+	if(length(grep(":", all.vars(reformulate(allTerms))) > 0L))
+		stop("variable names in the formula cannot contain \":\"")
+
 	logLik <- .getLogLik()
 
 	# Check for na.omit
@@ -67,17 +68,14 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		names(formals(deparse(gmCall[[1L]]))[1L])
 
 	# TODO: other classes: model, fixed, etc...
-		#gmCoefNames0 <- names(coeffs(global.model))
-		#gmCoefNames <- fixCoefNames(gmCoefNames0)
 	gmCoefNames <- fixCoefNames(names(coeffs(global.model)))
-	#sglobCoefNames <- fixCoefNames(names(coeffs(global.model)))
 
 	n.vars <- length(allTerms)
 
 	if(isTRUE(rankArgs$REML) || (isTRUE(.isREMLFit(global.model)) && is.null(rankArgs$REML)))
 		warning("comparing models fitted by REML")
 
-	if (beta && is.null(tryCatch(beta.weights(global.model), error=function(e) NULL,
+	if (beta && is.null(tryCatch(beta.weights(global.model), error = function(e) NULL,
 		warning = function(e) NULL))) {
 		warning("do not know how to calculate beta weights for ",
 				class(global.model)[1L], ", argument 'beta' ignored")
@@ -119,10 +117,9 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		variants <- as.matrix(expand.grid(split(seq_len(sum(vlen)),
 			rep(seq_along(varying), vlen))))
 	} else {
-		variants <- NULL
+		variants <- varying.names <- NULL
 		nvariants <- 1L
 		nvarying <- 0L
-		varying.names <- character(0L)
 	}
 	## varying END
 
@@ -132,7 +129,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			call = deparse(x[[1]]), name = deparse(x), character = , x))
 		if(!is.null(names(extra)))
 			extraNames <- ifelse(names(extra) != "", names(extra), extraNames)
-
 		extra <- structure(as.list(unique(extra)), names = extraNames)
 
 		if(any(c("adjR^2", "R^2") %in% extra)) {
@@ -227,6 +223,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			newArgs <- makeArgs(global.model, allTerms[comb], comb, argsOptions)
 			formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
 				attr(newArgs, "formulaList")
+
 			if(!all(vapply(formulaList, formulaAllowed, logical(1L), marg.ex)))  {
 				isok <- FALSE; next;
 			}
@@ -243,10 +240,8 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		if(!isok) next;
 		## --- Variants ---------------------------
 		clVariant <- cl
-		if (nvarying) {
-			v <- (iComb - 1L) %% nvariants + 1L
-			clVariant[varying.names] <- fvarying[variants[v, ]]
-		}
+		if (nvarying) clVariant[varying.names] <-
+			fvarying[variants[(iComb - 1L) %% nvariants + 1L, ]]
 
 		if(trace) {
 			cat(iComb, ": "); print(clVariant)
@@ -305,7 +300,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			k <- k + 1L # all OK, add model to table
 		}
 		calls[[k]] <- clVariant
-
 	} ### for (iComb ...)
 
 	if(k == 0L) stop("the result is empty")
@@ -417,11 +411,9 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 	if(is.null(xterms)) {
 		print.data.frame(x, ...)
 	} else {
-		xterms <- gsub(" ", "", xterms, fixed = TRUE)
-		if(abbrev.names) xterms <- abbreviateTerms(xterms, 3L)
+		if(abbrev.names) xterms <- abbreviateTerms(gsub(" ", "", xterms, fixed = TRUE), 3L)
 
 		colnames(x)[seq_along(xterms)] <-  xterms
-
 		globcl <- attr(x, "global.call")
 		if(!is.null(globcl)) {
 			cat("Global model call: ")
@@ -453,7 +445,7 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 					lev <- levels(z)
 					lev <- lev[!(lev %in% c("", "NULL"))]
 					z <- factor(z, levels = lev)
-					shlev <- gsub("((?<=F)ALSE|(?<=T)RUE|~1\\|| +)", "", lev,
+					shlev <- gsub("((?<=F)ALSE|(?<=T)RUE|~(1\\|)?| +)", "", lev,
 						perl = TRUE, ignore.case = TRUE)
 					shlev <- abbreviate(shlev, nchar(i))
 					#shlev <- paste(substr(i, 1, 1), seq(nlevels(z)), sep="")
@@ -466,7 +458,7 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 		}
 
 		uqran <- unique(unlist(random.terms, use.names = FALSE))
-		abbran <- abbreviate(gsub("1 | ", "", uqran, fixed = T), 1L)
+		abbran <- abbreviate(gsub("1 | ", "", uqran, fixed = TRUE), 1L)
 		colran <- vapply(random.terms, function(s) paste(abbran[match(s, uqran)],
 			collapse = "+"), "")
 

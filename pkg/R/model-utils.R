@@ -84,17 +84,10 @@ function(frm, except = NULL) {
 	row <- structure(rep(NA, length(all.terms)), names = all.terms)
 
 	fxdCoefNames <- fixCoefNames(names(coef1))
-	#names(coef1) <-
 	row[terms1] <- NaN
 	pos <- match(terms1, fxdCoefNames, nomatch = 0L)
 	row[fxdCoefNames[pos]] <- coef1[pos]
 	if(allCoef) {
-
-		#cfmat <- coefTable(m1) # [match(rownames(ct), names(coef1)), ]
-		#cfmat <- matrix(NA, nrow = length(coef1), ncol = 3L,
-			#dimnames = list(fxdCoefNames, c("Est.", "SD", "df")))
-		#cfmat[match(rownames(ct), names(coef1)), 1L:2L] <- ct[, 1L:2L, drop = FALSE]
-		#cfmat[, 3L] <- coefDf(m1)
 		ct <- coefTable(m1)
 		#ct <- ct[match(rownames(ct), names(coef1)), ]
 		rownames(ct) <- fxdCoefNames
@@ -134,34 +127,43 @@ function(frm, except = NULL) {
 
 # sorts alphabetically interaction components in model term names
 # if 'peel', tries to remove coefficients wrapped into function-like syntax
-# (this is meant mainly for 'unmarkedFit' models with names such as "phi(a:b:c)")
+# (this is meant mainly for 'unmarkedFit' models with names such as "psi(a:b:c)")
 `fixCoefNames` <- function(x, sort = FALSE, peel = TRUE) {
 	if(!length(x)) return(x)
 	ret <- x
 	if(peel) {
-		k <- grepl("^\\w+\\(.+\\)$", x, perl = TRUE)
-		fname <- substring(x[k], 1L, attr(regexpr("^\\w+(?=\\()", x[k],
-			perl = TRUE),"match.length"))
-		# exclude common transformations
-		k[k] <- !(fname %in% c("log", "I", "exp", "s", "te"))
-		if(any(k)) {
-			pos <- vapply(x[k], function(z) {
-				parens <- lapply(lapply(c("(", ")"),
-					function(s) gregexpr(s, z, fixed = TRUE)[[1L]]),
-						function(y) y[y > 0L])
-				parseq <- unlist(parens, use.names = FALSE)
-				p <- cumsum(rep(c(1L, -1L), sapply(parens, length))[order(parseq)])
-				if(any(p[-length(p)] == 0L)) -1 else parseq[1L]
-			}, numeric(1L), USE.NAMES = FALSE)
-			k[k] <- pos != -1
-			pos <- pos[pos != -1]
-			if(any(k)) ret[k] <- substring(x[k], pos + 1L, nchar(x[k]) - 1L)
+		# case of pscl::hurdle, cf are prefixed with count_|zero_
+		if(all(substr(x, 1L, pos <- regexpr("_", x, fixed = TRUE)) %in%
+			c("count_", "zero_"))) {
+				ret <- substr(ret, pos + 1L, 256L)
+				k <- TRUE
+				suffix <- ""
+		} else { # unmarkedFit with its phi(...), lambda(...) etc...
+			k <- grepl("^\\w+\\(.+\\)$", x, perl = TRUE)
+			fname <- substring(x[k], 1L, attr(regexpr("^\\w+(?=\\()", x[k],
+				perl = TRUE),"match.length"))
+			# exclude common transformations
+			k[k] <- !(fname %in% c("log", "I", "exp", "s", "te"))
+			if(any(k)) {
+				pos <- vapply(x[k], function(z) {
+					parens <- lapply(lapply(c("(", ")"),
+						function(s) gregexpr(s, z, fixed = TRUE)[[1L]]),
+							function(y) y[y > 0L])
+					parseq <- unlist(parens, use.names = FALSE)
+					p <- cumsum(rep(c(1L, -1L), sapply(parens, length))[order(parseq)])
+					if(any(p[-length(p)] == 0L)) -1 else parseq[1L]
+				}, numeric(1L), USE.NAMES = FALSE)
+				k[k] <- pos != -1
+				pos <- pos[pos != -1]
+				if(any(k)) ret[k] <- substring(x[k], pos + 1L, nchar(x[k]) - 1L)
+			}
+			suffix <- ")"
 		}
 	} else	k <- FALSE
 	ret <- vapply(lapply(spl <- strsplit(ret, ":"), base::sort), paste, "",
 		collapse = ":")
 	if(peel && any(k))
-		ret[k] <- paste(substring(x[k], 1L, pos), ret[k], ")", sep = "")
+		ret[k] <- paste(substring(x[k], 1L, pos), ret[k], suffix, sep = "")
 	structure(ret, order = sapply(spl, length))
 }
 
@@ -197,9 +199,9 @@ function(frm, except = NULL) {
 
 `abbreviateTerms` <- function(x, n = 1L, capwords = FALSE) {
 	ret <- x
-	allVars <- all.vars(reformulate(x))
+	allVars <- all.vars(reformulate(gsub("_", "+", x, fixed = TRUE)))
+	pat <- paste("(?<=(?:_|\\W)|^)", allVars, "(?=(_|\\W)|$)", sep = "")
 	allVars <- gsub("Intercept", "Int", allVars, fixed = TRUE)
-	pat <- paste("\\b", allVars, "\\b", sep = "")
 	abx <- if(capwords)
 		abbreviate(paste(toupper(substring(allVars, 1L, 1L)),
 			tolower(substring(allVars, 2L)), sep = ""), n)

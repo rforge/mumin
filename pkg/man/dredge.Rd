@@ -99,9 +99,11 @@ returned by
 \code{multinom} (\pkg{nnet});
 \code{sarlm}, \code{spautolm} (\pkg{spdep});
 \code{glmmML} (\pkg{glmmML});
-\code{coxph}, \code{survreg} (\pkg{survival}) and \code{coxme} (\pkg{coxme});
+\code{coxph}, \code{survreg} (\pkg{survival});
+\code{coxme}, \code{lmekin} (\pkg{coxme});
+\code{hurdle}, \code{zeroinfl} (\pkg{pscl});
 \code{rq} (\pkg{quantreg});
-and all models from package \pkg{unmarked}.
+and model classes from package \pkg{unmarked}.
 \code{gamm} and \code{gamm4} should be evaluated \emph{via} the wrapper
 \code{MuMIn::\link[MuMIn]{gamm}}.
 
