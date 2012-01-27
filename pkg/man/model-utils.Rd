@@ -72,10 +72,7 @@ model.names(object, ..., labels = NULL)
 	The functions \code{coeffs}, \code{getAllTerms} and \code{coefTable} provide
 	interface between the model object and \code{model.avg} (and
 	\code{dredge}). Custom methods can be written to provide support for
-	additional classes of models. The vignette
-	\sQuote{\ifelse{html}{\href{/library/MuMIn/doc/gamm.pdf}{Extending
-	\pkg{MuMIn}'s functionality}}{Extending \pkg{MuMIn}'s functionality}}
-	describes it in more detail.
+	additional classes of models.
 }
 
 \note{

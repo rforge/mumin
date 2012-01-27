@@ -20,6 +20,9 @@ stats:::family.lm
 `nobs.rq` <-
 function (object, ...) length(object$y)
 
+`coefTable.rq` <- function(model, ...)
+	.makeCoefTable(model$coefficients, rep(NA_real_, length(model$coefficients)))
+
 
 # Classes 'coxme' and 'lmekin' from package 'coxme':
 

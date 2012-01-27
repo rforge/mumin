@@ -151,6 +151,7 @@ S3method(family, gls)
 S3method(family, lme)
 
 S3method(nobs, rq)
+S3method(coefTable, rq)
 
 S3method(coefTable, coxme)
 S3method(makeArgs, coxme)
