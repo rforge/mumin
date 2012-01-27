@@ -26,7 +26,7 @@ These functions extract or calculate various values from provided fitted model
 
 \code{getAllTerms} extracts independent variable names from a model object;
 
-\code{coefTable} extracts a table of coefficients, standard errors and 
+\code{coefTable} extracts a table of coefficients, standard errors and
 	associated degrees of freedom when possible;
 
 \code{model.names} generates shorthand numeric names for one or several fitted

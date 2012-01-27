@@ -1,8 +1,12 @@
 `null.fit` <- function(x, evaluate = FALSE, envir = environment(as.formula(formula(x)))) {
 	cl <- .getCall(x)
-	mClasses <- c("glmmML", "lm", "lme", "gls", "mer", "unmarkedFit")
+	mClasses <- c("glmmML", "lm", "lme", "gls", "mer", "unmarkedFit", "coxph",
+		"coxme")
 	mClass <- mClasses[inherits(x, mClasses, which = TRUE) != 0L][1]
-	if(is.na(mClass)) mClass <- "default"
+	if(is.na(mClass)) {
+		warning("null model may be incorrect for this class")
+		mClass <- "default"
+	}
 	formulaArgName <- "formula"
 	Fun <- "glm"
 	switch(mClass,
@@ -32,6 +36,9 @@
 			}
 			cl$starts <- NULL
 			Fun <- NA
+		}, coxph = , coxme = {
+			Fun <- "coxph"
+			cl$formula <- update(as.formula(cl$formula), . ~ 1)
 		}, {
 			REML <- FALSE
 		}
@@ -49,27 +56,6 @@
 	if(evaluate) eval(cl, envir = envir) else cl
 }
 
-#
-##lm1 <- lm(weight ~ group)
-##plot(weight ~ group)
-#glm1 <- glm(exp(weight) ~ group, Gamma("log"))
-#
-#glm2 <- local ({
-#glm(exp(weight) ~ group, Gamma("log"))
-#})
-#environment(formula(glm1))
-#environment(formula(glm2))
-#r.squaredLR(glm1)
-#r.squaredLR(lm1)
-#nullCall(lm1)
-#summary(lm1)
-# Multiple R-squared: 0.07308,	Adjusted R-squared: 0.02158
-#str(summary(lm(weight ~ group)))
-# r.squaredLR(lm1)
-#r.squaredLR(x, null = nullCall(x, TRUE, parent.frame()))
-#nullCall(x, evaluate = FALSE, envir = parent.frame())
-
-#args(null.fit)
 
 
 `r.squaredLR` <- function(x, null = null.fit(x, TRUE)) {

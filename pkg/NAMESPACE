@@ -71,6 +71,11 @@ S3method(coefTable, default)
 
 S3method(coefTable, averaging)
 
+S3method(coef, model.selection)
+S3method(coeffs, model.selection)
+S3method(coefTable, model.selection)
+
+
 S3method(AICc, default)
 
 S3method(AICc, logLik)

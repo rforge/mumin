@@ -34,39 +34,29 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 	coefNames <- fixCoefNames(unique(unlist(lapply(ct, rownames),
 		use.names = FALSE)), sort = TRUE)
 
+	cfarr <- coefArray(ct)
+	coefNames <- dimnames(cfarr)[[3]]
 	nCoef <- length(coefNames)
 	nModels <- length(ct)
-	coefArray <- array(NA_real_, dim = c(nModels, 3L, nCoef),
-		dimnames = list(NULL, c("Estimate", "Std. Error", "df"), coefNames))
-	for(i in seq_along(ct)) {
-		z <- ct[[i]]
-		coefArray[i, 1:3, ]
-		coefArray[i, seq_len(ncol(z)), ] <- t(z[match(coefNames, rownames(z)), ])
-	}
 	weight <- object$weight / sum(object$weight)
 
 	avgcoef <- array(dim = c(nCoef, 5L), dimnames = list(coefNames, c("Estimate",
 		"Std. Error", "Adjusted SE", "Lower CI", "Upper CI")))
 	for(i in seq_len(nCoef))
-		avgcoef[i, ] <- par.avg(coefArray[, 1L, i], coefArray[, 2L, i], weight,
-			df = coefArray[, 3L, i], revised.var = revised.var)
+		avgcoef[i, ] <- par.avg(cfarr[, 1L, i], cfarr[, 2L, i], weight,
+			df = cfarr[, 3L, i], revised.var = revised.var)
 
-
-	missing.par <- is.na(coefArray[, 1L, ])
+	missing.par <- is.na(cfarr[, 1L, ])
 	coef.shrink <- avgcoef[, 1L] *
 		colSums(array(weight * as.double(!missing.par), dim = c(nModels, nCoef)))
 
 	#allterms1 <- lapply(attr(object, "calls"), function(x)
 		#getAllTerms(as.formula(x[[switch(as.character(x[[1L]]),
 			#lme=, lme.formula= "fixed", gls= "model", "formula")]])))
-
 	all.terms <- attr(object, "terms")
 	all.vterms <- all.terms[!(all.terms %in% attr(all.terms, "interceptLabel")
 		| apply(is.na(object[, all.terms]), 2L, all))]
-
 	allterms1 <- apply(!is.na(object[, all.vterms, drop = FALSE]), 1L, function(x) all.vterms[x])
-
-
 	#all.terms <- unique(unlist(allterms1))
 	all.model.names <- .modelNames(allTerms = allterms1, uqTerms = all.vterms)
 
@@ -81,7 +71,7 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 		term.codes = attr(all.model.names, "variables"),
 		avg.model = avgcoef,
 		coef.shrinkage = coef.shrink,
-		coefArray = coefArray,
+		coefArray = cfarr,
 		importance = importance(object),
 		beta = attr(object, "beta"),
 		term.names = coefNames,
@@ -173,24 +163,17 @@ function(object, ..., beta = FALSE,
 	models <- models[model.order]
 	coefTables <- coefTables[model.order]
 
-	allCoefNames <- fixCoefNames(unique(unlist(lapply(mcoeffs, names))), sort = TRUE)
-	nCoef <- length(allCoefNames)
-
-	if (beta)	response.sd <- sd(model.response(model.frame(object)))
-
-	coefArray <- array(NA_real_, dim = c(nModels, 3L, nCoef),
-		dimnames = list(rownames(mstab), c("Estimate", "Std. Error", "df"), allCoefNames))
-
-	for (i in seq_len(nModels)) {
-		coefmat <- coefTables[[i]]
-		rownames(coefmat) <- fixCoefNames(rownames(coefmat))
-		if(NROW(coefmat) > 0L) {
-			if (beta) coefmat[, 1L:2L] <- coefmat[, 1L:2L] *
-				sd(model.matrix(models[[i]])) / response.sd
-			j <- match(rownames(coefmat), allCoefNames)
-			coefArray[i, 1L:3L, j] <- t(coefmat)
-		}
+	if (beta) {
+		response.sd <- sd(model.response(model.frame(object)))
+		for(i in seq_along(coefTables))
+			coefTables[[i]][, 1L:2L] <-
+				coefTables[[i]][, 1L:2L] *
+				apply(model.matrix(models[[i]]), 2L, sd) / response.sd
 	}
+
+	cfarr <- coefArray(coefTables)
+	coefNames <- dimnames(cfarr)[[3]]
+	nCoef <- length(coefNames)
 
 	# Benchmark: 3.7x faster
 	#system.time(for(i in 1:10000) t(array(unlist(p), dim=c(length(all.terms),length(models)))))
@@ -203,25 +186,20 @@ function(object, ..., beta = FALSE,
 	names(importance) <- all.terms
 	importance <- sort(importance, decreasing = TRUE)
 
-	avgcoef <- t(vapply(seq_along(allCoefNames),
-		function(i) par.avg(
-			coefArray[, 1L, i],
-			se = coefArray[, 2L, i],
-			weight = weight,
-			df = coefArray[, 3L, i],
-			alpha = alpha,
+	avgcoef <- t(vapply(seq_along(coefNames), function(i) par.avg(
+			cfarr[, 1L, i], se = cfarr[, 2L, i], df = cfarr[, 3L, i],
+			weight = weight, alpha = alpha,
 			revised.var = revised.var), double(5L)))
-
 
 	avgcoef[is.nan(avgcoef)] <- NA
 
-	dimnames(avgcoef) <- list(allCoefNames, c("Estimate", "Std. Error",
+	dimnames(avgcoef) <- list(coefNames, c("Estimate", "Std. Error",
 		"Adjusted SE", "Lower CI", "Upper CI"))
 
     names(all.terms) <- seq_along(all.terms)
 	colnames(mstab)[3L] <- ICname
 
-	missing.par <- is.na(coefArray[, 1L, ])
+	missing.par <- is.na(cfarr[, 1L, ])
 	coef.shrink <- avgcoef[, 1L] *
 		#colSums(weight * !is.na(all.coef))
 		colSums(array(weight * as.double(!missing.par), dim = c(nModels, nCoef)))
@@ -252,10 +230,10 @@ function(object, ..., beta = FALSE,
 		term.codes = attr(all.model.names, "variables"),
 		avg.model = avgcoef,
 		coef.shrinkage = coef.shrink,
-		coefArray = coefArray,
+		coefArray = cfarr,
 		importance = importance,
 		beta = beta,
-		term.names = allCoefNames,
+		term.names = coefNames,
 		x = mmxs,
 		residuals = rsd,
 		formula = frm,
