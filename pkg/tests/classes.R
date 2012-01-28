@@ -23,7 +23,6 @@ ma <- model.avg(models, revised=T)
 ms <- model.sel(models)
 print(ms, abbr = F)
 print(ms, abbr = T)
-
 summary(ma)
 predict(ma)[1:10]
 
@@ -39,10 +38,15 @@ varying <- list(
 )
 
 dd <- dredge(fm1BW.lme, m.max=1, fixed=~Time, varying=varying)
+
+#system.time(for (i in 1:1000) abbreviateTerms(x, 3, deflate = T))
+#system.time(for (i in 1:1000) abbreviateTerms(x, 3, deflate = F))
+#system.time(for (i in 1:100000) names(repl1[i]))
+#system.time(for (i in 1:100000) names(repl1)[i]) # slighly faster
+
 #dd <- dredge(fm1, trace=T)
 models <- get.models(dd, 1:4)
 ma <- model.avg(models, revised=T)
-
 
 summary(ma <- model.avg(models[1:4]))
 summary(model.avg(dd[1:4]))
@@ -55,7 +59,6 @@ mod.sel(models)
 summary(ma)
 confint(ma)
 predict(ma)[1:10]
-
 
 detach(package:nlme); rm(list=ls())
 #}
@@ -169,10 +172,10 @@ fm2b <- lmer(log(distance) ~ Sex + (1|Subject), data = Orthodont, REML=FALSE)
 fm3 <- lm(log(distance) ~ age, data = Orthodont)
 
 models <- list(fm4, fm1, fm3, fm2, fm2a, fm2b)
-dd2 <- model.sel(models)
+(dd2 <- model.sel(models))
 
 
-coefTable(models[[2]], dispersion = NULL)
+#coefTable(models[[2]], dispersion = NULL)
 
 
 # Comparing model.avg on model list and applied directly:
