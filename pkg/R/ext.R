@@ -48,6 +48,8 @@ function(object, ...) {
 }
 
 `nobs.coxme` <-
+function (object, ...) object$n[2L]
+
 `nobs.lmekin` <-
 function (object, ...) object$n[1L]
 
@@ -101,7 +103,7 @@ function(obj, termNames, comb, opt, ...) {
 ## Classes 'hurdle' and 'zeroinfl' from package 'pscl':
 
 `nobs.hurdle` <-
-`nobs.zeroinfl` <- `nobs.coxme`
+`nobs.zeroinfl` <- `nobs.lmekin`
 
 `getAllTerms.hurdle` <- function(x, intercept = FALSE, ...) {
 	f <- as.formula(formula(x))
