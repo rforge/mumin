@@ -38,7 +38,7 @@
 		}, lm = {
 			REML <- FALSE
 		}, {
-			stop("do not know (yet) how to construct a null model for class ", 
+			stop("do not know (yet) how to construct a null model for class ",
 				paste(sQuote(class(x))))
 		}
 	)
@@ -56,7 +56,7 @@
 
 
 
-`r.squaredLR` <- function(x, null = null.fit(x, TRUE)) {
+`r.squaredLR` <- function(x, null = null.fit(x, TRUE, parent.frame())) {
 	L0 <- c(logLik(null))
 	L1 <- c(logLik(x))
 	n <- nobs(x)
