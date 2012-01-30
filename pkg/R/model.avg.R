@@ -460,7 +460,7 @@ function(x, ...) {
 `vcov.averaging` <- function (object, ...) {
 	full <- FALSE
 	models <- attr(object, "modelList")
-	if(is.null(models)) stop("cannot predict without model list")
+	if(is.null(models)) stop("cannot calculate covariance matrix without model list")
 
 	vcovs <- lapply(lapply(models, vcov), as.matrix)
 	names.all <- object$term.names

@@ -1,10 +1,12 @@
 MuMIn package news:
 
-Version: 1.7.2 (2012-01-28)
-fixed: 'nobs.coxme' returned the number of events was returned rather than 
+Version: 1.7.2 (2012-01-30)
+(fixed) 'nobs.coxme' returned the number of events was returned rather than 
 	the number of observations.
-fixed: 'coefTable' gave an error for 'coxph' null model.
-dredge: checks each generated model for the correct number of observations
+(fixed) 'coefTable' gave an error for 'coxph' null model.
+(fixed) 'r.squaredLR' was evaluating the null model in a wrong environment.
+dredge: checks each generated model for the correct number of observations.
+
 
 Version: 1.7.1 (2012-01-26)
 Added methods for 'hurdle' and 'zeroinfl' classes (package 'pscf').
