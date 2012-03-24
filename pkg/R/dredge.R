@@ -6,7 +6,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	gmEnv <- parent.frame()
 	gmCall <- .getCall(global.model)
 	gmNobs <- nobs(global.model)
-	
+
 	if (is.null(gmCall)) {
 		gmCall <- substitute(global.model)
 		if(!is.call(gmCall)) {
@@ -90,7 +90,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		if (inherits(fixed, "formula")) {
 			if (fixed[[1L]] != "~" || length(fixed) != 2L)
 				warning("'fixed' should be a one-sided formula")
-			fixed <- c(getAllTerms(fixed))
+			fixed <- as.vector(getAllTerms(fixed))
 		} else if (!is.character(fixed)) {
 			stop ("'fixed' should be either a character vector with"
 				  + " names of variables or a one-sided formula")
@@ -205,6 +205,18 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		gmFormulaEnv = gmFormulaEnv
 		)
 
+# XXX: adjusting 'marg.ex'
+		#newArgs <- makeArgs(global.model, allTerms,
+		#	rep(TRUE, length(allTerms), argsOptions))
+		#formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs
+		#	else attr(newArgs, "formulaList")
+		#if(is.null(marg.ex)) {
+		#	marg.ex <- lapply(sapply(formulaList, formulaAllowed,
+		#		simplify = FALSE), attr, "marg.ex")
+		#}
+		#print(marg.ex)
+	###
+
 	retColIdx <- if(nvarying) -n.vars - seq_len(nvarying) else TRUE
 
 	prevJComb <- 0L
@@ -279,9 +291,9 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			ll <- logLik(fit1)
 			nobs1 <- nobs(fit1)
 			if(nobs1 != gmNobs) warning(gettextf(
-				"number of observations in model #%d (%d) differs from that in the global model (%d)", 
+				"number of observations in model #%d (%d) differs from that in the global model (%d)",
 				iComb, nobs1, gmNobs))
-			
+
 			row1 <- c(mcoef1[allTerms], extraResult1,
 				df = attr(ll, "df"), ll = ll, ic = IC(fit1)
 			)
@@ -368,4 +380,3 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		vCols = varying.names
 	)
 } ######
-

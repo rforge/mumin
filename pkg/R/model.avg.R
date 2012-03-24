@@ -56,8 +56,8 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 	all.terms <- attr(object, "terms")
 	all.vterms <- all.terms[!(all.terms %in% attr(all.terms, "interceptLabel")
 		| apply(is.na(object[, all.terms]), 2L, all))]
-	allterms1 <- apply(!is.na(object[, all.vterms, drop = FALSE]), 1L, function(x) all.vterms[x])
-	#all.terms <- unique(unlist(allterms1))
+	#allterms1 <- apply(!is.na(object[, all.vterms, drop = FALSE]), 1L, function(x) all.vterms[x])
+	allterms1 <- applyrns(!is.na(object[, all.vterms, drop = FALSE]), function(x) all.vterms[x])
 	all.model.names <- .modelNames(allTerms = allterms1, uqTerms = all.vterms)
 
 	mstab <- object[, -(seq_len(ncol(object) - 5L))]

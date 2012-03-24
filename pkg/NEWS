@@ -1,10 +1,16 @@
 MuMIn package news:
 
+Version: 1.7.3 (2012-02-01)
+Added methods for 'glimML' class from package 'aod'
+
+
 Version: 1.7.2 (2012-01-30)
 (fixed) 'nobs.coxme' returned the number of events was returned rather than 
 	the number of observations.
 (fixed) 'coefTable' gave an error for 'coxph' null model.
-(fixed) 'r.squaredLR' was evaluating the null model in a wrong environment.
+(fixed) 'r.squaredLR' was evaluating the null model for 'lme' in a wrong 
+	environment.
+(fixed) 'getAllTerms' method for 'zeroinfl' was not registered.
 dredge: checks each generated model for the correct number of observations.
 
 
