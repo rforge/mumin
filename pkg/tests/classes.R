@@ -18,6 +18,8 @@ varying <- list(
 dd <- dredge(fm1Dial.gls, m.max = 2, m.min = 1, fixed=~pressure, varying = varying, extra = "R^2")
 
 models <- get.models(dd, 1:4)
+
+
 ma <- model.avg(models, revised=T)
 ms <- model.sel(models)
 print(ms, abbr = F)
@@ -25,7 +27,7 @@ print(ms, abbr = T)
 summary(ma)
 predict(ma)[1:10]
 
-predict(ma, Dialyzer[1:5, ])
+predict(ma, newdata = Dialyzer[1:5, ])
 
 detach(package:nlme); rm(list=ls())
 

@@ -86,7 +86,7 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 	if(is.null(xterms) || !all(xterms %in% colnames(x)[seq_along(xterms)])) {
 		print.data.frame(x, ...)
 	} else {
-		if(abbrev.names) xterms <- abbreviateTerms(xterms, 6L, 3L)
+		if(abbrev.names) xterms <- abbreviateTerms(xterms, 6L, 3L, deflate = TRUE)
 
 		colnames(x)[seq_along(xterms)] <- xterms
 		globcl <- attr(x, "global.call")

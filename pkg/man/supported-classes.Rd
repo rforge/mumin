@@ -28,6 +28,9 @@ functions include those returned by:
 \item functions from package \pkg{unmarked}, (within the class \code{unmarkedFit})
 }
 
+\code{model.sel} and \code{dredge} accept also \code{MCMCglmm} models
+	(package \pkg{MCMCglmm}) with \code{\link{DIC}} as the \code{rank} function.
+
 Other classes are also likely to be supported, in particular if they inherit
 from one of the above classes. In general, the models averaged with
 \code{model.avg} may belong to different types, provided they use the same data

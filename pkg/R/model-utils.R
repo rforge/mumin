@@ -280,10 +280,13 @@ function(frm, except = NULL) {
 			"link")]), error = function(e) character(2L)) )
 
 		f <- fam[1L, ]
+		f[is.na(f)] <- ""
 		f <- vapply(strsplit(f, "(", fixed = TRUE), "[", "", 1L)
 		f[f == "Negative Binomial"] <- "negative.binomial"
-		fam[2L, fam[2L, ] == vapply(unique(f), function(x) formals(get(x))$link,
-			"")[f]] <- NA_character_
+
+		fam[2L, fam[2L, ] == vapply(unique(f), function(x) if(is.na(x))
+									NA_character_ else formals(get(x))$link,
+			FUN.VALUE = "")[f]] <- NA_character_
 
 		j <- !is.na(fam[2L,])
 		fnm <- fam[1L, j]
@@ -295,7 +298,9 @@ function(frm, except = NULL) {
 
 	if(withArguments) {
 		cl <- lapply(models, .getCall)
-		arg <- lapply(cl, function(x) sapply(x[-1L], function(argval)
+		haveNoCall <-  vapply(cl, is.null, FALSE)
+		cl[haveNoCall] <- lapply(cl[haveNoCall], function(x) call("none", formula = NA))
+ 		arg <- lapply(cl, function(x) sapply(x[-1L], function(argval)
 			switch(mode(argval), character = , logical = argval,
 			numeric = signif(argval, 3L), deparse(argval, nlines = 1L))))
 		arg <- rbindDataFrameList(lapply(lapply(arg, t), as.data.frame))

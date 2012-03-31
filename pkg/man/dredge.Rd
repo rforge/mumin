@@ -127,10 +127,10 @@ any of the \code{global.model} terms (use \code{getAllTerms(global.model)} to
 list them). It can have a form of an unevaluated \code{call}, \code{expression}
 object, or a one sided \code{formula}. See \sQuote{Examples}.
 Compound model terms (such as \sQuote{as-is} expressions within \code{I()} or
-the smooths in \code{gam}) should be treated as non-syntactic names and
+ smooths in \code{gam}) should be treated as non-syntactic names and
 enclosed in back-ticks (see \link[base]{Quotes}). Mind the spacing, names
 must match exactly the term names in model's formula. To simply keep certain
-terms in all models, use of \code{fixed} is preferred.
+terms in all models, use of argument \code{fixed} is more efficient.
 
 Use of \code{na.action = na.omit} (\R's default) in \code{global.model} should
 be avoided, as it results with sub-models fitted to different data sets, if

@@ -9,8 +9,9 @@
 	fam <- cl$family
 	if(is.null(fam)) fam <- formals(match.fun(cl[[1L]]))$family
 	if(is.null(fam)) {
-		warning("unknown family, assuming 'gaussian'")
-		return(gaussian())
+		#warning("unknown family, assuming 'gaussian'")
+		return(NA)
+		#return(gaussian())
 	}
 	switch(mode(fam), call = eval(fam), name =, character = match.fun(fam)())
 }
@@ -97,7 +98,7 @@ function(model) {
 `makeArgs.lmekin` <-
 function(obj, termNames, comb, opt, ...) {
 	ret <- makeArgs.default(obj, termNames, comb, opt)
-	ret$formula <- update.formula(update.formula(ret$formula, . ~ . + 1), 
+	ret$formula <- update.formula(update.formula(ret$formula, . ~ . + 1),
 		opt$random)
 	ret
 }
@@ -162,7 +163,7 @@ function(model, ...)
 }
 
 
-`family.zeroinfl` <- 
+`family.zeroinfl` <-
 function(object, ...) binomial(link = object$link)
 
 
