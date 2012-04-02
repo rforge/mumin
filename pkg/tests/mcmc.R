@@ -10,4 +10,6 @@ fmmcmc1 <- MCMCglmm(weight ~ Time * Diet, data = BodyWeight, random = ~ Time)
 ddmcmc <- dredge(MCMCglmm(weight ~ Time * Diet, data = BodyWeight, random = ~ Time), rank = DIC, trace = T)
 model.sel(ddmcmc[1:3])
 # ddlme <- dredge(fmlme1)
+
+
 }

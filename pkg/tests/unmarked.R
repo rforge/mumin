@@ -2,7 +2,8 @@ if(length(.find.package("unmarked", quiet = TRUE)) != 0L) {
 
 library(MuMIn)
 library(stats4)
-do.call(library, alist(unmarked)) # cheating R check
+library(unmarked) # cheating R check
+#do.call(library, alist(unmarked)) # cheating R check
 
 # Simulate occupancy data
 set.seed(1)
@@ -39,8 +40,6 @@ MuMIn:::fixCoefNames(names(coef(fm2oc)))
 
 #(dd <- dredge(fm2oc, fixed = ~psi(habitat), trace = T))
 (dd <- dredge(fm2oc, fixed = ~psi(habitat)))
-
-#m1 <- occu(formula = ~1 ~ 1 + habitat, data = umfOccu)
 
 
 model.sel(dd, rank = "AIC")

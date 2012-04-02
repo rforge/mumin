@@ -1,4 +1,5 @@
-if(length(.find.package("glmmML", quiet = TRUE))) {
+if(length(.find.package(c("glmmML", "aod"), quiet = TRUE)) == 2) {
+
 library(MuMIn)
 library(aod)
 library(glmmML)
@@ -20,10 +21,10 @@ fmgl0 <- glm(cbind(y, n - y) ~ 1, family = binomial("logit"), data = orob2)
 
 models <- list(fmbb, fmb1, fmgm, fmbr, fmgl)
 ms <- model.sel(models)
-summary(am <- model.avg(ms))
-coef(am)
-coefTable(am)
-confint(am)
+print(summary(am <- model.avg(ms)))
+print(coef(am))
+print(coefTable(am))
+print(confint(am))
 
 salmonella$r1 <- factor(sample(3, nrow(salmonella), replace = T))
 
@@ -33,15 +34,16 @@ fmps <-  glm(y ~ log(dose + 10) + dose*r1, poisson, salmonella)
 fm.nb <- glm.nb(y ~ log(dose + 10) + dose*r1, link = "log", data = salmonella)
 
 models <- list(fmng, fm.nb, fmps)
-(ms <- model.sel(models))
-summary(model.avg(ms))
+print(ms <- model.sel(models))
+print(summary(model.avg(ms)))
 
 #ms$link <- NULL
 #ms$init.theta <- NULL
-ms
+print(ms)
+
 fmnbo <- negbin(y ~ group + log(trisk) + offset(log(trisk)), ~ group, dja)
 #fmnbo <- negbin(y ~ group + offset(log(trisk)), ~ group, dja)
-dredge(fmnbo)
+print(dredge(fmnbo))
 
 #_______________________________________________________________________________
 
@@ -55,8 +57,8 @@ fm3r <- betabin(cbind(y, n - y) ~ root + rand * rand2, ~ seed, data = orob2)
 
 #options(warn=1)
 
-(dd <- dredge(fm3r, trace = T))
-summary(model.avg(dd))
-summary(model.avg(dd, delta < 4))
+print(dd <- dredge(fm3r, trace = T))
+print(summary(model.avg(dd)))
+print(summary(model.avg(dd, delta < 4)))
 
 }

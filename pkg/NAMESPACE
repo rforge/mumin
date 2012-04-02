@@ -31,7 +31,6 @@ S3method(nobs, glm)
 #importFrom(methods, slot, slotNames)
 #importFrom(lme4, lmer, logLik, terms)
 
-
 S3method("$<-", model.selection)
 
 S3method(print, averaging)
@@ -78,6 +77,7 @@ S3method(coef, model.selection)
 S3method(coeffs, model.selection)
 S3method(coefTable, model.selection)
 
+S3method(print, coefTable)
 
 S3method(AICc, default)
 

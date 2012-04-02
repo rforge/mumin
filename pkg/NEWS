@@ -1,7 +1,14 @@
 MuMIn package news:
 
-Version: 1.7.6 (2012-03-27)
-'predict.averaging' is now more flexible in how the predictions from generalized
+Version: 1.7.8 (2012-04-01)
+(fixed) coef.model.selection returns now proper coefficients
+
+Version: 1.7.7 (2012-04-01)
+fixed dependencies in tests
+
+Version: 1.7.6 (2012-04-01)
+dredge: with nested formula designs, 'marg.ex' is now found automatically
+predict.averaging: is now more flexible in how the predictions from generalized
 	models are calculated (new attribute "backtransform").
 
 Version: 1.7.5 (2012-03-27)

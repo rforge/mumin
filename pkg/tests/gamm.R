@@ -1,3 +1,5 @@
+if(length(.find.package("gamm4", quiet = TRUE))) {
+
 library(mgcv)
 library(gamm4)
 library(MuMIn)
@@ -25,3 +27,5 @@ summary(model.avg(dd, delta <= 4))
 fmg4s2 <- gamm(y ~s(x0)+ s(x3) + s(x2), family=gaussian, data=dat, random = ~ (1|fac))
 dd4 <- dredge(fmg4s2)
 summary(avg <- model.avg(dd4, delta <= 4))
+
+}

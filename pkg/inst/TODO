@@ -10,5 +10,4 @@ TODO list for the MuMIn package:
 *   print 'model.selection' output in a shorthand form, with model formulas as
         row names and no columns for terms.
 *   pdredge: checking if 'nobs' for all generated models in are equal (already 
-        done in 'dredge'
-*   dredge: detection of marginality exceptions based on global model
+        done in 'dredge')

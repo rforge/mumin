@@ -32,6 +32,7 @@ predict(ma, newdata = Dialyzer[1:5, ])
 detach(package:nlme); rm(list=ls())
 
 # TEST glmmML --------------------------------------------------------------------
+if(.checkPkg("glmmML")) {
 library(glmmML)
 
 set.seed(100)
@@ -46,6 +47,7 @@ summary(ma <- model.avg(dd, subset = delta <= 4))
 coefTable(ma)
 
 detach(package:glmmML); rm(list=ls())
+}
 
 # TEST lm ---------------------------------------------------------------------------------
 if(.checkPkg("nlme")) {
@@ -158,21 +160,27 @@ if (.checkPkg("mgcv")) {
 suppressPackageStartupMessages(library(mgcv))
 RNGkind("Mersenne")
 set.seed(0) ## simulate some data...
-dat <- gamSim(1,n=400,dist="normal",scale=2)
+dat <- gamSim(1, n = 400, dist = "binary", scale = 2)
 #gam1 <- gam(y~s(x0)+s(x1)+s(x2)+s(x3), data=dat)
 
 ops <- options(warn = -1)
 
 gam1 <- gam(y ~ s(x0) + s(x1) + s(x2) +  s(x3) + (x1+x2+x3)^2,
-	data = dat, method = "ML")
+	data = dat, method = "GCV.Cp", family = binomial)
 
 dd <- dredge(gam1, subset=!`s(x0)` & (!`s(x1)` | !x1) & (!`s(x2)` |
-	!x2) & (!`s(x3)` | !x3), fixed="x1")
+	!x2) & (!`s(x3)` | !x3), fixed = "x1")
 
 gm <- get.models(dd, cumsum(weight) <= .95)
 ma <- model.avg(gm)
 
-predict(ma, dat[1:10, ], se.fit=T)
+summary(ma)
+
+predict(ma, dat[1:10, ], se.fit=T, type = "link")
+
+predict(ma, dat[1:10, ], se.fit=T, type = "response")
+predict(ma, dat[1:10, ], se.fit=T, type = "link", backtransform = TRUE)
+
 options(ops)
 
 rm(list=ls()); detach(package:mgcv)
@@ -182,7 +190,6 @@ rm(list=ls()); detach(package:mgcv)
 
 if (.checkPkg("spdep"))
 if(!is.null(tryCatch(suppressPackageStartupMessages(library(spdep)), error = function(e) NULL))) {
-
 
 suppressMessages(example(NY_data, echo = FALSE))
 
@@ -215,11 +222,13 @@ fm1.sarlm <- errorsarlm(CRIME ~ INC * HOVAL * OPEN, data = COL.OLD,
  nb2listw(COL.nb, style = "W"), method = "eigen", quiet = TRUE)
 
 dd <- dredge(fm1.sarlm)
+
 gm <- get.models(dd, cumsum(weight) <= .98)
 ma <- model.avg(gm)
 
 stopifnot(isTRUE(all.equal(coefTable(ma), coefTable(model.avg(dd, cumsum(weight) <= .98)))))
 
+summary(ma)
 
 predict(ma)[1:10]
 
@@ -234,14 +243,16 @@ require(MASS)
 quine.nb1 <- glm.nb(Days ~ 0 + Sex/(Age + Eth*Lrn), data = quine)
 #quine.nb1 <- glm.nb(Days ~ Sex/(Age + Eth*Lrn), data = quine)
 
-
 ms <- dredge(quine.nb1, marg.ex = "Sex")
 
 models <- get.models(ms )
 summary(model.avg(models))
 
-dredge(quine.nb1) # Wrong
-dredge(quine.nb1, marg.ex = "Sex") # Right
+#dredge(quine.nb1, marg.ex = NULL) # OK
+#dredge(quine.nb1, marg.ex = NA) # OK
+#dredge(quine.nb1, marg.ex = "Sex") # OK
+dredge(quine.nb1) # OK
+#dredge(quine.nb1, marg.ex = "Sex") # Right, should be the same as above
 ma <- model.avg(dredge(quine.nb1, marg.ex = "Sex"), subset = cumsum(weight)<=.9999)
 
 # Cannot predict with this 'averaging'

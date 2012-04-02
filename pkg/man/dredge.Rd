@@ -46,7 +46,8 @@ dredge(global.model, beta = FALSE, evaluate = TRUE,
 	\item{marg.ex}{a character vector specifying names of variables for which
 	NOT to check for marginality restrictions when generating model formulas. If
 	this argument is set to \code{TRUE}, all combinations of terms are used
-	(i.e. no checking). }
+	(i.e. no checking). If \code{NA} or missing, the exceptions will be found
+	based on the terms of \code{global.model}. See \sQuote{Details}.  }
 
 	\item{trace}{if \code{TRUE}, all calls to the fitting function (i.e. updated
 	\code{global.model} calls) are printed before actual fitting takes place. }
@@ -109,8 +110,10 @@ Handling interactions, \code{dredge} respects marginality constraints, so
 \dQuote{all possible combinations} do not include models containing interactions
 without their respective main effects. This behaviour can be altered by
 \code{marg.ex} argument, which can be used to allow for simple nested designs.
-For example, with global model of form \code{a / (x + z)}, use
-\code{marg.ex = "a"} and \code{fixed = "a"}.
+For example, with global model of form \code{a / (x + z)}, one would use
+\code{marg.ex = "a"} and \code{fixed = "a"}. If \code{global.model} has such a
+formula, and \code{marg.ex} is missing or \code{NA}, it will be adjusted
+automatically.
 
 \code{rank} is found by a call to \code{match.fun} and may be specified as a
 function or a symbol (e.g. a back-quoted name) or a character string specifying
