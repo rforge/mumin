@@ -5,6 +5,7 @@ library(lme4)
 
 # example(corGaus)
 fmlme1 <- lme(weight ~ Time * Diet, data = BodyWeight, random = ~ Time, method="ML")
+
 varying <- list(
 	correlation = alist(corExp(form = ~ Time), corGaus(form = ~ Time)),
 	weights = alist(NULL, varPower())
@@ -22,7 +23,7 @@ logLik(dd)
 mod.sel(models)
 summary(ma1)
 confint(ma1)
-predict(ma1)[1:10]
+predict(ma1, BodyWeight[1:10, ], se.fit = T, level = 0)
 
 rm(list=ls())
 
@@ -36,14 +37,14 @@ fm2 <- lme(distance ~ Sex*age + age*Sex, data = Orthodont,
 
 # Model selection: ranking by AICc which uses ML
 dd <- dredge(fm2, rank = "AICc", REML = FALSE)
-
 # Get models (which are fitted by REML, like the global model)
 gm <- get.models(dd, 1:4)
 
 summary(ma <- model.avg(gm, revised = T))
 confint(ma)
+newdata <- data.frame(Sex = "Male", Subject = "M01", age = 8:12)
 
-predict(ma, data.frame(Sex = "Male", Subject = "M01", age = 8:12))
+predict(ma, newdata, se.fit = T, level = 0)
 
 detach(package:nlme); rm(list=ls())
 
@@ -53,6 +54,7 @@ data(Orthodont, package = "nlme")
 
 Orthodont$rand <- runif(nrow(Orthodont))
 fm2 <- lmer(log(distance) ~ rand*Sex*age + (1|Subject), data = Orthodont, REML = FALSE)
+
 
 dd <- dredge(fm2, trace=F)
 gm <- get.models(dd, 1:6)
@@ -94,3 +96,16 @@ all.equal(msAIC2, msAIC)
 
 
 detach(package:lme4); rm(list=ls())
+
+#===============================================================================
+
+library(lme4)
+data(Insurance, package = "MASS")
+
+zo <- lmer(Claims ~ District + Age + (1 | Group) + offset(log(Holders)),
+    data = Insurance, family = poisson)
+z <- lmer(Claims ~ District + Age + (1 | Group),
+    data = Insurance, family = poisson)
+
+y1 <- predict(zo, type = "l", se.fit = T)
+y1 <- predict(zo, Insurance, type = "r", se.fit = T)

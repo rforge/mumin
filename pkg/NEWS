@@ -1,7 +1,13 @@
 MuMIn package news:
 
+Version: 1.7.9 (2012-04-03)
+Added 'predict' methods for 'lme' and 'lmer' (both can calculate 'se.fit').
+	'predict.lme' is a wrapper for its namesake from 'nlme' package (it is
+	not exported, so it's visibility depends on the order the packages were 
+	loaded - but is always visible from MuMIn namespace).
+
 Version: 1.7.8 (2012-04-01)
-(fixed) coef.model.selection returns now proper coefficients
+(fixed) 'coef.model.selection' returns now proper coefficients
 
 Version: 1.7.7 (2012-04-01)
 fixed dependencies in tests
