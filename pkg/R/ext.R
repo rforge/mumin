@@ -18,8 +18,10 @@
 
 
 `family.gls` <-
-`family.lme` <-
-stats:::family.lm
+`family.lme` <- function (object, ...) {
+	if (inherits(object$family, "family")) object$family else gaussian()
+}
+
 
 `nobs.rq` <-
 function (object, ...) length(object$y)
@@ -244,7 +246,7 @@ family.glimML <- function(object, ...) switch(object@method,
 		offset <- rep(0, nrow(X))
         if (!is.null(off.num <- attr(tt, "offset")))
             for (i in off.num) offset <- offset + eval(attr(tt,
-                "variables")[[i + 1]], newdata)
+                "variables")[[i + 1L]], newdata)
         if (!is.null(object@call$offset))
             offset <- offset + eval(object@call$offset, newdata)
 	} else {
@@ -253,9 +255,7 @@ family.glimML <- function(object, ...) switch(object@method,
 	}
 	coeff <- object@fixef
 	y <- (X %*% coeff)[, 1L]
-	if(!is.null(offset))
-        y <- y + offset
-
+	if(!is.null(offset)) y <- y + offset
 	fam <- family(object)
 	if(se.fit) {
 		covmat <- as.matrix(vcov(object))
@@ -267,5 +267,5 @@ family.glimML <- function(object, ...) switch(object@method,
 	} else {
 		if(type == "response" && inherits(fam, "family")) fam$linkinv(y) else y
 	}
-	# TODO: napredict(na.action, ny$fit)
+	# TODO:
 }

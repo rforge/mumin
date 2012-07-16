@@ -73,7 +73,10 @@ function(model, ...)
 `coefTable.multinom` <-
 function(model, ...) {
 	s <- summary(model, ...)
-	.makeCoefTable(s$coefficients, s$standard.errors)
+	cf <- s$coefficients
+	se <- s$standard.errors
+	.makeCoefTable(if(is.vector(cf)) cf else cf[, 1L], 
+		if(is.vector(se)) se else se[, 1L])
 }
 
 `coefTable.sarlm` <-

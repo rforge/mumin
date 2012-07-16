@@ -196,3 +196,7 @@ S3method(logLik, MCMCglmm)
 S3method(coeffs, MCMCglmm)
 S3method(coefTable, MCMCglmm)
 S3method(makeArgs, MCMCglmm)
+
+S3method(extractDIC, mer)
+S3method(extractDIC, MCMCglmm)
+S3method(extractDIC, lme)
