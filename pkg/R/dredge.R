@@ -56,8 +56,15 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	if(length(grep(":", all.vars(reformulate(allTerms))) > 0L))
 		stop("variable names in the formula cannot contain \":\"")
-
-	logLik <- .getLogLik()
+		
+    if(inherits(global.model, c("gee", "geeglm", "geese"))) {
+		logLik <- quasiLik
+		lLName <- "qLik"
+	} else {
+	 	logLik <- .getLogLik()
+		lLName <- "logLik"
+    }
+	
 
 	# Check for na.omit
 	if (!is.null(gmCall$na.action) &&
@@ -351,7 +358,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	v <- order(termsOrder)
 	ret[, i] <- ret[, v]
 	allTerms <- allTerms[v]
-	colnames(ret) <- c(allTerms, varying.names, extraNames, "df", "logLik", ICName)
+	colnames(ret) <- c(allTerms, varying.names, extraNames, "df", lLName, ICName)
 
 	if(nvarying) {
 		variant.names <- lapply(varying, function(x)
