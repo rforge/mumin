@@ -76,6 +76,7 @@ function(frm, except = NULL) {
 	IC
 }
 
+
 `matchCoef` <- function(m1, m2,
 	all.terms = getAllTerms(m2, intercept = TRUE),
 	beta = FALSE,
@@ -84,7 +85,7 @@ function(frm, except = NULL) {
 	allCoef = FALSE
 	) {
 	if(any((terms1 %in% all.terms) == FALSE)) stop("'m1' is not nested within 'm2")
-	row <- structure(rep(NA, length(all.terms)), names = all.terms)
+	row <- structure(rep(NA_real_, length(all.terms)), names = all.terms)
 
 	fxdCoefNames <- fixCoefNames(names(coef1))
 	row[terms1] <- NaN
@@ -92,7 +93,9 @@ function(frm, except = NULL) {
 	row[fxdCoefNames[pos]] <- coef1[pos]
 	if(allCoef) {
 		ct <- coefTable(m1)
-		rownames(ct)[match(names(coef1), rownames(ct))] <- fxdCoefNames
+		i <- match(names(coef1), rownames(ct))
+		j <- !is.na(i)
+		rownames(ct)[i[j]] <- fxdCoefNames[j]
 		#rownames(ct) <- fxdCoefNames
 		attr(row, "coefTable") <- ct
 	}
