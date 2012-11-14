@@ -21,7 +21,7 @@ function(frm, except = NULL) {
 
 `.getCall` <- function(x) {
 	if(isS4(x)) {
-		if(any(i <- (sln <- c("call", "CALL")) %in% slotNames(x)))
+		if(any(i <- (sln <- c("call", "CALL", "Call")) %in% slotNames(x)))
 			slot(x, sln[i][1L]) else NULL
 	} else {
 		if(!is.null(x$call)) {
