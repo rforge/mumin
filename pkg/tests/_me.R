@@ -11,12 +11,13 @@ varying <- list(
 	weights = alist(NULL, varPower())
 )
 
-dd <- dredge(fmlme1, m.max = 1, fixed = ~Time, varying = varying)
+dd <- dredge(fmlme1, m.max = 2, fixed = ~Time, varying = varying)
 models <- get.models(dd, 1:4)
 ma <- model.avg(models, revised = TRUE)
 summary(ma1 <- model.avg(models[1:4]))
 summary(ma2 <- model.avg(dd[1:4]))
 
+summary(model.avg(models))
 stopifnot(isTRUE(all.equal(coefTable(ma2), coefTable(ma1))))
 
 logLik(dd)
@@ -54,8 +55,25 @@ data(Orthodont, package = "nlme")
 
 Orthodont$rand <- runif(nrow(Orthodont))
 fm2 <- lmer(log(distance) ~ rand*Sex*age + (1|Subject), data = Orthodont, REML = FALSE)
+#######
+# summary(fm2)
 
+# library(MCMCglmm)
+# fm2 <- glmer(log(distance) ~ rand*Sex*age + (1|Subject), data = Orthodont, REML = F)
+# fm2a <- MCMCglmm(log(distance) ~ rand*Sex*age, random = ~Subject, data = Orthodont)
+# fm2a$call <- quote(MCMCglmm(log(distance) ~ rand*Sex*age, random = ~Subject, data = Orthodont))
+# DIC(fm2a)
+# DIC(fm2)
 
+# dd1 <- dredge(fm2, rank = DIC)
+# dd1a <- dredge(fm2a, rank = DIC)
+
+# plot(dd1a)
+# plot(dd1)
+
+# summary(fm2a)
+
+####
 dd <- dredge(fm2, trace=F)
 gm <- get.models(dd, 1:6)
 (ma <- model.avg(gm))
@@ -99,13 +117,40 @@ detach(package:lme4); rm(list=ls())
 
 #===============================================================================
 
-library(lme4)
-data(Insurance, package = "MASS")
+#library(MASS)
+#library(lme4)
+#data(Insurance, package = "MASS")
+#
+#zo <- lmer(Claims ~ District + Age + (1 | Group) + offset(log(Holders)),
+#    data = Insurance, family = poisson)
+#z <- lmer(Claims ~ District + Age + (1 | Group),
+#    data = Insurance, family = poisson)
+#
+#y1 <- predict(zo, type = "l", se.fit = T)
+#y1 <- predict(zo, Insurance, type = "r", se.fit = T)
+#
+#fmr3 <- lmer(log(distance) ~ age + (1|Subject), data = Orthodont, REML = F)
+#fmr3reml <- lmer(log(distance) ~ age + (1|Subject), data = Orthodont, REML = T)
+#fme3reml <- lme(log(distance) ~ age, ~ 1 | Subject, data = Orthodont, method = "REML")
+#fme3 <- lme(log(distance) ~ age, ~ 1 | Subject, data = Orthodont, method = "ML")
+#z <- lmer(Claims ~ District + Age + (1 | Group), data = Insurance, family = poisson)
 
-zo <- lmer(Claims ~ District + Age + (1 | Group) + offset(log(Holders)),
-    data = Insurance, family = poisson)
-z <- lmer(Claims ~ District + Age + (1 | Group),
-    data = Insurance, family = poisson)
+# library(MCMCglmm)
+# # library(glmmADMB)
+# library(lme4)
+# data(Insurance, package = "MASS")
 
-y1 <- predict(zo, type = "l", se.fit = T)
-y1 <- predict(zo, Insurance, type = "r", se.fit = T)
+# mcfm <- MCMCglmm(Claims ~ District * Age, random =~ Group, data = Insurance, family = "poisson")
+# mlfm <- lmer(Claims ~ District * Age + (1 | Group), data = Insurance, family = "poisson", REML = F)
+# remlfm <- lmer(Claims ~ District * Age + (1 | Group), data = Insurance, family = "poisson", REML = T)
+
+# adfm <- glmmadmb(Claims ~ District * Age + (1 | Group), data = Insurance, family = "poisson")
+
+# DIC(mcfm)
+# DIC(mlfm)
+# DIC(remlfm)
+
+# mcfm$call <- quote(MCMCglmm(Claims ~ District * Age, random =~ Group, data = Insurance, family = "poisson"))
+
+# ddmc <- dredge(mcfm, rank = DIC)
+# ddmer <- dredge(mlfm, rank = DIC)

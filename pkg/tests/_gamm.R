@@ -9,10 +9,21 @@ set.seed(0) # 16
 dat <- gamSim(6, n=100, scale=5, dist="normal")
 
 fmgs2 <- MuMIn::gamm(y ~s(x0)+ s(x3) + s(x2), family=gaussian, data=dat, random = list(fac=~1))
+#fmgs2 <- mgcv::gamm(y ~s(x0)+ s(x3) + s(x2), family=gaussian, data=dat, random = list(fac=~1))
 
 dd <- dredge(fmgs2)
 
-model.avg(dd)
+avg <- model.avg(get.models(dd))
+avg <- model.avg(dd, fit = T)
+
+coef(avg,full = F)
+summary(avg)
+predict.gamm <-  function (object, ...) predict.gam(object$gam, ...) 
+predict(avg, se.fit = T, )
+residuals(avg)
+
+
+
 model.avg(dd, delta <= 4)
 
 #dd <- dredge(mgcv::gamm(y ~s(x0)+ s(x3) + s(x2), family=gaussian, data=dat, random = list(fac=~1)))
