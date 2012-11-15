@@ -1,7 +1,7 @@
 `pdredge` <-
 function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	rank = "AICc", fixed = NULL, m.max = NA, m.min = 0, subset, marg.ex = NULL,
-	trace = FALSE, varying, extra, check = FALSE,  ...) {
+	trace = FALSE, varying, extra, ct.args = NULL, check = FALSE,  ...) {
 #FIXME: m.max cannot be 0 - e.g. for intercept only model
 
 	qlen <- 25L
@@ -19,7 +19,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 			invisible(NULL)
 		}, envir = .GlobalEnv)
 
-		clusterCall(cluster, "assignFromNs", ".getLogLik")
+		clusterCall(cluster, "assignFromNs", ".getLik")
 		clusterCall(cluster, "assignFromNs", "tryCatchWE")
 		clusterCall(cluster, "assignFromNs", "matchCoef")
 		clusterCall(cluster, "assignFromNs", "parGetMsRow")
@@ -81,7 +81,10 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 
 	if(length(grep(":", all.vars(reformulate(allTerms))) > 0L))
 		stop("variable names in the formula cannot contain \":\"")
-	logLik <- .getLogLik()
+	
+    LL <- .getLik(global.model)
+	logLik <- LL$logLik
+	lLName <- LL$name
 
 	# parallel: check whether the models would be identical:
 	if(doParallel) testUpdatedObj(cluster, global.model, gmCall, do.eval = check)
@@ -102,7 +105,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	if(isTRUE(rankArgs$REML) || (isTRUE(.isREMLFit(global.model)) && is.null(rankArgs$REML)))
 		warning("comparing models fitted by REML")
 
-	if (beta && is.null(tryCatch(beta.weights(global.model), error=function(e) NULL,
+	if (beta && is.null(tryCatch(beta.weights(global.model), error = function(e) NULL,
 		warning = function(e) NULL))) {
 		warning("do not know how to calculate beta weights for ",
 				class(global.model)[1L], ", argument 'beta' ignored")
@@ -229,7 +232,8 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 			} else NULL,
 		gmFormulaEnv = gmFormulaEnv
 		)
-
+	
+	
 	# TODO: allow for 'marg.ex' per formula in multi-formula models
 	if(missing(marg.ex) || (!is.null(marg.ex) && is.na(marg.ex))) {
 		newArgs <- makeArgs(global.model, allTerms, rep(TRUE, length(allTerms)),
@@ -248,7 +252,10 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	qi <- 0L
 	queued <- vector(qlen, mode = "list")
 	parCommonProps <- list(gmEnv = gmEnv, IC = IC, beta = beta,
-		allTerms = allTerms, nextra = nextra)
+		allTerms = allTerms, nextra = nextra,
+		matchCoefCall = as.call(c(alist(matchCoef, fit1, all.terms = Z$allTerms, 
+			beta = Z$beta, allCoef = TRUE), ct.args))
+		)
 	if(nextra) {
 		parCommonProps$applyExtras <- applyExtras
 		parCommonProps$extraResult <- extraResult
@@ -397,7 +404,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	v <- order(termsOrder)
 	ret[, i] <- ret[, v]
 	allTerms <- allTerms[v]
-	colnames(ret) <- c(allTerms, varying.names, extraNames, "df", "logLik", ICName)
+	colnames(ret) <- c(allTerms, varying.names, extraNames, "df", lLName, ICName)
 
 	if(nvarying) {
 		variant.names <- lapply(varying, function(x)
@@ -458,8 +465,10 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 			extraResult1 <- tmp
 		}
 	} else extraResult1 <- NULL
-	ll <- .getLogLik()(fit1)
-	mcoef <- matchCoef(fit1, all.terms = Z$allTerms, beta = Z$beta, allCoef = TRUE)
+	ll <- .getLik(fit1)$logLik(fit1)
+
+	#mcoef <- matchCoef(fit1, all.terms = Z$allTerms, beta = Z$beta, allCoef = TRUE)
+	mcoef <- eval(Z$matchCoefCall)
 
 	list(value = c(mcoef, extraResult1, df = attr(ll, "df"), ll = ll,
 		ic = Z$IC(fit1)),
