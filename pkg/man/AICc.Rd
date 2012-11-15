@@ -30,7 +30,7 @@ AICc(object, ..., k = 2, REML = NULL)
 }
 
 \note{
-AIC\eqn{_{c}}{c} should be used instead AIC when the the sample size is small in
+AIC\eqn{_{c}}{c} should be used instead AIC when sample size is small in
 comparison to the number of estimated parameters (Burnham & Anderson 2002
 recommend its use when \eqn{n / K < 40}).
 
