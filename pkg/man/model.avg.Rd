@@ -15,7 +15,7 @@ Model averaging based on an information criterion.
 model.avg(object, ..., revised.var = TRUE)
 
 \method{model.avg}{default}(object, ..., beta = FALSE, rank = NULL, rank.args = NULL,
-    revised.var = TRUE, dispersion = NULL)
+    revised.var = TRUE, dispersion = NULL, ct.args = NULL)
 
 \method{model.avg}{model.selection}(object, subset, fit = FALSE, ..., revised.var = TRUE)
 
@@ -53,6 +53,9 @@ model.avg(object, ..., revised.var = TRUE)
 	\item{fit}{ if \code{TRUE}, the component models are fitted using
 		\code{get.models}. See \sQuote{Details}.
 	}
+	
+	\item{ct.args}{ optional list of arguments to be passed to
+	     \code{\link{coefTable}}. }
 
 }
 

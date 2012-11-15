@@ -1,7 +1,7 @@
 `dredge` <-
 function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		 fixed = NULL, m.max = NA, m.min = 0, subset, marg.ex = NULL,
-		 trace = FALSE, varying, extra, ...) {
+		 trace = FALSE, varying, extra, ct.args = NULL, ...) {
 
 	gmEnv <- parent.frame()
 	gmCall <- .getCall(global.model)
@@ -57,14 +57,9 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	if(length(grep(":", all.vars(reformulate(allTerms))) > 0L))
 		stop("variable names in the formula cannot contain \":\"")
 		
-    if(inherits(global.model, c("gee", "geeglm", "geese"))) {
-		logLik <- quasiLik
-		lLName <- "qLik"
-	} else {
-	 	logLik <- .getLogLik()
-		lLName <- "logLik"
-    }
-	
+    LL <- .getLik(global.model)
+	logLik <- LL$logLik
+	lLName <- LL$name
 
 	# Check for na.omit
 	if (!is.null(gmCall$na.action) &&
@@ -211,7 +206,10 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			} else NULL,
 		gmFormulaEnv = gmFormulaEnv
 		)
-
+	
+	matchCoefCall <- as.call(c(alist(matchCoef, fit1, all.terms = allTerms,
+		  beta = beta, allCoef = TRUE), ct.args))
+	
 	# TODO: allow for 'marg.ex' per formula in multi-formula models
 	if(missing(marg.ex) || (!is.null(marg.ex) && is.na(marg.ex))) {
 		newArgs <- makeArgs(global.model, allTerms, rep(TRUE, length(allTerms)),
@@ -294,8 +292,9 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 				#row1 <- c(row1, extraResult1)
 			}
 
-			mcoef1 <- matchCoef(fit1, all.terms = allTerms, beta = beta,
-				allCoef = TRUE)
+			#mcoef1 <- matchCoef(fit1, all.terms = allTerms, beta = beta,
+			#	allCoef = TRUE)
+			mcoef1 <- eval(matchCoefCall)
 
 			ll <- logLik(fit1)
 			nobs1 <- nobs(fit1)

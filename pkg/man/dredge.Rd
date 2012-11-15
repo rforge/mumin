@@ -12,11 +12,11 @@ model, with optional rules for inclusion.
 \usage{
 dredge(global.model, beta = FALSE, evaluate = TRUE,
     rank = "AICc", fixed = NULL, m.max = NA, m.min = 0, subset,
-    marg.ex = NULL, trace = FALSE, varying, extra, ...)
-
-
-\method{print}{model.selection}(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L,
-    ...)
+    marg.ex = NULL, trace = FALSE, varying, extra, ct.args
+    = NULL, ...)
+	
+\method{print}{model.selection}(x, abbrev.names = TRUE, warnings =
+	getOption("warn") != -1L, ...)
 
 }
 
@@ -82,6 +82,9 @@ dredge(global.model, beta = FALSE, evaluate = TRUE,
 	fitting are printed below the table (currently, only with \code{pdredge}).
 	To permanently remove the warnings, set the object's attribute "warnings" to
 	\code{NULL}. }
+	
+  \item{ct.args}{ optional list of arguments to be passed to
+	\code{\link{coefTable}}. }
 
   \item{\dots}{ optional arguments for the \code{rank} function. Any can be
     an expression (of mode \code{call}), in which case any \code{x} within it

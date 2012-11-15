@@ -1,8 +1,14 @@
 MuMIn package news:
 
+Version: 1.7.13 (2012-11-15)
+support for ordinal:clmm (also clm)
+QIC, quasiLik: new functions for usse with GEE models (gee:gee, 
+	geepack:geeglm, yags:yags. yet yags seems to be still quite buggy)
+support for gee and geeglm models ranked by QIC.
+
 Version: 1.7.12 (2012-11-11)
-tests/classes.R: fixed compatibility with spdep-0.5.53. (spdep::spautolm now
-	uses method="eigen", was "full") 
+tests/classes.R: fixed compatibility spdep-0.5.53. (spdep::spautolm now uses 
+	method="eigen", was "full") 
 
 Version: 1.7.11 (2012-07-13)
 coefTable.multinom: fixed an error when coefficients and standard errors were 

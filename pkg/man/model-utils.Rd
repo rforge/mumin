@@ -7,6 +7,7 @@
 \alias{coefTable}
 \alias{coefTable.default}
 \alias{coefTable.lme}
+\alias{coefTable.gee}
 \alias{getAllTerms}
 \alias{getAllTerms.terms}
 
@@ -44,12 +45,12 @@ getAllTerms(x, ...)
 
 coefTable(model, ...)
 \method{coefTable}{lme}(model, adjustSigma, ...)
+\method{coefTable}{gee}(model, ..., type = c("naive", "robust"))
 
 model.names(object, ..., labels = NULL)
 }
 \arguments{
   \item{model}{a fitted model object. }
-
   \item{object}{a fitted model object or a list of such objects. }
   \item{x}{a fitted model object or a \code{formula}. }
   \item{offset}{should \sQuote{offset} terms be included? }
@@ -65,6 +66,9 @@ model.names(object, ..., labels = NULL)
 	method (e.g. \code{dispersion} parameter for \code{glm} may be used here).
 	In other functions often not used.
   }
+  \item{type}{ For GEE models, the type of covariance estimator to calculate
+		returned standard errors on. Either "naive" or "robust" (sandwich).
+		}
   \item{adjustSigma}{ See \code{\link[nlme]{summary.lme}}. }
 }
 

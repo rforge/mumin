@@ -42,8 +42,8 @@ function(object, ...) {
 }
 
 `quasiLik.yagsResult` <- function(object, ...) {
-	mu <- x@fitted.values
-	ret <- .qlik(mu + x@residuals, mu, family(object)$family)
+	mu <- object@fitted.values
+	ret <- .qlik(mu + object@residuals, mu, family(object)$family)
 	attr(ret, "df") <- NA
 	attr(ret, "nobs") <- length(mu)
 	class(ret) <- "quasiLik"
@@ -54,9 +54,6 @@ function(object, ...) {
 ##=============================================================================
 ## QIC 
 ##=============================================================================
-
-
-
 .qic <- function(mu, vbeta, i.vbeta.naiv, qlik) {
 	AIinv <- solve(i.vbeta.naiv) # solve via indenity
 	tr <- sum(diag(AIinv %*% vbeta))
@@ -74,12 +71,12 @@ function(object, ...) {
 	capture.output(suppressMessages(xi <- update(x, corstr = "independence",
 		silent = TRUE)))
 	mu <- x$fitted.values
-	ql <- .qlik(x$y, mu, family(x)$family))
+	ql <- .qlik(x$y, mu, family(x)$family)
 	n <- length(x$y)
 	# yags/yags.cc: p140 of Hardin and Hilbe   
 	ql <- if(family(x)$family == "gaussian")
 			(n * log(-2 * ql / n)) / -2	 else ql
-	c(.qic(mu, x$robust.variance, xi$naive.variance, ql, n)
+	c(.qic(mu, x$robust.variance, xi$naive.variance, ql), n)
 }
 
 `getQIC.geeglm` <- function(x) {
@@ -90,7 +87,7 @@ function(object, ...) {
 	# yags/yags.cc: p140 of Hardin and Hilbe
 	ql <- if(family(x)$family == "gaussian")
 			(n * log(-2 * ql / n)) / -2	 else ql
-	c(.qic(mu, x$geese$vbeta, xi$geese$vbeta.naiv, ql), length(x$y))
+	c(.qic(mu, x$geese$vbeta, xi$geese$vbeta.naiv, ql), n)
 }
 
 `getQIC.yagsResult` <- function(x) {
@@ -104,16 +101,16 @@ function(object, ...) {
 	
 	mu <- x@fitted.values
 	y <- mu + x@residuals
-	c(.qic(mu, x@robust.parmvar, xi@naive.parmvar,
-		.qlik(y, mu, family(x)$family)), length(y))
+	n <- length(y)
+	ql <- .qlik(y, mu, family(x)$family)
+		# yags/yags.cc: p140 of Hardin and Hilbe
+	ql <- if(family(x)$family == "gaussian")
+			(n * log(-2 * ql / n)) / -2	 else ql
+	c(.qic(mu, x@robust.parmvar, xi@naive.parmvar, ql), n)
 }
 
-#getCall.yagsResult <- function(x, ...) x@Call
-#getQIC.yagsResult <- function(x) x@pan.aic
-
-
-getQIC.default <- function(x) evalq(.NotYetImplemented(), parent.frame())
-
+`getQIC.default` <-
+function(x) evalq(.NotYetImplemented(), parent.frame())
 
 `QIC` <- function (object, ...) {
 	if (length(list(...))) {

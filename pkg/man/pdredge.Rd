@@ -29,10 +29,10 @@ pdredge(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 }
 
 \details{
-All the dependencies for fitting the \code{global.model}, including the data,
-	and any objects the modelling function will use, must be exported
-	(\emph{via} e.g. \code{clusterExport}) into the clurter worker nodes, as
-	well as the required packages must be loaded thereinto (e.g. \emph{via}
+All the dependencies for fitting the \code{global.model}, including the data
+	and any objects the modelling function will use must be exported
+	into the cluster worker nodes (e.g. \emph{via} \code{clusterExport}). 
+	The required packages must be also loaded thereinto (e.g. \emph{via}
 	\code{clusterEvalQ(..., library(package))}, before the cluster is used by
 	\code{pdredge}.
 

@@ -27,9 +27,14 @@ functions include those returned by:
 \item \code{coxph}, \code{survreg} (\pkg{survival});
 \item \code{coxme}, \code{lmekin} (\pkg{coxme});
 \item \code{rq} (\pkg{quantreg});
-
-\item functions from package \pkg{unmarked}, (within the class \code{unmarkedFit})
+\item \code{clm} and \code{clmm} (\pkg{ordinal});
+\item functions from package \pkg{unmarked} (within the class \code{unmarkedFit}).
 }
+
+GEE implementations: \code{\link[geepack]{geeglm}} from package \pkg{geepack},
+\code{\link[gee]{gee}} from \pkg{gee},
+and \code{\link[yags]{yags}} from \pkg{yags}
+can be used with \code{\link{QIC}} as selection criterion.
 
 \code{model.sel} and \code{dredge} accept also \code{MCMCglmm} models
 	(package \pkg{MCMCglmm}) with \code{\link{DIC}} as the \code{rank} function.

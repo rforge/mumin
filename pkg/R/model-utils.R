@@ -18,6 +18,17 @@ function(frm, except = NULL) {
 	if ("stats4" %in% loadedNamespaces())
         stats4:::logLik else
 		stats::logLik
+		
+`.getLik` <- function(x) {
+    if(inherits(x, c("gee", "geeglm", "geese", "yagsResult"))) {
+		logLik <- quasiLik
+		lLName <- "qLik"
+	} else {
+	 	logLik <- .getLogLik()
+		lLName <- "logLik"
+    }
+	list(logLik = logLik, name = lLName)
+}
 
 `.getCall` <- function(x) {
 	if(isS4(x)) {
@@ -82,7 +93,8 @@ function(frm, except = NULL) {
 	beta = FALSE,
 	terms1 = getAllTerms(m1, intercept = TRUE),
 	coef1 = if (beta) beta.weights(m1)[, 3L] else coeffs(m1),
-	allCoef = FALSE
+	allCoef = FALSE,
+	...
 	) {
 	if(any((terms1 %in% all.terms) == FALSE)) stop("'m1' is not nested within 'm2")
 	row <- structure(rep(NA_real_, length(all.terms)), names = all.terms)
@@ -92,11 +104,10 @@ function(frm, except = NULL) {
 	pos <- match(terms1, fxdCoefNames, nomatch = 0L)
 	row[fxdCoefNames[pos]] <- coef1[pos]
 	if(allCoef) {
-		ct <- coefTable(m1)
+		ct <- coefTable(m1, ...)
 		i <- match(names(coef1), rownames(ct))
 		j <- !is.na(i)
 		rownames(ct)[i[j]] <- fxdCoefNames[j]
-		#rownames(ct) <- fxdCoefNames
 		attr(row, "coefTable") <- ct
 	}
 	row

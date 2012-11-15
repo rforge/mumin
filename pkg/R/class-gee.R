@@ -9,7 +9,7 @@ function(model, ..., type = c("naive", "robust")) {
 	cf <- summary(model, ...)$coefficients
 	type <- match.arg(type)
 	j <- if(type == "naive") 2L else 4L
-	.makeCoefTable(cf[, 1L], cf[, 2L], coefNames = rownames(cf))
+	.makeCoefTable(cf[, 1L], cf[, j], coefNames = rownames(cf))
 }
 
 
@@ -18,7 +18,7 @@ function(model, ..., type = c("naive", "robust")) {
 	cf <- summary(model, ...)$mean
 	type <- match.arg(type)
 	j <- if(type == "naive") 2L else 4L
-	.makeCoefTable(cf[, 1L], cf[, 2L], coefNames = rownames(cf))
+	.makeCoefTable(cf[, 1L], cf[, j], coefNames = rownames(cf))
 }
 
 `coef.geese` <- 
@@ -28,16 +28,25 @@ function (object, ...) object$beta
 ## Class: yags
 ##=============================================================================
 
+`coef.yagsResult` <-
+function (object, ...)
+structure(object@coefficients, names = object@varnames)
 
 `coefTable.yagsResult` <-
 function(model, ..., type = c("naive", "robust")) {
 	type <- match.arg(type)
-		ql <- logLik(if(type == "I") indep else object)
-	ql <- if(family(object)$family == "gaussian") {
+	vcv <- slot(model, if(type == "naive") "naive.parmvar" else "robust.parmvar")
+	.makeCoefTable(model@coefficients, sqrt(diag(vcv)), coefNames = model@varnames)
 }
 
-
-
-
-
+`getCall.yagsResult` <-
+	function(x, ...) x@Call
+	
+	
+`nobs.yagsResult` <-
+function (object, ...) length(object@residuals)
+	
+`formula.yagsResult` <-
+function (x, ...) 
+eval(x@Call$formula, parent.frame())
 
