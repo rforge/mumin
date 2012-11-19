@@ -61,12 +61,12 @@ model.names(object, ..., labels = NULL)
 	order of the models would lead to different names. The argument 'labels' can
 	be used to prevent this happening.
  }
-  \item{\dots}{ For \code{model.names}, more fitted model objects.
+  \item{\dots}{ for \code{model.names}, more fitted model objects.
 	For \code{coefTable} arguments that are passed to appropriate \code{summary}
 	method (e.g. \code{dispersion} parameter for \code{glm} may be used here).
 	In other functions often not used.
   }
-  \item{type}{ For GEE models, the type of covariance estimator to calculate
+  \item{type}{ for GEE models, the type of covariance estimator to calculate
 		returned standard errors on. Either "naive" or "robust" (sandwich).
 		}
   \item{adjustSigma}{ See \code{\link[nlme]{summary.lme}}. }

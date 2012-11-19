@@ -149,6 +149,10 @@ function(object, ..., beta = FALSE,
 		model.matrix.lme <- function(object, data = object$data, ...)
 			model.matrix.default(object, data = data, ...)
 	}
+	
+	LL <- .getLik(object)
+	logLik <- LL$logLik
+	lLName <- LL$name
 
 	ic <- vapply(models, rank, numeric(1L))
 	logLiks <- lapply(models, logLik)
@@ -213,7 +217,7 @@ function(object, ..., beta = FALSE,
 	#mmx <- gmm[, cnmmxx[match(colnames(gmm), cnmmxx, nomatch = 0)]]
 
 	mmxs <- tryCatch(cbindDataFrameList(lapply(models, model.matrix)),
-					 error = .fnull)
+					 error = .fnull, warning = .fnull)
 
 	# Far less efficient:
 	#mmxs <- lapply(models, model.matrix)

@@ -12,7 +12,6 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		clusterCall <- get("clusterCall")
 		clusterApply <- get("clusterApply")
 		clusterCall(cluster, "require", "MuMIn", character.only = TRUE)
-
 		clusterCall(cluster, assign, "assignFromNs", function(name, asName = name,
 			ns = "MuMIn") {
 			assign(asName, get(name, loadNamespace(ns)), envir = .GlobalEnv)
@@ -87,7 +86,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	lLName <- LL$name
 
 	# parallel: check whether the models would be identical:
-	if(doParallel) testUpdatedObj(cluster, global.model, gmCall, do.eval = check)
+	if(doParallel && check) testUpdatedObj(cluster, global.model, gmCall, level = check)
 
 	# Check for na.omit
 	if (!is.null(gmCall$na.action) &&
@@ -136,8 +135,9 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	gmFormulaEnv <- environment(as.formula(formula(global.model), env = gmEnv))
 	# TODO: gmEnv <- gmFormulaEnv ???
 
-	### BEGIN:
-	## varying BEGIN
+	### BEGIN Manage 'varying'
+	## @param:	varying
+	## @value:	varying, varying.names, variants, nvariants, nvarying
 	if(!missing(varying) && !is.null(varying)) {
 		nvarying <- length(varying)
 		varying.names <- names(varying)
@@ -151,10 +151,11 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		nvariants <- 1L
 		nvarying <- 0L
 	}
+	## END: varying
 
-	## varying END
-
-	## extra BEGIN
+	## BEGIN Manage 'extra'
+	## @param:	extra, global.model, gmFormulaEnv, 
+	## @value:	extra, nextra, extraNames, null.fit
 	if(!missing(extra) && length(extra) != 0L) {
 		extraNames <- sapply(extra, function(x) switch(mode(x),
 			call = deparse(x[[1L]]), name = deparse(x), character = , x))
@@ -180,12 +181,13 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		nextra <- 0L
 		extraNames <- character(0L)
 	}
-	## extra END
+	## END: manage 'extra'
 
 	nov <- as.integer(n.vars - n.fixed)
 	ncomb <- (2L ^ nov) * nvariants
 
-	if(nov > 31L) stop(gettextf("number of predictors (%d) exceeds allowed maximum (31)"), nov, domain = "MuMIn")
+	if(nov > 31L) stop(gettextf("number of predictors (%d) exceeds allowed maximum (31)",
+								nov, domain = "MuMIn"))
 	#if(nov > 10L) warning(gettextf("%d predictors will generate up to %.0f combinations", nov, ncomb))
 	nmax <- ncomb * nvariants
 	if(evaluate) {
@@ -199,17 +201,51 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 
 	calls <- vector(mode = "list", length = ret.nchunk)
 
+	## BEGIN: Manage 'subset'
+	## @param:	hasSubset, subset, allTerms, interceptLabel, 
+	## @value:	hasSubset, subset 
 	if(hasSubset <- !missing(subset))  {
-		if(!tryCatch(is.language(subset), error = function(e) FALSE))
+		 if(!tryCatch(is.language(subset) || is.matrix(subset), error = function(e) FALSE)) {
 			subset <- substitute(subset)
+		 }
 		if(inherits(subset, "formula")) {
 			if (subset[[1L]] != "~" || length(subset) != 2L)
-				stop("'subset' should be a one-sided formula")
+				 stop("'subset' formula should be one-sided")
 			subset <- subset[[2L]]
-		}
-		if(!all(all.vars(subset) %in% allTerms))
-			warning("not all terms in 'subset' exist in 'global.model'")
+		 } else if(is.matrix(subset)) {
+			
+			dn <- dimnames(subset)
+			#at <- allTerms[!(allTerms %in% interceptLabel)]
+			n <- length(allTerms)
+			if(is.null(dn) || any(sapply(dn, is.null))) {
+				di <- dim(subset)
+				if(any(di != n)) stop("unnamed 'subset' matrix does not have ",
+					"both dimensions equal to number of terms in 'global.model': %d", n)
+				dimnames(subset) <- list(allTerms, allTerms)
+			} else {
+				if(!all(unique(unlist(dn)) %in% allTerms))
+					warning("at least some dimnames of 'subset' matrix do not ",
+					"match term names in 'global.model'")
+				subset <- matrix(subset[match(allTerms, rownames(subset)),
+					match(allTerms, colnames(subset))],
+					dimnames = list(allTerms, allTerms),
+					nrow = n, ncol = n)
+			}
+			if(any(!is.na(subset[!lower.tri(subset)]))) {
+				warning("non-missing values exist outside the lower triangle of 'subset'")
+				 subset[!lower.tri(subset)] <- NA
+			}
+			mode(subset) <- "logical"
+			hasSubset <- 1L # subset as matrix
+		 } else {
+			if(!all(all.vars(subset) %in% allTerms))
+				warning("not all terms in 'subset' exist in 'global.model'")
+			subset <- as.expression(subset)
+			hasSubset <- 2L # subset as expression
 	}
+	} # END: manage 'subset'
+
+	#return(subset)
 
 	comb.sfx <- rep(TRUE, n.fixed)
 	comb.seq <- if(nov != 0L) seq_len(nov) else 0L
@@ -251,10 +287,16 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	# BEGIN parallel
 	qi <- 0L
 	queued <- vector(qlen, mode = "list")
-	parCommonProps <- list(gmEnv = gmEnv, IC = IC, beta = beta,
-		allTerms = allTerms, nextra = nextra,
-		matchCoefCall = as.call(c(alist(matchCoef, fit1, all.terms = Z$allTerms, 
-			beta = Z$beta, allCoef = TRUE), ct.args))
+	parCommonProps <- list(gmEnv = gmEnv, IC = IC, 
+		# beta = beta,
+		# allTerms = allTerms, 
+		nextra = nextra,
+		matchCoefCall = as.call(c(list(
+			as.name("matchCoef"), as.name("fit1"), 
+			all.terms = allTerms, beta = beta, 
+			allCoef = TRUE), ct.args))
+		# matchCoefCall = as.call(c(alist(matchCoef, fit1, all.terms = Z$allTerms, 
+		#   beta = Z$beta, allCoef = TRUE), ct.args))
 		)
 	if(nextra) {
 		parCommonProps$applyExtras <- applyExtras
@@ -277,8 +319,18 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 			prevJComb <- jComb
 			comb <- c(as.logical(intToBits(jComb - 1L)[comb.seq]), comb.sfx)
 			nvar <- sum(comb) - nInts
-			if(!(nvar > m.max || nvar < m.min) && (!hasSubset || eval(subset,
-				structure(as.list(comb), names = allTerms)))) {
+			
+			#print(structure(c(comb, tmp), names = c(allTerms, "=")))
+			
+			
+			if(!(nvar > m.max || nvar < m.min) && (!hasSubset ||
+			switch(hasSubset,
+				  all(subset[comb, comb], na.rm = TRUE),
+				  eval(subset, structure(as.list(comb), names = allTerms))
+				  )
+				)) {
+			#if(!(nvar > m.max || nvar < m.min) && (!hasSubset || eval(subset,
+				#structure(as.list(comb), names = allTerms)))) {
 				newArgs <- makeArgs(global.model, allTerms[comb], comb, argsOptions)
 				formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
 					attr(newArgs, "formulaList")
@@ -444,7 +496,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		attr(ret, "random.terms") <- attr(allTerms0, "random.terms")
 
 	if(doParallel) clusterCall(cluster, "rm",
-		list = c("parGetMsRow", "clustDredgeProps", ".getLogLik", "tryCatchWE",
+		list = c("parGetMsRow", "clustDredgeProps", ".getLik", "tryCatchWE",
 			"matchCoef", "parGetMsRow"), envir = .GlobalEnv)
 	return(ret)
 } ######

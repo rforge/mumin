@@ -9,14 +9,15 @@ Calculate quasi-likelihood under the independence model criterion (QIC)
 }
 
 \usage{
-QIC(object, ...)
+QIC(object, ..., typeR = FALSE)
 quasiLik(object, ...)
 }
 
 \arguments{
   \item{object}{a fitted model object of class \code{gee}, \code{geepack} or
-    \code{yags}.}
+        \code{yags}.}
   \item{\dots}{ for QIC, optionally more fitted model objects. }  
+  \item{typeR}{ whether to calculate QIC(R) rather than QIC(I). }  
 }
 
 \value{
@@ -29,7 +30,7 @@ quasiLik(object, ...)
 \note{
 This implementation is based partly on (revised) code from packages \pkg{yags}
 and \pkg{ape}. The functions are still in experimental stage and should be used
-with particular caution.
+with caution.
 }
 
 \references{
@@ -60,7 +61,7 @@ library(geepack)
 data(ohio)
 
 fm1 <- geeglm(resp ~ age * smoke, id = id, data = ohio,
-       family = binomial, corstr = "exchangeable", scale.fix = TRUE)
+    family = binomial, corstr = "exchangeable", scale.fix = TRUE)
 fm2 <- update(fm1, corstr = "ar1")
 fm3 <- update(fm1, corstr = "unstructured")
 
@@ -68,9 +69,9 @@ model.sel(fm1, fm2, fm3, rank = QIC)
 
 \dontrun{
 # same result:
-	dredge(fm1, fixed = "age:smoke", rank = QIC, varying = list(
+    dredge(fm1, m.min = 3, rank = QIC, varying = list(
     corstr = list("exchangeable", "unstructured", "ar1")
-	))		
+    ))      
 }
 
 }

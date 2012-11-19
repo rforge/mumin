@@ -17,7 +17,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		#"For objects without a 'call' component the call to the fitting function \n",
 		#" must be used directly as an argument to 'dredge'.")
 		# NB: this is unlikely to happen:
-		if(!exists(as.character(gmCall[[1L]]), parent.frame(), mode="function"))
+		if(!exists(as.character(gmCall[[1L]]), parent.frame(), mode = "function"))
 			 stop("could not find function '", gmCall[[1L]], "'")
 	} else {
 		# if 'update' method does not expand dots, we have a problem
@@ -109,8 +109,9 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	gmFormulaEnv <- environment(as.formula(formula(global.model), env = gmEnv))
 	# TODO: gmEnv <- gmFormulaEnv ???
 
-	### BEGIN:
-	## varying BEGIN
+	### BEGIN Manage 'varying'
+	## @param:	varying
+	## @value:	varying, varying.names, variants, nvariants, nvarying
 	if(!missing(varying) && !is.null(varying)) {
 		nvarying <- length(varying)
 		varying.names <- names(varying)
@@ -124,9 +125,11 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		nvariants <- 1L
 		nvarying <- 0L
 	}
-	## varying END
+	## END: varying
 
-	## extra BEGIN
+	## BEGIN Manage 'extra'
+	## @param:	extra, global.model, gmFormulaEnv, 
+	## @value:	extra, nextra, extraNames, null.fit
 	if(!missing(extra) && length(extra) != 0L) {
 		extraNames <- sapply(extra, function(x) switch(mode(x),
 			call = deparse(x[[1L]]), name = deparse(x), character = , x))
@@ -144,7 +147,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		extra <- sapply(extra, match.fun, simplify = FALSE)
 		applyExtras <- function(x) unlist(lapply(extra, function(f) f(x)))
 		extraResult <- applyExtras(global.model)
-
 		if(!is.numeric(extraResult))
 			stop("function in 'extra' returned non-numeric result")
 
@@ -154,12 +156,13 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		nextra <- 0L
 		extraNames <- character(0L)
 	}
-	## extra END
+	## END: manage 'extra'
 
 	nov <- as.integer(n.vars - n.fixed)
 	ncomb <- (2L ^ nov) * nvariants
 
-	if(nov > 31L) stop(gettextf("number of predictors (%d) exceeds allowed maximum (31)", nov, domain = "MuMIn"))
+	if(nov > 31L) stop(gettextf("number of predictors (%d) exceeds allowed maximum (31)",
+								nov, domain = "MuMIn"))
 	#if(nov > 10L) warning(gettextf("%d predictors will generate up to %.0f combinations", nov, ncomb))
 	nmax <- ncomb * nvariants
 	if(evaluate) {
@@ -173,18 +176,60 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	calls <- vector(mode = "list", length = ret.nchunk)
 
+	## BEGIN: Manage 'subset'
+	## @param:	hasSubset, subset, allTerms, interceptLabel, 
+	## @value:	hasSubset, subset 
 	if(hasSubset <- !missing(subset))  {
-		if(!tryCatch(is.language(subset), error = function(e) FALSE))
-			subset <- substitute(subset)
-		if(inherits(subset, "formula")) {
-			if (subset[[1L]] != "~" || length(subset) != 2L)
-				stop("'subset' should be a one-sided formula")
-			subset <- subset[[2L]]
-		}
-		if(!all(all.vars(subset) %in% allTerms))
-			warning("not all terms in 'subset' exist in 'global.model'")
-	}
+		 if(!tryCatch(is.language(subset) || is.matrix(subset), error = function(e) FALSE)) {
+			 subset <- substitute(subset)
+		 }
+		 if(inherits(subset, "formula")) {
+			 if (subset[[1L]] != "~" || length(subset) != 2L)
+				 stop("'subset' formula should be one-sided")
+			 subset <- subset[[2L]]
+		 } else if(is.matrix(subset)) {
+			
+			dn <- dimnames(subset)
+			#at <- allTerms[!(allTerms %in% interceptLabel)]
+			n <- length(allTerms)
+			if(is.null(dn) || any(sapply(dn, is.null))) {
+				di <- dim(subset)
+				if(any(di != n)) stop("unnamed 'subset' matrix does not have ",
+					"both dimensions equal to number of terms in 'global.model': %d", n)
+				dimnames(subset) <- list(allTerms, allTerms)
+			} else {
+				if(!all(unique(unlist(dn)) %in% allTerms))
+					warning("at least some dimnames of 'subset' matrix do not ",
+					"match term names in 'global.model'")
+				subset <- matrix(subset[match(allTerms, rownames(subset)),
+					match(allTerms, colnames(subset))],
+					dimnames = list(allTerms, allTerms),
+					nrow = n, ncol = n)
+			}
+			if(any(!is.na(subset[!lower.tri(subset)]))) {
+				warning("non-missing values exist outside the lower triangle of 'subset'")
+				 subset[!lower.tri(subset)] <- NA
+			}
+			mode(subset) <- "logical"
 
+			
+			# if(!is.null(dimnames(subset))) {
+			#	 #if(!all(unlist(dimnames(subset)) %in% at))
+			#	 if(!all(sapply(dimnames(subset), "==", at)))
+			#		 stop("names in 'subset' matrix do not correspond with term names in 'global.model'")
+			# } else dimnames(subset) <- list(at, at)
+			#}
+			hasSubset <- 1L # subset as matrix
+		 } else {
+			 if(!all(all.vars(subset) %in% allTerms))
+				 warning("not all terms in 'subset' exist in 'global.model'")
+			 subset <- as.expression(subset)
+			 hasSubset <- 2L # subset as expression
+		 }
+	} # END: manage 'subset'
+
+	#return(subset)
+	
 	comb.sfx <- rep(TRUE, n.fixed)
 	comb.seq <- if(nov != 0L) seq_len(nov) else 0L
 	k <- 0L
@@ -234,9 +279,12 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			prevJComb <- jComb
 			comb <- c(as.logical(intToBits(jComb - 1L)[comb.seq]), comb.sfx)
 			nvar <- sum(comb) - nInts
-
-			if(nvar > m.max || nvar < m.min || (hasSubset &&
-				!eval(subset, structure(as.list(comb), names = allTerms)))) {
+		    
+			if(nvar > m.max || nvar < m.min ||
+			   isTRUE(switch(hasSubset,
+				  !all(subset[comb, comb], na.rm = TRUE),
+				  !eval(subset, structure(as.list(comb), names = allTerms))))
+			   ) {
 				isok <- FALSE
 				next;
 			}

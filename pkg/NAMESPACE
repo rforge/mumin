@@ -6,12 +6,15 @@ export(
 	QIC, quasiLik
 )
 
-importFrom(stats, family, getCall)
+importFrom(stats, family)
 
 
 # XXX: compatibility with R < 2.13.0
 if (getRversion() >= "2.13.0") {
-importFrom(stats, nobs)
+if (getRversion() >= "2.14.0") {
+	importFrom(stats, nobs, getCall)
+	S3method(getCall, yagsResult)
+}
 } else {
 # I couldn't find a way to make version-dependent documentation, so I can't
 # export nobs here...
@@ -208,7 +211,6 @@ S3method(coefTable, gee)
 S3method(coefTable, geeglm)
 S3method(coefTable, geese)
 S3method(coefTable, yagsResult)
-S3method(getCall, yagsResult)
 
 S3method(getQIC, default)
 S3method(getQIC, gee)

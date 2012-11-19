@@ -31,13 +31,13 @@ functions include those returned by:
 \item functions from package \pkg{unmarked} (within the class \code{unmarkedFit}).
 }
 
-GEE implementations: \code{\link[geepack]{geeglm}} from package \pkg{geepack},
-\code{\link[gee]{gee}} from \pkg{gee},
-and \code{\link[yags]{yags}} from \pkg{yags}
-can be used with \code{\link{QIC}} as selection criterion.
+Generalized Estimation Equation model implementations: \code{\link[geepack]{geeglm}} 
+from package \pkg{geepack}, \code{\link[gee]{gee}} from \pkg{gee}, and 
+\code{\link[yags]{yags}} from \pkg{yags} can be used with \code{\link{QIC}} 
+as the selection criterion.
 
-\code{model.sel} and \code{dredge} accept also \code{MCMCglmm} models
-	(package \pkg{MCMCglmm}) with \code{\link{DIC}} as the \code{rank} function.
+\code{MCMCglmm} models (package \pkg{MCMCglmm}) with \code{\link{DIC}} as the 
+\code{rank} function are accepted by \code{model.sel} and \code{dredge}.
 
 Other classes are also likely to be supported, in particular if they inherit
 from one of the above classes. In general, the models averaged with

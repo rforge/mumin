@@ -46,7 +46,10 @@ model.avg(object, ..., revised.var = TRUE)
 	\item{dispersion}{ the dispersion parameter for the family used. See
 		\code{\link{summary.glm}}. This is used currently only with \code{glm},
 		is silently ignored otherwise. }
-
+	
+	\item{ct.args}{ optional list of arguments to be passed to
+	     \code{\link{coefTable}} (besides \code{dispersion}). }
+		 
 	\item{subset}{ see \code{\link[=subset.model.selection]{subset}} method for
 		\code{model.selection} object. }
 
@@ -54,8 +57,7 @@ model.avg(object, ..., revised.var = TRUE)
 		\code{get.models}. See \sQuote{Details}.
 	}
 	
-	\item{ct.args}{ optional list of arguments to be passed to
-	     \code{\link{coefTable}}. }
+
 
 }
 

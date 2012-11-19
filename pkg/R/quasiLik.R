@@ -59,38 +59,43 @@ function(object, ...) {
 	tr <- sum(diag(AIinv %*% vbeta))
 	px <- length(mu) # number non-redunant columns in design matrix
 	# QIC
-	ret <- -2 * qlik + 2 * tr
-	QICu <- -2 * qlik + 2 * px    # Approximation assuming model structured correctly
-	attr(ret, "QICu") <- QICu
-	ret
+	# ret <- -2 * qlik + 2 * tr
+	ret <- 2 * (tr - qlik)
+	QICu <- 2 * (px - qlik)    # Approximation assuming model structured correctly
+	#attr(ret, "QICu") <- QICu
+	c(ret, QICu)
 }
 
-`getQIC` <- function(x) UseMethod("getQIC")
+`getQIC` <- function(x, typeR = FALSE) UseMethod("getQIC")
 	
-`getQIC.gee` <- function(x) {
+`getQIC.default` <-
+function(x, typeR = FALSE) .NotYetImplemented()
+
+	
+`getQIC.gee` <- function(x, typeR = FALSE) {
 	capture.output(suppressMessages(xi <- update(x, corstr = "independence",
 		silent = TRUE)))
-	mu <- x$fitted.values
-	ql <- .qlik(x$y, mu, family(x)$family)
+	qx <- if(typeR) x else xi
+	ql <- .qlik(qx$y, qx$fitted.values, family(qx)$family)
 	n <- length(x$y)
 	# yags/yags.cc: p140 of Hardin and Hilbe   
 	ql <- if(family(x)$family == "gaussian")
 			(n * log(-2 * ql / n)) / -2	 else ql
-	c(.qic(mu, x$robust.variance, xi$naive.variance, ql), n)
+	c(.qic(x$fitted.values, x$robust.variance, xi$naive.variance, ql), n)
 }
 
-`getQIC.geeglm` <- function(x) {
+`getQIC.geeglm` <- function(x, typeR = FALSE) {
 	xi <- update(x, corstr = "independence")
-	mu <- x$fitted.values 
-	ql <- .qlik(x$y, mu, family(x)$family)
+	qx <- if(typeR) x else xi
+	ql <- .qlik(qx$y, qx$fitted.values, family(qx)$family)
 	n <- length(x$y)
 	# yags/yags.cc: p140 of Hardin and Hilbe
 	ql <- if(family(x)$family == "gaussian")
 			(n * log(-2 * ql / n)) / -2	 else ql
-	c(.qic(mu, x$geese$vbeta, xi$geese$vbeta.naiv, ql), n)
+	c(.qic(x$fitted.values, x$geese$vbeta, xi$geese$vbeta.naiv, ql), n)
 }
 
-`getQIC.yagsResult` <- function(x) {
+`getQIC.yagsResult` <- function(x, typeR = FALSE) {
 	xi <- update(x, corstruct = "independence")
 	##
 	#cl <- match.call(call = getCall(yags1), yags::yags)
@@ -98,26 +103,25 @@ function(object, ...) {
 	#cl$formula[[3L]] <- 1L
 	#cl <- cl[c(TRUE, (names(cl)[-1L] %in% c("formula", "data", "subset")))]
 	#y <- eval(cl, parent.frame())[, 1L]
-	
-	mu <- x@fitted.values
-	y <- mu + x@residuals
+	qx <- if(typeR) x else xi
+	y <- qx@fitted.values + qx@residuals
 	n <- length(y)
-	ql <- .qlik(y, mu, family(x)$family)
+	ql <- .qlik(y, qx@fitted.values, family(qx)$family)
 		# yags/yags.cc: p140 of Hardin and Hilbe
 	ql <- if(family(x)$family == "gaussian")
 			(n * log(-2 * ql / n)) / -2	 else ql
-	c(.qic(mu, x@robust.parmvar, xi@naive.parmvar, ql), n)
+	c(.qic(x@fitted.values, x@robust.parmvar, xi@naive.parmvar, ql), n)
 }
 
-`getQIC.default` <-
-function(x) evalq(.NotYetImplemented(), parent.frame())
-
-`QIC` <- function (object, ...) {
+`QIC` <- function (object, ..., typeR = FALSE) {
 	if (length(list(...))) {
-		res <- sapply(list(object, ...), getQIC)
-		val <- data.frame(QIC = res[1L, ])
+		res <- sapply(list(object, ...), getQIC, typeR = typeR)
+		#val <- data.frame(QIC = res[1L, ], QICu = res[2L, ])
+		val <- as.data.frame(t(res[1L:2L, ]))
+		colnames(val) <- c("QIC", "QICu")
 		Call <- match.call()
+		Call$typeR <- NULL
 		row.names(val) <- as.character(Call[-1L])
 		val
-	} else getQIC(object)[1L]
+	} else getQIC(object, typeR = typeR)[1L]
 }

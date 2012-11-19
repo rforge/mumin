@@ -2,7 +2,6 @@
 ## Classes: gee & geeglm
 ##=============================================================================
 
-
 `coefTable.gee` <-
 `coefTable.geeglm` <-
 function(model, ..., type = c("naive", "robust")) {
@@ -23,6 +22,18 @@ function(model, ..., type = c("naive", "robust")) {
 
 `coef.geese` <- 
 function (object, ...) object$beta
+
+
+## What if 'data' changed in the meantime?
+# model.matrix.gee <-
+# function (object, ...) {
+	# cl <- .getCall(fgee)
+	# cl[[1L]] <- as.name("model.matrix")
+	# cl$object <- cl$formula
+	# cl$id <- cl$corstr <- cl$formula <- NULL
+	# eval(cl, parent.frame())
+# }
+
 
 ##=============================================================================
 ## Class: yags
@@ -49,4 +60,5 @@ function (object, ...) length(object@residuals)
 `formula.yagsResult` <-
 function (x, ...) 
 eval(x@Call$formula, parent.frame())
+
 
