@@ -35,7 +35,7 @@ summary(model.avg(dd, delta <= 4))
 
 #plot(dd, col=2, col2=8, col.bias=1)
 
-fmg4s2 <- gamm(y ~s(x0)+ s(x3) + s(x2), family=gaussian, data=dat, random = ~ (1|fac))
+fmg4s2 <- MuMIn::gamm(y ~s(x0)+ s(x3) + s(x2), family=gaussian, data=dat, random = ~ (1|fac))
 dd4 <- dredge(fmg4s2)
 summary(avg <- model.avg(dd4, delta <= 4))
 

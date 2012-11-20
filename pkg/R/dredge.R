@@ -399,7 +399,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	# Convert columns with presence/absence of terms to factors
 	tfac <- which(!(allTerms %in% gmCoefNames))
 
-	ret[tfac] <- lapply(ret[tfac], factor, levels = NaN, labels="+")
+	ret[tfac] <- lapply(ret[tfac], factor, levels = NaN, labels = "+")
 
 	i <- seq_along(allTerms)
 	v <- order(termsOrder)

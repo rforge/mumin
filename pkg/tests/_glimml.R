@@ -26,6 +26,8 @@ print(coef(am))
 print(coefTable(am))
 print(confint(am))
 
+set.seed(2)
+
 salmonella$r1 <- factor(sample(3, nrow(salmonella), replace = T))
 
 fmng <-  negbin(y ~ log(dose + 10) + dose*r1, ~ 1, salmonella)
@@ -46,6 +48,9 @@ fmnbo <- negbin(y ~ group + log(trisk) + offset(log(trisk)), ~ group, dja)
 print(dredge(fmnbo))
 
 #_______________________________________________________________________________
+
+set.seed(2)
+
 
 orob2$rand <- runif(nrow(orob2), 0, 100)
 orob2$rand2 <- rnorm(nrow(orob2), 0, 10)

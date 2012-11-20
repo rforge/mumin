@@ -130,18 +130,19 @@ adjusted automatically.
 
 \subsection{Subsetting}{
 There are three ways to constrain the resulting set of models: limiting to the
-number of variables in a model using \code{m.max} and \code{m.min}, binding a
-variable(s) to all models with \code{fixed}, and by a logical expression using
+number of variables in each model using \code{m.max} and \code{m.min}, binding a
+variable(s) to all models with \code{fixed}, and through complex rules passed as
 argument \code{subset}.
 
-\code{subset} can take a form of a logical expression, or a matrix. The latter
-should be a lower triangular matrix with logical values, where columns and rows
-correspond to global model terms. Value \code{subset["i", "j"] == FALSE} will
-exclude any model containing combination of terms "i" and "j". 
+\code{subset} can take a form of either as an expression or a matrix. The latter
+should be lower triangular matrix with logical values, where columns and rows
+correspond to global model terms. Value \code{subset["a", "b"] == FALSE} will
+exclude any model containing combination of terms "a" and "b". Values other than 
+\code{FALSE} (or \code{0}) are taken as \code{TRUE}.
 
-In the form of \code{expression}, the argument \code{subset} acts in a similar 
-fashion to that in the function \code{subset} for \code{data.frames}: the model 
-terms can be referred to by name as variables in the expression, with the difference 
+In form of an \code{expression}, the argument \code{subset} acts in a similar 
+fashion to that in the function \code{subset} for \code{data.frame}s: the model 
+terms are referred to by name as variables in the expression, with the difference 
 that they are always logical (i.e. \code{TRUE} if a term exists in the model). 
 The expression can contain any of the \code{global.model} terms (use 
 \code{getAllTerms(global.model)} to list them). It can have a form of an unevaluated 
