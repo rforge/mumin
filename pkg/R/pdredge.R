@@ -324,10 +324,12 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 			
 			
 			if(!(nvar > m.max || nvar < m.min) && (!hasSubset ||
-			switch(hasSubset,
-				  all(subset[comb, comb], na.rm = TRUE),
-				  eval(subset, structure(as.list(comb), names = allTerms))
-				  )
+				isTRUE(switch(hasSubset,
+					all(subset[comb, comb], na.rm = TRUE), {
+						subsetEnv[subsetEnvCombI] <- comb
+						subsetEnv[subsetEnvLen] <- nvar
+						eval(subset, subsetEnv)
+					}))
 				)) {
 			#if(!(nvar > m.max || nvar < m.min) && (!hasSubset || eval(subset,
 				#structure(as.list(comb), names = allTerms)))) {
