@@ -48,8 +48,8 @@ sexpr
 system.time(dd2 <- dredge(fm, subset = smat))
 system.time(dd1 <- dredge(fm, subset = sexpr))
 
-# Using the argument 'subset' in a form of matrix is faster in this case.
-# The results is identical:
+# Using the argument 'subset' in a form of matrix is usually faster in this case.
+# The results are identical:
 dd1
 dd2
 

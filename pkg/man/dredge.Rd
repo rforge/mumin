@@ -61,7 +61,7 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	\item{extra}{ optional additional statistics to include in the result,
 	provided as functions, function names or a list of such (best if named
 	or quoted). Similarly as in \code{rank} argument, each function must accept
-	fitted object model as an argument and return (an object coercible to) a
+	fitted model object as an argument and return a (value coercible to a)
 	numeric vector.
 	These can be e.g. additional information criterions or goodness-of-fit
 	statistics. The character strings "R^2" and "adjR^2" are treated in a
@@ -73,7 +73,7 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
   \item{x}{
     a \code{model.selection} object, returned by \code{dredge}. }
 
-  \item{abbrev.names}{ should variable names be abbreviated when printing?
+  \item{abbrev.names}{ should printed variable names be abbreviated?
 	(useful with many variables). }
 
   \item{warnings}{ if \code{TRUE}, errors and warnings issued during the model
@@ -94,10 +94,6 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 \details{
 
-For a list of model types that can be used as a \code{global.model} see
-\link[=MuMIn-models]{list of supported models}. \code{gamm} and \code{gamm4}
-should be evaluated \emph{via} the wrapper \code{MuMIn::\link[MuMIn]{gamm}}.
-
 Models are fitted one by one through repeated evaluation of modified calls to
 the \code{global.model} (in a similar fashion as with \code{update}). This
 approach, while robust in that it can be applied to a variety of different model
@@ -110,63 +106,71 @@ evaluate, to avoid memory overflow the fitted model objects are not stored in
 the result. To get (a subset of) the models, use \code{\link{get.models}} on the
 object returned by \code{dredge}.
 
+For a list of model types that can be used as a \code{global.model} see
+\link[=MuMIn-models]{list of supported models}. \code{gamm} and \code{gamm4}
+should be evaluated \emph{via} the wrapper \code{MuMIn::\link[MuMIn]{gamm}}.
+
+\subsection{Information criterion}{
 \code{rank} is found by a call to \code{match.fun} and may be specified as a
 function or a symbol (e.g. a back-quoted name) or a character string specifying
 a function to be searched for from the environment of the call to \code{dredge}.
-Function \code{rank} must be able to accept model as a first argument and must
+The function \code{rank} must accept model object as its first argument and 
 always return a scalar. Typical choice for \code{rank} would be "AIC", "BIC", or
 "QAIC".
+}
 
 \subsection{Interactions}{
-Handling interactions, \code{dredge} by default respects marginality
+\code{dredge} by default respects marginality
 constraints, so \dQuote{all possible combinations} do not include models
 containing interactions without their respective main effects. This behaviour
 can be altered by \code{marg.ex} argument, which can be used to allow for simple
 nested designs. For example, with global model of form \code{a / (x + z)}, one
 would use \code{marg.ex = "a"} and \code{fixed = "a"}. If \code{global.model}
-has such a formula, and \code{marg.ex} is missing or \code{NA}, it will be
+uses such a formula and \code{marg.ex} is missing or \code{NA}, it will be
 adjusted automatically.
 }
 
 \subsection{Subsetting}{
-There are three ways to constrain the resulting set of models: limiting to the
-number of variables in each model using \code{m.max} and \code{m.min}, binding a
-variable(s) to all models with \code{fixed}, and through complex rules passed as
-argument \code{subset}.
+There are three ways to constrain the resulting set of models: setting limits to the
+number of terms in a model with \code{m.max} and \code{m.min}, 
+binding term(s) to all models with \code{fixed}, and more complex rules can be
+applied using argument \code{subset}.
 
-\code{subset} can take a form of either as an expression or a matrix. The latter
-should be lower triangular matrix with logical values, where columns and rows
-correspond to global model terms. Value \code{subset["a", "b"] == FALSE} will
-exclude any model containing combination of terms "a" and "b". Values other than 
+\code{subset} can take either a form of an expression or a matrix. The latter
+should be a lower triangular matrix with logical values, where columns and rows
+correspond to \code{global.model} terms. Value \code{subset["a", "b"] == FALSE} will
+exclude any model containing both "a" and "b". Values other than 
 \code{FALSE} (or \code{0}) are taken as \code{TRUE}.
 
-In form of an \code{expression}, the argument \code{subset} acts in a similar 
-fashion to that in the function \code{subset} for \code{data.frame}s: the model 
-terms are referred to by name as variables in the expression, with the difference 
-that they are always logical (i.e. \code{TRUE} if a term exists in the model). 
+In the form of \code{expression}, the argument \code{subset} acts in a similar 
+fashion to that in the function \code{subset} for \code{data.frames}: model 
+terms can be referred to by name as variables in the expression, with the difference 
+being that they are always logical (i.e. \code{TRUE} if a term exists in the model). 
 The expression can contain any of the \code{global.model} terms (use 
 \code{getAllTerms(global.model)} to list them). It can have a form of an unevaluated 
 \code{call}, \code{expression} object, or a one sided \code{formula}. 
 See \sQuote{Examples}.
 Compound model terms (such as \sQuote{as-is} expressions within \code{I()} or
 smooths in \code{gam}) should be treated as non-syntactic names and enclosed in
-back-ticks (e.g. \code{subset = `s(x, k = 12)` && `I(log(z))`}, see
+back-ticks (e.g. \code{subset = `s(x, k = 2)` || `I(log(x))`}, see
 \link[base]{Quotes}). Mind the spacing, names must match exactly the term names
 in model's formula. To simply keep certain terms in all models, use of argument
 \code{fixed} is
 more efficient.
 }
 
+\subsection{Missing values}{
 Use of \code{na.action = na.omit} (\R's default) in \code{global.model} should
 be avoided, as it results with sub-models fitted to different data sets, if
-there are missing values. In versions >= 0.13.17 a warning is given in such a
-case.
+there are missing values. Warning is given if it is detected.
+}
 
+\subsection{Methods}{
 There are \code{\link[=subset.model.selection]{subset}} and \code{plot} methods,
 the latter produces a graphical representation of model weights and variable
 relative importance.
 Coefficients can be extracted with \code{coef} or \code{\link{coefTable}}.
-
+}
 
 }
 

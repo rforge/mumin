@@ -271,6 +271,15 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	retColIdx <- if(nvarying) -n.vars - seq_len(nvarying) else TRUE
 
+	####
+	if(hasSubset == 2L) {
+		subsetEnvLen <- length(allTerms) + 1L
+		subsetEnv <- vector("list", subsetEnvLen) # last element for `%n%`
+		subsetEnvCombI <- seq_len(subsetEnvLen - 1)
+		names(subsetEnv) <- c(allTerms, "%n%")
+	}
+	####
+	
 	prevJComb <- 0L
 	for(iComb in seq.int(ncomb)) {
 		jComb <- ceiling(iComb / nvariants)
@@ -279,11 +288,14 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			prevJComb <- jComb
 			comb <- c(as.logical(intToBits(jComb - 1L)[comb.seq]), comb.sfx)
 			nvar <- sum(comb) - nInts
-		    
+			
 			if(nvar > m.max || nvar < m.min ||
 			   isTRUE(switch(hasSubset,
-				  !all(subset[comb, comb], na.rm = TRUE),
-				  !eval(subset, structure(as.list(comb), names = allTerms))))
+				  !all(subset[comb, comb], na.rm = TRUE), {
+				    subsetEnv[subsetEnvCombI] <- comb
+				    subsetEnv[subsetEnvLen] <- nvar
+					!eval(subset, subsetEnv)
+				  }))
 			   ) {
 				isok <- FALSE
 				next;

@@ -2,7 +2,7 @@
 \alias{QIC}
 \alias{quasiLik}
 \encoding{utf-8}
-\title{Quasi-Likelihood and QIC for GEE}
+\title{QIC and Quasi-Likelihood for GEE}
 \description{
 Calculate quasi-likelihood under the independence model criterion (QIC)
   for Generalized Estimating Equations.
