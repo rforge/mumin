@@ -338,7 +338,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 					{
 						assign("comb", comb, ssEnv)
 						assign("*nvar*", nvar, ssEnv)
-						!eval(subsetExpr, envir = ssEnv, enclos = parent.frame())
+						eval(subsetExpr, envir = ssEnv, enclos = parent.frame())
 					}  # 3
 					)
 				) {
