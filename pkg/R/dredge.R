@@ -56,7 +56,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	if(length(grep(":", all.vars(reformulate(allTerms))) > 0L))
 		stop("variable names in the formula cannot contain \":\"")
-		
+	
     LL <- .getLik(global.model)
 	logLik <- LL$logLik
 	lLName <- LL$name
@@ -143,7 +143,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			extra[extra == "adjR^2"][[1L]] <-
 				function(x) attr(r.squaredLR(x, null.fit), "adj.r.squared")
 		}
-
 		extra <- sapply(extra, match.fun, simplify = FALSE)
 		applyExtras <- function(x) unlist(lapply(extra, function(f) f(x)))
 		extraResult <- applyExtras(global.model)
@@ -178,17 +177,14 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	## BEGIN: Manage 'subset'
 	## @param:	hasSubset, subset, allTerms, interceptLabel, 
-	## @value:	hasSubset, subset 
-	if(hasSubset <- !missing(subset))  {
-		 if(!tryCatch(is.language(subset) || is.matrix(subset), error = function(e) FALSE)) {
-			 subset <- substitute(subset)
-		 }
-		 if(inherits(subset, "formula")) {
-			 if (subset[[1L]] != "~" || length(subset) != 2L)
-				 stop("'subset' formula should be one-sided")
-			 subset <- subset[[2L]]
-		 } else if(is.matrix(subset)) {
-			
+	## @value:	hasSubset, subset
+	if(missing(subset))  {
+		hasSubset <- 1L
+	} else {
+		if(!tryCatch(is.language(subset) || is.matrix(subset), error = function(e) FALSE))
+			subset <- substitute(subset)
+
+		if(is.matrix(subset)) {
 			dn <- dimnames(subset)
 			#at <- allTerms[!(allTerms %in% interceptLabel)]
 			n <- length(allTerms)
@@ -208,24 +204,27 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			}
 			if(any(!is.na(subset[!lower.tri(subset)]))) {
 				warning("non-missing values exist outside the lower triangle of 'subset'")
-				 subset[!lower.tri(subset)] <- NA
+				subset[!lower.tri(subset)] <- NA
 			}
 			mode(subset) <- "logical"
-
+			hasSubset <- 2L # subset as matrix
+		} else {
+			if(inherits(subset, "formula")) {
+				if (subset[[1L]] != "~" || length(subset) != 2L)
+					stop("'subset' formula should be one-sided")
+				subset <- subset[[2L]]
+			}
+			if(!all(all.vars(subset) %in% allTerms))
+				warning("not all terms in 'subset' exist in 'global.model'")
+			subset <- as.expression(subset)
 			
-			# if(!is.null(dimnames(subset))) {
-			#	 #if(!all(unlist(dimnames(subset)) %in% at))
-			#	 if(!all(sapply(dimnames(subset), "==", at)))
-			#		 stop("names in 'subset' matrix do not correspond with term names in 'global.model'")
-			# } else dimnames(subset) <- list(at, at)
-			#}
-			hasSubset <- 1L # subset as matrix
-		 } else {
-			 if(!all(all.vars(subset) %in% allTerms))
-				 warning("not all terms in 'subset' exist in 'global.model'")
-			 subset <- as.expression(subset)
-			 hasSubset <- 2L # subset as expression
-		 }
+			subsetExpr <- as.expression(eval(call("substitute", subset[[1L]],
+				env = structure(lapply(1L:length(allTerms), function(i) call("[", as.name("comb"), i)),
+					names = allTerms)), envir = NULL))
+			
+			hasSubset <- 3L # subset as expression
+			ssEnv <- new.env(parent = .GlobalEnv)
+		}
 	} # END: manage 'subset'
 
 	#return(subset)
@@ -271,15 +270,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	retColIdx <- if(nvarying) -n.vars - seq_len(nvarying) else TRUE
 
-	####
-	if(hasSubset == 2L) {
-		subsetEnvLen <- length(allTerms) + 1L
-		subsetEnv <- vector("list", subsetEnvLen) # last element for `%n%`
-		subsetEnvCombI <- seq_len(subsetEnvLen - 1)
-		names(subsetEnv) <- c(allTerms, "%n%")
-	}
-	####
-	
 	prevJComb <- 0L
 	for(iComb in seq.int(ncomb)) {
 		jComb <- ceiling(iComb / nvariants)
@@ -290,13 +280,14 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			nvar <- sum(comb) - nInts
 			
 			if(nvar > m.max || nvar < m.min ||
-			   isTRUE(switch(hasSubset,
-				  !all(subset[comb, comb], na.rm = TRUE), {
-				    subsetEnv[subsetEnvCombI] <- comb
-				    subsetEnv[subsetEnvLen] <- nvar
-					!eval(subset, subsetEnv)
-				  }))
-			   ) {
+			   switch(hasSubset,
+					FALSE,
+					!all(subset[comb, comb], na.rm = TRUE), {
+						assign("comb", comb, ssEnv)
+						assign("*nvar*", nvar, ssEnv)
+						!eval(subsetExpr, envir = ssEnv, enclos = parent.frame())
+					}
+			   )) {
 				isok <- FALSE
 				next;
 			}

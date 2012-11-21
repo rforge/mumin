@@ -47,7 +47,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		#"For objects without a 'call' component the call to the fitting function \n",
 		#" must be used directly as an argument to 'dredge'.")
 		# NB: this is unlikely to happen:
-		if(!exists(as.character(gmCall[[1L]]), parent.frame(), mode="function"))
+		if(!exists(as.character(gmCall[[1L]]), parent.frame(), mode = "function"))
 			 stop("could not find function '", gmCall[[1L]], "'")
 	} else {
 		# if 'update' method does not expand dots, we have a problem
@@ -203,17 +203,14 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 
 	## BEGIN: Manage 'subset'
 	## @param:	hasSubset, subset, allTerms, interceptLabel, 
-	## @value:	hasSubset, subset 
-	if(hasSubset <- !missing(subset))  {
-		 if(!tryCatch(is.language(subset) || is.matrix(subset), error = function(e) FALSE)) {
+	## @value:	hasSubset, subset
+	if(missing(subset))  {
+		hasSubset <- 1L
+	} else {
+		if(!tryCatch(is.language(subset) || is.matrix(subset), error = function(e) FALSE))
 			subset <- substitute(subset)
-		 }
-		if(inherits(subset, "formula")) {
-			if (subset[[1L]] != "~" || length(subset) != 2L)
-				 stop("'subset' formula should be one-sided")
-			subset <- subset[[2L]]
-		 } else if(is.matrix(subset)) {
-			
+
+		if(is.matrix(subset)) {
 			dn <- dimnames(subset)
 			#at <- allTerms[!(allTerms %in% interceptLabel)]
 			n <- length(allTerms)
@@ -233,16 +230,27 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 			}
 			if(any(!is.na(subset[!lower.tri(subset)]))) {
 				warning("non-missing values exist outside the lower triangle of 'subset'")
-				 subset[!lower.tri(subset)] <- NA
+				subset[!lower.tri(subset)] <- NA
 			}
 			mode(subset) <- "logical"
-			hasSubset <- 1L # subset as matrix
-		 } else {
+			hasSubset <- 2L # subset as matrix
+		} else {
+			if(inherits(subset, "formula")) {
+				if (subset[[1L]] != "~" || length(subset) != 2L)
+					stop("'subset' formula should be one-sided")
+				subset <- subset[[2L]]
+			}
 			if(!all(all.vars(subset) %in% allTerms))
 				warning("not all terms in 'subset' exist in 'global.model'")
 			subset <- as.expression(subset)
-			hasSubset <- 2L # subset as expression
-	}
+			
+			subsetExpr <- as.expression(eval(call("substitute", subset[[1L]],
+				env = structure(lapply(1L:length(allTerms), function(i) call("[", as.name("comb"), i)),
+					names = allTerms)), envir = NULL))
+			
+			hasSubset <- 3L # subset as expression
+			ssEnv <- new.env(parent = .GlobalEnv)
+		}
 	} # END: manage 'subset'
 
 	#return(subset)
@@ -309,7 +317,8 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	retColIdx <- if(nvarying) -n.vars - seq_len(nvarying) else TRUE
 
 	warningList <- list()
-	# qlen <- 4 ## DEBUG: !!!!
+
+	####
 
 	prevJComb <- 0L
 	for(iComb in seq.int(ncomb)) {
@@ -320,19 +329,20 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 			comb <- c(as.logical(intToBits(jComb - 1L)[comb.seq]), comb.sfx)
 			nvar <- sum(comb) - nInts
 			
-			#print(structure(c(comb, tmp), names = c(allTerms, "=")))
 			
-			
-			if(!(nvar > m.max || nvar < m.min) && (!hasSubset ||
-				isTRUE(switch(hasSubset,
-					all(subset[comb, comb], na.rm = TRUE), {
-						subsetEnv[subsetEnvCombI] <- comb
-						subsetEnv[subsetEnvLen] <- nvar
-						eval(subset, subsetEnv)
-					}))
-				)) {
-			#if(!(nvar > m.max || nvar < m.min) && (!hasSubset || eval(subset,
-				#structure(as.list(comb), names = allTerms)))) {
+			# POSITIVE condition for 'pdredge', NEGATIVE for 'dredge':
+			if((nvar >= m.min && nvar <= m.max) && switch(hasSubset,
+					# 1 - no subset, 2 - matrix, 3 - expression
+					TRUE,                                    # 1 
+					all(subset[comb, comb], na.rm = TRUE),   # 2
+					{
+						assign("comb", comb, ssEnv)
+						assign("*nvar*", nvar, ssEnv)
+						!eval(subsetExpr, envir = ssEnv, enclos = parent.frame())
+					}  # 3
+					)
+				) {
+
 				newArgs <- makeArgs(global.model, allTerms[comb], comb, argsOptions)
 				formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
 					attr(newArgs, "formulaList")
