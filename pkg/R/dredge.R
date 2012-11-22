@@ -176,7 +176,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	calls <- vector(mode = "list", length = ret.nchunk)
 
 	## BEGIN: Manage 'subset'
-	## @param:	hasSubset, subset, allTerms, interceptLabel, 
+	## @param:	hasSubset, subset, allTerms, [interceptLabel], 
 	## @value:	hasSubset, subset
 	if(missing(subset))  {
 		hasSubset <- 1L

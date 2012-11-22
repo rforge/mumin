@@ -41,7 +41,9 @@ makeArgs.lme <- function(obj, termNames, comb, opt, ...) {
 	ret
 }
 
-makeArgs.mer <- function(obj, termNames, comb, opt, ...) {
+
+`makeArgs.merMod` <-  # since lme4-0.99999911-0
+`makeArgs.mer` <- function(obj, termNames, comb, opt, ...) {
 	ret <- makeArgs.default(obj, termNames, comb, opt)
 	#if(isTRUE(opt$use.ranef))
 	ret$formula <- update.formula(ret$formula, opt$random)

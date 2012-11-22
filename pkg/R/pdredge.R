@@ -202,7 +202,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	calls <- vector(mode = "list", length = ret.nchunk)
 
 	## BEGIN: Manage 'subset'
-	## @param:	hasSubset, subset, allTerms, interceptLabel, 
+	## @param:	hasSubset, subset, allTerms, [interceptLabel], 
 	## @value:	hasSubset, subset
 	if(missing(subset))  {
 		hasSubset <- 1L

@@ -14,10 +14,12 @@ function(frm, except = NULL) {
 
 
 # Hidden functions
+# `.getLogLik` <- function() logLik
+
 `.getLogLik` <- function()
-	if ("stats4" %in% loadedNamespaces())
-        stats4:::logLik else
+	if(isGeneric("logLik")) stats4:::logLik else
 		stats::logLik
+
 		
 `.getLik` <- function(x) {
     if(inherits(x, c("gee", "geeglm", "geese", "yagsResult"))) {

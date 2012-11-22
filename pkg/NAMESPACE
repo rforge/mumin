@@ -124,6 +124,9 @@ S3method(coefTable, mer)
 S3method(nobs, mer)
 S3method(predict, mer)
 
+S3method(coeffs, merMod)
+
+
 S3method(coefTable, multinom)
 S3method(nobs, multinom)
 
@@ -155,6 +158,7 @@ S3method(makeArgs, unmarkedFit)
 S3method(makeArgs, unmarkedFitDS)
 S3method(makeArgs, coxph)
 S3method(makeArgs, clmm)
+S3method(makeArgs, merMod)
 
 S3method(family, default)
 S3method(family, gls)

@@ -18,5 +18,8 @@ function(model) model$coefficients$fixed
 `coeffs.mer` <-
 function(model) model@fixef
 
+`coeffs.merMod` <-
+function (model) fixef(model)
+
 `coeffs.default` <-
 function(model) coef(model)

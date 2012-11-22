@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.8.1 (2012-11-23)
+added methods for class 'merMod' to accommodate recent changes in 
+	lme4_0.99999911-0
+
 Version: 1.8.0 (2012-11-21)
 This version introduces support for GEE models ('gee','geeglm' and 'yags') 
 	ranked by QIC (note that 'yags' seems to be still quite buggy).
