@@ -33,7 +33,7 @@ functions include those returned by:
 
 Generalized Estimation Equation model implementations: \code{\link[geepack]{geeglm}} 
 from package \pkg{geepack}, \code{\link[gee]{gee}} from \pkg{gee}, and 
-\code{\link[yags]{yags}} from \pkg{yags} can be used with \code{\link{QIC}} 
+\code{yags} from \pkg{yags} can be used with \code{\link{QIC}} 
 as the selection criterion.
 
 \code{MCMCglmm} models (package \pkg{MCMCglmm}) with \code{\link{DIC}} as the 

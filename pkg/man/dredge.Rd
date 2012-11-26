@@ -122,12 +122,12 @@ always return a scalar. Typical choice for \code{rank} would be "AIC", "BIC", or
 \subsection{Interactions}{
 \code{dredge} by default respects marginality
 constraints, so \dQuote{all possible combinations} do not include models
-containing interactions without their respective main effects. This behaviour
-can be altered by \code{marg.ex} argument, which can be used to allow for simple
-nested designs. For example, with global model of form \code{a / (x + z)}, one
-would use \code{marg.ex = "a"} and \code{fixed = "a"}. If \code{global.model}
-uses such a formula and \code{marg.ex} is missing or \code{NA}, it will be
-adjusted automatically.
+containing interactions without their respective main effects and all lower order 
+terms. This behaviour can be altered by \code{marg.ex} argument, which can be used 
+to allow for simple nested designs. For example, with global model of form 
+\code{a / (x + z)}, one would use \code{marg.ex = "a"} and \code{fixed = "a"}. 
+If \code{global.model} uses such a formula and \code{marg.ex} is missing or 
+\code{NA}, it will be adjusted automatically.
 }
 
 \subsection{Subsetting}{

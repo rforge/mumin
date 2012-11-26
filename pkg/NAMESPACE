@@ -205,8 +205,10 @@ S3method(logLik, MCMCglmm)
 S3method(coeffs, MCMCglmm)
 S3method(coefTable, MCMCglmm)
 S3method(makeArgs, MCMCglmm)
+S3method(getAllTerms, MCMCglmm)
 
 S3method(extractDIC, mer)
+S3method(extractDIC, merMod)
 S3method(extractDIC, MCMCglmm)
 S3method(extractDIC, lme)
 
@@ -227,5 +229,4 @@ S3method(quasiLik, geeglm)
 S3method(quasiLik, yagsResult)
 
 S3method(nobs, yagsResult)
-
 

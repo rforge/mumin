@@ -12,6 +12,12 @@ function(frm, except = NULL) {
 	return(ret)
 }
 
+.formulaEnv <- function(object, env = .GlobalEnv) {
+	res <- as.formula(object, env = env)
+	environment(res) <- env
+	res
+}
+
 
 # Hidden functions
 # `.getLogLik` <- function() logLik
@@ -22,7 +28,7 @@ function(frm, except = NULL) {
 
 		
 `.getLik` <- function(x) {
-    if(inherits(x, c("gee", "geeglm", "geese", "yagsResult"))) {
+    if(isGEE(x)) {
 		logLik <- quasiLik
 		lLName <- "qLik"
 	} else {
@@ -46,22 +52,12 @@ function(frm, except = NULL) {
 	}
 }
 
-`.isREMLFit` <- function(x) {
-	if (inherits(x, "mer")) return (x@dims[["REML"]] != 0)
-	if (inherits(x, c("lme", "gls", "gam")) && !is.null(x$method))
-		return(x$method %in% c("lme.REML", "REML"))
-	if (any(inherits(x, c("lmer", "glmer"))))
-		return(x@status["REML"] != 0)
-	return(NA)
-}
-
 `.getRank` <- function(rank = NULL, rank.args = NULL, object = NULL, ...) {
 	rank.args <- c(rank.args, list(...))
 
 	if(is.null(rank)) {
-		IC <- as.function(c(alist(x=, do.call("AICc", list(x)))))
 		x <- NULL # just not to annoy R check
-		as.function(c(alist(x=, do.call("AICc", list(x)))))
+		IC <- as.function(c(alist(x =, do.call("AICc", list(x)))))
 		attr(IC, "call") <- call("AICc", as.name("x"))
 		class(IC) <- c("function", "ICWithCall")
 		return(IC)
@@ -73,10 +69,11 @@ function(frm, except = NULL) {
 	if(srank == "rank") srank <- substitute(rank)
 
 	rank <- match.fun(rank)
-	ICName <- switch(mode(srank), call=as.name("IC"), character=as.name(srank), name=, srank)
+	ICName <- switch(mode(srank), call = as.name("IC"), character = as.name(srank), name=, srank)
 	ICarg <- c(list(as.name("x")), rank.args)
 	ICCall <- as.call(c(ICName, ICarg))
-	IC <- as.function(c(alist(x=), list(substitute(do.call("rank", ICarg), list(ICarg=ICarg)))))
+	IC <- as.function(c(alist(x =), list(substitute(do.call("rank", ICarg), 
+		list(ICarg = ICarg)))))
 
 	if(!is.null(object)) {
 		test <- IC(object)
@@ -89,7 +86,6 @@ function(frm, except = NULL) {
 	IC
 }
 
-
 `matchCoef` <- function(m1, m2,
 	all.terms = getAllTerms(m2, intercept = TRUE),
 	beta = FALSE,
@@ -98,7 +94,7 @@ function(frm, except = NULL) {
 	allCoef = FALSE,
 	...
 	) {
-	if(any((terms1 %in% all.terms) == FALSE)) stop("'m1' is not nested within 'm2")
+	if(any((terms1 %in% all.terms) == FALSE)) stop("'m1' is not nested within 'm2'")
 	row <- structure(rep(NA_real_, length(all.terms)), names = all.terms)
 
 	fxdCoefNames <- fixCoefNames(names(coef1))
@@ -124,7 +120,7 @@ function(frm, except = NULL) {
 	if(!length(x)) return(x)
 	ox <- x
 	ia <- grep(":", x, fixed = TRUE)
-	if(!length(ia)) return(structure(x, order = rep.int(1, length(x))))
+	if(!length(ia)) return(structure(x, order = rep.int(1L, length(x))))
 	x <- ret <- x[ia]
 	if(peel) {
 		# case of pscl::hurdle, cf are prefixed with count_|zero_
@@ -188,7 +184,7 @@ function(frm, except = NULL) {
 	# which e.g. gives an error in glmmML - the glmmML::nobs method is faulty.
 	nresid <- vapply(models, function(x) nobs(x), numeric(1L)) # , nall=TRUE
 
-	if(!all(datas[-1L] == datas[[1]]) || !all(nresid[-1L] == nresid[[1L]])) {
+	if(!all(datas[-1L] == datas[[1L]]) || !all(nresid[-1L] == nresid[[1L]])) {
 		err("models are not all fitted to the same data")
 		res <- FALSE
 	}

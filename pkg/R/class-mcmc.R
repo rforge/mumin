@@ -17,22 +17,24 @@ if(!exists("extractDIC", mode = "function")) {
 
 # from package 'arm'
 `extractDIC.mer` <- function (fit, ...) {
-	llik <- logLik(fit, REML = fit@dims["REML"])
-    #dev <- fit@deviance["ML"]
-    dev <- deviance(fit, REML = FALSE)
-    c(2 * (dev + llik))[[1L]]
-    #llik <- logLik(fit, fit@dims["REML"])
-    #dev <- fit@deviance["ML"]
-    ##n <- fit@dims["n"]
-    #Dhat <- -2 * c(llik)
-    #pD <- dev - Dhat
-    #DIC <- dev + pD[[1]]
-    #return(DIC)
+	dev <- deviance(fit, REML = fit@dims["REML"])
+    devML <- deviance(fit, REML = FALSE)
+    as.vector(2 * devML - dev)
+}
+
+`extractDIC.merMod` <- function (fit, ...) {
+	dev <- deviance(fit, REML = isREML(fit))
+    devML <- deviance(fit, REML = FALSE)
+    as.vector(2 * devML - dev)
 }
 
 `extractDIC.MCMCglmm` <- function (fit, ...) fit$DIC
 
-`extractDIC.lme` <- function (fit, ...) .NotYetImplemented()
+`extractDIC.lme` <- function (fit, ...) {
+	ll <- as.vector(logLik(fit, REML = fit$method == "REML"))
+    llML <- as.vector(logLik(fit, REML = FALSE))
+    2 * ll - 4 * llML
+}
 
 
 `formula.MCMCglmm` <-
@@ -57,3 +59,11 @@ function (model, ...) {
 	cf <- coeffs(model)
 	.makeCoefTable(cf, se = rep(NA_real_, length.out = length(cf)))
 }
+
+`getAllTerms.MCMCglmm` <- function (x, ...) {
+	res <- MuMIn:::getAllTerms.default(x, ...)
+	attr(res, "random") <- .formulaEnv(.~., environment(formula(x)))
+	attr(res, "random.terms") <- deparse(x$Random$formula, control = NULL)[1]
+	res
+}
+
