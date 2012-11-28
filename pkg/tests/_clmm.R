@@ -18,10 +18,10 @@ mm3 <- clmm(formula = SURENESS ~ PROD + GENDER + (1 | RESP) + (1 | RESP:PROD),
 	data = soup, link = "probit", threshold = "equidistant")
 
 
-model.sel(mm1, mm3)
+(print(model.sel(mm1, mm3)))
 
-dd <- dredge(mm3, m.min = 1)
-summary(model.avg(dd))
+print(dd <- dredge(mm3, m.min = 1))
+print(summary(model.avg(dd)))
 
 coefTable(dd)
 

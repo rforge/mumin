@@ -1,10 +1,10 @@
 if(length(.find.package(c("glmmML", "aod"), quiet = TRUE)) == 2) {
 
-library(MuMIn)
 library(aod)
 library(glmmML)
 library(lme4)
 library(MASS)
+library(MuMIn)
 
 data(orob2)
 data(salmonella)
@@ -14,13 +14,14 @@ data(salmonella)
 fmbb <- betabin(cbind(y, n - y) ~ root, ~ seed, data = orob2)
 fmb1 <- betabin(cbind(y, n - y) ~ root, ~ 1, data = orob2)
 fmgm <- glmmML(cbind(y, n - y) ~ root, cluster = seed, data = orob2)
-fmbr <- lmer(cbind(y, n - y) ~ root + (1 | seed), family = binomial("logit"),
+fmbr <- glmer(cbind(y, n - y) ~ root + (1 | seed), family = binomial("logit"),
 	data = orob2)
 fmgl <- glm(cbind(y, n - y) ~ root, family = binomial("logit"), data = orob2)
 fmgl0 <- glm(cbind(y, n - y) ~ 1, family = binomial("logit"), data = orob2)
 
 models <- list(fmbb, fmb1, fmgm, fmbr, fmgl)
 ms <- model.sel(models)
+
 print(summary(am <- model.avg(ms)))
 print(coef(am))
 print(coefTable(am))

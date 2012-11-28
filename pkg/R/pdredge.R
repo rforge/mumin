@@ -78,8 +78,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	if(is.null(interceptLabel)) interceptLabel <- "(Intercept)"
 	nInts <- sum(attr(allTerms, "intercept"))
 
-	if(length(grep(":", all.vars(reformulate(allTerms))) > 0L))
-		stop("variable names in the formula cannot contain \":\"")
+
 	
     LL <- .getLik(global.model)
 	logLik <- LL$logLik

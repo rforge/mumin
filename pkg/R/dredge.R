@@ -54,9 +54,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			#sep = ""))
 	#}
 
-	if(length(grep(":", all.vars(reformulate(allTerms))) > 0L))
-		stop("variable names in the formula cannot contain \":\"")
-	
+
     LL <- .getLik(global.model)
 	logLik <- LL$logLik
 	lLName <- LL$name
