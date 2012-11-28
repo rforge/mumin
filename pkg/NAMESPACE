@@ -3,7 +3,8 @@ export(
 	par.avg, QAIC, QAICc,
 	getAllTerms, coeffs, coefTable, tTable, Weights, model.sel, mod.sel,
 	importance, gamm, Cp, ICOMP, r.squaredLR, null.fit, model.names, CAICF, DIC,
-	QIC, quasiLik
+	QIC, quasiLik,
+	simplify.formula
 )
 
 importFrom(stats, family)

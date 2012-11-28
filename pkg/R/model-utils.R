@@ -18,6 +18,27 @@ function(frm, except = NULL) {
 	res
 }
 
+`simplify.formula` <- function(f) {
+	tt <- terms(f)
+	fac <- attr(tt, "factors")
+	ord <- attr(tt, "order")
+	k <- seq_along(colnames(fac))
+	names(k) <- colnames(fac)
+	k <- k[order(ord, decreasing = TRUE)]
+	ret <- sapply(k, function(i) sapply(k, function(j)
+		if(ord[j] >= ord[i]) NA else !any(!(fac[, i] == 1) & fac[, j])
+	))
+	i <- (!apply(ret, 1L, function(x) any(x, na.rm = TRUE)))
+	j <- i & apply(fac[, k], 2L, function(x) all(x < 2L)) &
+		 ord[k] > 1
+	tnm <- rownames(ret)
+	tnm[j] <- gsub(":", "*", tnm[j])
+	tnm <- tnm[i][order(ord[k][i])]
+	f[[length(f)]]  <- reformulate(tnm)[[2L]]
+	return(f)
+}
+
+
 
 # Hidden functions
 # `.getLogLik` <- function() logLik

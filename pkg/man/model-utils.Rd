@@ -10,6 +10,7 @@
 \alias{coefTable.gee}
 \alias{getAllTerms}
 \alias{getAllTerms.terms}
+\alias{simplify.formula}
 
 \encoding{utf-8}
 \newcommand{\href}{#2}
@@ -33,6 +34,11 @@ These functions extract or calculate various values from provided fitted model
 \code{model.names} generates shorthand numeric names for one or several fitted
 models.
 
+\code{simplify.formula} rewrites the formula in shorthand notation (currently 
+only the factor crossing operator \code{*} is used, so that the expanded expression 
+such as \code{a + b + a:b} becomes \code{a * b}).
+
+
 }
 
 \usage{
@@ -48,6 +54,9 @@ coefTable(model, ...)
 \method{coefTable}{gee}(model, ..., type = c("naive", "robust"))
 
 model.names(object, ..., labels = NULL)
+
+simplify.formula(f)
+
 }
 \arguments{
   \item{model}{a fitted model object. }
@@ -70,6 +79,7 @@ model.names(object, ..., labels = NULL)
 		returned standard errors on. Either "naive" or "robust" (sandwich).
 		}
   \item{adjustSigma}{ See \code{\link[nlme]{summary.lme}}. }
+  \item{f}{a model formula.}
 }
 
 \details{
