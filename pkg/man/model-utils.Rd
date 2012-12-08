@@ -30,7 +30,7 @@ These functions extract or calculate various values from provided fitted model
 \code{coefTable} extracts a table of coefficients, standard errors and
 	associated degrees of freedom when possible;
 
-\code{model.names} generates shorthand numeric names for one or several fitted
+\code{model.names} generates shorthand (alpha)numeric names for one or several fitted
 models;
 
 
@@ -48,7 +48,7 @@ coefTable(model, ...)
 \method{coefTable}{lme}(model, adjustSigma, ...)
 \method{coefTable}{gee}(model, ..., type = c("naive", "robust"))
 
-model.names(object, ..., labels = NULL)
+model.names(object, ..., labels = NULL, use.letters = FALSE)
 
 }
 \arguments{
@@ -68,6 +68,8 @@ model.names(object, ..., labels = NULL)
 	method (e.g. \code{dispersion} parameter for \code{glm} may be used here).
 	In other functions often not used.
   }
+  \item{use.letters}{logical, whether letters should be used instead of numeric codes. }
+  
   \item{type}{ for GEE models, the type of covariance estimator to calculate
 		returned standard errors on. Either \code{"naive"} or \code{"robust"}
 		(\sQuote{sandwich}). }
@@ -85,8 +87,8 @@ model.names(object, ..., labels = NULL)
 \note{
 
 \code{coeffs}'s value is in most cases identical to that returned by
-\code{\link{coef}}, the only difference being it returns fixed
-effects' coefficients for mixed models.
+\code{\link{coef}}, the only difference being it returns fixed effects'
+coefficients for mixed models, and the value is always a named numeric vector.
 
 Use of \code{tTable} is deprecated in favour of \code{coefTable}.
 

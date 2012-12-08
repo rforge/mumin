@@ -49,19 +49,20 @@
 }
 
 `formula.mark` <- function (x, expand = TRUE, ...) {
-	param <- x$parameters
+	param <- x$model.parameters
 	f <- lapply(param, "[[", 'formula')
 	f <- f[!vapply(f, is.null, logical(1L))]
+	
 	npty <- length(f)
 	z <- vector(npty, mode = "list")
 	pty <- names(f)
-		
+	
 	if(expand) {
 		for(i in seq_len(npty)) z[[i]] <- paste(pty[i], "(",
 				getAllTerms(f[[i]], intercept = TRUE), ")", sep = "")
 		res <- reformulate(gsub("((Intercept))", "(1)", unlist(z), fixed = TRUE))
 	} else {
-		for(i in seq_len(npty)) z[[i]] <- call(pty[i], param[[i]]$formula[[2L]])
+		for(i in seq_len(npty)) z[[i]] <- call(pty[i], f[[i]][[2L]])
 		res <- z[[1L]]
 		if(npty > 1L) for(i in seq(2L, npty)) res <- call("+", res, z[[i]])
 		res <- eval(call("~", res))		
@@ -72,6 +73,7 @@
 
 
 `getAllTerms.mark` <- function (x, intercept = FALSE, ...) {
+	
 	f <- formula(x, expand = FALSE)[[2L]]
 	ret <- list()
 	while(length(f) == 3L && f[[1L]] == "+") {
@@ -111,8 +113,6 @@
 
 makeArgs.mark <- function(obj, termNames, comb, opt, ...) {
 	
-	#termNames <- termNames[!(termNames %in% opt$interceptLabel)]
-
 	interceptLabel <- "(Intercept)"
 	termNames <- sub(interceptLabel, "1", termNames, fixed = TRUE)
 

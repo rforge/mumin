@@ -8,7 +8,7 @@
 \description{
 \code{simplify.formula} rewrites a \code{formula} using shorthand notation.
 Currently only the factor crossing operator \code{*} is applied, so that
-expanded expression such as \code{a+b+a:b} becomes \code{a*b}).
+expanded expression such as \code{a+b+a:b} becomes \code{a*b}.
 \code{expand.formula} does the opposite, additionally expanding other
 expressions, i.e. all nesting (\code{/}), grouping and \code{^}. }
 

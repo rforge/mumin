@@ -217,7 +217,7 @@
 	structure(unlist(s), names = x, variables = av[i])
 }
 
-`model.names` <- function(object, ..., labels = NULL) {
+`model.names` <- function(object, ..., labels = NULL, use.letters = FALSE) {
 	if (missing(object) && length(models <- list(...)) > 0L) {
 		object <- models[[1L]]
 	} else if (inherits(object, "list")) {
@@ -226,16 +226,20 @@
 		object <- models[[1L]]
 	} else models <- list(object, ...)
 	if(length(models) == 0L) stop("at least one model must be given")
-	.modelNames(models = models, uqTerms = labels)
+	.modelNames(models = models, uqTerms = labels, use.letters = use.letters)
 }
 
-`.modelNames` <- function(models = NULL, allTerms, uqTerms, ...) {
+`.modelNames` <- function(models = NULL, allTerms, uqTerms, use.letters = FALSE, ...) {
 	if(missing(allTerms)) allTerms <- lapply(models, getAllTerms)
 	if(missing(uqTerms) || is.null(uqTerms))
 		uqTerms <- unique(unlist(allTerms, use.names = FALSE))
-
-	ret <- sapply(allTerms, function(x) paste(sort(match(x, uqTerms)),
-		collapse = ""))
+	
+	n <- length(uqTerms)
+	sep <- if(!use.letters && n > 9) "/" else ""
+	
+	labels <- if (use.letters) letters[seq_len(n)] else as.character(seq_len(n))
+	ret <- sapply(allTerms, function(x) paste(labels[sort(match(x, uqTerms))],
+		collapse = sep))
 
 	dup <- table(ret)
 	dup <- dup[dup > 1L]
@@ -243,7 +247,7 @@
 	if(length(dup) > 0L) {
 		idup <- which(ret %in% names(dup))
 		ret[idup] <- sapply(idup, function(i) paste(ret[i],
-			letters[sum(ret[seq.int(i)] == ret[i])], sep=""))
+			letters[sum(ret[seq.int(i)] == ret[i])], sep = ""))
 	}
 	ret[ret == ""] <- "(Null)"
 	attr(ret, "variables") <- structure(seq_along(uqTerms), names = uqTerms)
