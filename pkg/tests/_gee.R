@@ -3,6 +3,8 @@
 if(length(.find.package("geepack", quiet = TRUE))) {
 
 library(geepack)
+#library(gee)
+#library(yags)
 library(MuMIn)
 
 #example(geeglm)
@@ -13,6 +15,17 @@ data(dietox)
 gee2 <- geeglm(Weight ~ Cu * Time,
 	family = Gamma("inverse"), data = dietox, 
     id = Pig, corstr = "ar1")
+
+#gee1 <- gee(Weight ~ Cu * Time,
+#	family = Gamma("inverse"), data = dietox, 
+#    id = Pig, corstr = "independence")
+
+
+#gee3 <- yags(Weight ~ Cu * Time, id = Pig, 
+#	family = Gamma, data = dietox, 
+#    corstr = "independence", alphainit=0)
+
+#QIC(gee1, gee2, gee3)
 
 QIC(gee2)
 

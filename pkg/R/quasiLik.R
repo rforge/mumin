@@ -54,8 +54,8 @@ function(object, ...) {
 ## QIC 
 ##=============================================================================
 
-.qic2 <- function(y, mu, vbeta, yi, mui, vbeta.naiv.i, fam, typeR = FALSE) {
-	ql <- if(typeR) .qlik(y, mu, fam) else .qlik(yi, mui, fam)
+.qic2 <- function(y, mu, vbeta, mui, vbeta.naiv.i, fam, typeR = FALSE) {
+	ql <- if(typeR) .qlik(y, mu, fam) else .qlik(y, mui, fam)
 	# XXX: should be typeR = TRUE for QICu???
 	n <- length(y)
 	# yags/yags.cc: p140 of Hardin and Hilbe
@@ -78,26 +78,31 @@ function(x, typeR = FALSE) .NotYetImplemented()
 
 `getQIC.gee` <- 
 function(x, typeR = FALSE) {
-	capture.output(suppressMessages(xi <- update(x, corstr = "independence",
-		silent = TRUE)))
+	if(x$model$corstr != "Independent")
+		capture.output(suppressMessages(xi <- update(x, corstr = "independence",
+		silent = TRUE))) else
+		xi <- x
+	
 	.qic2(x$y, x$fitted.values, x$robust.variance, 
-		  xi$y, xi$fitted.values, xi$naive.variance, family(x)$family,
+		  xi$fitted.values, xi$naive.variance, family(x)$family,
 		  typeR = typeR)
 }
 
 `getQIC.geeglm` <- 
 function(x, typeR = FALSE) {
-	xi <- update(x, corstr = "independence")
+	xi <- if(x$corstr != "independence")
+		update(x, corstr = "independence") else x
 	.qic2(x$y, x$fitted.values, x$geese$vbeta, 
-		  xi$y, xi$fitted.values, xi$geese$vbeta.naiv, family(x)$family,
+		  xi$fitted.values, xi$geese$vbeta.naiv, family(x)$family,
 		  typeR = typeR)
 }
 
 `getQIC.yagsResult` <- 
 function(x, typeR = FALSE) {
-	xi <- update(x, corstruct = "independence")
-	.qic2(x@y, x@fitted.values, x@robust.parmvar, 
-		  xi@y, xi@fitted.values, xi@naive.parmvar, family(x)$family,
+	xi <- if(x@corstruct.tag != "independence")
+		update(x, corstruct = "independence") else x
+	.qic2(x@fitted.values + x@residuals, x@fitted.values, x@robust.parmvar, 
+		  xi@fitted.values, xi@naive.parmvar, family(x)$family,
 		  typeR = typeR)
 }
 

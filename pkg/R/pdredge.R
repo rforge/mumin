@@ -284,7 +284,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs
 			else attr(newArgs, "formulaList")
 
-		marg.ex <- unique(unlist(lapply(sapply(formulaList, formulaAllowed,
+		marg.ex <- unique(unlist(lapply(sapply(formulaList, formulaMargChk,
 			simplify = FALSE), attr, "marg.ex")))
 		if(!length(marg.ex)) marg.ex <- NULL
 		#cat("Marginality exceptions:", marg.ex, "\n")
@@ -345,7 +345,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 				newArgs <- makeArgs(global.model, allTerms[comb], comb, argsOptions)
 				formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
 					attr(newArgs, "formulaList")
-				if(all(vapply(formulaList, formulaAllowed, logical(1L), marg.ex))) {
+				if(all(vapply(formulaList, formulaMargChk, logical(1L), marg.ex))) {
 					if(!is.null(attr(newArgs, "problems"))) {
 						print.warnings(structure(vector(mode = "list",
 							length = length(attr(newArgs, "problems"))),
@@ -353,7 +353,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 					} # end if <problems>
 					cl <- gmCall
 					cl[names(newArgs)] <- newArgs
-				} else isok <- FALSE # end if <formulaAllowed>
+				} else isok <- FALSE # end if <formulaMargChk>
 			} else isok <- FALSE # end if <subset, m.max >= nvar >= m.min>
 		} #  end if(jComb != prevJComb)
 

@@ -268,7 +268,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
 			attr(newArgs, "formulaList")
 
-		marg.ex <- unique(unlist(lapply(sapply(formulaList, formulaAllowed,
+		marg.ex <- unique(unlist(lapply(sapply(formulaList, formulaMargChk,
 			simplify = FALSE), attr, "marg.ex")))
 		if(!length(marg.ex)) marg.ex <- NULL
 		#cat("Marginality exceptions:", marg.ex, "\n")
@@ -307,7 +307,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 				attr(newArgs, "formulaList")
 
 			
-			if(!all(vapply(formulaList, formulaAllowed, logical(1L), marg.ex)))  {
+			if(!all(vapply(formulaList, formulaMargChk, logical(1L), marg.ex)))  {
 				#DebugPrint("nie!")
 				isok <- FALSE; next;
 			}

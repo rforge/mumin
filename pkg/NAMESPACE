@@ -1,10 +1,14 @@
 export(
-	AICc, beta.weights, dredge, pdredge, get.models, pget.models, model.avg,
-	par.avg, QAIC, QAICc,
-	getAllTerms, coeffs, coefTable, tTable, Weights, model.sel, mod.sel,
-	importance, gamm, Cp, ICOMP, r.squaredLR, null.fit, model.names, CAICF, DIC,
+	dredge, pdredge, get.models, pget.models, 
+	model.avg, par.avg, 
+	model.sel, mod.sel,
+	getAllTerms, coeffs, coefTable, tTable, 
+	importance, Weights, 
+	AICc, QAIC, QAICc, Cp, ICOMP, CAICF, DIC, r.squaredLR, null.fit, 
 	QIC, quasiLik,
-	simplify.formula
+	gamm,
+	beta.weights, model.names,
+	simplify.formula, expand.formula
 )
 
 importFrom(stats, family)

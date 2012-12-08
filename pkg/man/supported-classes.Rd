@@ -30,8 +30,8 @@ functions include those returned by:
 \item \code{clm} and \code{clmm} (\pkg{ordinal});
 \item functions from package \pkg{unmarked} (within the class \code{unmarkedFit});
 \item \code{mark} and related functions (class \code{mark} from package
-	\pkg{RMark}). Note currently dredge can only manipulate \code{formula}
-	element of the argument \code{model.parameters}, keeping other its elements
+	\pkg{RMark}). Note currently \code{dredge} can only manipulate \code{formula}
+	element of the argument \code{model.parameters}, keeping its other elements
 	intact.
 }
 
