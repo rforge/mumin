@@ -55,6 +55,13 @@ data(Orthodont, package = "nlme")
 
 Orthodont$rand <- runif(nrow(Orthodont))
 fm2 <- lmer(log(distance) ~ rand*Sex*age + (1|Subject), data = Orthodont, REML = FALSE)
+
+
+#lme4:::predict.merMod(fm2, REform = NA) - predict.merMod(fm2)
+
+#MuMIn:::predict.merMod(fm2, se.fit = T)
+#predict.merMod(fm2, Orthodont)
+
 #######
 # summary(fm2)
 

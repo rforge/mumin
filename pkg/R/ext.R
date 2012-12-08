@@ -205,7 +205,6 @@ family.glimML <- function(object, ...) switch(object@method,
 `predict.lme` <- function (object, newdata, level, asList = FALSE,
 	na.action = na.fail, se.fit = FALSE, ...) {
 	cl <- match.call()
-	#print(match.call(expand.dots = T))
 	cl$se.fit <- NULL
 	cl[[1L]] <- call(":::", as.name("nlme"), as.name("predict.lme"))
 	res <- eval(cl, parent.frame())
@@ -213,13 +212,9 @@ family.glimML <- function(object, ...) switch(object@method,
 		warning("cannot calculate standard errors for level > 0")
 	if(se.fit && !missing(level) && length(level) == 1L && all(level == 0)) {
 		if (missing(newdata) || is.null(newdata)) {
-			#newdata <- object$data
 			X <- model.matrix(object, data = object$data)
 		} else {
 			tt <- delete.response(terms(eval(object$call$fixed)))
-			#xlev <- lapply(object$data, levels)
-			#xlev <- xlev[!sapply(xlev, is.null) & names(xlev) %in%
-						 #all.vars(attr(tt, "variables"))]
 			xlev <- .getXlevels(tt, model.frame(object, data = object$data))
 			X <- model.matrix(tt, data = newdata, contrasts.arg =
 							  object$contrasts, xlev = xlev)
@@ -230,41 +225,57 @@ family.glimML <- function(object, ...) switch(object@method,
 	} else res
 }
 
-`predict.mer` <- function (object, newdata, type = c("link", "response"),
-	se.fit = FALSE, ...) {
+`predict.mer` <- function (object, newdata, type = c("link", "response"), se.fit = FALSE, 
+    ...)
+.predict_glm(object, newdata, type, se.fit,
+		trms =  delete.response(attr(object@frame, "terms")),
+		coeff = object@fixef,
+		offset = object@offset,
+		...)
+
+`predict.merMod` <- function (object, newdata, type = c("link", "response"), se.fit = FALSE, 
+    ...)
+.predict_glm(object, newdata, type, se.fit,
+		trms = delete.response(terms(formula(object, fixed.only = TRUE))),
+		coeff = fixef(object),
+		offset = getME(object, "offset"),
+		...)
+
+
+.predict_glm <- function (object, newdata, type = c("link", "response"), se.fit = FALSE,
+		trms, coeff, offset, ...) {
+	
     type <- match.arg(type)
-
-	if (!missing(newdata) && !is.null(newdata)) {
-		tt <- delete.response(attr(object@frame, "terms"))
-		xlev <- .getXlevels(tt, model.frame(object))
-		X <- model.matrix(tt, data = newdata,
-			contrasts.arg = attr(model.matrix(object), "contrasts"),
-			xlev = xlev)
-		offset <- rep(0, nrow(X))
-        if (!is.null(off.num <- attr(tt, "offset")))
-            for (i in off.num) offset <- offset + eval(attr(tt,
+    if (!missing(newdata) && !is.null(newdata)) {
+        xlev <- .getXlevels(trms, model.frame(trms, data = newdata))
+        X <- model.matrix(trms, data = newdata, contrasts.arg = attr(model.matrix(object), 
+            "contrasts"), xlev = xlev)
+        offset <- rep(0, nrow(X))
+        if (!is.null(off.num <- attr(trms, "offset"))) 
+            for (i in off.num) offset <- offset + eval(attr(trms, 
                 "variables")[[i + 1L]], newdata)
-        if (!is.null(object@call$offset))
-            offset <- offset + eval(object@call$offset, newdata)
-	} else {
-		X <- model.matrix(object)
-		offset <- if(length(object@offset)) object@offset else NULL
-	}
-	coeff <- object@fixef
-	y <- (X %*% coeff)[, 1L]
-	if(!is.null(offset)) y <- y + offset
-	fam <- family(object)
-	if(se.fit) {
-		covmat <- as.matrix(vcov(object))
-		se <- sqrt(diag(X %*% covmat %*% t(X)))
-		if(type == "response" && inherits(fam, "family"))
-			list(fit = fam$linkinv(y), se.fit = se * abs(fam$mu.eta(y)))
-		else
-			list(fit = y, se.fit = se)
-	} else {
-		if(type == "response" && inherits(fam, "family")) fam$linkinv(y) else y
-	}
-	# TODO:
+		
+		cl <- getCall(object)
+        if (!is.null(cl$offset)) 
+            offset <- offset + eval(cl$offset, newdata)
+    } else {
+        X <- model.matrix(object)
+        if (!length(offset))  offset <- NULL
+    }
+    y <- (X %*% coeff)[, 1L]
+    if (!is.null(offset)) 
+        y <- y + offset
+    fam <- family(object)
+    if (se.fit) {
+        covmat <- as.matrix(vcov(object))
+        se <- sqrt(diag(X %*% covmat %*% t(X)))
+        if (type == "response" && inherits(fam, "family")) 
+            list(fit = fam$linkinv(y), se.fit = se * abs(fam$mu.eta(y)))
+        else list(fit = y, se.fit = se)
+    }
+    else {
+        if (type == "response" && inherits(fam, "family")) 
+            fam$linkinv(y)
+        else y
+    }
 }
-
-

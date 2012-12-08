@@ -32,11 +32,11 @@ These functions extract or calculate various values from provided fitted model
 	associated degrees of freedom when possible;
 
 \code{model.names} generates shorthand numeric names for one or several fitted
-models.
+models;
 
-\code{simplify.formula} rewrites the formula in shorthand notation (currently 
-only the factor crossing operator \code{*} is used, so that the expanded expression 
-such as \code{a + b + a:b} becomes \code{a * b}).
+\code{simplify.formula} rewrites the formula in shorthand notation (currently
+only the factor crossing operator \code{*} is recognized, so that expanded
+expression such as \code{a+b+a:b} becomes \code{a*b}).
 
 
 }
@@ -55,7 +55,7 @@ coefTable(model, ...)
 
 model.names(object, ..., labels = NULL)
 
-simplify.formula(f)
+simplify.formula(x)
 
 }
 \arguments{
@@ -76,10 +76,10 @@ simplify.formula(f)
 	In other functions often not used.
   }
   \item{type}{ for GEE models, the type of covariance estimator to calculate
-		returned standard errors on. Either "naive" or "robust" (sandwich).
-		}
+		returned standard errors on. Either \code{"naive"} or \code{"robust"}
+		(\sQuote{sandwich}). }
   \item{adjustSigma}{ See \code{\link[nlme]{summary.lme}}. }
-  \item{f}{a model formula.}
+
 }
 
 \details{

@@ -18,8 +18,8 @@ function(frm, except = NULL) {
 	res
 }
 
-`simplify.formula` <- function(f) {
-	tt <- terms(f)
+`simplify.formula` <- function(x) {
+	tt <- terms(as.formula(x))
 	fac <- attr(tt, "factors")
 	ord <- attr(tt, "order")
 	k <- seq_along(colnames(fac))
@@ -38,6 +38,14 @@ function(frm, except = NULL) {
 	return(f)
 }
 
+
+`expand_formula` <- function(x) {
+	x <- formula(x)
+	tt <- terms(x)
+	x[[length(x)]] <- reformulate(attr(tt, "term.labels"),
+		intercept = attr(tt,"intercept"))[[2L]]
+	x
+}
 
 
 # Hidden functions
@@ -291,7 +299,7 @@ function(frm, except = NULL) {
 
 `modelDescr` <- function(models, withModel = FALSE, withFamily = TRUE,
 	withArguments = TRUE, remove.cols = c("formula", "random", "fixed", "model",
-	"data", "family", "cluster")) {
+	"data", "family", "cluster", "model.parameters")) {
 
 	if(withModel) {
 		allTermsList <- lapply(models, function(x) {

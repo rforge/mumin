@@ -123,7 +123,9 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 # level is 0/FALSE - no checking, 1 - check if variables and functions exist,
 # >1 - reevaluate x and compare with original 
 `testUpdatedObj` <- function(cluster = NA, x, call = .getCall(x),
-	level = 1L) {
+	level = 1L, exclude = "subset") {
+	
+	if(isTRUE(level)) level <- 2L
 
 	if (level > 0L) {
 		xname <- deparse(substitute(x))
@@ -141,8 +143,9 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 		if(!is.null(call$data)) {
 			# get rid of formulas, as they are evaluated within 'data'
 			call <- call[!sapply(call, function(x) "~" %in% all.names(x))]
-			call$subset <- NULL
-		}
+			call[exclude] <- NULL
+		}	
+		
 		v <- all.vars(call, functions = FALSE)
 		if(!all(z <- unlist(csapply(v, "exists", where = 1L)))) {
 			z <- unique(names(z[!z]))

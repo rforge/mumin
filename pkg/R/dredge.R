@@ -34,8 +34,21 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		}
 	}
 
+	
+	LL <- .getLik(global.model)
+	logLik <- LL$logLik
+	lLName <- LL$name
+	
+	
+	
 	# *** Rank ***
 	rank.custom <- !missing(rank)
+	
+	if(!rank.custom && lLName == "qLik") {
+		rank <- "QIC"
+		warning("using 'QIC' instead of 'AICc'")
+	}
+	
 	rankArgs <- list(...)
 	IC <- .getRank(rank, rankArgs)
 	ICName <- as.character(attr(IC, "call")[[1L]])
@@ -54,10 +67,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			#sep = ""))
 	#}
 
-
-    LL <- .getLik(global.model)
-	logLik <- LL$logLik
-	lLName <- LL$name
 
 	# Check for na.omit
 	if (!is.null(gmCall$na.action) &&
@@ -256,8 +265,8 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	if(missing(marg.ex) || (!is.null(marg.ex) && is.na(marg.ex))) {
 		newArgs <- makeArgs(global.model, allTerms, rep(TRUE, length(allTerms)),
 							argsOptions)
-		formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs
-			else attr(newArgs, "formulaList")
+		formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
+			attr(newArgs, "formulaList")
 
 		marg.ex <- unique(unlist(lapply(sapply(formulaList, formulaAllowed,
 			simplify = FALSE), attr, "marg.ex")))
@@ -271,11 +280,15 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	prevJComb <- 0L
 	for(iComb in seq.int(ncomb)) {
 		jComb <- ceiling(iComb / nvariants)
+		#DebugPrint(iComb)
 		if(jComb != prevJComb) {
 			isok <- TRUE
 			prevJComb <- jComb
+			#DebugPrint(jComb)
+			#DebugPrint(hasSubset)
 			comb <- c(as.logical(intToBits(jComb - 1L)[comb.seq]), comb.sfx)
 			nvar <- sum(comb) - nInts
+			#DebugPrint(nInts)
 			
 			if(nvar > m.max || nvar < m.min ||
 			   switch(hasSubset,
@@ -293,7 +306,9 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
 				attr(newArgs, "formulaList")
 
+			
 			if(!all(vapply(formulaList, formulaAllowed, logical(1L), marg.ex)))  {
+				#DebugPrint("nie!")
 				isok <- FALSE; next;
 			}
 			if(!is.null(attr(newArgs, "problems"))) {

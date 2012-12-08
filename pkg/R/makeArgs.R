@@ -3,6 +3,28 @@
 # This is much a reverse action to getAllTerms
 makeArgs <- function(obj, termNames, comb, opt, ...) UseMethod("makeArgs", obj)
 
+# opt == argsOptions
+
+#argsOptions <- list(
+#	response = attr(allTerms0, "response"),
+#	intercept = nInts,
+#	interceptLabel = interceptLabel,
+#	random = attr(allTerms0, "random"),
+#	gmCall = gmCall,
+#	gmEnv = gmEnv,
+#	allTerms = allTerms0,
+#	gmCoefNames = gmCoefNames,
+#	gmDataHead = if(!is.null(gmCall$data)) {
+#		if(eval(call("is.data.frame", gmCall$data), gmEnv))
+#			eval(call("head", gmCall$data, 1L), gmEnv) else gmCall$data
+#		} else NULL,
+#	gmFormulaEnv = gmFormulaEnv
+#	)
+
+
+
+
+
 .getCoefNames <- function(formula, data, contrasts, envir = parent.frame()) {
 	colnames(eval(call("model.matrix.default",
 		object = formula, data = data, contrasts.arg = contrasts), envir = envir))

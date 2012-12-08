@@ -1,7 +1,7 @@
 `pdredge` <-
 function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	rank = "AICc", fixed = NULL, m.max = NA, m.min = 0, subset, marg.ex = NULL,
-	trace = FALSE, varying, extra, ct.args = NULL, check = FALSE,  ...) {
+	trace = FALSE, varying, extra, ct.args = NULL, check = FALSE, ...) {
 #FIXME: m.max cannot be 0 - e.g. for intercept only model
 
 	qlen <- 25L

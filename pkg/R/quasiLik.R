@@ -113,7 +113,7 @@ function(x, typeR = FALSE) {
 	} else getQIC(object, typeR = typeR)[1L]
 }
 
-`QICu` <- function (object, ..., typeR = TRUE) {
+`QICu` <- function (object, ..., typeR = FALSE) {
 	if (length(list(...))) {
 		res <- sapply(list(object, ...), getQIC, typeR = typeR)
 		val <- as.data.frame(t(res[2L,, drop = FALSE]))
