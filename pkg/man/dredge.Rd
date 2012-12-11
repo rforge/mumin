@@ -211,14 +211,14 @@ of interest and its scientific setting} (Burnham and Anderson, 2002).
 \seealso{
 
 \code{\link{pdredge}} is a parallelized version of this function, which may be
-	faster if execution of \code{\link{dredge}} takes very long.
+	faster.
 
 \code{\link{get.models}}, \code{\link{model.avg}}.
 
 Possible alternatives: \code{\link[glmulti]{glmulti}} in package \pkg{glmulti}
 and \code{\link[bestglm]{bestglm}} (\pkg{bestglm}),
 or \code{\link[AICcmodavg]{aictab}} (\pkg{AICcmodavg}) and
-\code{\link[bbmle]{ICtab}} (\pkg{bbmle}) for "hand-picked" model selection tables.
+\code{\link[bbmle]{ICtab}} (\pkg{bbmle}) for \dQuote{hand-picked} model selection tables.
 
 \code{\link[leaps]{regsubsets}} in package \pkg{leaps} also performs all-subsets
 regression.
