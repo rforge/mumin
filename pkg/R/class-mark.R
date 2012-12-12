@@ -49,7 +49,7 @@
 }
 
 `formula.mark` <- function (x, expand = TRUE, ...) {
-	param <- x$model.parameters
+	param <- if(is.null(x$model.parameters)) x$parameters else  x$model.parameters
 	f <- lapply(param, "[[", 'formula')
 	f <- f[!vapply(f, is.null, logical(1L))]
 	
@@ -111,7 +111,7 @@
 	res
 }
 
-makeArgs.mark <- function(obj, termNames, comb, opt, ...) {
+`makeArgs.mark` <- function(obj, termNames, comb, opt, ...) {
 	
 	interceptLabel <- "(Intercept)"
 	termNames <- sub(interceptLabel, "1", termNames, fixed = TRUE)
@@ -132,9 +132,22 @@ makeArgs.mark <- function(obj, termNames, comb, opt, ...) {
 		res
 	})
 	
-	mpar <- obj$model.parameters
+	
+	
+	mpar <- if(is.null(obj$model.parameters))
+		eval(opt$gmCall$model$parameters) else
+		obj$model.parameters
 	for(i in names(mpar)) mpar[[i]]$formula <- formulaList[[i]]
-	ret <- list(model.parameters = mpar)
+	#ret <- list(model.parameters = mpar)
+	
+	if(opt$gmCall[[1L]] == "run.mark.model") {
+		arg.model <- opt$gmCall$model
+		arg.model$parameters <- mpar
+		ret <- list(model = arg.model)
+	} else {
+		ret <- list(model.parameters = mpar)
+	}
+	
 	attr(ret, "formulaList") <- formulaList
 	ret
 }

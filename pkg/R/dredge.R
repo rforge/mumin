@@ -32,6 +32,12 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			} else gmCall[is.dotted] <-
 				substitute(global.model)[names(gmCall[is.dotted])]
 		}
+		
+		## object from 'run.mark.model' has $call of 'make.mark.model' - fixing it here:
+		if(inherits(global.model, "mark") && gmCall[[1]] == "make.mark.model") {
+			gmCall <- call("run.mark.model", model = gmCall, invisible = TRUE)
+		}
+		
 	}
 
 	
@@ -270,8 +276,8 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 		marg.ex <- unique(unlist(lapply(sapply(formulaList, formulaMargChk,
 			simplify = FALSE), attr, "marg.ex")))
-		if(!length(marg.ex)) marg.ex <- NULL
-		#cat("Marginality exceptions:", marg.ex, "\n")
+		if(!length(marg.ex)) marg.ex <- NULL else
+			cat("Marginality exceptions:", sQuote(marg.ex), "\n")
 	}
 	###
 
@@ -308,7 +314,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 			
 			if(!all(vapply(formulaList, formulaMargChk, logical(1L), marg.ex)))  {
-				#DebugPrint("nie!")
 				isok <- FALSE; next;
 			}
 			if(!is.null(attr(newArgs, "problems"))) {
