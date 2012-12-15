@@ -227,21 +227,36 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 					stop("'subset' formula should be one-sided")
 				subset <- subset[[2L]]
 			}
-			if(!all(all.vars(subset) %in% allTerms))
-				warning("not all terms in 'subset' exist in 'global.model'")
 			subset <- as.expression(subset)
+			#subsetExpr <- as.expression(.subst4Vec(subset[[1L]], allTerms, as.name("comb")))
+			#subsetExpr[[1L]] <- substVec(subsetExpr[[1L]], names(variant.names), as.name("cVar"))
 			
-			subsetExpr <- as.expression(eval(call("substitute", subset[[1L]],
-				env = structure(lapply(1L:length(allTerms), function(i) call("[", as.name("comb"), i)),
-					names = allTerms)), envir = NULL))
+			ssValidNames <- c("cVar", "comb", "*nvar*")
+			subsetExpr <- .subst4Vec(subset[[1L]], allTerms, as.name("comb"))
+			subsetExpr <- .substFun4Fun(subsetExpr, "V", function(x, cVar, fn) {
+				if(length(x) > 2L)
+					warning("discarding extra arguments for 'V' in 'subset' expression")
+				i <- which(fn == x[[2L]])[1L]
+				if(is.na(i)) stop(sQuote(x[[2]]), " is not a valid name of 'varying' element")
+				call("[[", cVar, i)
+			}, as.name("cVar"), varying.names)
+			if(!all(all.vars(subsetExpr) %in% ssValidNames))
+				subsetExpr <- .subst4Vec(subsetExpr, varying.names, as.name("cVar"), fun = "[[")
+			ssVars <- all.vars(subsetExpr)
+			okVars <- ssVars %in% ssValidNames
+			if(!all(okVars)) stop("unrecognized names in 'subset' expression: ",
+				prettyEnumStr(ssVars[!okVars]))
 			
-			hasSubset <- 3L # subset as expression
+			hasSubset <- if(any(ssVars == "cVar")) 4L else # subset as expression
+				3L # subset as expression using 'varying' variables
+
 			ssEnv <- new.env(parent = .GlobalEnv)
 		}
+	#return(subsetExpr)
+
 	} # END: manage 'subset'
 
-	#return(subset)
-	
+
 	comb.sfx <- rep(TRUE, n.fixed)
 	comb.seq <- if(nov != 0L) seq_len(nov) else 0L
 	k <- 0L
@@ -284,26 +299,28 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	retColIdx <- if(nvarying) -n.vars - seq_len(nvarying) else TRUE
 
 	prevJComb <- 0L
+	#DebugPrint(ncomb)
+	#DebugPrint(nvariants)
 	for(iComb in seq.int(ncomb)) {
 		jComb <- ceiling(iComb / nvariants)
 		#DebugPrint(iComb)
+		#DebugPrint(jComb)
 		if(jComb != prevJComb) {
 			isok <- TRUE
 			prevJComb <- jComb
-			#DebugPrint(jComb)
+
 			#DebugPrint(hasSubset)
 			comb <- c(as.logical(intToBits(jComb - 1L)[comb.seq]), comb.sfx)
 			nvar <- sum(comb) - nInts
 			#DebugPrint(nInts)
-			
+				
 			if(nvar > m.max || nvar < m.min ||
 			   switch(hasSubset,
 					FALSE,
-					!all(subset[comb, comb], na.rm = TRUE), {
-						assign("comb", comb, ssEnv)
-						assign("*nvar*", nvar, ssEnv)
-						!eval(subsetExpr, envir = ssEnv, enclos = parent.frame())
-					}
+					!all(subset[comb, comb], na.rm = TRUE),
+					!.evalExprIn(subsetExpr, env = ssEnv, enclos = parent.frame(),
+						comb = comb, `*nvar*` = nvar),
+					FALSE
 			   )) {
 				isok <- FALSE
 				next;
@@ -329,8 +346,16 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		if(!isok) next;
 		## --- Variants ---------------------------
 		clVariant <- cl
-		if (nvarying) clVariant[varying.names] <-
-			fvarying[variants[(iComb - 1L) %% nvariants + 1L, ]]
+		if (nvarying) {
+			cVar <- fvarying[variants[(iComb - 1L) %% nvariants + 1L, ]]
+			if(hasSubset == 4L &&
+				!.evalExprIn(subsetExpr, env = ssEnv, enclos = parent.frame(),
+					comb = comb, `*nvar*` = nvar, cVar = cVar))
+						next;
+			clVariant[varying.names] <- cVar
+		}
+		
+		
 
 		if(trace) {
 			cat(iComb, ": "); print(clVariant)
@@ -387,17 +412,16 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 					calls <- c(calls, vector("list", nadd))
 				ord <- c(ord, integer(nadd))
 			}
-
-			ord[k] <- iComb
 			ret[k, retColIdx] <- row1
 			coefTables[[k]] <- attr(mcoef1, "coefTable")
-		} else { # if evaluate
+		} else { # if !evaluate
 			k <- k + 1L # all OK, add model to table
 		}
+		ord[k] <- iComb
 		calls[[k]] <- clVariant
 	} ### for (iComb ...)
 
-	if(k == 0L) stop("the result is empty")
+	if(k == 0L) stop("result is empty")
 	names(calls) <- ord
 	if(!evaluate) return(calls[seq_len(k)])
 
@@ -431,8 +455,11 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	if(nvarying) {
 		variant.names <- lapply(varying, function(x)
 			make.unique(if(is.null(names(x))) as.character(x) else names(x)))
+		variant.names.vec <- unlist(variant.names)
 		for (i in varying.names) ret[, i] <-
-			factor(ret[, i], labels = variant.names[[i]])
+			factor(ret[, i],
+				levels = match(variant.names[[i]], variant.names.vec),
+				labels = variant.names[[i]])
 	}
 
 	o <- order(ret[, ICName], decreasing = FALSE)

@@ -62,6 +62,54 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 	return(res)
 }
 
+# substitute function calls in 'e'. 'name' is replaced by 'fun.to'.
+`.substFun` <- function(e, name, fun.to, ignore.I = TRUE) {
+	if(is.expression(e)) e <- e[[1L]]
+	n <- length(e)
+	if(n == 1L && !is.call(e)) return(e)
+	if(ignore.I && e[[1L]] == "I") return(e)
+	if(n != 1L) for(i in 2L:n) e[[i]] <- .substFun(e[[i]], name, fun.to, ignore.I = ignore.I)
+	if(e[[1L]] == name) e[[1L]] <- as.name(fun.to)
+	return(e)
+}
+
+# Debug version of substFun4Fun
+#`D_substFunFun` <- function(e, name, func = identity, ..., level = 1) {
+#	if(is.expression(e)) e <- e[[1L]]
+#	n <- length(e)
+#	if(n == 1L && !is.call(e)) return(e)
+#	cat(level, ":"); print(e)
+#	if(n != 1L) for(i in 2L:n) e[[i]] <- .substFunFun(e[[i]], name, func, ..., level = level + 1)
+#	if(e[[1L]] == name) e <- func(e, ...)
+#	return(e)
+#}
+
+# substitute function calls in 'e'. 'func' must take care of the substitution job.
+`.substFun4Fun` <- function(e, name, func = identity, ...) {
+	if(is.expression(e)) e <- e[[1L]]
+	n <- length(e)
+	if(n == 1L) { if (!is.call(e)) return(e) } else
+		for(i in 2L:n) e[[i]] <- .substFun4Fun(e[[i]], name, func, ...)
+	if(e[[1L]] == name) e <- func(e, ...)
+	return(e)
+}
+
+# evaluate 'expr' in 'env' after adding variables passed as ...
+.evalExprIn <- function(expr, env, enclos, ...) {
+	list2env(list(...), env)
+	eval(expr, envir = env, enclos = enclos)
+}
+
+
+# substitute names for varName[1], varName[2], ... in expression
+`.subst4Vec` <- function(expr, names, varName, n = length(names), fun = "[") {
+	eval(call("substitute", expr,
+		env = structure(lapply(seq_len(n), function(i) call(fun, varName, i)), names = names)),
+		envir = NULL)
+}
+
+
+
 `prettyEnumStr` <- function(x, sep = ", ", sep.last = gettext(" and "), quote = TRUE) {
 	n <- length(x)
 	if(is.function(quote))

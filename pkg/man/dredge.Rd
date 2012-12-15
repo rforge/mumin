@@ -131,32 +131,49 @@ If \code{global.model} uses such a formula and \code{marg.ex} is missing or
 }
 
 \subsection{Subsetting}{
-There are three ways to constrain the resulting set of models: setting limits to the
-number of terms in a model with \code{m.max} and \code{m.min}, 
-binding term(s) to all models with \code{fixed}, and more complex rules can be
-applied using argument \code{subset}.
+There are three ways to constrain the resulting set of models: setting limits to
+the number of terms in a model with \code{m.max} and \code{m.min}, binding
+term(s) to all models with \code{fixed}, and more complex rules can be applied
+using argument \code{subset}. To be included in the selection table, the model
+formulation must satisfy all these conditions.
+
+%%Terms in \code{fixed} argument are applied before the combinations are
+%%generated, therefore more efficient than \code{subset}.
 
 \code{subset} can take either a form of an expression or a matrix. The latter
 should be a lower triangular matrix with logical values, where columns and rows
-correspond to \code{global.model} terms. Value \code{subset["a", "b"] == FALSE} will
-exclude any model containing both "a" and "b". Values other than 
+correspond to \code{global.model} terms. Value \code{subset["a", "b"] == FALSE}
+will exclude any model containing both "a" and "b". Values other than
 \code{FALSE} (or \code{0}) are taken as \code{TRUE}.
 
-In the form of \code{expression}, the argument \code{subset} acts in a similar 
-fashion to that in the function \code{subset} for \code{data.frames}: model 
-terms can be referred to by name as variables in the expression, with the difference 
-being that they are always logical (i.e. \code{TRUE} if a term exists in the model). 
-The expression can contain any of the \code{global.model} terms (use 
-\code{getAllTerms(global.model)} to list them). It can have a form of an unevaluated 
-\code{call}, \code{expression} object, or a one sided \code{formula}. 
-See \sQuote{Examples}.
+In the form of \code{expression}, the argument \code{subset} acts in a similar
+fashion to that in the function \code{subset} for \code{data.frames}: model
+terms can be referred to by name as variables in the expression, with the
+difference being that they are always logical (i.e. \code{TRUE} if a term exists
+in the model).
+
+The expression can contain any of the \code{global.model} terms (use
+\code{getAllTerms(global.model)} to list them), as well as names of the items of
+the \code{varying} argument. To avoid ambiguity (i.e. when names of
+\code{varying} also exist in \code{global.model} terms the latter take
+precedence), \code{varying} variables in \code{subset} expression should be
+enclosed in \code{V()} (e.g. \code{subset = V(family) == "Gamma"} assuming that
+\code{varying} is something like \code{list(family = c("gaussian",
+"Gamma"))}).
+
+Additional variable that can be used in \code{subset} expression is
+\code{`*nvar*`} (needs to be backtick-quoted). It is equal to number of terms in
+the model (\bold{not} the number of estimated parameters \emph{K})
+
+\code{subset} expression can have a form of an unevaluated \code{call},
+\code{expression} object, or a one sided \code{formula}. See \sQuote{Examples}.
 Compound model terms (such as \sQuote{as-is} expressions within \code{I()} or
 smooths in \code{gam}) should be treated as non-syntactic names and enclosed in
 back-ticks (e.g. \code{subset = `s(x, k = 2)` || `I(log(x))`}, see
 \link[base]{Quotes}). Mind the spacing, names must match exactly the term names
 in model's formula. To simply keep certain terms in all models, use of argument
-\code{fixed} is
-more efficient.
+\code{fixed} is more efficient.
+
 }
 
 \subsection{Missing values}{

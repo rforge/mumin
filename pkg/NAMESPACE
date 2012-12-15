@@ -243,3 +243,9 @@ S3method(getAllTerms, mark)
 S3method(logLik, mark)
 S3method(makeArgs, mark)
 S3method(nobs, mark)
+
+S3method(coefTable, splm)
+S3method(coeffs, splm)
+S3method(nobs, splm)
+S3method(logLik, splm)
+

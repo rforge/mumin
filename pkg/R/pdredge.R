@@ -62,10 +62,21 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 			} else gmCall[is.dotted] <-
 				substitute(global.model)[names(gmCall[is.dotted])]
 		}
+		## object from 'run.mark.model' has $call of 'make.mark.model' - fixing it here:
+		if(inherits(global.model, "mark") && gmCall[[1]] == "make.mark.model") {
+			gmCall <- call("run.mark.model", model = gmCall, invisible = TRUE)
+		}
 	}
 
+    LL <- .getLik(global.model)
+	logLik <- LL$logLik
+	lLName <- LL$name
 	# *** Rank ***
 	rank.custom <- !missing(rank)
+	if(!rank.custom && lLName == "qLik") {
+		rank <- "QIC"
+		warning("using 'QIC' instead of 'AICc'")
+	}
 	rankArgs <- list(...)
 	IC <- .getRank(rank, rankArgs)
 	ICName <- as.character(attr(IC, "call")[[1L]])
@@ -80,9 +91,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 
 
 	
-    LL <- .getLik(global.model)
-	logLik <- LL$logLik
-	lLName <- LL$name
+
 
 	# parallel: check whether the models would be identical:
 	if(doParallel && check) testUpdatedObj(cluster, global.model, gmCall, level = check)
@@ -239,20 +248,32 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 					stop("'subset' formula should be one-sided")
 				subset <- subset[[2L]]
 			}
-			if(!all(all.vars(subset) %in% allTerms))
-				warning("not all terms in 'subset' exist in 'global.model'")
 			subset <- as.expression(subset)
+			#subsetExpr <- as.expression(.subst4Vec(subset[[1L]], allTerms, as.name("comb")))
+			#subsetExpr[[1L]] <- substVec(subsetExpr[[1L]], names(variant.names), as.name("cVar"))
 			
-			subsetExpr <- as.expression(eval(call("substitute", subset[[1L]],
-				env = structure(lapply(1L:length(allTerms), function(i) call("[", as.name("comb"), i)),
-					names = allTerms)), envir = NULL))
+			ssValidNames <- c("cVar", "comb", "*nvar*")
+			subsetExpr <- .subst4Vec(subset[[1L]], allTerms, as.name("comb"))
+			subsetExpr <- .substFun4Fun(subsetExpr, "V", function(x, cVar, fn) {
+				if(length(x) > 2L)
+					warning("discarding extra arguments for 'V' in 'subset' expression")
+				i <- which(fn == x[[2L]])[1L]
+				if(is.na(i)) stop(sQuote(x[[2]]), " is not a valid name of 'varying' element")
+				call("[[", cVar, i)
+			}, as.name("cVar"), varying.names)
+			if(!all(all.vars(subsetExpr) %in% ssValidNames))
+				subsetExpr <- .subst4Vec(subsetExpr, varying.names, as.name("cVar"), fun = "[[")
+			ssVars <- all.vars(subsetExpr)
+			okVars <- ssVars %in% ssValidNames
+			if(!all(okVars)) stop("unrecognized names in 'subset' expression: ",
+				prettyEnumStr(ssVars[!okVars]))
 			
-			hasSubset <- 3L # subset as expression
+			hasSubset <- if(any(ssVars == "cVar")) 4L else # subset as expression
+				3L # subset as expression using 'varying' variables
+
 			ssEnv <- new.env(parent = .GlobalEnv)
 		}
 	} # END: manage 'subset'
-
-	#return(subset)
 
 	comb.sfx <- rep(TRUE, n.fixed)
 	comb.seq <- if(nov != 0L) seq_len(nov) else 0L
@@ -281,13 +302,13 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	if(missing(marg.ex) || (!is.null(marg.ex) && is.na(marg.ex))) {
 		newArgs <- makeArgs(global.model, allTerms, rep(TRUE, length(allTerms)),
 							argsOptions)
-		formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs
-			else attr(newArgs, "formulaList")
+		formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
+			attr(newArgs, "formulaList")
 
 		marg.ex <- unique(unlist(lapply(sapply(formulaList, formulaMargChk,
 			simplify = FALSE), attr, "marg.ex")))
-		if(!length(marg.ex)) marg.ex <- NULL
-		#cat("Marginality exceptions:", marg.ex, "\n")
+		if(!length(marg.ex)) marg.ex <- NULL else
+			cat("Marginality exceptions:", sQuote(marg.ex), "\n")
 	}
 	###
 
@@ -334,11 +355,9 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 					# 1 - no subset, 2 - matrix, 3 - expression
 					TRUE,                                    # 1 
 					all(subset[comb, comb], na.rm = TRUE),   # 2
-					{
-						assign("comb", comb, ssEnv)
-						assign("*nvar*", nvar, ssEnv)
-						eval(subsetExpr, envir = ssEnv, enclos = parent.frame())
-					}  # 3
+					.evalExprIn(subsetExpr, env = ssEnv, enclos = parent.frame(),
+						comb = comb, `*nvar*` = nvar),		 # 3
+					TRUE
 					)
 				) {
 
@@ -360,19 +379,28 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		if(isok) {
 			## --- Variants ---------------------------
 			clVariant <- cl
-			if(nvarying) clVariant[varying.names] <-
-				fvarying[variants[(iComb - 1L) %% nvariants + 1L, ]]
-
-			if(trace) {
-				cat(iComb, ": "); print(clVariant)
-				utils::flush.console()
+			isok2 <- TRUE
+			if(nvarying) {
+				cVar <- fvarying[variants[(iComb - 1L) %% nvariants + 1L, ]]
+				isok2 <- (hasSubset != 4L) || .evalExprIn(subsetExpr, env = ssEnv,
+					enclos = parent.frame(), comb = comb, `*nvar*` = nvar,
+					cVar = cVar)
+				clVariant[varying.names] <- cVar
 			}
-			if(evaluate) {
-				qi <- qi + 1L
-				queued[[(qi)]] <- list(call = clVariant, id = iComb)
-			} else { # if !evaluate
-				k <- k + 1L # all OK, add model to table
-				calls[[k]] <- clVariant
+			
+			if(isok2) {
+				if(trace) {
+					cat(iComb, ": "); print(clVariant)
+					utils::flush.console()
+				}
+				if(evaluate) {
+					qi <- qi + 1L
+					queued[[(qi)]] <- list(call = clVariant, id = iComb)
+				} else { # if !evaluate
+					k <- k + 1L # all OK, add model to table
+					calls[[k]] <- clVariant
+					ord[k] <- iComb
+				}
 			}
 		} # if isok
 
@@ -472,8 +500,11 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	if(nvarying) {
 		variant.names <- lapply(varying, function(x)
 			make.unique(if(is.null(names(x))) as.character(x) else names(x)))
+		variant.names.vec <- unlist(variant.names)
 		for (i in varying.names) ret[, i] <-
-			factor(ret[, i], labels = variant.names[[i]])
+			factor(ret[, i],
+				levels = match(variant.names[[i]], variant.names.vec),
+				labels = variant.names[[i]])
 	}
 
 	o <- order(ret[, ICName], decreasing = FALSE)

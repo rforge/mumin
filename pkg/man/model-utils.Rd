@@ -70,7 +70,7 @@ model.names(object, ..., labels = NULL, use.letters = FALSE)
   }
   \item{use.letters}{logical, whether letters should be used instead of numeric codes. }
   
-  \item{type}{ for GEE models, the type of covariance estimator to calculate
+  \item{type}{ for \acronym{GEE} models, the type of covariance estimator to calculate
 		returned standard errors on. Either \code{"naive"} or \code{"robust"}
 		(\sQuote{sandwich}). }
   \item{adjustSigma}{ See \code{\link[nlme]{summary.lme}}. }

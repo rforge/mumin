@@ -24,6 +24,7 @@ functions include those returned by:
 \item \code{hurdle}, \code{zeroinfl} (\pkg{pscl});
 \item \code{negbin}, \code{betabin} (class \code{glimML}, package \pkg{aod});
 \item \code{sarlm}, \code{spautolm} (\pkg{spdep});
+\item \code{spml} (if fitted by \acronym{ML}, \pkg{splm});
 \item \code{coxph}, \code{survreg} (\pkg{survival});
 \item \code{coxme}, \code{lmekin} (\pkg{coxme});
 \item \code{rq} (\pkg{quantreg});
