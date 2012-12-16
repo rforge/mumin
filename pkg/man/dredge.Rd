@@ -160,17 +160,17 @@ precedence when identical to names of \code{varying}), so to avoid ambiguity
 \code{V()} (e.g. \code{subset = V(family) == "Gamma"} assuming that
 \code{varying} is something like \code{list(family = c(..., "Gamma"))}).
 
-If element names in \code{varying} are missing, call and symbol elements are
-represented as character values (via \code{deparse}), and everything except
-numeric, logical, character and \code{NULL} values is replaced by item numbers
-(e.g. \code{varying = list(family = list(..., Gamma)} should be referred to as
-\code{subset = V(family) == 2}. This can quickly become confusing, therefore it
-is recommended to use named lists in most cases. \code{demo(dredge.varying)}
-provides examples.
+If element names in \code{varying} are missing, the elements themselves are 
+used. Call and symbol elements are represented as character values (via 
+\code{deparse}), and everything except numeric, logical, character and 
+\code{NULL} values is replaced by item numbers (e.g. \code{varying = 
+list(family = list(..., Gamma)} should be referred to as \code{subset = 
+V(family) == 2}. This can quickly become confusing, therefore it is recommended 
+to use named lists in most cases. \code{demo(dredge.varying)} provides examples.
 
 Additional variable that can be used in \code{subset} expression is
 \code{`*nvar*`} (needs to be backtick-quoted). It is equal to number of terms in
-the model (\bold{not} the number of estimated parameters \emph{K})
+the model (\bold{not} the number of estimated parameters \emph{K}).
 
 \code{subset} expression can have a form of an unevaluated \code{call},
 \code{expression} object, or a one sided \code{formula}. See \sQuote{Examples}.
@@ -258,7 +258,7 @@ subset(dd, delta < 4)
 
 # Visualize the model selection table:
 if(require(graphics))
-plot(dd)
+    plot(dd)
 
 
 # Model average models with delta AICc < 4
