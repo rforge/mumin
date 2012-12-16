@@ -73,23 +73,14 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 	return(e)
 }
 
-# Debug version of substFun4Fun
-#`D_substFunFun` <- function(e, name, func = identity, ..., level = 1) {
-#	if(is.expression(e)) e <- e[[1L]]
-#	n <- length(e)
-#	if(n == 1L && !is.call(e)) return(e)
-#	cat(level, ":"); print(e)
-#	if(n != 1L) for(i in 2L:n) e[[i]] <- .substFunFun(e[[i]], name, func, ..., level = level + 1)
-#	if(e[[1L]] == name) e <- func(e, ...)
-#	return(e)
-#}
 
 # substitute function calls in 'e'. 'func' must take care of the substitution job.
 `.substFun4Fun` <- function(e, name, func = identity, ...) {
 	if(is.expression(e)) e <- e[[1L]]
 	n <- length(e)
-	if(n == 1L) { if (!is.call(e)) return(e) } else
-		for(i in 2L:n) e[[i]] <- .substFun4Fun(e[[i]], name, func, ...)
+	if(n == 0L) return(e) else if (n == 1L) {
+		if (!is.call(e)) return(e)
+	} else for(i in 2L:n) e[i] <- list(.substFun4Fun(e[[i]], name, func, ...))
 	if(e[[1L]] == name) e <- func(e, ...)
 	return(e)
 }
@@ -108,6 +99,19 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 		envir = NULL)
 }
 
+# tries to make a list of element names
+`.makeListNames` <- function(x) {
+	nm <- names(x)
+	lapply(seq_along(x), function(i) {
+		if(is.null(nm) || nm[i] == "") {
+			switch(mode(x[[i]]),
+				call = deparse(x[[i]], control = NULL),
+				symbol =, name = as.character(x[[i]]),
+				NULL =, logical =, numeric =, complex =, character = x[[i]], i
+				)
+		} else nm[i]
+	})
+}
 
 
 `prettyEnumStr` <- function(x, sep = ", ", sep.last = gettext(" and "), quote = TRUE) {

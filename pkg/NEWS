@@ -5,6 +5,8 @@ Added support for 'splm' models (from package 'splm').
 (p)dredge: 'subset' can use 'varying' variables (as V(varying.variable)) and
 	number of model terms (as `*nvar*`). This allows for better fine-tuning of
 	the selection table.
+	'fixed' argument can be set to TRUE to fix all terms of 'global.model'.
+New demos: "dredge.varying", "dredge.subset" and "gees".
 
 Version: 1.8.2 (2012-12-00)
 Added support for models of class 'mark' (from package 'RMark'). 'dredge'

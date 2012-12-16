@@ -153,13 +153,20 @@ difference being that they are always logical (i.e. \code{TRUE} if a term exists
 in the model).
 
 The expression can contain any of the \code{global.model} terms (use
-\code{getAllTerms(global.model)} to list them), as well as names of the items of
-the \code{varying} argument. To avoid ambiguity (i.e. when names of
-\code{varying} also exist in \code{global.model} terms the latter take
-precedence), \code{varying} variables in \code{subset} expression should be
-enclosed in \code{V()} (e.g. \code{subset = V(family) == "Gamma"} assuming that
-\code{varying} is something like \code{list(family = c("gaussian",
-"Gamma"))}).
+\code{getAllTerms(global.model)} to list them), as well as names of the
+\code{varying} argument items. Names of \code{global.model} terms take
+precedence when identical to names of \code{varying}), so to avoid ambiguity
+\code{varying} variables in \code{subset} expression should be enclosed in
+\code{V()} (e.g. \code{subset = V(family) == "Gamma"} assuming that
+\code{varying} is something like \code{list(family = c(..., "Gamma"))}).
+
+If element names in \code{varying} are missing, call and symbol elements are
+represented as character values (via \code{deparse}), and everything except
+numeric, logical, character and \code{NULL} values is replaced by item numbers
+(e.g. \code{varying = list(family = list(..., Gamma)} should be referred to as
+\code{subset = V(family) == 2}. This can quickly become confusing, therefore it
+is recommended to use named lists in most cases. \code{demo(dredge.varying)}
+provides examples.
 
 Additional variable that can be used in \code{subset} expression is
 \code{`*nvar*`} (needs to be backtick-quoted). It is equal to number of terms in

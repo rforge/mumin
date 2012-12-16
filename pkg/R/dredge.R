@@ -106,6 +106,8 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			if (fixed[[1L]] != "~" || length(fixed) != 2L)
 				warning("'fixed' should be a one-sided formula")
 			fixed <- as.vector(getAllTerms(fixed))
+		} else if (identical(fixed, TRUE)) {
+			fixed <- as.vector(allTerms[!(allTerms %in% interceptLabel)])
 		} else if (!is.character(fixed)) {
 			stop ("'fixed' should be either a character vector with"
 				  + " names of variables or a one-sided formula")
@@ -128,11 +130,18 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	if(!missing(varying) && !is.null(varying)) {
 		nvarying <- length(varying)
 		varying.names <- names(varying)
-		fvarying <- unlist(varying, recursive = FALSE)
+		fvarying <- unlist(varying, recursive = FALSE, use.names = FALSE)
 		vlen <- vapply(varying, length, 1L)
 		nvariants <- prod(vlen)
 		variants <- as.matrix(expand.grid(split(seq_len(sum(vlen)),
 			rep(seq_along(varying), vlen))))
+		
+		variant.Vvals <- lapply(varying, .makeListNames)
+		variant.names <- lapply(variant.Vvals, vapply, function(x) if(is.character(x)) x else
+			deparse(x, control = NULL, width.cutoff = 20L)[1L], character(1L))
+		flat.variant.Vvals <- unlist(variant.Vvals, recursive = FALSE, use.names = FALSE)
+		variant.names.vec <- unlist(variant.names, use.names = FALSE)
+		
 	} else {
 		variants <- varying.names <- NULL
 		nvariants <- 1L
@@ -174,7 +183,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	ncomb <- (2L ^ nov) * nvariants
 
 	if(nov > 31L) stop(gettextf("number of predictors (%d) exceeds allowed maximum (31)",
-								nov, domain = "MuMIn"))
+								nov, domain = "R-MuMIn"))
 	#if(nov > 10L) warning(gettextf("%d predictors will generate up to %.0f combinations", nov, ncomb))
 	nmax <- ncomb * nvariants
 	if(evaluate) {
@@ -252,8 +261,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 			ssEnv <- new.env(parent = .GlobalEnv)
 		}
-	#return(subsetExpr)
-
 	} # END: manage 'subset'
 
 
@@ -347,15 +354,14 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		## --- Variants ---------------------------
 		clVariant <- cl
 		if (nvarying) {
-			cVar <- fvarying[variants[(iComb - 1L) %% nvariants + 1L, ]]
+			cvi <- variants[(iComb - 1L) %% nvariants + 1L, ]
+
 			if(hasSubset == 4L &&
 				!.evalExprIn(subsetExpr, env = ssEnv, enclos = parent.frame(),
-					comb = comb, `*nvar*` = nvar, cVar = cVar))
+					comb = comb, `*nvar*` = nvar, cVar = flat.variant.Vvals[cvi]))
 						next;
-			clVariant[varying.names] <- cVar
+			clVariant[varying.names] <- fvarying[cvi]
 		}
-		
-		
 
 		if(trace) {
 			cat(iComb, ": "); print(clVariant)
@@ -453,13 +459,12 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	colnames(ret) <- c(allTerms, varying.names, extraNames, "df", lLName, ICName)
 
 	if(nvarying) {
-		variant.names <- lapply(varying, function(x)
-			make.unique(if(is.null(names(x))) as.character(x) else names(x)))
-		variant.names.vec <- unlist(variant.names)
+		vnum <- split(seq_along(variant.names.vec), rep(seq_len(nvarying),
+			vapply(variant.names, length, 0L)))
+		names(vnum) <- varying.names
 		for (i in varying.names) ret[, i] <-
-			factor(ret[, i],
-				levels = match(variant.names[[i]], variant.names.vec),
-				labels = variant.names[[i]])
+			factor(ret[, i], levels = vnum[[i]], labels = variant.names[[i]])
+			
 	}
 
 	o <- order(ret[, ICName], decreasing = FALSE)

@@ -7,12 +7,13 @@ require(MuMIn)
 library(nlme)
 
 fm1Dial.gls <- gls(rate ~(pressure + I(pressure^2) + I(pressure^3))*QB,
-      Dialyzer, method="ML")
+      Dialyzer, method = "ML")
 
 varying <- list(
 	correlation = alist(
-		AR1_0.771=corAR1(0.771, form = ~ 1 | Subject), 	AR1=corAR1(), NULL),
-	weights = alist(vp.press=varPower(form = ~ pressure), NULL)
+		AR1_0.771 = corAR1(0.771, form = ~ 1 | Subject),
+		AR1 = corAR1(), NULL),
+	weights = alist(vp.press = varPower(form = ~ pressure), NULL)
 	)
 
 dd <- dredge(fm1Dial.gls, m.max = 2, m.min = 1, fixed=~pressure, varying = varying, extra = "R^2")
