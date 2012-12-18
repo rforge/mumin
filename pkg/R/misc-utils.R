@@ -114,6 +114,16 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 }
 
 
+# test if dependency chain is satisfied: x[n] can be TRUE only if x[1:n] are also TRUE
+`.subset_dc` <- function(...) {
+	n <- length(x <- c(...))
+	if(n > 1L) all(x[-n] >= x[-1L]) else TRUE
+}
+
+# vectorized version of .subset_do (used within subset.model.selection)
+`.subset_vdc` <- function(...) apply(cbind(..., deparse.level = 0L), 1L, .subset_dc)
+
+
 `prettyEnumStr` <- function(x, sep = ", ", sep.last = gettext(" and "), quote = TRUE) {
 	n <- length(x)
 	if(is.function(quote))
@@ -151,7 +161,7 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 
 `clusterVExport` <- local({
    `getv` <- function(obj)
-		for (i in names(obj)) assign(i, obj[[i]], envir = .GlobalEnv)
+		for (i in names(obj)) assign(i, obj[[i]], envir = as.environment(1L))
 	function(cluster, ...) {
 		Call <- match.call()
 		Call$cluster <- NULL

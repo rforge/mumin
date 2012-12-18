@@ -40,12 +40,9 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		
 	}
 
-	
 	LL <- .getLik(global.model)
 	logLik <- LL$logLik
 	lLName <- LL$name
-	
-	
 	
 	# *** Rank ***
 	rank.custom <- !missing(rank)
@@ -134,14 +131,9 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		vlen <- vapply(varying, length, 1L)
 		nvariants <- prod(vlen)
 		variants <- as.matrix(expand.grid(split(seq_len(sum(vlen)),
-			rep(seq_along(varying), vlen))))
+			rep(seq_len(nvarying), vlen))))
 		
-		variant.Vvals <- lapply(varying, .makeListNames)
-		variant.names <- lapply(variant.Vvals, vapply, function(x) if(is.character(x)) x else
-			deparse(x, control = NULL, width.cutoff = 20L)[1L], character(1L))
-		flat.variant.Vvals <- unlist(variant.Vvals, recursive = FALSE, use.names = FALSE)
-		variant.names.vec <- unlist(variant.names, use.names = FALSE)
-		
+		flat.variant.Vvals <- .makeListNames(fvarying)
 	} else {
 		variants <- varying.names <- NULL
 		nvariants <- 1L
@@ -237,29 +229,33 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 				subset <- subset[[2L]]
 			}
 			subset <- as.expression(subset)
-			#subsetExpr <- as.expression(.subst4Vec(subset[[1L]], allTerms, as.name("comb")))
-			#subsetExpr[[1L]] <- substVec(subsetExpr[[1L]], names(variant.names), as.name("cVar"))
-			
-			ssValidNames <- c("cVar", "comb", "*nvar*")
+			ssValidNames <- c("comb", "*nvar*")
 			subsetExpr <- .subst4Vec(subset[[1L]], allTerms, as.name("comb"))
-			subsetExpr <- .substFun4Fun(subsetExpr, "V", function(x, cVar, fn) {
-				if(length(x) > 2L)
-					warning("discarding extra arguments for 'V' in 'subset' expression")
-				i <- which(fn == x[[2L]])[1L]
-				if(is.na(i)) stop(sQuote(x[[2]]), " is not a valid name of 'varying' element")
-				call("[[", cVar, i)
-			}, as.name("cVar"), varying.names)
-			if(!all(all.vars(subsetExpr) %in% ssValidNames))
-				subsetExpr <- .subst4Vec(subsetExpr, varying.names, as.name("cVar"), fun = "[[")
+			
+			if(nvarying) {
+				ssValidNames <- c("cVar", "comb", "*nvar*")
+				subsetExpr <- .substFun4Fun(subsetExpr, "V", function(x, cVar, fn) {
+					if(length(x) > 2L)
+						warning("discarding extra arguments for 'V' in 'subset' expression")
+					i <- which(fn == x[[2L]])[1L]
+					if(is.na(i)) stop(sQuote(x[[2L]]), " is not a valid name of 'varying' element")
+					call("[[", cVar, i)
+				}, as.name("cVar"), varying.names)
+				if(!all(all.vars(subsetExpr) %in% ssValidNames))
+					subsetExpr <- .subst4Vec(subsetExpr, varying.names, as.name("cVar"), fun = "[[")
+			}
 			ssVars <- all.vars(subsetExpr)
 			okVars <- ssVars %in% ssValidNames
 			if(!all(okVars)) stop("unrecognized names in 'subset' expression: ",
 				prettyEnumStr(ssVars[!okVars]))
+
+			ssEnv <- new.env(parent = .GlobalEnv)
+			ssFunc <- setdiff(all.vars(subsetExpr, functions = TRUE), ssVars)
+			if("dc" %in% ssFunc) assign("dc", .subset_dc, ssEnv)
 			
 			hasSubset <- if(any(ssVars == "cVar")) 4L else # subset as expression
 				3L # subset as expression using 'varying' variables
 
-			ssEnv <- new.env(parent = .GlobalEnv)
 		}
 	} # END: manage 'subset'
 
@@ -459,11 +455,12 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	colnames(ret) <- c(allTerms, varying.names, extraNames, "df", lLName, ICName)
 
 	if(nvarying) {
-		vnum <- split(seq_along(variant.names.vec), rep(seq_len(nvarying),
-			vapply(variant.names, length, 0L)))
+		variant.names <- vapply(flat.variant.Vvals, function(x) if(is.character(x)) x else
+			deparse(x, control = NULL, width.cutoff = 20L)[1L], character(1L))
+		vnum <- split(seq_len(sum(vlen)), rep(seq_len(nvarying), vlen))
 		names(vnum) <- varying.names
 		for (i in varying.names) ret[, i] <-
-			factor(ret[, i], levels = vnum[[i]], labels = variant.names[[i]])
+			factor(ret[, i], levels = vnum[[i]], labels = variant.names[vnum[[i]]])
 			
 	}
 

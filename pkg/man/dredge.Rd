@@ -51,8 +51,9 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	\code{global.model} calls) are printed before actual fitting takes place. }
 
 	\item{varying}{ optionally, a named list describing the additional arguments
-	to vary between the generated models. Names are the names of the arguments,
-	and each item provides a list of choices. Complex items in the choice list
+	to vary between the generated models. Item names correspond to the
+	arguments, and each item provides a list of choices (i.e. \code{list(arg1 =
+	list(choice1, choice2, ...), ...)}). Complex elements in the choice list
 	(such as \code{family} objects) should be either named (uniquely) or quoted
 	(unevaluated, e.g. using \code{\link{alist}}, see \code{\link{quote}}),
 	otherwise it may produce rather unpleasant effects. See example in
@@ -168,9 +169,17 @@ list(family = list(..., Gamma)} should be referred to as \code{subset =
 V(family) == 2}. This can quickly become confusing, therefore it is recommended 
 to use named lists in most cases. \code{demo(dredge.varying)} provides examples.
 
-Additional variable that can be used in \code{subset} expression is
-\code{`*nvar*`} (needs to be backtick-quoted). It is equal to number of terms in
-the model (\bold{not} the number of estimated parameters \emph{K}).
+The \code{subset} expression can also contain variable \code{`*nvar*`} (needs to be 
+backtick-quoted), which is equal to number of terms in the model (\bold{not} 
+the number of estimated parameters \emph{K}).
+
+To make inclusion of a variable conditional on presence of some other variable,
+a function \code{dc} (\dQuote{\bold{d}ependency \bold{c}hain}) can be used in
+the \code{subset} expression. \code{dc} takes any number of variables as
+arguments, and allows a variable to be included only if all preceding variables
+are also present (e.g. \code{subset = dc(a, b, c)} allows for models of form
+\code{a}, \code{a+b }and \code{a+b+c} but not \code{b}, \code{c}, \code{b+c} or
+\code{a+c}).
 
 \code{subset} expression can have a form of an unevaluated \code{call},
 \code{expression} object, or a one sided \code{formula}. See \sQuote{Examples}.
@@ -234,16 +243,14 @@ of interest and its scientific setting} (Burnham and Anderson, 2002).
 
 \seealso{
 
-\code{\link{pdredge}} is a parallelized version of this function, which may be
-	faster.
+\code{\link{pdredge}} is a parallelized version of this function (uses a
+cluster).
 
-\code{\link{get.models}}, \code{\link{model.avg}}.
+\code{\link{get.models}}, \code{\link{model.avg}}. \code{\link{model.sel}} for
+manual model selection tables.
 
 Possible alternatives: \code{\link[glmulti]{glmulti}} in package \pkg{glmulti}
-and \code{\link[bestglm]{bestglm}} (\pkg{bestglm}),
-or \code{\link[AICcmodavg]{aictab}} (\pkg{AICcmodavg}) and
-\code{\link[bbmle]{ICtab}} (\pkg{bbmle}) for \dQuote{hand-picked} model selection tables.
-
+and \code{\link[bestglm]{bestglm}} (\pkg{bestglm}).
 \code{\link[leaps]{regsubsets}} in package \pkg{leaps} also performs all-subsets
 regression.
 }
@@ -277,14 +284,15 @@ dredge(fm1, subset = ~ X3) # subset as a formula
 dredge(fm1, subset = expression(X3)) # subset as expression object
 # the same, but more effective:
 dredge(fm1, fixed = "X3")
-# exclude models containing both X1 and X2
-dredge(fm1, subset = !(X1 & X2))
-# keep only models containing either X1 or X2 (but not both), inclusion of X4 
-# is conditional upon the presence of X1
-dredge(fm1, subset = xor(X1, X2) & (X1 | !X4))
+# exclude models containing both X1 and X2 at the same time
+dredge(fm1, subset = !(X1 && X2))
+# Fit only models containing either X3 or X4 (but not both);
+# include X3 only if X2 is present, and X2 only if X1 is present.
+dredge(fm1, subset = dc(X1, X2, X3) && xor(X3, X4))
+# the same as above, but without using "dc"
+dredge(fm1, subset = (X1 | !X2) && (X2 | !X3) && xor(X3, X4))
 
-#Reduce the number of generated models, by including only those with
-# up to 2 terms (and intercept)
+# Include only models with up to 2 terms (and intercept)
 dredge(fm1, m.max = 2)
 }
 
@@ -303,7 +311,7 @@ dredge(fm1, m.max = 1, extra = list(
 )
 
 
-# with other information criterions:
+# Add other information criterions (but rank with AICc):
 \dontshow{
 # there is no BIC in R < 2.13.0, so need to add it:
 if(!exists("BIC", mode = "function"))
