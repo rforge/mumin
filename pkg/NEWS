@@ -1,8 +1,10 @@
 MuMIn package news:
 
-Version: 1.8.4 (2012-12-18)
-subset expressions can now make use of a new function 'dc' ("dependency chain") 
-	to make inclusion of variables conditional on other variables.
+Version: 1.8.4 (2012-12-19)
+dredge/subset.model.selection: subset expressions can now make use of a new 
+	function 'dc' ("dependency chain") to make inclusion of variables 
+	conditional on other variables.
+Cp: now accepts more than one model (like 'AIC').
 
 Version: 1.8.3 (2012-12-15)
 Added support for 'splm' models (from package 'splm').

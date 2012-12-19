@@ -15,7 +15,7 @@ Extract or calculate Deviance Information Criterion from \code{MCMCglmm} and
 }
 
 \usage{
-Cp(object, dispersion = NULL)
+Cp(object, ..., dispersion = NULL)
 ICOMP(object, ..., REML = NULL)
 CAICF(object, ..., REML = NULL)
 DIC(object, ...)

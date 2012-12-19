@@ -20,11 +20,12 @@ dd <- dredge(fm1Dial.gls, m.max = 2, m.min = 1, fixed=~pressure, varying = varyi
 
 models <- get.models(dd, 1:4)
 
+subset(dd, correlation == "corAR1(0.771, form = ~1 | Subject)", recalc.delta = TRUE)
 
-ma <- model.avg(models, revised=T)
+ma <- model.avg(models, revised = TRUE)
 ms <- model.sel(models)
-print(ms, abbr = F)
-print(ms, abbr = T)
+print(ms, abbr = FALSE)
+print(ms, abbr = TRUE)
 summary(ma)
 predict(ma)[1:10]
 
