@@ -14,6 +14,10 @@ data(salmonella)
 fmbb <- betabin(cbind(y, n - y) ~ root, ~ seed, data = orob2)
 fmb1 <- betabin(cbind(y, n - y) ~ root, ~ 1, data = orob2)
 fmgm <- glmmML(cbind(y, n - y) ~ root, cluster = seed, data = orob2)
+
+r.squaredLR(fmgm, null.RE = T)
+r.squaredLR(fmgm, null.RE = F)
+
 fmbr <- glmer(cbind(y, n - y) ~ root + (1 | seed), family = binomial("logit"),
 	data = orob2)
 fmgl <- glm(cbind(y, n - y) ~ root, family = binomial("logit"), data = orob2)
@@ -21,6 +25,22 @@ fmgl0 <- glm(cbind(y, n - y) ~ 1, family = binomial("logit"), data = orob2)
 
 models <- list(fmbb, fmb1, fmgm, fmbr, fmgl)
 ms <- model.sel(models)
+
+
+r.squaredLR(fmb1, null.RE = T)
+r.squaredLR(fmbr, null.RE = T)
+r.squaredLR(fmbr, null.RE = F)
+r.squaredLR(fmbr, null.RE = T)
+
+r.squaredGLMM(fmgm)
+r.squaredGLMM(fmbr)
+r.squaredLR(fmbr)
+r.squaredLR(fmgl)
+r.squaredGLMM(fmgl)
+r.squaredLR(fmgl0)
+r.squaredGLMM(fmgl0)
+
+summary(fmbr)
 
 print(summary(am <- model.avg(ms)))
 print(coef(am))

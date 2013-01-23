@@ -16,60 +16,19 @@
 }
 
 
+`family.mer` <- function (object, ...)  {
+	if(.getCall(object)[[1L]] == "lmer" && inherits(object, "mer"))
+		gaussian() else family.default(object)
+}
+
 `family.gls` <-
 `family.lme` <- function (object, ...) {
 	if (inherits(object$family, "family")) object$family else gaussian()
 }
 
 
-`nobs.rq` <-
-function (object, ...) length(object$y)
-
-`coefTable.rq` <- function(model, ...)
-	.makeCoefTable(model$coefficients, rep(NA_real_, length(model$coefficients)))
-
-
 # Classes 'coxme' and 'lmekin' from package 'coxme':
 
-`logLik.coxme` <-
-function(object, type = c("integrated", "penalized"), ...) {
-	type <- match.arg(type)
-	i <- which(type == c("integrated", "penalized"))[1L]
-	ret <- object$loglik[[i + 1L]]
-	attr(ret, "df") <- object$df[i]
-	attr(ret, "nobs") <- object$n[1L]
-	class(ret) <- "logLik"
-	ret
-}
-
-`logLik.lmekin` <-
-function(object, ...) {
-	ret <- object$loglik
-	attr(ret, "nobs") <- object$n
-	attr(ret, "df") <- length(object$coefficients$fixed) +
-		length(object$coefficients$random) + 1L
-	class(ret) <- "logLik"
-	ret
-}
-
-`nobs.coxme` <-
-function (object, ...) object$n[2L]
-
-`nobs.lmekin` <-
-function (object, ...) object$n[1L]
-
-`getAllTerms.coxme` <-
-function(x, ...)  {
-	ret <- MuMIn:::getAllTerms.terms(terms(x))
-	random <- x$formulaList$random
-	attr(ret, "random.terms") <- as.character(random)
-	f <- as.name(".")
-	for(f1 in random) f <- call("+", f, f1)
-	attr(ret, "random") <- call("~", as.name("."), f)
-	attr(ret, "intercept") <- 0L
-	attr(ret, "interceptLabel") <- NULL
-	ret
-}
 
 `formula.coxme` <-
 function(x, ...)  {
@@ -84,85 +43,7 @@ function(x, ...)  {
 function(x, ...) eval(x$call$formula, parent.frame())
 
 
-`coeffs.coxme` <-
-`coeffs.lmekin` <-
-function(model) {
-	# for class coxme:
-	ret <- model$coefficients
-	# for class lmekin and older coxme
-	if(is.list(ret) && !is.null(ret$fixed)) return(ret$fixed)
-	ret
-}
-
-
-`makeArgs.coxme` <-
-`makeArgs.lmekin` <-
-function(obj, termNames, comb, opt, ...) {
-	ret <- makeArgs.default(obj, termNames, comb, opt)
-	ret$formula <- update.formula(update.formula(ret$formula, . ~ . + 1),
-		opt$random)
-	ret
-}
-
-
 ## Classes 'hurdle' and 'zeroinfl' from package 'pscl':
-
-`nobs.hurdle` <-
-`nobs.zeroinfl` <- `nobs.lmekin`
-
-`getAllTerms.hurdle` <- function(x, intercept = FALSE, ...) {
-	f <- as.formula(formula(x))
-	# to deal with a dot in formula (other classes seem to expand it)
-	if("." %in% all.vars(f))
-		getAllTerms.terms(terms.formula(f, data = eval(x$call$data, envir =
-			environment(f))), intercept = intercept)
-	else getAllTerms.formula(f, intercept = intercept)
-}
-
-`getAllTerms.zeroinfl` <- function(x, intercept = FALSE, ...) {
-	f <- formula(x)
-	if(length(f[[3L]]) != 1L && f[[3L]][[1L]] == "|"){
-		f1 <- call("~", f[[2L]], f[[3L]][[2L]])
-		f2 <- call("~", f[[3L]][[3L]])
-	} else {
-		f1 <- f
-		f2 <- NULL
-	}
-	fs <- lapply(lapply(c(f1, f2), terms.formula, data = eval(x$call$data)),
-		formula)
-	z <- lapply(fs, getAllTerms, intercept = TRUE)
-
-	ord <- unlist(lapply(z, attr, "order"))
-	n <- sapply(z, length)
-	if(length(z) > 1L) ord[-j] <- ord[-(j <- seq_len(n[1L]))] + n[1L]
-	zz <- unlist(z)
-	Ints <- which(zz == "(Intercept)")
-	#zz[Ints] <- "1"
-	#zz <- paste(rep(c("count", "zero")[seq_along(z)], sapply(z, length)),
-		#"(", zz, ")", sep = "")
-	zz <- paste(rep(c("count", "zero")[seq_along(z)], sapply(z, length)),
-		"_", zz, sep = "")
-	ret <- if(!intercept) zz[-Ints] else zz
-	attr(ret, "intercept") <- pmin(Ints, 1)
-	attr(ret, "interceptLabel") <- zz[Ints]
-	attr(ret, "response") <- attr(z[[1L]], "response")
-	attr(ret, "order") <- if(!intercept) order(ord[-Ints]) else ord
-	ret
-}
-
-`coefTable.zeroinfl` <-
-function(model, ...)
-	.makeCoefTable(coef(model), sqrt(diag(vcov(model, ...))))
-
-`coefTable.hurdle` <- function(model, ...) {
-	cts <- summary(model)$coefficients
-	ct <- do.call("rbind", unname(cts))
-	cfnames <- paste(rep(names(cts), vapply(cts, nrow, 1L)), "_", rownames(ct),
-		sep = "")
-	.makeCoefTable(ct[, 1L], ct[, 2L], coefNames = cfnames)
-	#.makeCoefTable(coef(model), sqrt(diag(vcov(model, ...))))
-}
-
 
 `family.zeroinfl` <-
 function(object, ...) binomial(link = object$link)
@@ -170,14 +51,9 @@ function(object, ...) binomial(link = object$link)
 
 #_______________________________________________________________________________
 
-`nobs.glimML` <- function (object, ...) attr(logLik(object), "nobs")
 `formula.glimML` <- function(x, ...) x@formula
 
-`coefTable.glimML` <-
-function(model, ...)
-	.makeCoefTable(coef(model), sqrt(diag(vcov(model, ...))))
-
-family.glimML <- function(object, ...) switch(object@method,
+`family.glimML` <- function(object, ...) switch(object@method,
 	"BB" = binomial(object@link),
 	#"NB" = MASS::negative.binomial(theta = 1/object@param['phi.(Intercept)'],
 	"NB" = get("negative.binomial", asNamespace("MASS"))(
@@ -188,14 +64,6 @@ family.glimML <- function(object, ...) switch(object@method,
 #_______________________________________________________________________________
 
 `terms.glimML` <- function (x, ...) terms.formula(x@formula, ...)
-
-`getAllTerms.glimML` <- function(x, intercept = FALSE, ...) {
-	ret <- getAllTerms.default(x, intercept = intercept, ...)
-	ttran <- terms.formula(x@random)
-	ran <- attr(ttran, "term.labels")
-	if(length(ran)) attr(ret, "random.terms") <- paste("1 |", ran)
-	ret
-}
 
 #_______________________________________________________________________________
 # adds 'se.fit' argument
@@ -279,3 +147,59 @@ family.glimML <- function(object, ...) switch(object@method,
         else y
     }
 }
+
+# support for unmarked
+
+#setMethod("logLik", "unmarkedFit", logLik.unmarkedFit)
+
+`formula.unmarkedFit` <- function (x, ...) x@formula
+
+
+##=============================================================================
+## Classes: gee & geeglm
+##=============================================================================
+
+`coef.geese` <- 
+function (object, ...) object$beta
+
+
+## What if 'data' changed in the meantime?
+# model.matrix.gee <-
+# function (object, ...) {
+	# cl <- .getCall(fgee)
+	# cl[[1L]] <- as.name("model.matrix")
+	# cl$object <- cl$formula
+	# cl$id <- cl$corstr <- cl$formula <- NULL
+	# eval(cl, parent.frame())
+# }
+
+
+##=============================================================================
+## Class: yags
+##=============================================================================
+
+`coef.yagsResult` <-
+function (object, ...)
+structure(object@coefficients, names = object@varnames)
+
+
+`getCall.yagsResult` <-
+	function(x, ...) x@Call
+	
+	
+
+`formula.yagsResult` <-
+function (x, ...) 
+eval(x@Call$formula, parent.frame())
+
+
+##=============================================================================
+## Class: MCMCglmm
+##=============================================================================
+
+`formula.MCMCglmm` <-
+function (x, ...) x$Fixed$formula
+
+
+`family.MCMCglmm` <-
+function (object, ...) object$family

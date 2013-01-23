@@ -8,8 +8,21 @@ RNGkind("Mersenne")
 set.seed(0) # 16
 dat <- gamSim(6, n=100, scale=5, dist="normal")
 
-fmgs2 <- MuMIn::gamm(y ~s(x0)+ s(x3) + s(x2), family=gaussian, data=dat, random = list(fac=~1))
+fmgs2 <- MuMIn::gamm(y ~s(x0)+ s(x3) + s(x2), family = gaussian, data=dat, random = list(fac=~1))
 #fmgs2 <- mgcv::gamm(y ~s(x0)+ s(x3) + s(x2), family=gaussian, data=dat, random = list(fac=~1))
+
+
+null.fit(fmgs2)
+null.fit(fmgs2, RE.keep = T)
+
+r.squaredLR(fmgs2)
+r.squaredLR(fmgs2, null.RE = T)
+#r.squaredLR(fmgs2, null.fit(fmgs2, eval = T), null.RE = T)
+
+
+null.fit(fm <- gam(y ~s(x0)+ s(x3) + s(x2), family = gaussian, data=dat))
+null.fit(fmlm <- lm(y ~ x0, data=dat))
+
 
 dd <- dredge(fmgs2)
 

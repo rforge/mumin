@@ -37,33 +37,9 @@ if(!exists("extractDIC", mode = "function")) {
 }
 
 
-`formula.MCMCglmm` <-
-function (x, ...) x$Fixed$formula
 
-`nobs.MCMCglmm` <-
-function (object, ...) object$Residual$nrl
 
-`family.MCMCglmm` <-
-function (object, ...) object$family
 
-`logLik.MCMCglmm` <-
-function (object, ...)
-	structure(NA, df = object$Fixed$nfl + object$Random$nfl,
-			  nobs = object$Residual$nrl, class = "logLik")
 
-`coeffs.MCMCglmm` <-
-function (model) summary(model)$solutions[, 1L]
 
-`coefTable.MCMCglmm` <-
-function (model, ...) {
-	cf <- coeffs(model)
-	.makeCoefTable(cf, se = rep(NA_real_, length.out = length(cf)))
-}
-
-`getAllTerms.MCMCglmm` <- function (x, ...) {
-	res <- MuMIn:::getAllTerms.default(x, ...)
-	attr(res, "random") <- .formulaEnv(.~., environment(formula(x)))
-	attr(res, "random.terms") <- deparse(x$Random$formula, control = NULL)[1]
-	res
-}
 

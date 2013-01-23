@@ -12,8 +12,7 @@
 \usage{
 \method{subset}{model.selection}(x, subset, select, recalc.weights = TRUE,
 	recalc.delta = FALSE, ...)
-\method{[}{model.selection}(x, i, j, recalc.weights = TRUE, recalc.delta = FALSE, 
-	...)
+\method{[}{model.selection}(x, i, j, recalc.weights = TRUE, recalc.delta = FALSE, ...)
 }
 
 \arguments{
@@ -49,14 +48,13 @@ arguments. Importantly, the \code{has()} notation cannot be used in the
 \code{subset} argument for \code{dredge}, where the variable names should be
 given directly, with the same effect.
 
-~~ TODO ~~ 
-Use of \code{dc} in \code{subset}...
-%% Function dc can be used in the expression to select rows  dependency order of variables.
-~~ TODO ~~ 
+To select rows where one variable can be present conditional on the presence of 
+other variable(s), the function \code{dc} (\bold{d}ependency \bold{c}hain) can be used. 
+\code{dc} takes any number of variables as arguments, and allows a variable to be 
+included only if all the preceding arguments are also included (e.g. \code{subset = 
+dc(a, b, c)} allows for models of form \code{a}, \code{a+b} and \code{a+b+c} but not 
+\code{b}, \code{c}, \code{b+c} or \code{a+c}).
 
-
-
-%\code{subset = has(a, !b)}
 }
 
 \author{Kamil Barto\enc{ń}{n}}

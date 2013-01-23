@@ -80,6 +80,13 @@ Mallows, C. L. (1973) Some comments on \emph{Cp}. \emph{Technometrics} 15:
 Bozdogan, H. and Haughton, D.M.A. (1998) Information complexity criteria for
 regression models. \emph{Comp. Stat. & Data Analysis} 28: 51-76.
 
+Anderson, D. R. and Burnham, K. P. (1999) Understanding information criteria for selection among 
+capture-recapture or ring recovery models. \emph{Bird Study} 46: 14–21.
+
+Spiegelhalter, D.J., Best, N.G., Carlin, B.R., van der Linde, A. (2002) Bayesian measures of model 
+complexity and fit. \emph{Journal of the Royal Statistical Society Series B-Statistical Methodology}
+ 64: 583–616.
+
 }
 
 \seealso{

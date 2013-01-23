@@ -166,9 +166,6 @@ Springer-Verlag.
 See \code{\link{par.avg}} for more details of model averaged parameter
 calculation.
 
-%Vignette \sQuote{Extending \pkg{MuMIn}'s functionality} demonstrates how to
-%provide support for other types of models.
-
 \code{\link{dredge}}, \code{\link{get.models}} \cr
 \code{\link{AICc}} has examples of averaging models fitted by REML.
 

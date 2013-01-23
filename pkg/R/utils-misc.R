@@ -73,7 +73,6 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 	return(e)
 }
 
-
 # substitute function calls in 'e'. 'func' must take care of the substitution job.
 `.substFun4Fun` <- function(e, name, func = identity, ...) {
 	if(is.expression(e)) e <- e[[1L]]
@@ -90,7 +89,6 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 	list2env(list(...), env)
 	eval(expr, envir = env, enclos = enclos)
 }
-
 
 # substitute names for varName[1], varName[2], ... in expression
 `.subst4Vec` <- function(expr, names, varName, n = length(names), fun = "[") {

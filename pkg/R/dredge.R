@@ -152,10 +152,10 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		extra <- structure(as.list(unique(extra)), names = extraNames)
 
 		if(any(c("adjR^2", "R^2") %in% extra)) {
-			null.fit <- null.fit(global.model, TRUE, gmFormulaEnv)
-			extra[extra == "R^2"][[1L]] <- function(x) r.squaredLR(x, null.fit)
+			null.fit <- null.fit(global.model, evaluate = TRUE, envir = gmFormulaEnv)
+			extra[extra == "R^2"][[1L]] <- function(x) r.squaredLR(x, null = null.fit)
 			extra[extra == "adjR^2"][[1L]] <-
-				function(x) attr(r.squaredLR(x, null.fit), "adj.r.squared")
+				function(x) attr(r.squaredLR(x, null = null.fit), "adj.r.squared")
 		}
 		extra <- sapply(extra, match.fun, simplify = FALSE)
 		applyExtras <- function(x) unlist(lapply(extra, function(f) f(x)))

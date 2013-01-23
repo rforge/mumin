@@ -173,3 +173,54 @@ function(obj, termNames, comb, opt, ...)  {
 #`makeArgs.unmarkedFitOccu` <- function(obj, termNames, comb, opt, ...)
 #	makeArgs.unmarkedFit(obj, termNames, comb, opt, c("psi", "p"),
 #		"formula")
+
+
+`makeArgs.coxme` <-
+`makeArgs.lmekin` <-
+function(obj, termNames, comb, opt, ...) {
+	ret <- makeArgs.default(obj, termNames, comb, opt)
+	ret$formula <- update.formula(update.formula(ret$formula, . ~ . + 1),
+		opt$random)
+	ret
+}
+
+
+
+`makeArgs.mark` <- 
+function(obj, termNames, comb, opt, ...) {
+	interceptLabel <- "(Intercept)"
+	termNames <- sub(interceptLabel, "1", termNames, fixed = TRUE)
+	rxres <- regexpr("^([a-zA-Z]+)\\((.*)\\)$", termNames, perl = TRUE)
+	cs <- attr(rxres, "capture.start")
+	cl <- attr(rxres, "capture.length")
+	parname <- substring(termNames, cs[, 1L], cs[, 1L] + cl[,1L] - 1L)
+	parval <- substring(termNames, cs[, 2L], cs[, 2L] + cl[,2L] - 1L)
+	
+	formulaList <- lapply(split(parval, parname), function(x) {
+		int <- x == "1"
+		x <- x[!int]
+		res <- if(!length(x))
+				if(int) ~ 1 else ~ 0 else 
+			reformulate(x, intercept = any(int))
+		environment(res) <- opt$gmFormulaEnv
+		res
+	})
+	
+	mpar <- if(is.null(obj$model.parameters))
+		eval(opt$gmCall$model$parameters) else
+		obj$model.parameters
+	for(i in names(mpar)) mpar[[i]]$formula <- formulaList[[i]]
+	#ret <- list(model.parameters = mpar)
+	
+	if(opt$gmCall[[1L]] == "run.mark.model") {
+		arg.model <- opt$gmCall$model
+		arg.model$parameters <- mpar
+		ret <- list(model = arg.model)
+	} else {
+		ret <- list(model.parameters = mpar)
+	}
+	
+	attr(ret, "formulaList") <- formulaList
+	ret
+}
+
