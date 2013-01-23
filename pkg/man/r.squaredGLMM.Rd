@@ -25,7 +25,7 @@ r.squaredGLMM(x, nullfx = NULL)
 
 \details{
 For mixed-effects models, R\eqn{^{2}}{^2} can be categorized into two types:
-marginal and conditional. \bold{Marginal} R\eqn{^{2}}{^2} represents the variance explained by fixed 
+marginal and conditional. \bold{Marginal R\eqn{^{2}}{^2}} represents the variance explained by fixed 
 factors, and is defined as:
 
 \deqn{
@@ -36,7 +36,7 @@ R_GLMM(m)^2 = (\sigma_f^2) / (\sigma_f^2 + sum(\sigma_l^2) + \sigma_\epsilon^2
 }
 
 \bold{Conditional R\eqn{^{2}}{^2}} is interpreted as variance explained by both fixed and 
-random factors (i.e . the entire model), and is calculated according to following equation:
+random factors (i.e . the entire model), and is calculated according to the equation:
 
 \deqn{
 R_{GLMM(c)}^{2}= \frac{\sigma_f^2 + \sum_{l=1}^{u}\sigma_{l}^{2}}{\sigma_f^2
@@ -64,7 +64,7 @@ Currently methods exist for classes: \code{mer}(\code{Mod}), \code{lme},
 See note in \code{\link{r.squaredLR}} help page for comment on using R\eqn{^{2}}{^2} 
 in model selection. 
 
-This implementation is based on \R code from Supporting Information for Nakagawa & 
+This implementation is based on \R code from \sQuote{Supporting Information} for Nakagawa & 
 Schielzeth (2012).
 
 }

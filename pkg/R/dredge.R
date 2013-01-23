@@ -76,10 +76,11 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		as.character(gmCall$na.action) %in% c("na.omit", "na.exclude")) {
 		stop("'global.model' should not use 'na.action' = ", gmCall$na.action)
 	}
-
-	if(names(gmCall)[2L] == "") names(gmCall)[2L] <-
-		names(formals(deparse(gmCall[[1L]]))[1L])
-
+	
+	if(names(gmCall)[2L] == "") gmCall <-
+		match.call(gmCall, definition = eval(gmCall[[1]], envir = parent.frame()), expand.dots = TRUE)
+		
+		
 	# TODO: other classes: model, fixed, etc...
 	gmCoefNames <- fixCoefNames(names(coeffs(global.model)))
 

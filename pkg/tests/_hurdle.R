@@ -7,8 +7,6 @@ data(bioChemists)
 fmh1 <- hurdle(art ~ fem + mar*phd, data = bioChemists, dist = "negbin",
     zero.dist = "negbin")
 
-fmh0 <- hurdle(art ~ 1, data = bioChemists, dist = "negbin",
-    zero.dist = "negbin")	
 	
 	
 (dd <- dredge(fmh1, m.min = 1))

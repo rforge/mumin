@@ -102,8 +102,9 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		stop("'global.model' should not use 'na.action' = ", gmCall$na.action)
 	}
 
-	if(names(gmCall)[2L] == "") names(gmCall)[2L] <-
-		names(formals(deparse(gmCall[[1L]]))[1L])
+	if(names(gmCall)[2L] == "") gmCall <-
+		match.call(gmCall, definition = eval(gmCall[[1]], envir = parent.frame()), expand.dots = TRUE)
+
 
 	gmCoefNames <- fixCoefNames(names(coeffs(global.model)))
 
