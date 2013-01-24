@@ -134,7 +134,9 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		variants <- as.matrix(expand.grid(split(seq_len(sum(vlen)),
 			rep(seq_len(nvarying), vlen))))
 		
-		flat.variant.Vvals <- .makeListNames(fvarying)
+		flat.variant.Vvals <- unlist(lapply(varying, .makeListNames),
+			recursive = FALSE, use.names = FALSE)
+		
 	} else {
 		variants <- varying.names <- NULL
 		nvariants <- 1L

@@ -158,7 +158,9 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		variants <- as.matrix(expand.grid(split(seq_len(sum(vlen)),
 			rep(seq_len(nvarying), vlen))))
 		
-		flat.variant.Vvals <- .makeListNames(fvarying)
+		flat.variant.Vvals <- unlist(lapply(varying, .makeListNames),
+			recursive = FALSE, use.names = FALSE)
+		
 	} else {
 		variants <- varying.names <- NULL
 		nvariants <- 1L
@@ -177,7 +179,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		extra <- structure(as.list(unique(extra)), names = extraNames)
 
 		if(any(c("adjR^2", "R^2") %in% extra)) {
-			null.fit <- null.fit(global.model, RE.keep = TRUE, envir = gmFormulaEnv)
+			null.fit <- null.fit(global.model, evaluate = TRUE, envir = gmFormulaEnv)
 			extra[extra == "R^2"][[1L]] <- function(x) r.squaredLR(x, null = null.fit)
 			extra[extra == "adjR^2"][[1L]] <-
 				function(x) attr(r.squaredLR(x, null = null.fit), "adj.r.squared")

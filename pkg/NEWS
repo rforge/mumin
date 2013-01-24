@@ -1,11 +1,11 @@
 MuMIn package news:
 
-Version: 1.9.1 (2013-01-23)
-Some bugs with 'MCMCglmm' models fixed
+Version: 1.9.1 (2013-01-24)
+Fixed: bugs with 'MCMCglmm' models and 'varying' lists in 'dredge'.
 
 Version: 1.9.0 (2013-01-23)
 This version brings in more elaborated subsetting of models in 'dredge' and 
-	'model.selection' object, and new variang of presudo-R^2. 
+	'model.selection' object, and a new variant of pseudo-R^2. 
 [p]dredge: 'subset' can use 'varying' variables (as "V(varying.variable)") and
 	number of model terms (as `*nvar*`). This allows for better fine-tuning of
 	the selection table.
