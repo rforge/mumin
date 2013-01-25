@@ -122,6 +122,7 @@ S3method(getAllTerms, lme)
 S3method(coeffs, lme)
 S3method(coefTable, lme)
 S3method(predict, lme)
+S3method(predict, gls)
 
 S3method(getAllTerms, mer)
 S3method(coeffs, mer)
