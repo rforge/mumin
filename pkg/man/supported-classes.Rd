@@ -30,6 +30,7 @@ functions include those returned by:
 \item \code{rq} (\pkg{quantreg});
 \item \code{clm} and \code{clmm} (\pkg{ordinal});
 \item \code{logistf} (\pkg{logistf}); %% Bias-reduced logistic regression
+\item \code{crunch}, \code{pgls} (\pkg{caper});
 \item functions from package \pkg{unmarked} (within the class \code{unmarkedFit});
 \item \code{mark} and related functions (class \code{mark} from package
 	\pkg{RMark}). Note currently \code{dredge} can only manipulate \code{formula}

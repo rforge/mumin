@@ -9,7 +9,8 @@ export(
 	QIC, quasiLik,
 	gamm,
 	beta.weights, model.names,
-	simplify.formula, expand.formula
+	simplify.formula, expand.formula,
+	updateable
 )
 
 importFrom(stats, family)
@@ -132,8 +133,6 @@ S3method(predict, mer)
 S3method(family, mer)
 
 S3method(coeffs, merMod)
-
-
 S3method(coefTable, multinom)
 S3method(nobs, multinom)
 
@@ -260,3 +259,9 @@ S3method(r.squaredGLMM, lme)
 S3method(r.squaredGLMM, merMod)
 S3method(r.squaredGLMM, mer)
 S3method(r.squaredGLMM, glmmML)
+
+S3method(getCall, default)
+
+S3method(nobs, caic)
+S3method(formula, caic)
+S3method(nobs, pgls)

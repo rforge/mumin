@@ -1,4 +1,5 @@
 \name{gamm-wrapper}
+\alias{gamm.wrapper}
 \alias{gamm}
 \alias{logLik.gamm}
 \encoding{utf-8}
@@ -51,6 +52,8 @@ the original \code{gamm} from \pkg{mgcv} (when \pkg{MuMIn} was loaded after
 
 \seealso{
 \code{\link[mgcv]{gamm}} and \code{\link[gamm4]{gamm4}}
+
+\code{\link{updateable}}, \code{\link{update}}
 }
 
 

@@ -59,8 +59,6 @@ function(object, ...) binomial(link = object$link)
 	"NB" = get("negative.binomial", asNamespace("MASS"))(
 		theta = 1 / object@param['phi.(Intercept)'], link = object@link))
 
-
-
 #_______________________________________________________________________________
 
 `terms.glimML` <- function (x, ...) terms.formula(x@formula, ...)
@@ -242,3 +240,8 @@ function (x, ...) x$Fixed$formula
 
 `family.MCMCglmm` <-
 function (object, ...) object$family
+
+
+`formula.caic` <-
+function(x, ...) formula(x$mod)
+
