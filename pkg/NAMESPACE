@@ -7,7 +7,6 @@ export(
 	AICc, QAIC, QAICc, Cp, ICOMP, CAICF, DIC, 
 	r.squaredLR, null.fit, r.squaredGLMM,
 	QIC, quasiLik,
-	gamm,
 	beta.weights, model.names,
 	simplify.formula, expand.formula,
 	updateable

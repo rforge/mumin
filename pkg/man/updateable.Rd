@@ -1,5 +1,7 @@
 \name{updateable}
 \alias{updateable}
+\alias{uGamm}
+\alias{uGamm4}
 \encoding{utf-8}
 
 \title{Make a function returning updateable result}
@@ -25,7 +27,6 @@ updateable(FUN)
 	result with the \code{call} element. In this case \code{updateable} can be
 	used on that function to add it. The resulting wrapper should be used in
 	exactly the same way as the original function.
-	
 }
 
 \value{
@@ -38,7 +39,12 @@ updateable(FUN)
 \note{
   \pkg{MuMIn} has a replacement default method for \code{getCall} (original
   being from the \pkg{stats} package) that can recognize the call as an
-  \code{\link[=attr]{attribute}} (rather than an element of the object). 
+  \code{\link[=attr]{attribute}} (rather than an element of the object).
+  
+  Updateable wrappers for \code{gamm} (\pkg{mgcv}) and \code{gamm4} (\pkg{gamm4}) 
+  named \code{uGamm} and \code{uGamm4} respectively, are automatically defined 
+  when one of these packages is attached (e.g. using \code{library}).
+  As of version 1.9.2, \code{MuMIn::gamm} is no longer available.
 }
 
 
@@ -48,7 +54,7 @@ updateable(FUN)
 \code{\link{update}}, \code{\link{getCall}}, \code{\link{getElement}},
 \code{\link{attributes}}
 
-\code{\link{gamm.wrapper}} for an updateable wrapper for \code{gamm} models. 
+%% \code{\link{gamm.wrapper}} for an updateable wrapper for \code{gamm} models. 
 
 }
 
@@ -73,6 +79,17 @@ getCall(ct2)
 update(ct2, method = "pearson")
 update(ct2, alternative = "two.sided")
 
+
+## predefined wrapper for 'gamm':
+library(mgcv)
+set.seed(0)
+
+dat <- gamSim(6, n = 100, scale = 5, dist = "normal")
+fmm1 <- uGamm(y ~s(x0)+ s(x3) + s(x2), family = gaussian, data = dat, random = list(fac = ~1))
+
+getCall(fmm1)
+class(fmm1)
+###
 
 
 \dontrun{

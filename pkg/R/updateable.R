@@ -15,6 +15,26 @@ function (FUN) {
     FUNV
 }
 
+`updateable2` <-
+function (FUN, Class) {
+	Fname <- substitute(FUN)
+	FUN <- match.fun(FUN)
+	FUNV <- function() {
+		ocl <- cl <- match.call()
+		cl[[1L]] <- Fname
+		res <- eval(cl, parent.frame())
+		if(!isS4(res) && is.list(res))
+			res$call <- ocl else
+			attr(res, "call") <- ocl
+		class(res) <- Class
+		res
+	}
+	if(missing(Class)) body(FUNV)[[6L]] <- NULL
+    formals(FUNV) <- formals(FUN)
+	rm(FUN)
+    FUNV
+}
+
 
 `.getCall` <- function(x) {
 	if(isS4(x)) {
@@ -31,6 +51,8 @@ function (FUN) {
 			NULL
 	}
 }
+
+
 
 
 

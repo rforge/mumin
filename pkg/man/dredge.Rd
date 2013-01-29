@@ -108,8 +108,9 @@ the result. To get (a subset of) the models, use \code{\link{get.models}} on the
 object returned by \code{dredge}.
 
 For a list of model types that can be used as a \code{global.model} see
-\link[=MuMIn-models]{list of supported models}. \code{gamm} and \code{gamm4}
-should be evaluated \emph{via} the wrapper \code{MuMIn::\link[MuMIn]{gamm}}.
+\link[=MuMIn-models]{list of supported models}. 
+Modelling functions not storing \code{call} in their result should be evaluated 
+\emph{via} the wrapper created by \code{\link{updateable}}.
 
 \subsection{Information criterion}{
 \code{rank} is found by a call to \code{match.fun} and may be specified as a
