@@ -1,8 +1,11 @@
 MuMIn package news:
 
 Version: 1.9.2 (2013-01-28)
-updateable: new function to create a wrapper for functions returning non-updateable 
-	objects (adds a 'call' element to the function's result)
+updateable: new function to create a wrapper for functions returning 
+	non-updateable objects (adds a 'call' element to the function's result).
+(removed) 'gamm' wrapper, which is now replaced by two functions 'updGamm' and 
+	'updGamm4'.
+(added) 'predict' method replacement for 'gls' models (adds 'se.fit' argument).
 
 Version: 1.9.1 (2013-01-24)
 (fixed) bugs with 'MCMCglmm' models and 'varying' lists in 'dredge'.
@@ -14,8 +17,8 @@ This version brings in more elaborated subsetting of models in 'dredge' and
 	number of model terms (as `*nvar*`). This allows for better fine-tuning of
 	the selection table.
 	'fixed' argument can be set to TRUE to fix all terms of 'global.model'.
-[p]dredge, subset.model.selection: 'subset' expressions can now make use of a new 
-	function 'dc' ("dependency chain") to make inclusion of variables 
+[p]dredge, subset.model.selection: 'subset' expressions can now make use of a 
+	new function 'dc' ("dependency chain") to make inclusion of variables 
 	conditional on other variables.
 r.squaredGLMM: new function to calculate R^2 statistic for mixed effect models,
 	described by Nakagawa & Schiezlich (2012).
@@ -49,7 +52,7 @@ QIC, quasiLik: new functions for use with GEE models.
 
 Version: 1.7.12 (2012-11-11)
 tests/classes.R: fixed compatibility spdep-0.5.53. (spdep::spautolm now uses 
-	method="eigen", was "full") 
+	method = "eigen", was "full") 
 
 Version: 1.7.11 (2012-07-13)
 coefTable.multinom: fixed an error when coefficients and standard errors were 
@@ -82,7 +85,7 @@ predict.averaging: is now more flexible in how the predictions from generalized
 	models are calculated (new attribute "backtransform").
 
 Version: 1.7.5 (2012-03-27)
-(added) methods for 'MCMCglmm' class, and function 'DIC': works with 'model.sel' 
+(added) methods for 'MCMCglmm' class, and function 'DIC': works with 'model.sel'
 	and 'dredge' (but not 'model.avg').
 'unmarked' is removed from 'Suggested' packages (recently it is often 
 	unavailable on CRAN and causes errors during R CHECK). Added workarounds to 
@@ -173,7 +176,8 @@ dredge: has new argument 'extra' to add additional statistics into the model
 r.squared: new function to calculate likelihood-ratio based pseudo-R-squared
 subset method for 'model.selection': accepts a shorthand notation "has(x)" to 
 	select rows where a variable is present.
-(added) support for 'survreg' and 'rq' models (packages 'survival' and 'quantreg')
+(added) support for 'survreg' and 'rq' models (packages 'survival' and 
+	'quantreg')
 
 Version: 1.5.2 (2011-10-21)
 dredge: fixed a bug with wrong ordering of column names in the returned 
@@ -261,7 +265,8 @@ model.avg: now may be used directly with 'model.selection' object
 summary.averaging: gives now more information
 
 Version: 1.2.4 (2011-07-29)
-fixed handling of spatial parameters (lambda, rho) in models from package 'spdep'
+fixed handling of spatial parameters (lambda, rho) in models from package 
+	'spdep'
 dredge: modified for better performance
 dredge, get.models: can deal with glms with starting values provided ('start'
 	argument)

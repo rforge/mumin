@@ -48,9 +48,12 @@ updateable2(FUN, Class)
 }
 
 \note{
-  Updateable wrappers for \code{gamm} (\pkg{mgcv}) and \code{gamm4}
-  (\pkg{gamm4}) named \code{updGamm} and \code{updGamm4} respectively are already
-  defined. As of version 1.9.2, \code{MuMIn::gamm} is no longer available.
+  The updateable wrappers for \code{gamm} (\pkg{mgcv}) and \code{gamm4}
+  (\pkg{gamm4}) named \code{updGamm} and \code{updGamm4} respectively are
+  already defined. They set also an appropriate class onto the result, which is
+  needed for some generics defined in \pkg{MuMIn} to work (note that unlike the
+  functions created by \code{updateable} these wrappers have no formal
+  arguments). As of version 1.9.2, \code{MuMIn::gamm} is no longer available.
 
   \pkg{MuMIn} has a replacement default method for \code{getCall} (original
   being from the \pkg{stats} package) that can recognize the call as an
@@ -65,7 +68,6 @@ updateable2(FUN, Class)
 \code{\link{attributes}}
 
 \code{\link[mgcv]{gamm}}, \code{\link[gamm4]{gamm4}}
-%% \code{\link{gamm.wrapper}} for an updateable wrapper for \code{gamm} models. 
 
 }
 
