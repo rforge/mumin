@@ -9,7 +9,8 @@ export(
 	QIC, quasiLik,
 	beta.weights, model.names,
 	simplify.formula, expand.formula,
-	updateable
+	updateable, updateable2,
+	updGamm, updGamm4
 )
 
 importFrom(stats, family)

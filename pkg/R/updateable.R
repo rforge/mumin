@@ -59,3 +59,28 @@ function (FUN, Class) {
 `getCall.default` <-
 function (x, ...)
 .getCall(x)
+
+
+
+##==============================================================================
+
+`updGamm` <-
+function(...) {
+	ocl <- cl <- match.call(definition = Fun <- get("gamm", asNamespace("mgcv")))
+	cl[[1L]] <- call("get", "gamm", asNamespace("mgcv"))
+	res <- eval(cl, parent.frame())
+	res$call <- ocl
+	class(res) <- c("gamm", "list")
+	res
+}
+
+`updGamm4` <-
+function(...) {
+	ocl <- cl <- match.call(definition = Fun <- get("gamm4", asNamespace("gamm4")))
+	cl[[1L]] <- call("get", "gamm4", asNamespace("gamm4"))
+	res <- eval(cl, parent.frame())
+	res$call <- ocl
+	class(res) <- c("gamm4", "gamm", "list")
+	res
+}
+
