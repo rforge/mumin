@@ -1,31 +1,31 @@
 \name{updateable}
 \alias{updateable}
 \alias{updateable2}
-\alias{updGamm}
-\alias{updGamm4}
+\alias{uGamm}
+\alias{MuMIn-gamm}
+\alias{gamm-wrapper}
 \encoding{utf-8}
 
 \title{Make a function return updateable result}
 \description{
 Creates a function wrapper that stores a call in the values returned by its
-argument \code{FUN}. }
+argument \code{FUN}.
+}
 
 \usage{
 updateable(FUN)
 updateable2(FUN, Class)
+
+# updateable wrapper for mgcv::gamm and gamm4::gamm4
+uGamm(formula, random = NULL, ..., lme4 = inherits(random, "formula"))
 }
-
-
-%%# predefined updateable wrappers for mgcv::gamm and gamm4::gamm4
-%%updGamm(...)
-%%updGamm4(...)
-
 
 \arguments{
     \item{FUN}{function to be modified, found via \code{\link{match.fun}}. }
 	\item{Class}{optional character vector naming class(es) to be set onto the
 		result of \code{FUN} (not possible with formal S4 objects). }
-	%% \item{\dots}{arguments to be passed to \code{gamm} or \code{gamm4}}
+	\item{formula, random, \dots}{arguments to be passed to \code{gamm} or \code{gamm4}}
+	\item{lme4}{if \code{TRUE}, \code{gamm4} is called, \code{gamm} otherwise. }
 }
 
 \details{
@@ -48,15 +48,14 @@ updateable2(FUN, Class)
 }
 
 \note{
-  The updateable wrappers for \code{gamm} (\pkg{mgcv}) and \code{gamm4}
-  (\pkg{gamm4}) named \code{updGamm} and \code{updGamm4} respectively are
-  already defined. They set also an appropriate class onto the result, which is
-  needed for some generics defined in \pkg{MuMIn} to work (note that unlike the
-  functions created by \code{updateable} these wrappers have no formal
-  arguments). As of version 1.9.2, \code{MuMIn::gamm} is no longer available.
+ \code{uGamm} sets also an appropriate class onto the result (\code{"gamm4"}
+ and/or \code{"gamm"}), which is needed for some generics defined in \pkg{MuMIn}
+ to work (note that unlike the functions created by \code{updateable} it has no
+ formal arguments of the original function. As of version 1.9.2,
+ \code{MuMIn::gamm} is no longer available.
 
-  \pkg{MuMIn} has a replacement default method for \code{getCall} (original
-  being from the \pkg{stats} package) that can recognize the call as an
+  \pkg{MuMIn} replaces the default method for \code{getCall} (defined originally in 
+  package \pkg{stats}), with a function that can extract the call also when it is an
   \code{\link[=attr]{attribute}} (rather than an element of the object).
 }
 
@@ -73,7 +72,7 @@ updateable2(FUN, Class)
 
 \examples{
 
-# Simple (and not very useful) example with cor.test:
+# Simple example with cor.test:
 
 # From example(cor.test)
 x <- c(44.4, 45.9, 41.9, 53.3, 44.7, 44.1, 50.7, 45.2, 60.1)
@@ -99,7 +98,8 @@ library(mgcv)
 set.seed(0)
 dat <- gamSim(6, n = 100, scale = 5, dist = "normal")
 
-fmm1 <- updGamm(y ~s(x0)+ s(x3) + s(x2), family = gaussian, data = dat, random = list(fac = ~1))
+fmm1 <- uGamm(y ~s(x0)+ s(x3) + s(x2), family = gaussian, data = dat, 
+    random = list(fac = ~1))
 
 getCall(fmm1)
 class(fmm1)

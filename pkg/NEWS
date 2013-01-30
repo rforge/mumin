@@ -1,11 +1,12 @@
 MuMIn package news:
 
-Version: 1.9.2 (2013-01-28)
+Version: 1.9.2 (2013-02-01)
 updateable: new function to create a wrapper for functions returning 
 	non-updateable objects (adds a 'call' element to the function's result).
-(removed) 'gamm' wrapper, which is now replaced by two functions 'updGamm' and 
-	'updGamm4'.
+(renamed) removed 'gamm' wrapper, which is now replaced by 'uGamm'.
 (added) 'predict' method replacement for 'gls' models (adds 'se.fit' argument).
+model.avg: no longer returns residuals (this is because residuals for models other 
+	than 'lm' can be calculated in several different ways - with different results).
 
 Version: 1.9.1 (2013-01-24)
 (fixed) bugs with 'MCMCglmm' models and 'varying' lists in 'dredge'.

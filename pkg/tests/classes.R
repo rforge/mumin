@@ -290,6 +290,10 @@ budworm.qqlg <- glm(SF ~ sex*ldose + sex*I(ldose^2), data = budworm, family = qb
 #budworm.qlg <- glm(SF ~ sex*ldose + sex*I(ldose^2), data = budworm, family = quasibinomial)
 budworm.lg <- glm(SF ~ sex*ldose + sex*I(ldose^2), data = budworm, family = binomial)
 
+#R2(budworm.lg)
+r.squaredLR(budworm.lg)
+r.squaredGLMM(budworm.lg)
+
 dd <- dredge(budworm.lg, rank = "QAIC", chat = summary(budworm.lg)$dispersion)
 #dd <- dredge(budworm.lg) # should be the same
 mod <- get.models(dd, seq(nrow(dd)))
@@ -299,7 +303,7 @@ mod <- get.models(dd, seq(nrow(dd)))
 # but this will not: ('rank' attribute passed from 'dredge' is lost)
 # ma <- model.avg(mod)
 # so, need to supply them
-ma <- model.avg(mod[1:5], rank="QAICc", rank.args = list(chat = 0.403111))
+ma <- model.avg(mod[1:5], rank = "QAICc", rank.args = list(chat = 0.403111))
 
 rm(list=ls())
 

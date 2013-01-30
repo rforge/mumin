@@ -64,23 +64,25 @@ function (x, ...)
 
 ##==============================================================================
 
-`updGamm` <-
-function(...) {
-	ocl <- cl <- match.call(definition = Fun <- get("gamm", asNamespace("mgcv")))
-	cl[[1L]] <- call("get", "gamm", asNamespace("mgcv"))
-	res <- eval(cl, parent.frame())
-	res$call <- ocl
-	class(res) <- c("gamm", "list")
+`uGamm` <-
+ function(formula, random = NULL, ..., lme4 = inherits(random, "formula")) {
+	pkg <- if(lme4) "gamm4" else "mgcv"
+	if (!require(pkg, character.only = TRUE)) stop("'gamm' requires package '",
+												pkg, "' to be installed")
+	funcl <- call("get", if(lme4) "gamm4" else "gamm", ns <- asNamespace(pkg))
+	clx <- cl <- match.call()
+	clx$lme4 <- NULL	
+	clx <- match.call(clx, definition = eval(funcl, envir = ns))
+	clx[[1L]] <- funcl
+	#list(clx, cl)
+	res <- eval(clx, parent.frame())
+	res$call <- cl
+	class(res) <- c(if(lme4) "gamm4", "gamm", "list")
 	res
-}
+ }
 
-`updGamm4` <-
-function(...) {
-	ocl <- cl <- match.call(definition = Fun <- get("gamm4", asNamespace("gamm4")))
-	cl[[1L]] <- call("get", "gamm4", asNamespace("gamm4"))
-	res <- eval(cl, parent.frame())
-	res$call <- ocl
-	class(res) <- c("gamm4", "gamm", "list")
-	res
-}
+
+`gamm` <- 
+function(...) .Deprecated("uGamm", old = "MuMIn::gamm")
+
 

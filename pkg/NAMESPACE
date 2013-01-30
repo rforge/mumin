@@ -10,7 +10,7 @@ export(
 	beta.weights, model.names,
 	simplify.formula, expand.formula,
 	updateable, updateable2,
-	updGamm, updGamm4
+	uGamm
 )
 
 importFrom(stats, family)
