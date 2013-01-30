@@ -220,7 +220,7 @@ options(warn=0)
 gm <- get.models(dd, cumsum(weight) <= .99)
 ma <- model.avg(gm)
 summary(ma)
-signif(resid(ma), 5)[1:10]
+# signif(resid(ma), 5)[1:10]
 
 rm(list=ls())
 
