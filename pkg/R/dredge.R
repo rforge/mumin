@@ -10,15 +10,16 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	if (is.null(gmCall)) {
 		gmCall <- substitute(global.model)
 		if(!is.call(gmCall)) {
-			if(inherits(global.model, c("gamm", "gamm4")))
-				message("for 'gamm' models use 'MuMIn::gamm' wrapper")
-			stop("could not retrieve the call to 'global.model'")
+			stop("need a 'global.model' with call component. Consider using ", 
+				if(inherits(global.model, c("gamm", "gamm4"))) 
+					"'uGamm'" else "'updateable'")
 		}
 		#"For objects without a 'call' component the call to the fitting function \n",
 		#" must be used directly as an argument to 'dredge'.")
 		# NB: this is unlikely to happen:
-		if(!exists(as.character(gmCall[[1L]]), parent.frame(), mode = "function"))
-			 stop("could not find function '", gmCall[[1L]], "'")
+		if(!is.function(eval(gmCall[[1L]], parent.frame())))
+			gettext('could not find function "%s"', deparse(gmCall[[1L]], 
+				control = NULL), domain = "R")
 	} else {
 		# if 'update' method does not expand dots, we have a problem
 		# with expressions like ..1, ..2 in the call.

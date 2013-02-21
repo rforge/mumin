@@ -99,6 +99,8 @@ S3method(getAllTerms, terms)
 S3method(getAllTerms, lm)
 S3method(coefTable, lm)
 
+S3method(getAllTerms, gam)
+
 S3method(nobs, sarlm)
 S3method(coefTable, sarlm)
 

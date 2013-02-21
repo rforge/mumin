@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.9.3 (2013-02-21)
+(fixed) method registration for 'getAllTerms.gam' was missing (reported by 
+	Steven Delean) 
+
 Version: 1.9.2 (2013-02-01)
 updateable: new function to create a wrapper for functions returning 
 	non-updateable objects (adds a 'call' element to the function's result).
