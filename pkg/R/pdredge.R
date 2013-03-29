@@ -350,7 +350,6 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	warningList <- list()
 
 	####
-
 	prevJComb <- 0L
 	for(iComb in seq.int(ncomb)) {
 		jComb <- ceiling(iComb / nvariants)
@@ -419,8 +418,6 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		if(evaluate && qi && (qi > qlen || iComb == ncomb)) {
 			#DebugPrint(paste(qi, nvariants, qlen, iComb, ncomb))
 			qseq <- seq_len(qi)
-			qresult <- .getRow(queued[qseq])
-			#cat(sprintf("queue done: %d\n", qi)) # DEBUG
 
 			if(any(vapply(qresult, is.null, TRUE)))
 				stop("some results returned from cluster node(s) are NULL. \n",
@@ -457,7 +454,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 			qresultLen <- length(qrows)
 			retNrow <- nrow(ret)
 			if(k + qresultLen > retNrow) {
-				nadd <- min(ret.nchunk, nmax - retNrow)
+				nadd <- min(max(ret.nchunk, qresultLen), nmax - retNrow)
 				coefTables <- c(coefTables, vector(nadd, mode = "list"))
 				ret <- rbind(ret, matrix(NA, ncol = ret.ncol, nrow = nadd),
 					deparse.level = 0L)
