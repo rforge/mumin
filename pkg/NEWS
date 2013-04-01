@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.9.4 (2013-04-01)
+(fixed) pdredge: bug with wrong number of updated rows.
+Replaced all calls to the soon-to-be deprecated ".find.package" with "find.package"
+
 Version: 1.9.3 (2013-02-21)
 (fixed) method registration for 'getAllTerms.gam' was missing (reported by 
 	Steven Delean) 

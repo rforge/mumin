@@ -418,7 +418,9 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		if(evaluate && qi && (qi > qlen || iComb == ncomb)) {
 			#DebugPrint(paste(qi, nvariants, qlen, iComb, ncomb))
 			qseq <- seq_len(qi)
-
+			qresult <- .getRow(queued[qseq])
+			utils::flush.console()
+		
 			if(any(vapply(qresult, is.null, TRUE)))
 				stop("some results returned from cluster node(s) are NULL. \n",
 					"This should not happen and indicates problems with ",
