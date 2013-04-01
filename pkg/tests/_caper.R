@@ -1,4 +1,4 @@
-if(length(.find.package("caper", quiet = TRUE))) {
+if(length(find.package("caper", quiet = TRUE))) {
 
 library(caper)
 library(MuMIn)

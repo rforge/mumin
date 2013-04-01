@@ -1,4 +1,4 @@
-if(length(.find.package("MCMCglmm", quiet = TRUE))) {
+if(length(find.package("MCMCglmm", quiet = TRUE))) {
 
 library(MuMIn)
 library(nlme)

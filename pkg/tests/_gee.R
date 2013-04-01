@@ -1,6 +1,6 @@
 ###===============================================================
 
-if(length(.find.package("geepack", quiet = TRUE))) {
+if(length(find.package("geepack", quiet = TRUE))) {
 
 library(geepack)
 #library(gee)

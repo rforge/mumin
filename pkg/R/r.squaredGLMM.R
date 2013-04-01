@@ -64,8 +64,6 @@ function(x, ...)
 		 fxNullCoef = coef(null.fit(x, evaluate = TRUE)))
 
 
-
-
 `.rsqGLMM` <-
 function(x, fam, varFx, varRan, resVar, fxNullCoef) {
 	v <- switch(paste(fam$family, fam$link, sep = "."), 

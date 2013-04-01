@@ -1,4 +1,4 @@
-if(length(.find.package(c("splm", "boot"), quiet = TRUE)) == 2L) {
+if(length(find.package(c("splm", "boot"), quiet = TRUE)) == 2L) {
 
 library(splm)
 library(MuMIn)

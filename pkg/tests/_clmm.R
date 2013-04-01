@@ -1,5 +1,5 @@
 
-if(length(.find.package("ordinal", quiet = TRUE))) {
+if(length(find.package("ordinal", quiet = TRUE))) {
 
 library(ordinal)
 library(MuMIn)

@@ -1,4 +1,4 @@
-if(length(.find.package("pscl", quiet = TRUE))) {
+if(length(find.package("pscl", quiet = TRUE))) {
 
 suppressPackageStartupMessages(library(pscl))
 library(MuMIn)

@@ -1,7 +1,7 @@
 # Test support for different classes of models
 
 require(MuMIn)
-.checkPkg <- function(package) length(.find.package(package, quiet=TRUE)) != 0
+.checkPkg <- function(package) length(find.package(package, quiet = TRUE)) != 0
 
 # TEST gls --------------------------------------------------------------------------------
 library(nlme)

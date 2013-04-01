@@ -1,4 +1,4 @@
-if(length(.find.package("gamm4", quiet = TRUE))) {
+if(length(find.package("gamm4", quiet = TRUE))) {
 
 library(mgcv)
 library(gamm4)
@@ -11,13 +11,6 @@ dat <- gamSim(6, n=100, scale=5, dist="normal")
 # fmgs2 <- MuMIn::gamm(y ~s(x0)+ s(x3) + s(x2), family = gaussian, data=dat, random = list(fac=~1))
 fmgs2 <- uGamm(y ~s(x0)+ s(x3) + s(x2), family = gaussian, data = dat, random = list(fac = ~1))
 #fmgs2 <- mgcv::gamm(y ~s(x0)+ s(x3) + s(x2), family=gaussian, data=dat, random = list(fac=~1))
-
-
-formula(fmgs2)
-
-
-class(fmgs2)
-
 
 
 null.fit(fmgs2)

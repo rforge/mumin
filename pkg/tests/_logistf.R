@@ -1,4 +1,4 @@
-if(length(.find.package("logistf", quiet = TRUE)) == 1) {
+if(length(find.package("logistf", quiet = TRUE)) == 1) {
 
 library(logistf)
 library(MuMIn)
