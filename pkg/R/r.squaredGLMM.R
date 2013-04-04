@@ -33,6 +33,7 @@ function(x, nullfx = NULL) {
 		)
 }
 
+
 `r.squaredGLMM.glmmML` <-
 function(x, nullfx = NULL) {
 	if(is.null(x$x)) {
@@ -76,6 +77,7 @@ function(x, fam, varFx, varRan, resVar, fxNullCoef) {
 	)
 	varAll <- sum(varFx, varRan)
 	res <- c(varFx, varAll) / (varAll + v)
+	if(fam$family == "poisson") res[2L] <- NA_real_ 
 	names(res) <- c("R2m", "R2c")
 	res
 }

@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.9.5 (2013-04-04)
+AICc: now takes number of observations from "nall" (if it is available) attribute 
+	of the 'logLik' object. If not present, "nobs" attribute is used.
+
 Version: 1.9.4 (2013-04-01)
 (fixed) pdredge: bug with wrong number of updated rows.
 Replaced all calls to the soon-to-be deprecated ".find.package" with "find.package"

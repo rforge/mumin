@@ -67,7 +67,11 @@ See note in \code{\link{r.squaredLR}} help page for comment on using
 R\eqn{^{2}}{^2} in model selection. 
 
 This implementation is based on \R code from \sQuote{Supporting Information} for
-Nakagawa & Schielzeth (2012).
+Nakagawa & Schielzeth (2012). 
+
+\bold{This function is in experimental stage and should be used with caution.} 
+Specifically, conditional R\eqn{_{GLMM}^{2}}{_GLMM^2} for Poisson family models
+cannot be yet calculated (\code{NA} is returned).
 
 }
 
