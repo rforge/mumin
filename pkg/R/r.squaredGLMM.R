@@ -77,7 +77,11 @@ function(x, fam, varFx, varRan, resVar, fxNullCoef) {
 	)
 	varAll <- sum(varFx, varRan)
 	res <- c(varFx, varAll) / (varAll + v)
-	if(fam$family == "poisson") res[2L] <- NA_real_ 
+	if(fam$family == "poisson") {
+		res[2L] <- NA_real_
+		warning(simpleWarning("conditional statistic for 'poisson' family cannot be (yet) calculated", 
+			sys.call(1L)))
+	}
 	names(res) <- c("R2m", "R2c")
 	res
 }
