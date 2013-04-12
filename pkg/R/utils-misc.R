@@ -103,7 +103,10 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 	lapply(seq_along(x), function(i) {
 		if(is.null(nm) || nm[i] == "") {
 			switch(mode(x[[i]]),
-				call = deparse(x[[i]], control = NULL),
+				call = {
+						v <- deparse(x[[i]], control = NULL, width.cutoff = 20L, nlines = 2L)
+						if(length(v) != 1L) v <- sprintf("%s...", v[1L])
+						v },
 				symbol =, name = as.character(x[[i]]),
 				NULL =, logical =, numeric =, complex =, character = x[[i]], i
 				)
