@@ -46,12 +46,12 @@ function (object, ...) {
 }
 
 `logLik.coxme` <-
-function(object, type = c("integrated", "penalized"), ...) {
+function(object, type = c("penalized", "integrated"), ...) {
 	type <- match.arg(type)
 	i <- which(type == c("integrated", "penalized"))[1L]
 	ret <- object$loglik[[i + 1L]]
 	attr(ret, "df") <- object$df[i]
-	attr(ret, "nobs") <- object$n[1L]
+	attr(ret, "nobs") <- object$n[2L] # XXX: 1 or 2 ?
 	class(ret) <- "logLik"
 	ret
 }

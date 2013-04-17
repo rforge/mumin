@@ -1,10 +1,13 @@
 MuMIn package news:
 
 Version: 1.9.6 (2013-04-12)
-model.sel: better model naming in the result table
+model.sel: better model naming in the result table.
+(fixed) logLik.coxme: 'nobs' attribute now uses a correct number of observations 
+	(model$n[2]). "penalized" log-lik. is the default type now (Note that 
+	"logLik.coxme"'s argument "type" is undocumented).
 
 Version: 1.9.5 (2013-04-04)
-AICc: now takes number of observations from "nall" (if it is available)
+(fixed) AICc: now takes number of observations from "nall" (if it is available)
 	attribute of the 'logLik' object. If not present, "nobs" attribute is used.
 r.squaredGLMM: current implementation does not calculate the marginal variant
 	correctly for Poisson family models, so until it is resolved 'NA' is
@@ -13,11 +16,11 @@ r.squaredGLMM: current implementation does not calculate the marginal variant
 Version: 1.9.4 (2013-04-01)
 (fixed) pdredge: bug with wrong number of updated rows.
 Replaced all calls to the soon-to-be deprecated ".find.package" with
-	"find.package"
+	"find.package".
 
 Version: 1.9.3 (2013-02-21)
 (fixed) method registration for 'getAllTerms.gam' was missing (reported by 
-	Steven Delean)
+	Steven Delean).
 
 Version: 1.9.2 (2013-02-01)
 updateable: new function to create a wrapper for functions returning
