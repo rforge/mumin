@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.9.7 (2013-04-19)
+dredge: 'subset' expression now recognizes .(x) notation to indicate a variable 
+	rather than a model term.
+
 Version: 1.9.6 (2013-04-12)
 model.sel: better model naming in the result table.
 (fixed) logLik.coxme: 'nobs' attribute now uses a correct number of observations 

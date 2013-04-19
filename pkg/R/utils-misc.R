@@ -4,6 +4,13 @@
 	return(if(ret$visible) ret$value else invisible(ret$value))
 }
 
+`.cry` <-
+function(Call = NA, Message, ..., warn = FALSE) {
+	if(is.na(Call)) Call <- sys.call(-1L)
+	if(warn) warning(simpleWarning(gettextf(Message, ..., domain = "R-MuMIn"), Call)) else
+		stop(simpleError(gettextf(Message, ..., domain = "R-MuMIn"), Call))
+}
+
 #if (!exists("getElement", mode = "function", where = "package:base", inherits = FALSE)) {
 `getElement` <- function (object, name) {
     if (isS4(object))
@@ -113,7 +120,6 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 		} else nm[i]
 	})
 }
-
 
 # test if dependency chain is satisfied: x[n] can be TRUE only if x[1:n] are also TRUE
 `.subset_dc` <- function(...) {

@@ -46,6 +46,13 @@ the estimated standard errors.
 }
 
 \details{
+
+\code{predict}ing is possible only with \code{averaging} objects with
+\code{"modelList"} attribute, i.e. those created \emph{via} \code{model.avg}
+from a model list, or from \code{model.selection} object with argument \code{fit
+= TRUE} (note this will recreate the model objects which may be time consuming,
+see \code{\link{model.avg}}).
+
 If all the component models are oridinary linear models, the prediction can be
 made either with the full averaged coefficients (the argument \code{full =
 TRUE} this is the default) or subset-averaged coefficients. Otherwise the

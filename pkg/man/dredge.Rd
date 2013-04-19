@@ -145,8 +145,8 @@ formulation must satisfy all these conditions.
 \code{subset} can take either a form of an \emph{expression} or a \emph{matrix}.
 The latter should be a lower triangular matrix with logical values, where
 columns and rows correspond to \code{global.model} terms. Value
-\code{subset["a", "b"] == FALSE} will exclude any model containing both \var{a}
-and \var{b}. Values other than \code{FALSE} (or \code{0}) are taken as
+\code{subset["a", "b"] == FALSE} will exclude any model containing both terms 
+\var{a} and \var{b}. Values other than \code{FALSE} (or \code{0}) are taken as
 \code{TRUE}.
 
 In the form of \code{expression}, the argument \code{subset} acts in a similar
@@ -154,6 +154,13 @@ fashion to that in the function \code{subset} for \code{data.frames}: model
 terms can be referred to by name as variables in the expression, with the
 difference being that they are always logical (i.e. \code{TRUE} if a term exists
 in the model).
+
+There is also \code{.(x)} and \code{.(+x)} notation that indicate respectively
+any or all model terms including a \emph{variable} \code{x}. This concerns only
+interactions containing a particular main effect \code{x} (e.g. \code{x:z},
+\code{v:x:z}), and \emph{not} a variable in a complex expression, such as
+\code{x} in \code{log(x)} or \code{I(x^2)}. This is only useful with marginality
+ exceptions, see \code{marg.ex} argument.
 
 The expression can contain any of the \code{global.model} terms
 (\code{getAllTerms(global.model)} lists them), as well as names of the
@@ -194,10 +201,14 @@ in model's formula. To simply keep certain terms in all models, use of argument
 
 \subsection{\code{subset} expression syntax summary}{
 	\tabular{ll}{
-	\code{a & b} \tab indicates that variables \var{a} and \var{b} must be
+	\code{a & b} \tab indicates that model terms \var{a} and \var{b} must be
 	present (see \sQuote{\link[=Logic]{Logical Operators}}) \cr 
 	\code{V(x)} \tab indicates a \code{varying} variable \var{x} \cr
-	\code{dc(a,b,c,...)} \tab \sQuote{dependency chain}: \var{a} is allowed only
+	\code{.(x)} \tab indicates that at least one term containing variable \var{x} 
+		must be present \cr
+	\code{.(+x)} \tab indicates that all terms containing variable \var{x} 
+		must be present \cr
+	\code{dc(a, b, c,...)} \tab \sQuote{dependency chain}: \var{a} is allowed only
 		if \var{b} is present, and \var{b} only if \var{c} is present, etc. \cr
 	\code{`*nvar*`} \tab number of variables \cr
 	}
