@@ -121,7 +121,7 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 	})
 }
 
-# test if dependency chain is satisfied: x[n] can be TRUE only if x[1:n] are also TRUE
+# test if dependency chain is satisfied: x[n] can be TRUE only if x[n+1] are also TRUE
 `.subset_dc` <- function(...) {
 	n <- length(x <- c(...))
 	if(n > 1L) all(x[-n] >= x[-1L]) else TRUE

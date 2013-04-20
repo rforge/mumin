@@ -238,9 +238,10 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			subsetExpr <- subset[[1L]]
 
 			## subset X
-			gloFactorTable <- t(attr(terms(global.model), "factors")[-1L, ] != 0)
-			rownames(gloFactorTable) <-
-				allTerms0[attr(allTerms0, "order")[!(allTerms0 %in% attr(allTerms0, "interceptLabel"))]]
+			#gloFactorTable <- t(attr(terms(global.model), "factors")[-1L, ] != 0)
+			gloFactorTable <- t(attr(terms(reformulate(allTerms0[!(allTerms0
+				%in% interceptLabel)])), "factors") != 0)
+	
 			
 			subsetExpr <- .substFun4Fun(subsetExpr, ".", function(x, fac, at, vName) {
 				if(length(x) != 2L) .cry(x, "exactly one argument needed, %d given.", length(x) - 1L)

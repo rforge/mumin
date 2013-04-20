@@ -79,7 +79,8 @@ function(object, ...) {
 `logLik.splm` <- 
 function (object, ...) {
 	ret <- object$logLik
-	if(is.null(ret)) return(NA)
+	#if(is.null(ret)) return(NA)
+	if(is.null(ret)) ret <- NA_real_
 	attr(ret, "nobs") <- length(resid(object))
 	attr(ret, "df") <- length(object$coefficients) + length(object$errcomp) +
 		length(object$arcoef) + 1L
