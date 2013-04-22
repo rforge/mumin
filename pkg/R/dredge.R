@@ -28,8 +28,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		if(length(is.dotted) > 0L) {
 			substGmCall <- substitute(global.model)
 			if(is.name(substGmCall)) {
-				.cry(NA, "call to 'global.model' contains '...' arguments and ",
-					"cannot be updated: %s", deparse(gmCall, control = NULL))
+				.cry(NA, "call to 'global.model' contains '...' arguments and cannot be updated: %s", deparse(gmCall, control = NULL))
 			} else gmCall[is.dotted] <-
 				substitute(global.model)[names(gmCall[is.dotted])]
 		}
@@ -56,6 +55,11 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	rankArgs <- list(...)
 	IC <- .getRank(rank, rankArgs)
 	ICName <- as.character(attr(IC, "call")[[1L]])
+	
+	tryCatch(IC(global.model), error = function(e) {
+		e$call <- do.call(substitute, list(attr(IC, "call"), list(x = as.name("global.model"))))
+		stop(e)
+	})
 
 	allTerms <- allTerms0 <- getAllTerms(global.model, intercept = TRUE,
 		data = eval(gmCall$data, envir = gmEnv))
@@ -241,6 +245,8 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			#gloFactorTable <- t(attr(terms(global.model), "factors")[-1L, ] != 0)
 			gloFactorTable <- t(attr(terms(reformulate(allTerms0[!(allTerms0
 				%in% interceptLabel)])), "factors") != 0)
+			
+			rownames(gloFactorTable) <- allTerms0[!(allTerms0 %in% interceptLabel)]
 	
 			
 			subsetExpr <- .substFun4Fun(subsetExpr, ".", function(x, fac, at, vName) {
@@ -252,7 +258,10 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 					fun <- "any"
 					sx <- as.character(x[[2L]])
 				}
+				#print(sx)
 				dn <- dimnames(fac)
+				#print(dn)
+				#browser()
 				if(!(sx %in% dn[[2L]])) .cry(x, "unknown variable name '%s'", sx)
 				as.call(c(as.name(fun), call("[", vName, as.call(c(as.name("c"), 
 					match(dn[[1L]][fac[, sx]], at))))))
@@ -266,11 +275,13 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 				subsetExpr <- .substFun4Fun(subsetExpr, "V", function(x, cVar, fn) {
 					if(length(x) > 2L) .cry(x, "discarding extra arguments", warn = TRUE)
 					i <- which(fn == x[[2L]])[1L]
-					if(is.na(i)) .cry(x, "'%s' is not a valid name of 'varying' element", as.character(x[[2L]]), warn = TRUE)
+					if(is.na(i)) .cry(x, "'%s' is not a valid name of 'varying' element",
+									  as.character(x[[2L]]), warn = TRUE)
 					call("[[", cVar, i)
 				}, as.name("cVar"), varying.names)
 				if(!all(all.vars(subsetExpr) %in% ssValidNames))
-					subsetExpr <- .subst4Vec(subsetExpr, varying.names, as.name("cVar"), fun = "[[")
+					subsetExpr <- .subst4Vec(subsetExpr, varying.names,
+											 as.name("cVar"), fun = "[[")
 			}
 			
 			
@@ -293,8 +304,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 		}
 	} # END: manage 'subset'
-
-
+	
 	comb.sfx <- rep(TRUE, n.fixed)
 	comb.seq <- if(nov != 0L) seq_len(nov) else 0L
 	k <- 0L
@@ -346,7 +356,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		if(jComb != prevJComb) {
 			isok <- TRUE
 			prevJComb <- jComb
-
+			
 			#DebugPrint(hasSubset)
 			comb <- c(as.logical(intToBits(jComb - 1L)[comb.seq]), comb.sfx)
 			nvar <- sum(comb) - nInts

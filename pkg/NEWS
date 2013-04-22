@@ -1,8 +1,10 @@
 MuMIn package news:
 
 Version: 1.9.7 (2013-04-19)
-dredge: 'subset' expression now recognizes .(x) notation to indicate a variable 
-	rather than a model term.
+dredge: 'subset' expression now recognizes ".(x)" notation to indicate a variable 
+	rather than a model term. Error message from within a 'rank' function gives 
+	now a more meaningfull call (apparently it is a common mistake to have some 
+	misspeled arguments that get passed to 'rank' function through '...')
 
 Version: 1.9.6 (2013-04-12)
 model.sel: better model naming in the result table.
