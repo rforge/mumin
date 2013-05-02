@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.9.8 (2013-05-02)
+(fixed) handling bar in formulas for 'hurdle' class of models (reported by J.Y. 
+	Barnagaud)
+
 Version: 1.9.7 (2013-04-19)
 dredge: 'subset' expression now recognizes ".(x)" notation to indicate a variable 
 	rather than a model term. Error message from within a 'rank' function gives 
