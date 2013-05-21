@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.9.9 (2013-05-21)
+(fixed) beta.weights: bug with dimensions dropped (thanks to D. Duro for 
+	spotting it and B. Bolker for tracking it down)
+
 Version: 1.9.8 (2013-05-02)
 (fixed) handling bar in formulas for 'hurdle' class of models (reported by J.Y. 
 	Barnagaud)

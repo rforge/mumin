@@ -32,14 +32,14 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	See \sQuote{Details}. }
 
 	\item{fixed}{optional, either a single sided formula or a character vector
-	giving names of terms to be included in all models. }
+	giving names of terms to be included in all models. See \sQuote{Subsetting}. }
 
-	\item{m.max, m.min}{optionally the maximum and minimum number of terms in a
+	\item{m.max, m.min}{optionally, the maximum and minimum number of terms in a
 	single model (excluding the intercept), \code{m.max} defaults to the number
-	of terms in \code{global.model}. }
+	of terms in \code{global.model}. See \sQuote{Subsetting}. }
 
 	\item{subset}{ logical expression describing models to keep in the resulting
-		set. See \sQuote{Details}. }
+		set. See \sQuote{Subsetting}. }
 
 	\item{marg.ex}{a character vector specifying names of variables for which
 	NOT to check for marginality restrictions when generating model formulas. If
@@ -197,7 +197,9 @@ smooths in \code{gam}) should be treated as non-syntactic names and enclosed in
 back-ticks (e.g. \code{subset = `s(x, k = 2)` || `I(log(x))`}, see
 \link[base]{Quotes}). Mind the spacing, names must match exactly the term names
 in model's formula. To simply keep certain terms in all models, use of argument
-\code{fixed} is more efficient.
+\code{fixed} is more efficient. Note that the \code{fixed} formula is 
+interpreted in the same manner as model formula and so the terms need not to be 
+quoted.
 
 \subsection{\code{subset} expression syntax summary}{
 	\tabular{ll}{
