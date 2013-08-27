@@ -24,7 +24,7 @@ functions include those returned by:
 \item \code{hurdle}, \code{zeroinfl} (\pkg{pscl});
 \item \code{negbin}, \code{betabin} (class \code{glimML}, package \pkg{aod});
 \item \code{sarlm}, \code{spautolm} (\pkg{spdep});
-\item \code{spml} (if fitted by \acronym{ML}, \pkg{splm});
+\item \code{spml}* (if fitted by \acronym{ML}, \pkg{splm});
 \item \code{coxph}, \code{survreg} (\pkg{survival});
 \item \code{coxme}, \code{lmekin} (\pkg{coxme});
 \item \code{rq} (\pkg{quantreg});
@@ -55,8 +55,9 @@ This applies also to constructing model selection tables with \code{model.sel}.
 }
 
 \note{
-* In order to use \code{gamm4}, \code{gamm4}, \code{crunch} or \code{MCMCglmm} with \code{dredge}, 
-an  \code{\link{updateable}} wrapper for these functions should be created.
+* In order to use \code{gamm}, \code{gamm4}, \code{spml (> 1.0.0)},
+  \code{crunch} or \code{MCMCglmm} with \code{dredge}, an
+  \code{\link{updateable}} wrapper for these functions should be created.
 }
 
 \seealso{

@@ -8,6 +8,12 @@ data(usaww)
 Produc <- Produc[Produc$year<1975, ]
 fm <- log(gsp) ~ log(pcap) + log(pc) + log(emp) + unemp
 
+
+if(packageVersion("splm") > "1.0.0") {
+	# new version of splm has made getting '$formula' impossible. Thanks!
+	spml <- updateable(splm::spml)
+}
+
 respaterr <- spml(fm,
 	data = Produc, listw = mat2listw(usaww), model = "random",
 	spatial.error = "b")

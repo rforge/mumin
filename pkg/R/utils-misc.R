@@ -256,3 +256,17 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 	for(i in seq_len(n)) if(!is.null(z <- FUN(X[i, ], ...))) ret[[i]] <- z
 	ret
 }
+
+
+## from stats:::format.perc
+`format.perc` <-
+function (probs, digits) 
+paste(format(100 * probs, trim = TRUE, scientific = FALSE, digits = digits), 
+    "%")
+
+
+## from stats:::nobs.glm
+`nobs.glm` <-
+function (object, ...) 
+if (!is.null(w <- object$prior.weights)) sum(w != 0) else length(object$residuals)
+	

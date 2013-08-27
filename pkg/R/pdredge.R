@@ -63,7 +63,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 				substitute(global.model)[names(gmCall[is.dotted])]
 		}
 		## object from 'run.mark.model' has $call of 'make.mark.model' - fixing it here:
-		if(inherits(global.model, "mark") && gmCall[[1]] == "make.mark.model") {
+		if(inherits(global.model, "mark") && gmCall[[1L]] == "make.mark.model") {
 			gmCall <- call("run.mark.model", model = gmCall, invisible = TRUE)
 		}
 	}
