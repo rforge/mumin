@@ -167,8 +167,9 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 }
 
 `clusterVExport` <- local({
-   `getv` <- function(obj)
-		for (i in names(obj)) assign(i, obj[[i]], envir = as.environment(1L))
+	
+   `getv` <- function(obj, env = as.environment(1L))
+		for (i in names(obj)) assign(i, obj[[i]], envir = env)
 	function(cluster, ...) {
 		Call <- match.call()
 		Call$cluster <- NULL
@@ -269,4 +270,10 @@ paste(format(100 * probs, trim = TRUE, scientific = FALSE, digits = digits),
 `nobs.glm` <-
 function (object, ...) 
 if (!is.null(w <- object$prior.weights)) sum(w != 0) else length(object$residuals)
+	
+## Cheating RCheck:
+.xget <-
+function(pkg, name)
+get(name, envir = asNamespace(pkg), inherits = FALSE)
+
 	

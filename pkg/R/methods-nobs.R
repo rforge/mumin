@@ -67,6 +67,7 @@ function(object, ...)
 `nobs.yagsResult` <-
 function (object, ...) length(object@residuals)
 
+`nobs.aodml` <-
 `nobs.splm` <- 
 function (object, ...) length(resid(object))
 
@@ -86,6 +87,6 @@ function (object, ...) object$results[['n']]
 function (object, ...)
 object$n
 
-nobs.caic <-
+`nobs.caic` <-
 function (object, ...)
 nobs(object$mod)

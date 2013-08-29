@@ -12,21 +12,11 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		clusterCall <- get("clusterCall")
 		clusterApply <- get("clusterApply")
 		clusterCall(cluster, "require", "MuMIn", character.only = TRUE)
-		clusterCall(cluster, assign, "assignFromNs", function(name, asName = name,
-			ns = "MuMIn") {
-			assign(asName, get(name, loadNamespace(ns)), envir = as.environment(1L))
-			invisible(NULL)
-		}, envir = .GlobalEnv)
+		#clusterVExport(cluster, .pdredge_process_model = pdredge_process_model)
 
-		clusterCall(cluster, "assignFromNs", ".getLik")
-		clusterCall(cluster, "assignFromNs", "tryCatchWE")
-		clusterCall(cluster, "assignFromNs", "matchCoef")
-		clusterCall(cluster, "assignFromNs", "parGetMsRow")
-
-		.getRow <- function(X) clusterApply(cluster, X, fun = "parGetMsRow")
-
+		.getRow <- function(X) clusterApply(cluster, X, fun = ".pdredge_process_model")
 	} else {
-		.getRow <- function(X) lapply(X, parGetMsRow, parCommonProps)
+		.getRow <- function(X) lapply(X, pdredge_process_model, props)
 		clusterCall <- function(...) NULL
 		message("Not using cluster.")
 	}
@@ -326,7 +316,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	# BEGIN parallel
 	qi <- 0L
 	queued <- vector(qlen, mode = "list")
-	parCommonProps <- list(gmEnv = gmEnv, IC = IC, 
+	props <- list(gmEnv = gmEnv, IC = IC, 
 		# beta = beta,
 		# allTerms = allTerms, 
 		nextra = nextra,
@@ -338,11 +328,13 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		#   beta = Z$beta, allCoef = TRUE), ct.args))
 		)
 	if(nextra) {
-		parCommonProps$applyExtras <- applyExtras
-		parCommonProps$extraResult <- extraResult
+		props$applyExtras <- applyExtras
+		props$extraResult <- extraResult
 	}
-	if(doParallel) clusterVExport(cluster, clustDredgeProps = parCommonProps,
-		tryCatchWE)
+	if(doParallel) clusterVExport(cluster,
+								  pdredge_props = props,
+								  .pdredge_process_model = pdredge_process_model
+								  )
 	# END parallel
 
 	retColIdx <- if(nvarying) -n.vars - seq_len(nvarying) else TRUE
@@ -548,13 +540,14 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		attr(ret, "random.terms") <- attr(allTerms0, "random.terms")
 
 	if(doParallel) clusterCall(cluster, "rm",
-		list = c("parGetMsRow", "clustDredgeProps", ".getLik", "tryCatchWE",
-			"matchCoef", "parGetMsRow"), envir = .GlobalEnv)
+		list = c(".pdredge_process_model", "pdredge_props"), envir = .GlobalEnv)
+		
+
 	return(ret)
 } ######
 
 
-`parGetMsRow` <- function(modv, Z = get("clustDredgeProps", .GlobalEnv)) {
+`pdredge_process_model` <- function(modv, Z = get("pdredge_props", .GlobalEnv)) {
 	### modv == list(call = clVariant, id = modelId)
 	result <- tryCatchWE(eval(modv$call, Z$gmEnv))
 	if (inherits(result$value, "condition")) return(result)

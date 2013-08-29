@@ -424,7 +424,7 @@ function (object, parm, level = 0.95, ...) {
     dfs <- object$coefArray[, 3L, ]
     ci <- t(sapply(parm, function(i)
 		par.avg(cf[,i], se[,i], wts, dfs[, i], alpha = a2)))[, 4L:5L]
-    pct <- stats:::format.perc(c(a, 1L - a), 3L)
+    pct <- .xget("stats", "format.perc")(c(a, 1L - a), 3L)
 
 	ci[is.na(object$coef.shrinkage), ] <- NA_real_
     colnames(ci) <- pct

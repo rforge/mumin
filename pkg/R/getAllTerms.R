@@ -173,7 +173,7 @@ function(x, intercept = FALSE, ...) {
 
 `getAllTerms.coxme` <-
 function(x, ...)  {
-	ret <- MuMIn:::getAllTerms.terms(terms(x))
+	ret <- getAllTerms.terms(terms(x))
 	random <- x$formulaList$random
 	attr(ret, "random.terms") <- as.character(random)
 	f <- as.name(".")
@@ -220,7 +220,7 @@ function(x, ...)  {
 
 `getAllTerms.MCMCglmm` <- 
 function (x, ...) {
-	res <- MuMIn:::getAllTerms.default(x, ...)
+	res <- getAllTerms.default(x, ...) 
 	attr(res, "random") <- .formulaEnv(.~., environment(formula(x)))
 	attr(res, "random.terms") <- deparse(x$Random$formula, control = NULL)[1]
 	res
