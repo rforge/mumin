@@ -102,7 +102,7 @@ function(x, ...) {
 # `getAllTerms.glmer` <- # For backwards compatibility
 # `getAllTerms.lmer` <-  # with older versions of lme4
 `getAllTerms.mer` <-
-function(x, ...) getAllTerms(lme4::formula(x), ...)
+function(x, ...) getAllTerms(.xget("lme4", "formula")(x), ...)
 
 # Apparently there is no (explicit) intercept in coxph, but 'terms' gives
 # attr(,"intercept") == 1.
