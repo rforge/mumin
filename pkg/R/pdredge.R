@@ -89,7 +89,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	}
 
 	if(names(gmCall)[2L] == "") gmCall <-
-		match.call(gmCall, definition = eval(gmCall[[1]], envir = parent.frame()), expand.dots = TRUE)
+		match.call(gmCall, definition = eval(gmCall[[1L]], envir = parent.frame()), expand.dots = TRUE)
 
 
 	gmCoefNames <- fixCoefNames(names(coeffs(global.model)))
@@ -327,7 +327,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		)
 	if(nextra) {
 		props$applyExtras <- applyExtras
-		props$extraResult <- extraResult
+		props$extraResultNames <- names(extraResult)
 	}
 	props <- as.environment(props)
 	
@@ -352,7 +352,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 			nvar <- sum(comb) - nInts
 			
 			
-			# POSITIVE condition for 'pdredge', NEGATIVE for 'dredge':
+			# !!! POSITIVE condition for 'pdredge', NEGATIVE for 'dredge':
 			if((nvar >= m.min && nvar <= m.max) && switch(hasSubset,
 					# 1 - no subset, 2 - matrix, 3 - expression
 					TRUE,                                    # 1 
@@ -556,10 +556,10 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	fit1 <- result$value
 	if(get("nextra", envir) != 0L) {
 		extraResult1 <- get("applyExtras", envir)(fit1)
-		nextra  <- get("nextra", envir)
+		nextra <- get("nextra", envir)
 		if(length(extraResult1) < nextra) {
 			tmp <- rep(NA_real_, nextra)
-			tmp[match(names(extraResult1), names(get("extraResult", envir)))] <-
+			tmp[match(names(extraResult1), get("extraResultNames", envir))] <-
 				extraResult1
 			extraResult1 <- tmp
 		}

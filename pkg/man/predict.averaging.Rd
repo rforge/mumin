@@ -104,7 +104,7 @@ on the outermost level (equivalent to \code{level = 0} in
 
 \examples{
 
-require(graphics)
+if(require(graphics)) {
 
 # Example from Burnham and Anderson (2002), page 100:
 data(Cement)
@@ -150,6 +150,8 @@ legend("topleft",
     lty = 1, lwd = c(rep(2,n),3,3,3),  cex = .75, col=1:8)
 
 palette(opal)
+
+}
 
 }
 
