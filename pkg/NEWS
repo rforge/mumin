@@ -1,8 +1,10 @@
 MuMIn package news:
 
-Version: 1.9.11 (2013-09-23)
-Documentation: made examples depending on suggested packages conditional on 
-	availability of the package.
+Version: 1.9.11 (2013-09-30)
+Documentation: examples that depend on suggested packages have been made 
+	conditional on availability of the package.
+getCall method for 'model.selection' can retrieve a component model call if 
+	index is given as a second argument.
 
 Version: 1.9.10 (2013-08-27)
 pdredge: removed global assignments (within cluster nodes)

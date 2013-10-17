@@ -208,7 +208,7 @@ quoted.
 	\code{V(x)} \tab indicates a \code{varying} variable \var{x} \cr
 	\code{.(x)} \tab indicates that at least one term containing variable \var{x} 
 		must be present \cr
-	\code{.(+x)} \tab indicates that all terms containing variable \var{x} 
+	\code{.(+x)} \tab indicates that all the terms containing variable \var{x} 
 		must be present \cr
 	\code{dc(a, b, c,...)} \tab \sQuote{dependency chain}: \var{a} is allowed only
 		if \var{b} is present, and \var{b} only if \var{c} is present, etc. \cr
@@ -241,15 +241,17 @@ Coefficients can be extracted with \code{coef} or \code{\link{coefTable}}.
 	the information criterion specified by \code{rank} (lowest on top).
 
 The attribute \code{"calls"} is a list containing the model calls used (arranged
-in the same order as the models).
+in the same order as the models). A model call can be retrieved with
+\code{getCall(*, i)} where \var{i} is a vector of model index or name (if given
+as character string).
+
+
 Other attributes:
 \code{"global"} - the \code{global.model} object,
 \code{"rank"} - the \code{rank} function used, \code{"call"} - the matched
 call, and
 \code{"warnings"} - list of errors and warnings given by the modelling function
-	during the fitting, with model number appended to each. The associated model
-	call can be found with \code{attr(*, "calls")[["i"]]}, where \var{i} is the
-	model number.
+	during the fitting, with model number appended to each. 
 }
 
 \author{Kamil Barto\enc{ń}{n}}

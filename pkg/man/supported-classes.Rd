@@ -44,7 +44,7 @@ from package \pkg{geepack}, \code{\link[gee]{gee}} from \pkg{gee}, and
 \code{yags} from \pkg{yags} (from R-Forge) can be used with \code{\link{QIC}} 
 as the selection criterion.
 
-\code{MCMCglmm}* models (package \pkg{MCMCglmm}) with \code{\link{DIC}} as the 
+\code{MCMCglmm}* models (package \pkg{MCMCglmm}) with e.g. \code{\link{DIC}} as the 
 \code{rank} function are accepted by \code{model.sel} and \code{dredge}.
 
 Other classes are also likely to be supported, in particular if they inherit
