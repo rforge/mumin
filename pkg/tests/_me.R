@@ -1,4 +1,6 @@
 # Test mixed models
+if(length(find.package(c("nlme", "lme4"), quiet = TRUE)) == 2) {
+
 library(MuMIn)
 library(nlme)
 library(lme4)
@@ -56,7 +58,10 @@ data(Orthodont, package = "nlme")
 Orthodont$rand <- runif(nrow(Orthodont))
 fm2 <- lmer(log(distance) ~ rand*Sex*age + (1|Subject), data = Orthodont, REML = FALSE)
 
+r.squaredGLMM(fm2)
 
+#packageVersion("MuMIn")
+#packageVersion("lme4")
 #lme4:::predict.merMod(fm2, REform = NA) - predict.merMod(fm2)
 
 #MuMIn:::predict.merMod(fm2, se.fit = T)
@@ -119,9 +124,7 @@ all.equal(msAIC2, msAIC)
 # !all.equal(msAIC3, msAIC)
 # !all.equal(msBIC2, msBIC)
 
-
-detach(package:lme4); rm(list=ls())
-
+}
 #===============================================================================
 
 #library(MASS)

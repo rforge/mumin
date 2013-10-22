@@ -1,4 +1,4 @@
-if(length(find.package("gamm4", quiet = TRUE))) {
+if(length(find.package(c("gamm4", "lme4"), quiet = TRUE)) == 2) {
 
 library(mgcv)
 library(gamm4)

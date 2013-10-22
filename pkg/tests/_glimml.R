@@ -1,4 +1,4 @@
-if(length(find.package(c("glmmML", "aod"), quiet = TRUE)) == 2) {
+if(length(find.package(c("glmmML", "aod", "lme4", "MASS"), quiet = TRUE)) == 4) {
 
 library(aod)
 library(glmmML)
