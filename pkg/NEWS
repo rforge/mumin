@@ -1,5 +1,10 @@
 MuMIn package news:
 
+Version: 1.9.14 (2013-11-03)
+(added) support for 'betareg' (from package 'betareg').
+(p)dredge: fixed a bug that occurred when there was 'na.action=na.omit' in 
+	global model.
+
 Version: 1.9.13 (2013-10-28)
 fixed: handling response variables with more than two levels in 'nnet::multinom'
 	models. (reported by L. Duvaux on Stackoverflow)

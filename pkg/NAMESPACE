@@ -262,6 +262,10 @@ S3method(r.squaredGLMM, merMod)
 S3method(r.squaredGLMM, mer)
 S3method(r.squaredGLMM, glmmML)
 
+S3method(getAllTerms, betareg)
+S3method(makeArgs, betareg)
+S3method(coefTable, betareg)
+
 S3method(getCall, default)
 S3method(getCall, model.selection)
 

@@ -1,18 +1,18 @@
 Package: MuMIn
 Type: Package
 Title: Multi-model inference
-Version: 1.9.13
-Date: 2013-10-28
+Version: 1.9.14
+Date: 2013-11-03
 Encoding: UTF-8
 Author: Kamil Bartoń
 Maintainer: Kamil Bartoń <kamil.barton@go2.pl>
 Description: Model selection and model averaging based on information criteria
 	(AICc and alike).
 License: GPL-2
-Depends: R (>= 2.13.0)
+Depends: R (>= 2.15.2)
 Imports: stats
 Suggests: stats4, nlme, mgcv (>= 1.7.5), lme4 (>= 0.999375-16), gamm4,
         MASS, nnet, survival, geepack
 Enhances: aod, coxme, glmmML, MCMCglmm, pscl, spdep, unmarked, ordinal,
-        gee, splm, logistf, caper
+        gee, splm, logistf, caper, betareg
 LazyLoad: yes

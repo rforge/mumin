@@ -76,16 +76,13 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	nInts <- sum(attr(allTerms, "intercept"))
 
 
-	
-
-
 	# parallel: check whether the models would be identical:
 	if(doParallel && check) testUpdatedObj(cluster, global.model, gmCall, level = check)
 
 	# Check for na.omit
 	if (!is.null(gmCall$na.action) &&
-		as.character(gmCall$na.action) %in% c("na.omit", "na.exclude")) {
-		stop("'global.model' should not use 'na.action' = ", gmCall$na.action)
+		(gmNa.action <- as.character(gmCall$na.action)) %in% c("na.omit", "na.exclude")) {
+		.cry(NA, "'global.model' should not use 'na.action' = \"%s\"", gmNa.action)
 	}
 
 	if(names(gmCall)[2L] == "") gmCall <-

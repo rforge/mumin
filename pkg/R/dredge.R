@@ -78,8 +78,8 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	# Check for na.omit
 	if (!is.null(gmCall$na.action) &&
-		as.character(gmCall$na.action) %in% c("na.omit", "na.exclude")) {
-		.cry(NA, "'global.model' should not use 'na.action' = \"%s\"", gmCall$na.action)
+		(gmNa.action <- as.character(gmCall$na.action)) %in% c("na.omit", "na.exclude")) {
+		.cry(NA, "'global.model' should not use 'na.action' = \"%s\"", gmNa.action)
 	}
 	
 	if(names(gmCall)[2L] == "") gmCall <-

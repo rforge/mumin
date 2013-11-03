@@ -269,6 +269,39 @@ function (x, intercept = FALSE, ...) {
 	res
 }
 
+`getAllTerms.betareg` <-
+function(x, intercept = FALSE, ...) {
+	f <- formula(x)
+	if(length(f[[3L]]) != 1L && f[[3L]][[1L]] == "|"){
+		f1 <- call("~", f[[2L]], f[[3L]][[2L]])
+		f2 <- call("~", f[[3L]][[3L]])
+	} else {
+		f1 <- f
+		f2 <- NULL
+	}
+	fs <- lapply(lapply(c(f1, f2), terms.formula, data = model.frame(x)),
+		formula)
+	z <- lapply(fs, getAllTerms, intercept = TRUE)
+
+	ord <- unlist(lapply(z, attr, "order"))
+	n <- sapply(z, length)
+	if(length(z) > 1L) ord[-j] <- ord[-(j <- seq_len(n[1L]))] + n[1L]
+	zz <- unlist(z)
+	Ints <- which(zz == "(Intercept)")
+
+	if(!is.null(f2) && n[2L] != 0L) {
+		i.phi <- -seq.int(n[1L])
+		zz[i.phi] <- paste("(phi)", zz[i.phi], sep = "_")
+	}
+	ret <- if(!intercept) zz[-Ints] else zz
+	attr(ret, "intercept") <- pmin(Ints, 1)
+	attr(ret, "interceptLabel") <- zz[Ints]
+	attr(ret, "response") <- attr(z[[1L]], "response")
+	attr(ret, "order") <- if(!intercept) order(ord[-Ints]) else ord
+	ret
+}
+
+
 
 `getAllTerms` <-
 function(x, ...) UseMethod("getAllTerms")

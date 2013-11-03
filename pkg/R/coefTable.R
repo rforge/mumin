@@ -11,7 +11,6 @@ function (model, ...) UseMethod("coefTable")
 function (x, ...)
 stats::printCoefmat(x, has.Pvalue = FALSE)
 
-
 .makeCoefTable <- 
 function(x, se, df = NA_real_, coefNames = names(x)) {
 	if(n <- length(x)) {
@@ -118,9 +117,11 @@ function(model, ...) {
 	#.makeCoefTable(coef(model), sqrt(diag(vcov(model, ...))))
 }
 
+`coefTable.betareg` <- 
 `coefTable.glimML` <-
 function(model, ...)
 	.makeCoefTable(coef(model), sqrt(diag(vcov(model, ...))))
+
 
 `coefTable.unmarkedFit` <- 
 function (model, ...)
