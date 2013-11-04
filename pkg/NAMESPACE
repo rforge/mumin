@@ -263,6 +263,10 @@ S3method(r.squaredGLMM, mer)
 S3method(r.squaredGLMM, glmmML)
 
 S3method(coefTable, aodml)
+S3method(coeffs, aodml)
+S3method(coefTable, aodml)
+S3method(makeArgs, aodml)
+
 
 S3method(getAllTerms, betareg)
 S3method(makeArgs, betareg)

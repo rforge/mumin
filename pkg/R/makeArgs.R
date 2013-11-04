@@ -257,3 +257,15 @@ function(obj, termNames, comb, opt, ...) {
 	ret
 }
 
+
+`makeArgs.aodml` <-
+function(obj, termNames, comb, opt, ...) {
+	if(sys.nframe() > 2L && (parent.call <- sys.call(-2L))[[1L]] == "dredge" &&
+	   !is.null(getCall(obj)$fixpar))
+		stop(simpleError("'aodml' models with constant parameters cannot be handled by 'dredge' (yet)",
+						 call = parent.call))
+	makeArgs.default(obj, termNames, comb, opt, ...)
+}
+
+
+

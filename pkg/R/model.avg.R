@@ -294,7 +294,7 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 	if (!missing(interval)) .NotYetUsed("interval", error = FALSE)
 
 	models <- attr(object, "modelList")
-	if(is.null(models)) stop("cannot predict from 'averaging' object not created with a model list")
+	if(is.null(models)) stop("can only predict from 'averaging' object created with a model list")
 
 	# Benchmark: vapply is ~4x faster
 	#system.time(for(i in 1:1000) sapply(models, inherits, what="gam")) /

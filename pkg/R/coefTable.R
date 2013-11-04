@@ -193,10 +193,15 @@ function (model, orig.names = FALSE, ...) {
 function (model, ...)
 .makeCoefTable(model$coefficients, sqrt(diag(model$var)))
 
+#`coefTable.aodml` <-
+#function (model, ...) {
+#	s <- summary(model)
+#	ct <- rbind(s$BCoef[, c(1L, 2L)], s$FixedBCoef, s$Phi, s$FixedPhi)
+#	.makeCoefTable(ct[,1L], ct[, 2L], coefNames = rownames(ct))
+#}
+
 `coefTable.aodml` <-
 function (model, ...) {
-	s <- summary(model)
-	ct <- rbind(s$BCoef[, c(1L, 2L)], s$FixedBCoef, s$Phi, s$FixedPhi)
-	.makeCoefTable(ct[,1L], ct[, 2L], coefNames = rownames(ct))
+	.makeCoefTable(coeffs(model), sqrt(diag(model$varparam)))
 }
 

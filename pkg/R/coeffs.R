@@ -80,5 +80,12 @@ function (model) {
 	res
 }
 
+
+`coeffs.aodml` <-
+function (model) {
+	c(model$b, model$phi)
+}
+
+
 `coeffs.default` <-
 function(model) coef(model)

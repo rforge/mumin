@@ -1,25 +1,26 @@
 MuMIn package news:
 
 Version: 1.9.14 (2013-11-03)
-(added) support for 'betareg' (from package 'betareg').
+(added) support for 'betareg' (from package 'betareg') (requested by M. Gentes)
+(added) support for 'aodml' (from package 'aods3') (suggested by R. Lancelot)
 (p)dredge: fixed a bug that occurred when there was 'na.action=na.omit' in 
-	global model.
+	global model (spotted by LauraB on R-help).
 
 Version: 1.9.13 (2013-10-28)
 fixed: handling response variables with more than two levels in 'nnet::multinom'
-	models. (reported by L. Duvaux on Stackoverflow)
+	models (reported by L. Duvaux on Stackoverflow)
 
 Version: 1.9.12 (2013-10-21)
-further adjustments to deal with unavailability of 'lme4' on CRAN.
+further adjustments to deal with unavailability of 'lme4' on CRAN
 
 Version: 1.9.11 (2013-09-30)
 Documentation: examples that depend on suggested packages have been made 
-	conditional on availability of the package.
+	conditional on availability of the package
 getCall method for 'model.selection' can retrieve a component model call if 
 	index is given as a second argument.
 
 Version: 1.9.10 (2013-08-27)
-pdredge: removed global assignments (within cluster nodes)
+pdredge: removed global assignments (within cluster nodes).
 
 Version: 1.9.9 (2013-05-21)
 (fixed) beta.weights: bug with dimensions dropped (thanks to D. Duro for 
@@ -33,10 +34,10 @@ Version: 1.9.7 (2013-04-19)
 dredge: 'subset' expression now recognizes ".(x)" notation to indicate a variable 
 	rather than a model term. Error message from within a 'rank' function gives 
 	now a more meaningfull call (apparently it is a common mistake to have some 
-	misspeled arguments that get passed to 'rank' function through '...')
+	misspeled arguments that get passed to 'rank' function through '...').
 
 Version: 1.9.6 (2013-04-12)
-model.sel: better model naming in the result table.
+model.sel: better model naming in the result table
 (fixed) logLik.coxme: 'nobs' attribute now uses a correct number of observations 
 	(model$n[2]). "penalized" log-lik. is the default type now (Note that 
 	"logLik.coxme"'s argument "type" is undocumented).
