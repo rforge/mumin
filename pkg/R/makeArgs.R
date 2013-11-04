@@ -7,10 +7,10 @@ makeArgs <- function(obj, termNames, comb, opt, ...) UseMethod("makeArgs", obj)
 
 #argsOptions <- list(
 #	response = attr(allTerms0, "response"),
-#	intercept = nInts,
+#	intercept = nInts,        ### ONLY .default
 #	interceptLabel = interceptLabel,
 #	random = attr(allTerms0, "random"),
-#	gmCall = gmCall,
+#	gmCall = gmCall,          ### ONLY .default
 #	gmEnv = gmEnv,
 #	allTerms = allTerms0,
 #	gmCoefNames = gmCoefNames,
@@ -35,6 +35,7 @@ makeArgs.default <-
 function(obj, termNames, comb, opt, ...) {
 	reportProblems <- character(0L)
 	termNames[termNames %in% opt$interceptLabel] <- "1"
+	## XXX: what if 'opt$intercept' is of length > 1 ???
 	f <- reformulate(c(if(!opt$intercept) "0", termNames), response = opt$response)
 	environment(f) <- opt$gmFormulaEnv
 	ret <- list(formula = f)
@@ -68,7 +69,8 @@ function(obj, termNames, comb, opt, ...) {
 }
 
 
-`makeArgs.merMod` <-  # since lme4-0.99999911-0
+`makeArgs.clmm` <- 		## Class 'clmm'  from package 'ordinal':
+`makeArgs.merMod` <-    ## since lme4-0.99999911-0
 `makeArgs.mer` <- 
 function(obj, termNames, comb, opt, ...) {
 	ret <- makeArgs.default(obj, termNames, comb, opt)
@@ -77,9 +79,6 @@ function(obj, termNames, comb, opt, ...) {
 	ret
 }
 
-## Class 'clmm'  from package 'ordinal':
-`makeArgs.clmm` <- 
-makeArgs.mer
 
 
 # used by makeArgs.unmarkedFit*

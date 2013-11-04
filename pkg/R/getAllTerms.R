@@ -62,8 +62,10 @@ function(x, offset = TRUE, intercept = FALSE, ...) {
 
 	if (length(ran) > 0L) {
 		attr(ret, "random.terms") <- ran
-		attr(ret, "random") <- reformulate(c(".", paste("(", ran, ")",
+		f.random <- reformulate(c(".", paste("(", ran, ")",
 			sep = "")), response = ".")
+		environment(f.random) <- environment(x)
+		attr(ret, "random") <- f.random
 	}
 
 	response <- attr(x, "response")

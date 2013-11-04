@@ -72,7 +72,7 @@ function(model, ...)
 
 `coefTable.multinom` <- 
 function (model, ...) {
-	.makeCoefTable(coeffs(model), sqrt(diag(vcov(model))))
+	.makeCoefTable(coeffs(model), sqrt(diag(vcov(model, ...))))
 }
 
 
@@ -125,7 +125,7 @@ function(model, ...)
 
 `coefTable.unmarkedFit` <- 
 function (model, ...)
-	.makeCoefTable(coef(model), sqrt(diag(vcov(model))))
+	.makeCoefTable(coef(model), sqrt(diag(vcov(model, ...))))
 
 	
 `coefTable.gee` <-

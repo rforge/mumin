@@ -96,6 +96,7 @@ function(object, ..., beta = FALSE,
 	dispersion = NULL, ct.args = NULL) {
 
 	if (inherits(object, "list")) {
+		if(length(object) == 0L) stop("'object' is an empty list")
 		models <- object
 		object <- object[[1L]]
         if (!is.null(rank) || is.null(rank <- attr(models, "rank"))) {
@@ -231,12 +232,28 @@ function(object, ..., beta = FALSE,
 	#rsd <- NULL
 	## XXX: how to calc residuals ?
 	
+	modelClasses <- lapply(models, class)
 	
-	trm <- tryCatch(terms(models[[1L]]),
-			error = function(e) terms(formula(models[[1L]])))
-	response <- attr(trm, "response")
-	frm <- reformulate(all.terms,
-				response = if(response > 0L) attr(trm, "variables")[response + 1L] else NULL)
+	frm <-
+	if(all(vapply(modelClasses[-1L], identical, logical(1L), modelClasses[[1L]]))) {
+		trm <- tryCatch(terms(models[[1L]]),
+				error = function(e) terms(formula(models[[1L]])))
+		response <- attr(trm, "response")
+		m1 <- models[[1L]]
+		
+		makeArgs(m1, all.terms, opt = list(
+			response = if(response > 0L) attr(trm, "variables")[[response + 1L]] else NULL,
+			gmFormulaEnv = environment(formula(m1)),
+			intercept = ! identical(unique(unlist(lapply(allterms1, attr, "intercept"))), 0),
+			interceptLabel = unique(unlist(lapply(allterms1, attr, "interceptLabel"))),
+			#	random = attr(allTerms0, "random"),
+			gmCall = getCall(m1),
+			gmEnv = parent.frame(),
+			allTerms = all.terms,
+			random = . ~ .
+			))[[1L]]
+	} else NA
+	
 
 	ret <- list(
 		summary = as.data.frame(mstab),
@@ -267,6 +284,7 @@ function(object, full = FALSE, ...) if(full) object$coef.shrinkage else
 
 
  #TODO: predict p -="response" + average on response scale
+ 
 `predict.averaging` <-
 function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 	type = NA, backtransform = FALSE,
@@ -276,7 +294,7 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 	if (!missing(interval)) .NotYetUsed("interval", error = FALSE)
 
 	models <- attr(object, "modelList")
-	if(is.null(models)) stop("cannot predict without a model list")
+	if(is.null(models)) stop("cannot predict from 'averaging' object not created with a model list")
 
 	# Benchmark: vapply is ~4x faster
 	#system.time(for(i in 1:1000) sapply(models, inherits, what="gam")) /
@@ -288,11 +306,12 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 		&& all(linherits(models, c(gam = FALSE, lm = TRUE)))
 		&& !any(is.na(object$coef.shrinkage))
 		) {
+		
 		coeff <- coef(object, full = full)
 		frm <- formula(object)
 
 		tt <- delete.response(terms(frm))
-		X <- object$x
+		X <- model.matrix(object)
 
 		if (missing(newdata) || is.null(newdata)) {
 			Xnew <- X
@@ -304,6 +323,8 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 
 		Xnew <- Xnew[, match(names(coeff), colnames(Xnew), nomatch = 0L)]
 		ret <- (Xnew %*% coeff)[, 1L]
+		
+		Xnew
 
 		#if (se.fit) {
 		#	scale <- 1
@@ -391,6 +412,7 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 	}
 	return(ret)
 }
+
 
 `fitted.averaging` <-
 function (object, ...) predict.averaging(object)
