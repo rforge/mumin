@@ -90,3 +90,7 @@ object$n
 `nobs.caic` <-
 function (object, ...)
 nobs(object$mod)
+
+`nobs.aodql` <-
+function (object, ...) 
+nobs(object$fm)

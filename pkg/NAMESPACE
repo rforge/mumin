@@ -266,6 +266,8 @@ S3method(coefTable, aodml)
 S3method(coeffs, aodml)
 S3method(coefTable, aodml)
 S3method(makeArgs, aodml)
+S3method(nobs, aodql)
+S3method(coefTable, aodql)
 
 
 S3method(getAllTerms, betareg)

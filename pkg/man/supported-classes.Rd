@@ -23,7 +23,7 @@ functions include those returned by:
 \item \code{glmmadmb} (\pkg{glmmADMB} from R-Forge);
 \item \code{hurdle}, \code{zeroinfl} (\pkg{pscl});
 \item \code{negbin}, \code{betabin} (class \code{glimML}, package \pkg{aod});
-\item \code{aodml} (\pkg{aods3});
+\item \code{aodml}, \code{aodql} (\pkg{aods3});
 \item \code{betareg} (\pkg{betareg});
 \item \code{sarlm}, \code{spautolm} (\pkg{spdep});
 \item \code{spml}* (if fitted by \acronym{ML}, \pkg{splm});

@@ -117,14 +117,11 @@ function(model, ...) {
 	#.makeCoefTable(coef(model), sqrt(diag(vcov(model, ...))))
 }
 
+`coefTable.aodql` <-
 `coefTable.betareg` <- 
 `coefTable.glimML` <-
-function(model, ...)
-	.makeCoefTable(coef(model), sqrt(diag(vcov(model, ...))))
-
-
 `coefTable.unmarkedFit` <- 
-function (model, ...)
+function(model, ...)
 	.makeCoefTable(coef(model), sqrt(diag(vcov(model, ...))))
 
 	
@@ -192,13 +189,6 @@ function (model, orig.names = FALSE, ...) {
 `coefTable.logistf` <-
 function (model, ...)
 .makeCoefTable(model$coefficients, sqrt(diag(model$var)))
-
-#`coefTable.aodml` <-
-#function (model, ...) {
-#	s <- summary(model)
-#	ct <- rbind(s$BCoef[, c(1L, 2L)], s$FixedBCoef, s$Phi, s$FixedPhi)
-#	.makeCoefTable(ct[,1L], ct[, 2L], coefNames = rownames(ct))
-#}
 
 `coefTable.aodml` <-
 function (model, ...) {
