@@ -69,11 +69,11 @@ function(x, ...)
 function(x, fam, varFx, varRan, resVar, fxNullCoef) {
 	v <- switch(paste(fam$family, fam$link, sep = "."), 
 		gaussian.identity = resVar,
-		binomial.logit = 3.28986813369645, # pi^2 / 3
+		binomial.logit = 3.28986813369645, #  = pi^2 / 3
 		binomial.probit = 1,
 		poisson.log = log(1 / exp(fxNullCoef) + 1),
 		poisson.sqrt = 0.25,
-		stop("do not know (yet) how to calculate variance for this family/link combination")
+		stop("do not know how to calculate variance for this family/link combination")
 	)
 	varAll <- sum(varFx, varRan)
 	res <- c(varFx, varAll) / (varAll + v)
