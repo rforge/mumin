@@ -155,11 +155,40 @@
 	nresid <- vapply(models, function(x) nobs(x), numeric(1L)) # , nall=TRUE
 
 	if(!all(datas[-1L] == datas[[1L]]) || !all(nresid[-1L] == nresid[[1L]])) {
+		# XXX: na.action checking here
 		err("models are not all fitted to the same data")
 		res <- FALSE
 	}
 	invisible(res)
 }
+
+
+.checkNaAction <-
+function(x, cl = getCall(x), naomi = c("na.omit", "na.exclude"), what = "model") {
+	naact <- NA_character_
+	msg <- NA_character_
+	if (!is.null(cl$na.action)) {
+		naact <- as.character(cl$na.action)
+		if (naact %in% naomi)
+			msg <- sprintf("%s uses 'na.action' = \"%s\"", what, naact)
+	} else {
+		naact <- formals(eval(cl[[1L]]))$na.action
+		if (missing(naact)) {
+			naact <- getOption("na.action")
+			if (naact %in% naomi)
+				msg <- sprintf("%s's 'na.action' argument is not set and options('na.action') is \"%s\"", what, naact)
+		} else if (!is.null(naact)) {
+			naact <- as.character(naact)
+			if (naact %in% naomi)
+				msg <- sprintf("%s uses the default 'na.action' = \"%s\"", what, naact)
+		}
+	}
+	res <- is.na(msg)
+	attr(res, "na.action") <- naact
+	attr(res, "message") <- msg
+	res
+}
+
 
 #system.time(for(i in 1:1000) abbreviateTerms(x))
 

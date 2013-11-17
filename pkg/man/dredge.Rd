@@ -218,9 +218,10 @@ quoted.
 }
 
 \subsection{Missing values}{
-Use of \code{na.action = na.omit} (\R's default) in \code{global.model} should
-be avoided, as it results with sub-models fitted to different data sets, if
-there are missing values. Warning is given if it is detected.
+Use of \code{na.action = "na.omit"} (\R's default) or \code{"na.exclude"}  in 
+\code{global.model} must be avoided, as it results with sub-models fitted to 
+different data sets, if there are missing values. Error is thrown if it is 
+detected.
 }
 
 \subsection{Methods}{
@@ -286,6 +287,8 @@ regression.
 \examples{
 # Example from Burnham and Anderson (2002), page 100:
 data(Cement)
+options(na.action = "na.fail")   #  prevent fitting models to different datasets
+
 fm1 <- lm(y ~ ., data = Cement)
 dd <- dredge(fm1)
 subset(dd, delta < 4)

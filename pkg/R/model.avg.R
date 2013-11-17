@@ -413,7 +413,6 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 	return(ret)
 }
 
-
 `fitted.averaging` <-
 function (object, ...) predict.averaging(object)
 

@@ -1,11 +1,15 @@
 MuMIn package news:
 
+Version: 1.9.15 (2013-11-17)
+[p]dredge: improved checking for na.action = "na.omit" or "na.exclude" in the 
+	global model.
+
 Version: 1.9.14 (2013-11-03)
-(added) support for 'betareg' (from package 'betareg') (requested by M. Gentes)
+(added) support for 'betareg' (from package 'betareg') (suggested by M-L. Gentes)
 (added) support for 'aodml' and 'aodql' (from package 'aods3') (suggested by R. 
 	Lancelot)
 [p]dredge: fixed a bug that occurred when there was 'na.action=na.omit' in 
-	global model (spotted by LauraB on R-help).
+	global model (spotted by L. Busia on R-help).
 
 Version: 1.9.13 (2013-10-28)
 (fixed) handling response variables with more than two levels in 'nnet::multinom'

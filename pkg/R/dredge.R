@@ -77,13 +77,13 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 
 	# Check for na.omit
-	if (!is.null(gmCall$na.action) &&
-		(gmNa.action <- as.character(gmCall$na.action)) %in% c("na.omit", "na.exclude")) {
-		.cry(NA, "'global.model' should not use 'na.action' = \"%s\"", gmNa.action)
-	}
+	if(!(gmNA.action <- .checkNaAction(cl = gmCall, what = "'global.model'")))
+		.cry(NA, attr(gmNA.action, "message"))
+	
 	
 	if(names(gmCall)[2L] == "") gmCall <-
-		match.call(gmCall, definition = eval(gmCall[[1]], envir = parent.frame()), expand.dots = TRUE)
+		match.call(gmCall, definition = eval(gmCall[[1L]], envir = parent.frame()),
+				   expand.dots = TRUE)
 		
 		
 	# TODO: other classes: model, fixed, etc...
@@ -112,8 +112,8 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		} else if (identical(fixed, TRUE)) {
 			fixed <- as.vector(allTerms[!(allTerms %in% interceptLabel)])
 		} else if (!is.character(fixed)) {
-			.cry(NA, "'fixed' should be either a character vector with"
-				  + " names of variables or a one-sided formula")
+			.cry(NA, paste("'fixed' should be either a character vector with",
+						   " names of variables or a one-sided formula"))
 		}
 		if (!all(fixed %in% allTerms)) {
 			.cry(NA, "not all terms in 'fixed' exist in 'global.model'", warn = TRUE)
@@ -283,10 +283,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 					subsetExpr <- .subst4Vec(subsetExpr, varying.names,
 											 as.name("cVar"), fun = "[[")
 			}
-			
-			
-			# DebugPrint(subsetExpr)
-			
 			ssVars <- all.vars(subsetExpr)
 			okVars <- ssVars %in% ssValidNames
 			if(!all(okVars)) stop("unrecognized names in 'subset' expression: ",
@@ -298,9 +294,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			
 			hasSubset <- if(any(ssVars == "cVar")) 4L else # subset as expression
 				3L # subset as expression using 'varying' variables
-				
-			#DebugPrint(subsetExpr)
-			
 
 		}
 	} # END: manage 'subset'
@@ -347,20 +340,14 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	retColIdx <- if(nvarying) -n.vars - seq_len(nvarying) else TRUE
 
 	prevJComb <- 0L
-	#DebugPrint(ncomb)
-	#DebugPrint(nvariants)
 	for(iComb in seq.int(ncomb)) {
 		jComb <- ceiling(iComb / nvariants)
-		#DebugPrint(iComb)
-		#DebugPrint(jComb)
 		if(jComb != prevJComb) {
 			isok <- TRUE
 			prevJComb <- jComb
 			
-			#DebugPrint(hasSubset)
 			comb <- c(as.logical(intToBits(jComb - 1L)[comb.seq]), comb.sfx)
 			nvar <- sum(comb) - nInts
-			#DebugPrint(nInts)
 				
 			if(nvar > m.max || nvar < m.min ||
 			   switch(hasSubset,
