@@ -276,4 +276,37 @@ if (!is.null(w <- object$prior.weights)) sum(w != 0) else length(object$residual
 function(pkg, name)
 get(name, envir = asNamespace(pkg), inherits = FALSE)
 
+# used by 'model.sel' and 'dredge' with argument 'extra'
+.get.extras <-
+function(extra, r2nullfit = FALSE) {
+	extraExpr <- substitute(extra)
+	if(!is.vector(extra)) {
+		extraExpr <- call("alist", extraExpr)
+		extra <- list(extra)
+	}
+	if(any(sapply(extra, is.function))) {
+		extraExpr[[1L]] <- as.name("alist")
+		extra <- eval(extraExpr, parent.frame())
+	}
+	extraNames <- sapply(extra, function(x) switch(mode(x),
+		call = deparse(x[[1L]]), name = deparse(x), character = , x))
+	if(!is.null(names(extra)))
+		extraNames <- ifelse(names(extra) != "", names(extra), extraNames)
+	extra <- structure(as.list(unique(extra)), names = extraNames)
+	if(any(i <- vapply(extra, is.language, logical(1L))))
+		extra[i] <- lapply(extra[i], eval)
+
+	if(any(c("adjR^2", "R^2") %in% extra)) {
+		if(r2nullfit) {
+			extra[extra == "R^2"][[1L]] <- function(x) r.squaredLR(x, null = get("nullfit_", parent.frame()))
+			extra[extra == "adjR^2"][[1L]] <-
+				function(x) attr(r.squaredLR(x, null = get("nullfit_", parent.frame())), "adj.r.squared")		
+		} else {
+			extra[extra == "R^2"][[1L]] <- r.squaredLR
+			extra[extra == "adjR^2"][[1L]] <- function(x) attr(r.squaredLR(x), "adj.r.squared")
+		}
+	}
+	sapply(extra, match.fun, simplify = FALSE)
+}
+
 	

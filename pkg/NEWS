@@ -1,19 +1,26 @@
 MuMIn package news:
 
+Version: 1.9.16 (2013-11-24)
+model.sel: now accepts arguments 'extra' and 'beta', like 'dredge' (requested by
+	D. Duro on R-Forge).
+
 Version: 1.9.15 (2013-11-17)
-[p]dredge: improved checking for na.action = "na.omit" or "na.exclude" in the 
-	global model.
+[p]dredge: improved checking for whether the global model removes missing data
+	(na.action = "na.omit" or "na.exclude"). Note that code working with
+	previous versions may give you an error now, setting options(na.action =
+	"na.fail") prevents it.
 
 Version: 1.9.14 (2013-11-03)
-(added) support for 'betareg' (from package 'betareg') (suggested by M-L. Gentes)
-(added) support for 'aodml' and 'aodql' (from package 'aods3') (suggested by R. 
+(added) support for 'betareg' (from package 'betareg') (suggested by M-L.
+	Gentes)
+(added) support for 'aodml' and 'aodql' (from package 'aods3') (suggested by R.
 	Lancelot)
-[p]dredge: fixed a bug that occurred when there was 'na.action=na.omit' in 
+[p]dredge: fixed a bug that occurred when there was 'na.action=na.omit' in
 	global model (spotted by L. Busia on R-help).
 
 Version: 1.9.13 (2013-10-28)
-(fixed) handling response variables with more than two levels in 'nnet::multinom'
-	models (reported by L. Duvaux on Stackoverflow)
+(fixed) handling response variables with more than two levels in 
+	'nnet::multinom' models (reported by L. Duvaux on Stackoverflow)
 
 Version: 1.9.12 (2013-10-21)
 further adjustments to deal with unavailability of 'lme4' on CRAN
@@ -36,10 +43,11 @@ Version: 1.9.8 (2013-05-02)
 	Barnagaud)
 
 Version: 1.9.7 (2013-04-19)
-dredge: 'subset' expression now recognizes ".(x)" notation to indicate a variable 
-	rather than a model term. Error message from within a 'rank' function gives 
-	now a more meaningfull call (apparently it is a common mistake to have some 
-	misspeled arguments that get passed to 'rank' function through '...').
+dredge: 'subset' expression now recognizes ".(x)" notation to indicate a 
+	variable rather than a model term. Error message from within a 'rank' 
+	function gives now a more meaningfull call (apparently it is a common 
+	mistake to have some misspeled arguments that get passed to 'rank' function 
+	through '...').
 
 Version: 1.9.6 (2013-04-12)
 model.sel: better model naming in the result table

@@ -5,11 +5,24 @@
 function (object, ...) UseMethod("model.sel")
 
 `model.sel.model.selection` <-
-function (object, rank = NULL, rank.args = NULL, ...) {
+function (object, rank = NULL, rank.args = NULL, ..., beta = FALSE, extra) {
+	reFit <- !missing(extra) || !missing(beta)
 	if(!is.null(rank)) {
 		rank <- .getRank(rank, rank.args = rank.args)
 		ic <- tryCatch(sapply(logLik(object), rank), error = function(e) e)
-		if(!inherits(ic, "error") && is.numeric(ic)) {
+		if(inherits(ic, "error") || !is.numeric(ic)) {
+			message("'rank' cannot be applied to 'logLik' object. Re-creating fitted model objects.")
+			reFit <- TRUE
+		} else if (reFit) {
+			message("to calculate 'extras' or beta-weights, need to re-create fitted model objects.")
+		} else reFit <- FALSE
+
+		if(reFit) {
+			cl <- match.call()
+			cl[[1L]] <- as.name("model.sel.default")
+			cl$object <- call("get.models", cl$object)
+			ret <- eval(cl, parent.frame())
+		} else {
 			oldRankCol <- as.character(attr(attr(object, "rank"), "call")[[1L]])
 			rankCol <- as.character(attr(rank, "call")[[1L]])
 			colnames(object)[colnames(object) == oldRankCol] <- rankCol
@@ -17,13 +30,8 @@ function (object, rank = NULL, rank.args = NULL, ...) {
 			object$delta <- ic - min(ic)
 			object$weight <- Weights(ic)
 			ret <- object[order(ic), ]
-			#attr(ret, "order") <- o
 			attr(ret, "rank") <- rank
 			attr(ret, "rank.call") <- attr(rank, "call")
-		} else {
-			message("'rank' cannot be applied to 'logLik' object. Recreating model fits.")
-			models <- get.models(object, seq.int(nrow(object)))
-			ret <- model.sel.default(models, rank = rank)
 		}
 		return(ret)
 	} else return(object)
@@ -31,7 +39,7 @@ function (object, rank = NULL, rank.args = NULL, ...) {
 
 
 `model.sel.default` <-
-function(object, ..., rank = NULL, rank.args = NULL) {
+function(object, ..., rank = NULL, rank.args = NULL, beta = FALSE, extra) {
 	.makemnames <- function(cl) {
 		cl[1L] <- cl$rank <- cl$rank.args <- NULL
 		unlist(.makeListNames(cl))
@@ -79,7 +87,8 @@ function(object, ..., rank = NULL, rank.args = NULL) {
 	j <- !(all.terms %in% all.coef)
 	#d <- as.data.frame(t(sapply(models, matchCoef, all.terms = all.terms)))
 
-	mcoeflist <- lapply(models, matchCoef, all.terms = all.terms, allCoef = TRUE)
+	mcoeflist <- lapply(models, matchCoef, all.terms = all.terms,
+						allCoef = TRUE, beta = beta)
 	d <- as.data.frame(do.call("rbind", mcoeflist))
 
 	retCoefTable <-	lapply(mcoeflist, attr, "coefTable")
@@ -92,7 +101,8 @@ function(object, ..., rank = NULL, rank.args = NULL) {
 		ic <- tryCatch(rank(x), error = function(e) e)
 		if(inherits(ic, "error")) {
 			ic$call <- sys.call(sys.nframe() - 4L)
-			ic$message <- gettextf("evaluating 'rank' for an object failed with message: %s", ic$message)
+			ic$message <- gettextf("evaluating 'rank' for an object failed with message: %s",
+								   ic$message)
 			stop(ic)
 		}
 		c(attr(ll, "df"), ll, ic)
@@ -110,6 +120,31 @@ function(object, ..., rank = NULL, rank.args = NULL) {
 	if(ncol(descrf)) {
 		i <- seq_len(length(all.terms))
 		ret <- cbind(ret[, i], descrf, ret[, -i])
+	}
+	
+	if(!missing(extra) && length(extra) != 0L) {
+		# a cumbersome way of evaluating a non-exported function in a parent frame:
+		#extra <- eval(call(".get.extras", substitute(extra)), parent.frame())
+		extra <- eval(as.call(list(call("get", ".get.extras", envir = call("asNamespace",
+			.packageName), inherits = FALSE), substitute(extra), r2nullfit = TRUE)),
+					  parent.frame())
+		
+	
+		eval(call("get", ".get.extras", envir = call("asNamespace",
+			.packageName), inherits = FALSE))
+			 
+		
+		res <- lapply(models, function(x) unlist(lapply(extra, function(f) f(x))))
+		extraResultNames <- unique(unlist(lapply(res, names)))
+		nextra <- length(extraResultNames)
+		ret <- cbind(ret, do.call("rbind", lapply(res, function(x) {
+			if(length(x) < nextra) {
+				tmp <- rep(NA_real_, nextra)
+				tmp[match(names(x), extraResultNames)] <- x
+				tmp
+			} else x
+		})))
+
 	}
 
 	rownames(ret) <- names(models)
@@ -134,3 +169,8 @@ function(object, ..., rank = NULL, rank.args = NULL) {
 
 	ret
 }
+
+
+
+
+

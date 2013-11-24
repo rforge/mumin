@@ -148,24 +148,20 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		nvarying <- 0L
 	}
 	## END: varying
-
+	
 	## BEGIN Manage 'extra'
 	## @param:	extra, global.model, gmFormulaEnv, 
-	## @value:	extra, nextra, extraNames, null.fit
+	## @value:	extra, nextra, extraNames, nullfit_
 	if(!missing(extra) && length(extra) != 0L) {
-		extraNames <- sapply(extra, function(x) switch(mode(x),
-			call = deparse(x[[1L]]), name = deparse(x), character = , x))
-		if(!is.null(names(extra)))
-			extraNames <- ifelse(names(extra) != "", names(extra), extraNames)
-		extra <- structure(as.list(unique(extra)), names = extraNames)
-
-		if(any(c("adjR^2", "R^2") %in% extra)) {
-			null.fit <- null.fit(global.model, evaluate = TRUE, envir = gmFormulaEnv)
-			extra[extra == "R^2"][[1L]] <- function(x) r.squaredLR(x, null = null.fit)
-			extra[extra == "adjR^2"][[1L]] <-
-				function(x) attr(r.squaredLR(x, null = null.fit), "adj.r.squared")
+		# a cumbersome way of evaluating a non-exported function in a parent frame:
+		extra <- eval(as.call(list(call("get", ".get.extras", envir = call("asNamespace",
+															 .packageName), inherits = FALSE),
+					 substitute(extra), r2nullfit = TRUE)), parent.frame())
+		
+		#extra <- eval(call(".get.extras", substitute(extra), r2nullfit = TRUE), parent.frame())
+		if(any(c("adjR^2", "R^2") %in% names(extra))) {
+			nullfit_ <- null.fit(global.model, evaluate = TRUE, envir = gmFormulaEnv)
 		}
-		extra <- sapply(extra, match.fun, simplify = FALSE)
 		applyExtras <- function(x) unlist(lapply(extra, function(f) f(x)))
 		extraResult <- applyExtras(global.model)
 		if(!is.numeric(extraResult))

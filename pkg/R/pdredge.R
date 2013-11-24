@@ -11,7 +11,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		.parallelPkgCheck() # XXX: workaround to avoid importing from 'parallel'
 		clusterCall <- get("clusterCall")
 		clusterApply <- get("clusterApply")
-		clusterCall(cluster, "require", "MuMIn", character.only = TRUE)
+		clusterCall(cluster, "require", .packageName, character.only = TRUE)
 		.getRow <- function(X) clusterApply(cluster, X, fun = ".pdredge_process_model")
 	} else {
 		.getRow <- function(X) lapply(X, pdredge_process_model, envir = props)
@@ -370,10 +370,12 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	}
 	props <- as.environment(props)
 	
-	if(doParallel) clusterVExport(cluster,
-								  pdredge_props = props,
+	if(doParallel) {
+		clusterVExport(cluster,   pdredge_props = props,
 								  .pdredge_process_model = pdredge_process_model
 								  )
+		clusterCall(cluster, eval, call("options", options("na.action")), env = 0L)
+	}
 	# END parallel
 
 	retColIdx <- if(nvarying) -n.vars - seq_len(nvarying) else TRUE
