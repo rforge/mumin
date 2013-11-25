@@ -90,7 +90,7 @@ function(object, ..., rank = NULL, rank.args = NULL, beta = FALSE, extra) {
 	mcoeflist <- lapply(models, matchCoef, all.terms = all.terms,
 						allCoef = TRUE, beta = beta)
 	d <- as.data.frame(do.call("rbind", mcoeflist))
-
+	
 	retCoefTable <-	lapply(mcoeflist, attr, "coefTable")
 
 	d[,j] <- lapply(d[,j, drop = FALSE], function(x) factor(is.nan(x),
@@ -106,7 +106,7 @@ function(object, ..., rank = NULL, rank.args = NULL, beta = FALSE, extra) {
 			stop(ic)
 		}
 		c(attr(ll, "df"), ll, ic)
-		}, structure(double(3L), names=c("df", lLName, ICname)))
+		}, structure(double(3L), names = c("df", lLName, ICname)))
 	ret <- as.data.frame(t(ret))
 
 	ret <- cbind(d, ret)
@@ -128,22 +128,18 @@ function(object, ..., rank = NULL, rank.args = NULL, beta = FALSE, extra) {
 		extra <- eval(as.call(list(call("get", ".get.extras", envir = call("asNamespace",
 			.packageName), inherits = FALSE), substitute(extra), r2nullfit = TRUE)),
 					  parent.frame())
-		
 	
-		eval(call("get", ".get.extras", envir = call("asNamespace",
-			.packageName), inherits = FALSE))
-			 
-		
 		res <- lapply(models, function(x) unlist(lapply(extra, function(f) f(x))))
 		extraResultNames <- unique(unlist(lapply(res, names)))
 		nextra <- length(extraResultNames)
-		ret <- cbind(ret, do.call("rbind", lapply(res, function(x) {
+		i <- seq_len(length(all.terms))
+		ret <- cbind(ret[, i], do.call("rbind", lapply(res, function(x) {
 			if(length(x) < nextra) {
 				tmp <- rep(NA_real_, nextra)
 				tmp[match(names(x), extraResultNames)] <- x
 				tmp
 			} else x
-		})))
+		})), ret[, -i])
 
 	}
 
