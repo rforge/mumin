@@ -290,8 +290,10 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 	type = NA, backtransform = FALSE,
 	full = TRUE, ...) {
 
-	#if(is.null(type)) type <- "link"
 	if (!missing(interval)) .NotYetUsed("interval", error = FALSE)
+	
+	if(backtransform && !is.na(type) && type == "response")
+		warning("back-transforming predictions already on response scale")
 
 	models <- attr(object, "modelList")
 	if(is.null(models)) stop("can only predict from 'averaging' object created with a model list")
