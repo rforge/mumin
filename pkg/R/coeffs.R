@@ -87,5 +87,11 @@ function (model) {
 }
 
 
+`coeffs.asreml` <- 
+function (model) {
+	coef(model)$fixed  ## should include also '$sparse' ?
+}
+
+
 `coeffs.default` <-
 function(model) coef(model)

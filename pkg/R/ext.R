@@ -245,3 +245,20 @@ function (object, ...) object$family
 `formula.caic` <-
 function(x, ...) formula(x$mod)
 
+
+#XXX: this is for fixed effects only (should sparse be inclued too?)
+`formula.asreml` <- 
+function (x, ...)  as.formula(x$fixed.formula)
+
+
+`family.asreml` <- 
+function(object, ...) {
+	fam <- object$family
+	fam$linkfun <- fam$link
+	fam$link <- fam$family[2L]
+	fam$family <- fam$family[1L]
+	fam$linkinv <- fam$inverse
+	fam$inverse <- NULL
+	class(fam) <- "family"
+	fam
+}

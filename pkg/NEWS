@@ -1,5 +1,19 @@
 MuMIn package news:
 
+Forthcoming version (1.10.0):
+r.squaredGLMM: updated calculation of random effect variance (incorporating 
+	comments and changes made by Paul Johnson and Shinici Nakagawa)
+
+Version: 1.9.18 (2013-12-18)
+(added) methods for 'asreml' model (in commercial package 'asreml'). Note this 
+	has not been tested extensively (thanks to Emeline Mourocq for an incentive 
+	and testing)
+
+Version: 1.9.17 (2013-12-14)
+full-averaged coefficients and standard errors are now calculated by model.avg 
+	and relevant methods (argument full = TRUE) (suggested by Candan Soykan)
+importance: result gives now also number of models containg each variable
+
 Version: 1.9.16 (2013-11-24)
 model.sel: now accepts arguments 'extra' and 'beta', like 'dredge' (requested by
 	D. Duro on R-Forge).
@@ -11,16 +25,16 @@ Version: 1.9.15 (2013-11-17)
 	"na.fail") prevents it.
 
 Version: 1.9.14 (2013-11-03)
-(added) support for 'betareg' (from package 'betareg') (suggested by M-L.
+(added) support for 'betareg' (from package 'betareg') (suggested by Marie-Line
 	Gentes)
-(added) support for 'aodml' and 'aodql' (from package 'aods3') (suggested by R.
-	Lancelot)
+(added) support for 'aodml' and 'aodql' (from package 'aods3') (suggested by 
+	Renaud Lancelot)
 [p]dredge: fixed a bug that occurred when there was 'na.action=na.omit' in
-	global model (spotted by L. Busia on R-help).
+	global model (spotted by Laura Busia on R-help).
 
 Version: 1.9.13 (2013-10-28)
 (fixed) handling response variables with more than two levels in 
-	'nnet::multinom' models (reported by L. Duvaux on Stackoverflow)
+	'nnet::multinom' models (reported by Ludo Duvaux on Stackoverflow)
 
 Version: 1.9.12 (2013-10-21)
 further adjustments to deal with unavailability of 'lme4' on CRAN
@@ -35,12 +49,12 @@ Version: 1.9.10 (2013-08-27)
 pdredge: removed global assignments (within cluster nodes).
 
 Version: 1.9.9 (2013-05-21)
-(fixed) beta.weights: bug with dimensions dropped (thanks to D. Duro for 
-	spotting it and B. Bolker for tracking it down)
+(fixed) beta.weights: bug with dimensions dropped (thanks to Dennis Duro for 
+	spotting it and Ben Bolker for tracking it down)
 
 Version: 1.9.8 (2013-05-02)
-(fixed) handling bar in formulas for 'hurdle' class of models (reported by J.Y. 
-	Barnagaud)
+(fixed) handling bar in formulas for 'hurdle' class of models (reported by 
+	Jean-Yves Barnagaud)
 
 Version: 1.9.7 (2013-04-19)
 dredge: 'subset' expression now recognizes ".(x)" notation to indicate a 

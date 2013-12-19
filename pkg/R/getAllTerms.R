@@ -303,6 +303,10 @@ function(x, intercept = FALSE, ...) {
 	ret
 }
 
+`getAllTerms.asreml`  <-
+function(x, intercept = FALSE, ...)
+getAllTerms.terms(terms(formula(x), ...), intercept = intercept)
+
 
 
 `getAllTerms` <-

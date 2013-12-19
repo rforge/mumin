@@ -118,3 +118,15 @@ function (object, ...) {
 	class(res) <- "logLik"
 	res
 }
+
+`logLik.asreml` <- 
+function (object, ...) {
+	res <- object$loglik
+	##  based on: <https://gist.github.com/cheuer-de/6055083>
+	summ <- summary(object)
+	attr(res, "df") <- sum(!(summ$varcomp$constraint %in% 
+		c("Fixed", "Constrained")))
+	attr(res, "nobs") <- length(resid(object))
+	class(res) <- "logLik"
+	res
+}

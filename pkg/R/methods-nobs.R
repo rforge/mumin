@@ -67,6 +67,7 @@ function(object, ...)
 `nobs.yagsResult` <-
 function (object, ...) length(object@residuals)
 
+`nobs.asreml` <- 
 `nobs.aodml` <-
 `nobs.splm` <- 
 function (object, ...) length(resid(object))

@@ -195,3 +195,13 @@ function (model, ...) {
 	.makeCoefTable(coeffs(model), sqrt(diag(model$varparam)))
 }
 
+## XXX: fixed effects coefficients only
+`coefTable.asreml` <- 
+function (model, ...)  {
+	.makeCoefTable(
+		x = model$coefficients$fixed, 
+		se = sqrt(model$vcoeff$fixed * model$sigma2) ## ?
+		) 
+}
+
+

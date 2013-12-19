@@ -60,6 +60,7 @@ function(obj, termNames, comb, opt, ...) {
 	ret
 }
 
+`makeArgs.asreml` <- 
 makeArgs.MCMCglmm <-
 makeArgs.lme <- 
 function(obj, termNames, comb, opt, ...) {
@@ -67,7 +68,6 @@ function(obj, termNames, comb, opt, ...) {
 	names(ret)[1L] <- "fixed"
 	ret
 }
-
 
 `makeArgs.clmm` <- 		## Class 'clmm'  from package 'ordinal':
 `makeArgs.merMod` <-    ## since lme4-0.99999911-0
