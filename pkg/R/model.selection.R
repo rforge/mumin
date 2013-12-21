@@ -39,7 +39,7 @@ function (model) coef.model.selection(model)
 `getCall.model.selection`  <-
 function (x, i = NULL, ...) {
 	if(is.null(i))
-		return(attr(x, "call"))
+		return(attr(x, "call", exact = TRUE))
 	if(length(i) == 1L) return(attr(x, "calls")[[i]])
 	return(attr(x, "calls")[i])
 }
@@ -82,12 +82,11 @@ function (x, i, j, recalc.weights = TRUE, recalc.delta = FALSE, ...) {
 		if(recalc.weights)
 			ret[, 'weight'] <- `[.data.frame`(ret, ,"weight") / sum(`[.data.frame`(ret, ,"weight"))
 		if(recalc.delta) {
-			delta <- `[.data.frame`(ret, ,"delta") 
-			ret[, 'delta'] <- delta - min(delta)
+			#delta <- `[.data.frame`(ret, ,"delta") 
+			#ret[, 'delta'] <- delta - min(delta)
+			ic <- `[.data.frame`(ret, , which(colnames(ret) == "delta") - 1L)
+            ret[, "delta"] <- ic - min(ic)
 		}
-			#ret$weight <- ret$weight / sum(ret$weight)
-			#ret[, 'weight'] <- ret[, 'weight'] / sum(ret[, 'weight'])
-
 		if(!is.null(warningList <- attr(ret, "warnings")))
 			attr(ret, "warnings") <- warningList[sapply(warningList, attr, "id") %in% rownames(ret)]
 	} else {
@@ -96,6 +95,39 @@ function (x, i, j, recalc.weights = TRUE, recalc.delta = FALSE, ...) {
 	}
 	return(ret)
 }
+
+`merge.model.selection` <-
+function (x, y, ...)  {
+	a1 <- attributes(x)
+	a2 <- attributes(y)
+	if(!identical(a1$rank.call, a2$rank.call))
+		stop("model selection tables not ranked by the same IC")
+	if(!identical(a1$nobs, a2$nobs))
+		stop("models have different number of observations")
+	c1 <- c(a1$terms, a1$vCols)
+	c2 <- c(a2$terms, a2$vCols)
+	res <- cbind(rbindDataFrameList(list(x[, c1], y[, c2])),
+				 rbindDataFrameList(list(x[, !(colnames(x) %in% c1)],
+										 y[, !(colnames(y) %in% c2)])))
+	nm <- rownames(res) <- c(paste("1", rownames(x), sep = "."),
+							 paste("2", rownames(y), sep = "."))
+	##
+	for(i in c("calls", "coefTables"))
+		attr(res, i) <- structure(c(a1[[i]], a2[[i]]), names = nm)
+	for(i in c("rank", "rank.call", "nobs", "class"))
+		attr(res, i) <- a1[[i]]
+	for(i in c("terms", "vCols"))
+		attr(res, i) <- unique(c(a1[[i]], a2[[i]]))
+
+	attr(attr(res, "terms"),"interceptLabel") <-
+		unique(c(attr(a1$terms,"interceptLabel"),
+				 attr(a1$terms,"interceptLabel")))
+		
+	o <- order(res[, which(colnames(res) == "delta") - 1L])
+	res <- res[o, recalc.delta = TRUE]
+	res
+}
+
 
 `print.model.selection` <-
 function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {

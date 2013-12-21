@@ -281,6 +281,10 @@ Possible alternatives: \code{\link[glmulti]{glmulti}} in package \pkg{glmulti}
 and \code{\link[bestglm]{bestglm}} (\pkg{bestglm}).
 \code{\link[leaps]{regsubsets}} in package \pkg{leaps} also performs all-subsets
 regression.
+
+\emph{Lasso} variable selection provided by various packages, e.g. \pkg{glmnet}, 
+	\pkg{lars} or \pkg{glmmLasso}.
+
 }
 
 

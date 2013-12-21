@@ -4,6 +4,10 @@ Forthcoming version (1.10.0):
 r.squaredGLMM: updated calculation of random effect variance (incorporating 
 	comments and changes made by Paul Johnson and Shinici Nakagawa)
 
+Version: 1.9.19 (2013-12-21)
+(added) 'merge.model.selection' combines two 'model.selection' tables. Note that
+	this is different than 'merge' for 'data.frame's (requested by Rafael Maia)
+
 Version: 1.9.18 (2013-12-18)
 (added) methods for 'asreml' model (in commercial package 'asreml'). Note this 
 	has not been tested extensively (thanks to Emeline Mourocq for an incentive 
