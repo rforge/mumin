@@ -50,7 +50,10 @@ function (model) {
 }
 
 `coeffs.MCMCglmm` <-
-function (model) summary(model)$solutions[, 1L]
+function (model)
+#summary(model)$solutions[, 1L]
+colMeans(model$Sol[, seq.int(model$Fixed$nfl), drop = FALSE])
+
 
 
 `coeffs.gamm` <-

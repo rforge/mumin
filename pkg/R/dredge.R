@@ -56,10 +56,13 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	IC <- .getRank(rank, rankArgs)
 	ICName <- as.character(attr(IC, "call")[[1L]])
 	
-	tryCatch(IC(global.model), error = function(e) {
+	if(length(tryCatch(IC(global.model), error = function(e) {
 		e$call <- do.call(substitute, list(attr(IC, "call"), list(x = as.name("global.model"))))
 		stop(e)
-	})
+	})) != 1L) {
+		.cry(NA, "result of '%s' is not of length 1", deparse(attr(IC,
+			"call"), control = NULL)[1L])
+	}
 
 	allTerms <- allTerms0 <- getAllTerms(global.model, intercept = TRUE,
 		data = eval(gmCall$data, envir = gmEnv))
@@ -501,7 +504,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	structure(ret,
 		class = c("model.selection", "data.frame"),
-		calls = calls[o],
+		model.calls = calls[o],
 		global = global.model,
 		global.call = gmCall,
 		terms = structure(allTerms, interceptLabel = interceptLabel),

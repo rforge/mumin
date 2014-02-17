@@ -11,18 +11,26 @@ function(x, nullfx = NULL)
 function(x, ...) {
 	#VarFx  <- var(as.vector(fixef(x) %*% t(model.matrix(x, data = x$data))))
 	VarFx <- var(fitted(x, level = 0L))
-	vc <- vapply(lapply(x$modelStruct$reStruct, VarCorr, sigma = x$sigma),
-		   "[[", double(1L), 1L)
-	varAll <- sum(VarFx, vc)
+	vc <- lapply(x$modelStruct$reStruct, VarCorr, sigma = x$sigma)
+	if(any(sapply(vc, nrow) != 1L))
+		stop("R^2GLMM can be (currently) calculated only ",
+			 "for random intercepts models")
+	
+	varAll <- sum(VarFx, vapply(vc, "[[", double(1L), 1L))
 	res <- c(VarFx, varAll) / (varAll + x$sigma^2)
 	names(res) <- c("R2m", "R2c")
 	res
 }
 
+
 `r.squaredGLMM.merMod` <-
 `r.squaredGLMM.mer` <-
 function(x, nullfx = NULL) {
 	vc <- VarCorr(x)
+	if(any(sapply(vc, dim) != 1L))
+		stop("R^2GLMM can be (currently) calculated only ",
+			 "for random intercepts models")
+
 	.rsqGLMM(x, fam = family(x),
 		varFx = var(as.vector(fixef(x) %*% t(model.matrix(x)))),
 		varRan = sapply(vc, "[", 1L),

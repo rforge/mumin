@@ -196,9 +196,10 @@ Compound model terms (such as \sQuote{as-is} expressions within \code{I()} or
 smooths in \code{gam}) should be treated as non-syntactic names and enclosed in
 back-ticks (e.g. \code{subset = `s(x, k = 2)` || `I(log(x))`}, see
 \link[base]{Quotes}). Mind the spacing, names must match exactly the term names
-in model's formula. To simply keep certain terms in all models, use of argument
-\code{fixed} is more efficient. Note that the \code{fixed} formula is 
-interpreted in the same manner as model formula and so the terms need not to be 
+as given by \code{getAllTerms}. To simply keep certain 
+terms in all models, use of argument \code{fixed} is more 
+efficient. Note that the \code{fixed} formula is interpreted in the same manner 
+as model formula and so the terms need not to be 
 quoted.
 
 \subsection{\code{subset} expression syntax summary}{

@@ -142,14 +142,14 @@ function(object, ..., rank = NULL, rank.args = NULL, beta = FALSE, extra) {
 		})), ret[, -i])
 
 	}
-
-	rownames(ret) <- names(models)
-
+	row.names(ret) <- names(models)
+	
 	ret <- structure(
 		ret[o, ],
 		terms = structure(all.terms, interceptLabel =
 			unique(unlist(lapply(allTermsList, attr, "interceptLabel")))),
-		calls = lapply(models, .getCall)[o],
+		model.calls = lapply(models, .getCall)[o],
+		model.family = lapply(models, function(x) tryCatch(family(x), error = function(e) NULL)),
 		order = o,
 		rank = rank,
 		rank.call = attr(rank, "call"),
@@ -159,7 +159,9 @@ function(object, ..., rank = NULL, rank.args = NULL, beta = FALSE, extra) {
 		vCols = colnames(descrf),
 		class = c("model.selection", "data.frame")
 	)
-
+	if(!("class" %in% colnames(ret)))
+		attr(ret, "model.class") <- class(models[[1L]])[1L]
+	
 	if (!all(sapply(random.terms, is.null)))
 		attr(ret, "random.terms") <- random.terms[o]
 

@@ -85,6 +85,7 @@ function (object, ...) object$results[['n']]
 `nobs.coxph` <- 
 `nobs.pgls` <-
 `nobs.logistf` <-
+`nobs.phylolm` <- 
 function (object, ...)
 object$n
 

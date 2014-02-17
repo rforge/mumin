@@ -1,8 +1,20 @@
 MuMIn package news:
 
-Forthcoming version (1.10.0):
-r.squaredGLMM: updated calculation of random effect variance (incorporating 
-	comments and changes made by Paul Johnson and Shinici Nakagawa)
+Version: 1.9.21 (2014-02-17)
+logLik.asreml: number of estimated parameters ('df') is now calculated as the
+	number of fixed effect coefficients + number of variance parameters
+	(non-fixed and non-constained). This gives comparable numbers to similar
+	lmer models. In 'Asreml-R manual', however, only the number of variance
+	components is used as K for AIC calculation (page 15). The log-likelihood
+	values of asreml are far different from those from lmer(REML = TRUE), even
+	though coefficients are very close. Note also that REstricted-likelihood is
+	returned, so model comparisions based on it are invalid.
+r.squaredGLMM: checks if it is applied to a random intercepts model, otherwise
+	error is given. This is a limitation of the original formula by Nakagawa &
+	Schiezlich.
+
+Version: 1.9.20 (2014-02-12)
+(added) methods for 'phylolm' (suggestion by Rafael Maia)
 
 Version: 1.9.19 (2013-12-21)
 (added) 'merge.model.selection' combines two 'model.selection' tables. Note that
@@ -14,7 +26,7 @@ Version: 1.9.18 (2013-12-18)
 	and testing)
 
 Version: 1.9.17 (2013-12-14)
-full-averaged coefficients and standard errors are now calculated by model.avg 
+full-averaged coefficients and standard errors are now calculated by 'model.avg' 
 	and relevant methods (argument full = TRUE) (suggested by Candan Soykan)
 importance: result gives now also number of models containg each variable
 

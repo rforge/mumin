@@ -131,6 +131,14 @@
 	structure(ox, order = ord)
 }
 
+getResponse <-
+function(f)
+	if((length(f) == 2L) || (is.call(f[[2L]]) && f[[2L]][[1L]] == "~"))
+		0 else f[[2L]]
+
+
+
+
 #Tries to find out whether the models are fitted to the same data
 .checkModels <- function(models, error = TRUE) {
 	#
@@ -139,12 +147,9 @@
 		else function(x) warning(simpleWarning(x, cl))
 	res <- TRUE
 
-	responses <- lapply(models, function(x) {
-	  f <- formula(x)
-	  if((length(f) == 2L) || (is.call(f[[2L]]) && f[[2L]][[1L]] == "~")) 0 else f[[2L]]
-	})
+	responses <- lapply(models, function(x) getResponse(formula(x)))
 
- 	if(!all(vapply(responses[-1L], "==", logical(1), responses[[1L]]))) {
+ 	if(!all(vapply(responses[-1L], "==", logical(1L), responses[[1L]]))) {
 		err("response differs between models")
 		res <- FALSE
 	}
@@ -164,7 +169,8 @@
 
 
 .checkNaAction <-
-function(x, cl = getCall(x), naomi = c("na.omit", "na.exclude"), what = "model") {
+function(x, cl = getCall(x),
+		 naomi = c("na.omit", "na.exclude"), what = "model") {
 	naact <- NA_character_
 	msg <- NA_character_
 	if (!is.null(cl$na.action)) {
@@ -192,7 +198,8 @@ function(x, cl = getCall(x), naomi = c("na.omit", "na.exclude"), what = "model")
 
 #system.time(for(i in 1:1000) abbreviateTerms(x))
 
-`abbreviateTerms` <- function(x, minlength = 4, minwordlen = 1,
+`abbreviateTerms` <-
+function(x, minlength = 4, minwordlen = 1,
 	capwords = FALSE, deflate = FALSE) {
 	if(!length(x)) return(x)
 	if(deflate) dx <-
@@ -234,7 +241,8 @@ function(x, cl = getCall(x), naomi = c("na.omit", "na.exclude"), what = "model")
 	structure(unlist(s), names = x, variables = av[i])
 }
 
-`model.names` <- function(object, ..., labels = NULL, use.letters = FALSE) {
+`model.names` <-
+function(object, ..., labels = NULL, use.letters = FALSE) {
 	if (missing(object) && length(models <- list(...)) > 0L) {
 		object <- models[[1L]]
 	} else if (inherits(object, "list")) {
@@ -246,7 +254,8 @@ function(x, cl = getCall(x), naomi = c("na.omit", "na.exclude"), what = "model")
 	.modelNames(models = models, uqTerms = labels, use.letters = use.letters)
 }
 
-`.modelNames` <- function(models = NULL, allTerms, uqTerms, use.letters = FALSE, ...) {
+`.modelNames` <-
+function(models = NULL, allTerms, uqTerms, use.letters = FALSE, ...) {
 	if(missing(allTerms)) allTerms <- lapply(models, getAllTerms)
 	if(missing(uqTerms) || is.null(uqTerms))
 		uqTerms <- unique(unlist(allTerms, use.names = FALSE))
@@ -273,7 +282,8 @@ function(x, cl = getCall(x), naomi = c("na.omit", "na.exclude"), what = "model")
 	ret
 }
 
-`modelDescr` <- function(models, withModel = FALSE, withFamily = TRUE,
+`modelDescr` <-
+function(models, withModel = FALSE, withFamily = TRUE,
 	withArguments = TRUE, remove.cols = c("formula", "random", "fixed", "model",
 	"data", "family", "cluster", "model.parameters")) {
 
@@ -337,7 +347,8 @@ function(x, cl = getCall(x), naomi = c("na.omit", "na.exclude"), what = "model")
 		arg <- arg[, apply(arg, 2L, function(x) length(unique(x))) != 1L, drop = FALSE]
 		if(ncol(arg)) arg <- gsub("([\"'\\s]+|\\w+ *=)","", arg, perl = TRUE)
 	}
-	ret <- as.data.frame(cbind(model = abvtt, family = fam[1L, ], arg, deparse.level = 0L))
+	ret <- as.data.frame(cbind(model = abvtt, family = if(withFamily) fam[1L, ] else NULL,
+		arg, deparse.level = 0L))
 	attr(ret, "variables") <- variables
 	ret
 }
