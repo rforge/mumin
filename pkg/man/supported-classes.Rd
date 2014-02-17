@@ -21,7 +21,7 @@ functions include those returned by:
 \item \code{gamm4}* (\pkg{gamm4});
 \item \code{glmmML} (\pkg{glmmML});
 \item \code{glmmadmb} (\pkg{glmmADMB} from R-Forge);
-\item \code{asreml} (\pkg{asreml}, non-free commercial package);
+\item \code{asreml} (\pkg{asreml}, non-free commercial package; REML comparisons only);
 \item \code{hurdle}, \code{zeroinfl} (\pkg{pscl});
 \item \code{negbin}, \code{betabin} (class \code{glimML}, package \pkg{aod});
 \item \code{aodml}, \code{aodql} (\pkg{aods3});
