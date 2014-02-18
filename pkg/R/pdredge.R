@@ -560,7 +560,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 
 	ret <- structure(ret,
 		class = c("model.selection", "data.frame"),
-		calls = calls[o],
+		model.calls = calls[o],
 		global = global.model,
 		global.call = gmCall,
 		terms = structure(allTerms, interceptLabel = interceptLabel),

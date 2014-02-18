@@ -117,7 +117,7 @@ function (..., deparse.level = 1) {
 		nm <- split(make.unique(unlist(lapply(allargs, row.names))),
 					rep(idx, sapply(allargs, nrow)))		
 		for(i in idx)
-			row.names(allargs[[i]]) <- nm1[[i]]	
+			row.names(allargs[[i]]) <- nm[[i]]	
 		res <- allargs[[1L]]
 		for(i in seq(2L, n))
 			res <- merge(res, allargs[[i]], suffixes = NULL)
