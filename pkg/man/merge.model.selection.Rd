@@ -16,10 +16,10 @@
   \item{x, y}{\code{model.selection} objects to be combined.}
   \item{suffixes}{a character vector with two elements that are appended
 	respectively to row names of the combined tables}
-  \item{\dots} ignored
-	% \item{\dots}{\code{model.selection} objects for \code{rbind}, ignored in 
-	% \code{merge}}
-  \item{deparse.level}{currently ignored.}
+  \item{\dots}{ignored}
+% \item{\dots}{\code{model.selection} objects for \code{rbind}, ignored in 
+% \code{merge}}
+%  \item{deparse.level}{currently ignored.}
 }
 
 \value{

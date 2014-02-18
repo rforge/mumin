@@ -73,7 +73,7 @@ function(x, subset, select, recalc.weights = TRUE, recalc.delta = FALSE, ...) {
 function (x, i, j, recalc.weights = TRUE, recalc.delta = FALSE, ...) {
 	ret <- `[.data.frame`(x, i, j, ...)
 	if (missing(j)) {
-		s <- c("row.names", "calls", "coefTables", "random.terms", "order")
+		s <- c("row.names", "model.calls", "coefTables", "random.terms", "order")
 		k <- match(dimnames(ret)[[1L]], dimnames(x)[[1L]])
 		attrib <- attributes(x)
 		attrib[s] <- lapply(attrib[s], `[`, k)
