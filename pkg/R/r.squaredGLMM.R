@@ -1,22 +1,36 @@
 
 `r.squaredGLMM` <-
-function(x, nullfx = NULL)
+function(x, nullfx = NULL, ...)
 	UseMethod("r.squaredGLMM")
 
 `r.squaredGLMM.default` <-
-function(x, nullfx = NULL) 
+function(x, nullfx = NULL, ...) 
 	.NotYetImplemented()
 	
 `r.squaredGLMM.lme` <-
 function(x, ...) {
-	#VarFx  <- var(as.vector(fixef(x) %*% t(model.matrix(x, data = x$data))))
 	VarFx <- var(fitted(x, level = 0L))
-	vc <- lapply(x$modelStruct$reStruct, VarCorr, sigma = x$sigma)
-	if(any(sapply(vc, nrow) != 1L))
-		stop("R^2GLMM can be (currently) calculated only ",
-			 "for random intercepts models")
+		
+	### x$data is the original data.frame, not subset'ted nor na.omit'ted
+	cl <- x[['call']]
+	mfArgs <- list(formula = asOneFormula(c(formula(x),
+		lapply(x$modelStruct$reStruct, attr, 'formula'))),
+		data = x$data, na.action = x$call$na.action)
+	if (!is.null(cl$subset))  mfArgs[["subset"]] <-
+		asOneSidedFormula(cl[["subset"]])[[2L]]
+	mfArgs$drop.unused.levels <- TRUE
+	dataMix <- do.call("model.frame", mfArgs)
 	
-	varAll <- sum(VarFx, vapply(vc, "[[", double(1L), 1L))
+	mMfull <- model.matrix(x$modelStruct$reStruct, data = dataMix)
+	n <- nrow(mMfull)
+
+	varRan <- sum(sapply(x$modelStruct$reStruct, function(z) {
+		sig <- pdMatrix(z) * x$sigma^2
+		Mm1 <-  mMfull[, rownames(sig)]
+		sum(diag(Mm1 %*% sig %*% t(Mm1))) / n
+	}))
+	
+	varAll <- sum(VarFx, varRan)
 	res <- c(VarFx, varAll) / (varAll + x$sigma^2)
 	names(res) <- c("R2m", "R2c")
 	res
@@ -26,14 +40,26 @@ function(x, ...) {
 `r.squaredGLMM.merMod` <-
 `r.squaredGLMM.mer` <-
 function(x, nullfx = NULL) {
-	vc <- VarCorr(x)
-	if(any(sapply(vc, dim) != 1L))
-		stop("R^2GLMM can be (currently) calculated only ",
-			 "for random intercepts models")
+	cl <- getCall(x)
+	envir <- environment(formula(x))
+	## this replaces all '(x | y)' to '(x)' 
+	frm <- 	MuMIn:::.substFun4Fun(formula(x), "|", function(e, ...) e[[2L]])
+	mmAll <- model.matrix(frm, data = model.frame(x), contrasts.arg = eval(cl$contrasts, envir = envir))
 
+	vc <- VarCorr(x)
+	n <- nrow(mmAll)
+	fx <- fixef(x) # fixed effect estimates
+	mm <- model.matrix(x)
+	sf <- var(mm %*% fx) # fixed effects variance (eqn 27 of Nakagawa & Schielzeth)
+
+	varRan <- sum(sapply(vc, function(sig) {
+		mm1 <-  mmAll[, rownames(sig)]
+		sum(diag(mm1 %*% sig %*% t(mm1))) / n
+	}))
+		
 	.rsqGLMM(x, fam = family(x),
-		varFx = var(as.vector(fixef(x) %*% t(model.matrix(x)))),
-		varRan = sapply(vc, "[", 1L),
+		varFx = var(as.vector(mm %*% fx)),
+		varRan = varRan,
 		resVar = attr(vc, "sc")^2,
 		fxNullCoef = fixef(if(is.null(nullfx)) 
 				null.fit(x, RE.keep = TRUE, evaluate = TRUE) else nullfx
@@ -41,19 +67,13 @@ function(x, nullfx = NULL) {
 		)
 }
 
-
 `r.squaredGLMM.glmmML` <-
-function(x, nullfx = NULL) {
-	if(is.null(x$x)) {
-		#stop("to return model.matrix, glmmML must be fit with 'x = TRUE'")
-		cl <- x$call
-		cl[[1L]] <- as.name("model.matrix")
-		cl$object <- cl$formula
-		cl <- cl[names(cl) %in% c("", "object", "data",  "weights", "subset", "na.action")]
-		X <- eval(cl)
-	} else X <- x$x
+function(x, nullfx = NULL, ...) {
+	if(is.null(x$x))
+		stop("glmmML must be fit with 'x = TRUE'")
+
 	.rsqGLMM(x, family(x),
-			 varFx = var(as.vector(coef(x) %*% t(X))),
+			 varFx = var(as.vector(x$x %*% coef(x))),
 			 varRan = x$sigma^2, resVar = NULL,
 			 fxNullCoef = coef(if(is.null(nullfx)) 
 				null.fit(x, RE.keep = TRUE, evaluate = TRUE) else nullfx
@@ -94,7 +114,3 @@ function(x, fam, varFx, varRan, resVar, fxNullCoef) {
 	res
 }
 
-#`model.matrix.glmmML` <- function (object, ...)  {
-#	if(is.null(object$x)) stop("to return model.matrix, glmmML must be fit with 'x = TRUE'")
-#	object$x
-#}
