@@ -49,16 +49,13 @@ function(x, nullfx = NULL) {
 	vc <- VarCorr(x)
 	n <- nrow(mmAll)
 	fx <- fixef(x) # fixed effect estimates
-	mm <- model.matrix(x)
-	sf <- var(mm %*% fx) # fixed effects variance (eqn 27 of Nakagawa & Schielzeth)
-
 	varRan <- sum(sapply(vc, function(sig) {
 		mm1 <-  mmAll[, rownames(sig)]
 		sum(diag(mm1 %*% sig %*% t(mm1))) / n
 	}))
 		
 	.rsqGLMM(x, fam = family(x),
-		varFx = var(as.vector(mm %*% fx)),
+		varFx = var(as.vector(model.matrix(x) %*% fx)),
 		varRan = varRan,
 		resVar = attr(vc, "sc")^2,
 		fxNullCoef = fixef(if(is.null(nullfx)) 
