@@ -43,7 +43,7 @@ function(x, nullfx = NULL) {
 	cl <- getCall(x)
 	envir <- environment(formula(x))
 	## this replaces all '(x | y)' to '(x)' 
-	frm <- 	MuMIn:::.substFun4Fun(formula(x), "|", function(e, ...) e[[2L]])
+	frm <- 	.substFun4Fun(formula(x), "|", function(e, ...) e[[2L]])
 	mmAll <- model.matrix(frm, data = model.frame(x), contrasts.arg = eval(cl$contrasts, envir = envir))
 
 	vc <- VarCorr(x)
@@ -67,7 +67,7 @@ function(x, nullfx = NULL) {
 `r.squaredGLMM.glmmML` <-
 function(x, nullfx = NULL, ...) {
 	if(is.null(x$x))
-		stop("glmmML must be fit with 'x = TRUE'")
+		stop("glmmML must be fitted with 'x = TRUE'")
 
 	.rsqGLMM(x, family(x),
 			 varFx = var(as.vector(x$x %*% coef(x))),
