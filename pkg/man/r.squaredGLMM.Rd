@@ -15,7 +15,8 @@ r.squaredGLMM(x, nullfx = NULL)
 \arguments{
   \item{x}{a fitted linear model object. }
   \item{nullfx}{optionally, a fitted \emph{null} model including only intercept and 
-	all the random effects of the reference model. }
+	all the random effects of the reference model (used only for Poisson
+	family models with \code{"log"} link). }
 }
 
 \value{
@@ -66,15 +67,18 @@ Currently methods exist for classes: \code{mer}(\code{Mod}), \code{lme},
 See note in \code{\link{r.squaredLR}} help page for comment on using
 R\eqn{^{2}}{^2} in model selection. 
 
-This implementation is based on \R code from \sQuote{Supporting Information} for
-Nakagawa & Schielzeth (2012). 
-
 \bold{This function is in experimental stage and should be used with caution.} 
 Specifically, conditional R\eqn{_{GLMM}^{2}}{_GLMM^2} for Poisson family models
 cannot be yet calculated (\code{NA} is returned).
 
 }
 
+
+\author{
+This implementation is based on \R code from \sQuote{Supporting Information} for
+Nakagawa & Schielzeth (2012), including its extension by Paul Johnson (REF) that
+allows for models with random slopes. 
+}
 
 \references{
 
