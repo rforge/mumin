@@ -103,13 +103,16 @@ function(x) {
 
 `r.squaredGLMM.lm` <-
 function(x) {
-	.rsqGLMM(x, family(x),
+	fam <- family(x)
+	.rsqGLMM(x, fam,
 		 varFx = var(as.vector(model.matrix(x) %*% coef(x))),
 		 #varFx = var(fitted(x)),
 		 varRe = 0,
 		 varResid = sum(if(is.null(x$weights)) resid(x)^2 else
 					   resid(x)^2 * x$weights) / df.residual(x),
-		 beta0 = if(pois.log) log(mean(model.response(model.frame(x)))) else NULL
+		 beta0 = if(fam$family == "poisson" && fam$link == "log") 
+			log(mean(model.response(model.frame(x)))) else 
+			NULL
 		 )
 }
 
