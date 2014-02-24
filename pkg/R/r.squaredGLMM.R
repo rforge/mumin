@@ -1,14 +1,14 @@
 
 `r.squaredGLMM` <-
-function(x, nullfx = NULL, ...)
+function(x)
 	UseMethod("r.squaredGLMM")
 
 `r.squaredGLMM.default` <-
-function(x, nullfx = NULL, ...) 
+function(x) 
 	.NotYetImplemented()
 	
 `r.squaredGLMM.lme` <-
-function(x, ...) {
+function(x) {
 	VarFx <- var(fitted(x, level = 0L))
 		
 	### x$data is the original data.frame, not subset'ted nor na.omit'ted
@@ -23,15 +23,15 @@ function(x, ...) {
 	
 	mMfull <- model.matrix(x$modelStruct$reStruct, data = dataMix)
 	n <- nrow(mMfull)
-
-	varRan <- sum(sapply(x$modelStruct$reStruct, function(z) {
-		sig <- pdMatrix(z) * x$sigma^2
-		Mm1 <-  mMfull[, rownames(sig)]
-		sum(diag(Mm1 %*% sig %*% t(Mm1))) / n
+	sigma2 <- x$sigma^2
+	varRe <- sum(sapply(x$modelStruct$reStruct, function(z) {
+		sig <- pdMatrix(z) * sigma2
+		mM1 <-  mMfull[, rownames(sig)]
+		sum(diag(mM1 %*% sig %*% t(mM1))) / n
 	}))
 	
-	varAll <- sum(VarFx, varRan)
-	res <- c(VarFx, varAll) / (varAll + x$sigma^2)
+	varTot <- sum(VarFx, varRe)
+	res <- c(VarFx, varTot) / (varTot + sigma2)
 	names(res) <- c("R2m", "R2c")
 	res
 }
@@ -39,74 +39,98 @@ function(x, ...) {
 
 `r.squaredGLMM.merMod` <-
 `r.squaredGLMM.mer` <-
-function(x, nullfx = NULL) {
+function(x) {
+	fam <- family(x)
+	
+	## for poisson(log), update 'x' to include individual-level variance (1 | 1:nobs(x)):
+	if((pois.log <- fam$family == "poisson" && fam$link == "log") &&
+	   !any(sapply(x@flist, nlevels) == nobs(x))) {
+			cl <- getCall(x)
+			frm <- formula(x)
+			cl$formula <- update.formula(frm, substitute( . ~ . + (1 | gl(N,
+				1)), list(N = nobs(x))))
+			x <- eval(cl, envir = environment(frm), enclos = parent.frame())
+		#print(getCall(x))
+	}
+
+	
+	## can also use lme4:::subbars for that, but like this should be more
+	## efficient, because the resulting matrix has only random fx variables:
+	ranform <- (lapply(findbars(formula(x)), "[[", 2L))
+	frm <- ranform[[1L]]
+	for(a in ranform[-1L]) frm <- call("+", a, frm)
+	frm <- as.formula(call("~", frm))
+	#frm <- .substFun4Fun(formula(x), "|", function(e, ...) e[[2L]])
 	cl <- getCall(x)
-	envir <- environment(formula(x))
-	## this replaces all '(x | y)' to '(x)' 
-	frm <- 	.substFun4Fun(formula(x), "|", function(e, ...) e[[2L]])
-	mmAll <- model.matrix(frm, data = model.frame(x), contrasts.arg = eval(cl$contrasts, envir = envir))
+	mmAll <- model.matrix(frm, data = model.frame(x),
+		contrasts.arg = eval(cl$contrasts,
+		envir = environment(formula(x))))
 
 	vc <- VarCorr(x)
 	n <- nrow(mmAll)
 	fx <- fixef(x) # fixed effect estimates
-	varRan <- sum(sapply(vc, function(sig) {
+	fxpred <- as.vector(model.matrix(x) %*% fx)
+	
+	if(pois.log) {
+		vname <- names(x@flist)[sapply(x@flist, nlevels) == n][1L]
+		varResid <-  vc[[vname]][1L]
+		beta0 <- mean(fxpred)
+		vc <- vc[names(vc) != vname]
+	} else {
+		varResid <- attr(vc, "sc")^2
+		beta0 <- NULL
+	}
+	
+	varRe <- sum(sapply(vc, function(sig) {
 		mm1 <-  mmAll[, rownames(sig)]
 		sum(diag(mm1 %*% sig %*% t(mm1))) / n
 	}))
-		
-	.rsqGLMM(x, fam = family(x),
-		varFx = var(as.vector(model.matrix(x) %*% fx)),
-		varRan = varRan,
-		resVar = attr(vc, "sc")^2,
-		fxNullCoef = fixef(if(is.null(nullfx)) 
-				null.fit(x, RE.keep = TRUE, evaluate = TRUE) else nullfx
-				)
-		)
+	
+	.rsqGLMM(x, fam = family(x), varFx = var(fxpred), varRe = varRe,
+			 varResid = varResid, beta0 = beta0)
 }
 
 `r.squaredGLMM.glmmML` <-
-function(x, nullfx = NULL, ...) {
+function(x) {
 	if(is.null(x$x))
 		stop("glmmML must be fitted with 'x = TRUE'")
 
-	.rsqGLMM(x, family(x),
-			 varFx = var(as.vector(x$x %*% coef(x))),
-			 varRan = x$sigma^2, resVar = NULL,
-			 fxNullCoef = coef(if(is.null(nullfx)) 
-				null.fit(x, RE.keep = TRUE, evaluate = TRUE) else nullfx
-				)
-			)
+	fxpred <- as.vector(x$x %*% coef(x))
+	.rsqGLMM(x, family(x), varFx = var(fxpred), varRe = x$sigma^2, varResid = NULL,
+			 beta0 = mean(fxpred))
 }
 
 
 `r.squaredGLMM.lm` <-
-function(x, ...)
+function(x) {
 	.rsqGLMM(x, family(x),
-		 varFx = var(as.vector(coef(x) %*% t(model.matrix(x)))),
+		 varFx = var(as.vector(model.matrix(x) %*% coef(x))),
 		 #varFx = var(fitted(x)),
-		 varRan = 0,
-		 resVar = sum(if(is.null(x$weights)) resid(x)^2 else
+		 varRe = 0,
+		 varResid = sum(if(is.null(x$weights)) resid(x)^2 else
 					   resid(x)^2 * x$weights) / df.residual(x),
-		 fxNullCoef = coef(null.fit(x, evaluate = TRUE)))
+		 beta0 = if(pois.log) log(mean(model.response(model.frame(x)))) else NULL
+		 )
+}
+
 
 
 `.rsqGLMM` <-
-function(x, fam, varFx, varRan, resVar, fxNullCoef) {
-	v <- switch(paste(fam$family, fam$link, sep = "."), 
-		gaussian.identity = resVar,
+function(x, fam, varFx, varRe, varResid, beta0) {
+	varDistr <- switch(paste(fam$family, fam$link, sep = "."), 
+		gaussian.identity = varResid,
 		binomial.logit = 3.28986813369645, #  = pi^2 / 3
 		binomial.probit = 1,
-		poisson.log = log(1 / exp(fxNullCoef) + 1),
+		poisson.log = {
+			expBeta0 <- exp(beta0)
+			if(expBeta0 < 6.0) warning(sprintf("exp(beta0) == %0.1f \n", expBeta0))
+			varResid + log(1 / expBeta0 + 1)
+		},
 		poisson.sqrt = 0.25,
 		stop("do not know how to calculate variance for this family/link combination")
-	)
-	varAll <- sum(varFx, varRan)
-	res <- c(varFx, varAll) / (varAll + v)
-	if(fam$family == "poisson") {
-		res[2L] <- NA_real_
-		warning(simpleWarning("conditional statistic for 'poisson' family cannot be (yet) calculated", 
-			sys.call(1L)))
-	}
+	) ## == Se + Sd
+	varTot <- sum(varFx, varRe)
+	res <- c(varFx, varTot) / (varTot + varDistr)
 	names(res) <- c("R2m", "R2c")
 	res
 }
