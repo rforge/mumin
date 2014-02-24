@@ -35,7 +35,7 @@ R_GLMM(m)^2 = (\sigma_f^2) / (\sigma_f^2 + sum(\sigma_l^2) + \sigma_e^2 +
 }
 
 \bold{Conditional R\eqn{^{2}}{^2}} is interpreted as variance explained by both
-fixed and random factors (i.e . the entire model), and is calculated according
+fixed and random factors (i.e. the entire model), and is calculated according
 to the equation:
 
 \deqn{
@@ -48,7 +48,7 @@ R_GLMM(c)^2= (\sigma_f^2 + sum(\sigma_l^2)) / (\sigma_f^2 + sum(\sigma_l^2) +
 where \eqn{\sigma_f^2} is the variance of the fixed effect components, and
 \eqn{\sum \sigma_{l}^{2}}{sum(\sigma_l^2)} is the sum of all
 \ifelse{latex}{\eqn{u}}{} variance components (group, individual, etc.), 
-\eqn{\sigma_l^2} is the variance due to additive dispersion a \eqn{\sigma_d^2}
+\eqn{\sigma_l^2} is the variance due to additive dispersion and \eqn{\sigma_d^2}
 is the distribution-specific variance. 
 
 }

@@ -2,7 +2,8 @@ MuMIn package news:
 
 Version: 1.9.22 (2014-02-20)
 r.squaredGLMM: can be now applied to models with random slopes (based on idea 
-	and R code by Paul Johnson)
+	and R code by Paul Johnson). Added calculation of conditional R^2 for 
+	Poisson family models.
 
 Version: 1.9.21 (2014-02-17)
 logLik.asreml: number of estimated parameters ('df') is now calculated as the
