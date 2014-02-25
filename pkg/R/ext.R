@@ -27,6 +27,26 @@
 }
 
 
+`model.frame.lme` <-
+function (formula, random = FALSE, ...) {
+	x <- formula
+	frm <- formula(x)
+	if(random) {
+		for(reStruct in x$modelStruct$reStruct)
+			frm[[3L]] <- call("+", frm[[3L]], attr(reStruct, "formula")[[2L]])
+	}
+	mfArgs <- list(formula = frm, data = x$data[rownames(x$fitted), ], drop.unused.levels = TRUE)
+	do.call("model.frame", mfArgs)
+	#droplevels(do.call("model.frame", mfArgs))
+}
+
+`model.matrix.lme` <-
+function (object, random = FALSE, ...) {
+	mf <- model.frame(object, random = random)
+	model.matrix(formula(terms(mf)), mf, contrasts.arg = object$contrasts)
+}
+
+
 # Classes 'coxme' and 'lmekin' from package 'coxme':
 
 

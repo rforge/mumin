@@ -11,25 +11,16 @@ function(x)
 function(x) {
 	VarFx <- var(fitted(x, level = 0L))
 		
-	### x$data is the original data.frame, not subset'ted nor na.omit'ted
-	cl <- x[['call']]
-	mfArgs <- list(formula = asOneFormula(c(formula(x),
-		lapply(x$modelStruct$reStruct, attr, 'formula'))),
-		data = x$data, na.action = x$call$na.action)
-	if (!is.null(cl$subset))  mfArgs[["subset"]] <-
-		asOneSidedFormula(cl[["subset"]])[[2L]]
-	mfArgs$drop.unused.levels <- TRUE
-	dataMix <- do.call("model.frame", mfArgs)
-	
-	mMfull <- model.matrix(x$modelStruct$reStruct, data = dataMix)
-	n <- nrow(mMfull)
+	mmRE <- model.matrix(x$modelStruct$reStruct,
+						 data = x$data[rownames(x$fitted), ])
+	n <- nrow(mmRE)
+
 	sigma2 <- x$sigma^2
 	varRe <- sum(sapply(x$modelStruct$reStruct, function(z) {
 		sig <- pdMatrix(z) * sigma2
-		mM1 <-  mMfull[, rownames(sig)]
+		mM1 <-  mmRE[, rownames(sig)]
 		sum(diag(mM1 %*% sig %*% t(mM1))) / n
 	}))
-	
 	varTot <- sum(VarFx, varRe)
 	res <- c(VarFx, varTot) / (varTot + sigma2)
 	names(res) <- c("R2m", "R2c")
@@ -126,11 +117,12 @@ function(x, fam, varFx, varRe, varResid, beta0) {
 		binomial.probit = 1,
 		poisson.log = {
 			expBeta0 <- exp(beta0)
-			if(expBeta0 < 6.0) warning(sprintf("exp(beta0) == %0.1f \n", expBeta0))
+			if(expBeta0 < 6.0)
+				.cry(sys.call(-1L), "exp(beta0) == %0.1f \n", expBeta0, warn = TRUE)
 			varResid + log(1 / expBeta0 + 1)
 		},
 		poisson.sqrt = 0.25,
-		stop("do not know how to calculate variance for this family/link combination")
+		.cry(sys.call(-1L), "do not know how to calculate variance for this family/link combination")
 	) ## == Se + Sd
 	varTot <- sum(varFx, varRe)
 	res <- c(varFx, varTot) / (varTot + varDistr)

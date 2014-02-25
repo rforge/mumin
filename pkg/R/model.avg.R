@@ -157,12 +157,7 @@ function(object, ..., beta = FALSE,
 		prettyEnumStr(sapply(dup, paste, sep = "", collapse = " = "),
 			quote = "'"))
 
-	# workaround for different behaviour of model.matrix with lme: data argument is required
-	if(any(linherits(models, c(lme = TRUE)))) {
-		model.matrix.lme <- function(object, data = object$data, ...)
-			model.matrix.default(object, data = data, ...)
-	}
-	
+
 	LL <- .getLik(object)
 	logLik <- LL$logLik
 	lLName <- LL$name

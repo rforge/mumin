@@ -6,7 +6,7 @@
 
 `.cry` <-
 function(Call = NA, Message, ..., warn = FALSE) {
-	if(is.na(Call)) Call <- sys.call(-1L)
+	if(!is.call(Call)) Call <- sys.call(-1L)
 	if(warn) warning(simpleWarning(gettextf(Message, ..., domain = "R-MuMIn"), Call)) else
 		stop(simpleError(gettextf(Message, ..., domain = "R-MuMIn"), Call))
 }
