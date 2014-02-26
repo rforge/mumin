@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.9.24 (2014-02-26)
+(fixed) 'getAllTerms.unmarkedFit' gave error when 'alpha' was estimated in 
+	pcount model (when else?) (reported by Lindsey Garner)
+
 Version: 1.9.23 (2014-02-24)
 added methods 'model.matrix' and 'model.frame' for lme, as the default ones give
 	wrong results when there is 'subset' or 'contrasts' set, or 'na.omit'ting.

@@ -194,7 +194,7 @@ function(x, ...)  {
 		f <- f[[2L]]
 	}
 	ret <- lapply(ret, `environment<-`, NULL)
-	names(ret) <- sapply(x@estimates@estimates, slot, "short.name")
+	names(ret) <- sapply(x@estimates@estimates, slot, "short.name")[seq_along(ret)]
 	#ret <- lapply(ret, function(z) getAllTerms(call("~", z), intercept=FALSE))
 	ret <- lapply(ret, getAllTerms.formula, intercept = FALSE)
 	attrInt <- sapply(ret, attr, "intercept")

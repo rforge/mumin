@@ -75,7 +75,9 @@ model.matrix(model1a, TRUE)
 
 ###########################
 
-if(require(glmmML)) {
+if(
+   require(glmmML)
+   ) {
 
 ## tests models evaluated in a strange environment
 with(env <- new.env(), {
@@ -120,11 +122,17 @@ stopifnot(
 		  all.equal(r.squaredGLMM(tickmod.ri), r.squaredGLMM(tickmod.ri0), tolerance = 0.001)
 		  )
 
+tickmod.rs  <- glmer(TICKS ~ HEIGHT + DUMMY + YEAR + (1|INDEX) + (1|BROOD) + (DUMMY|LOCATION),
+      family = poisson, data = grouseticks)
+tickmod.rs0  <-  glmer(TICKS ~ HEIGHT + DUMMY + YEAR + (1|BROOD) + (DUMMY|LOCATION),
+						  family = poisson, data = grouseticks)
 
-tickmod.rs  <- glmer(TICKS~HEIGHT+DUMMY+YEAR+(1|INDEX)+(1|BROOD)+(DUMMY|LOCATION),
-      family="poisson",data=grouseticks)
-tickmod.rs0  <-  glmer(TICKS~HEIGHT+DUMMY+YEAR+(1|BROOD)+(DUMMY|LOCATION),
-						  family=poisson,data=grouseticks)
+stopifnot(all.equal(R2PJpois(tickmod.rs, 'INDEX'), r.squaredGLMM(tickmod.rs)))
 
-stopifnot(all(R2PJpois(tickmod.rs, 'INDEX') == r.squaredGLMM(tickmod.rs)))
+
+#tickmod3 <- glmmML(TICKS ~ HEIGHT + DUMMY + YEAR, cluster = INDEX, family = poisson, data = grouseticks, x = TRUE)
+#tickmod3a  <- glmer(TICKS ~ HEIGHT + DUMMY + YEAR + (1|INDEX), family = poisson, data = grouseticks)
+#tickmod4 <- glmmML(TICKS ~ HEIGHT + DUMMY + YEAR, cluster = LOCATION, family = poisson, data = grouseticks, x = TRUE)
+#r.squaredGLMM(tickmod3)
+#r.squaredGLMM(tickmod3a)
 #r.squaredGLMM(tickmod.rs0)

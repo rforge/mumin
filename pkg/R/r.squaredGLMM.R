@@ -72,12 +72,14 @@ function(x) {
 		beta0 <- NULL
 	}
 	
-	varRe <- sum(sapply(vc, function(sig) {
-		mm1 <-  mmAll[, rownames(sig)]
-		sum(diag(mm1 %*% sig %*% t(mm1))) / n
-	}))
+	varRe <- if(length(vc) == 0L) 0L else
+		sum(sapply(vc, function(sig) {
+			mm1 <-  mmAll[, rownames(sig)]
+			sum(diag(mm1 %*% sig %*% t(mm1))) / n
+		}))
+		
 	
-	.rsqGLMM(x, fam = family(x), varFx = var(fxpred), varRe = varRe,
+	.rsqGLMM(fam = family(x), varFx = var(fxpred), varRe = varRe,
 			 varResid = varResid, beta0 = beta0)
 }
 
@@ -85,17 +87,25 @@ function(x) {
 function(x) {
 	if(is.null(x$x))
 		stop("glmmML must be fitted with 'x = TRUE'")
-
+		
+	fam <- family(x)
+	if(pois.log <- fam$family == "poisson" && fam$link == "log") {
+		#if(length(x$posterior.modes) != nobs(x))
+			.cry(NA, "cannot calculate unit-variance for poisson(log) family glmmML")
+		#}
+	} 
 	fxpred <- as.vector(x$x %*% coef(x))
-	.rsqGLMM(x, family(x), varFx = var(fxpred), varRe = x$sigma^2, varResid = NULL,
+	.rsqGLMM(family(x), varFx = var(fxpred), varRe = x$sigma^2, varResid = NULL,
 			 beta0 = mean(fxpred))
 }
+
+
 
 
 `r.squaredGLMM.lm` <-
 function(x) {
 	fam <- family(x)
-	.rsqGLMM(x, fam,
+	.rsqGLMM(fam,
 		 varFx = var(as.vector(model.matrix(x) %*% coef(x))),
 		 #varFx = var(fitted(x)),
 		 varRe = 0,
@@ -110,7 +120,7 @@ function(x) {
 
 
 `.rsqGLMM` <-
-function(x, fam, varFx, varRe, varResid, beta0) {
+function(fam, varFx, varRe, varResid, beta0) {
 	varDistr <- switch(paste(fam$family, fam$link, sep = "."), 
 		gaussian.identity = varResid,
 		binomial.logit = 3.28986813369645, #  = pi^2 / 3
