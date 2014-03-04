@@ -114,7 +114,7 @@ Modelling functions not storing \code{call} in their result should be evaluated
 
 \subsection{Information criterion}{
 \code{rank} is found by a call to \code{match.fun} and may be specified as a
-function or a symbol (e.g. a back-quoted name) or a character string specifying
+function or a symbol or a character string specifying
 a function to be searched for from the environment of the call to \code{dredge}.
 The function \code{rank} must accept model object as its first argument and 
 always return a scalar. Typical choice for \code{rank} would be "AIC", "BIC", or
@@ -173,14 +173,14 @@ precedence when identical to names of \code{varying}, so to avoid ambiguity
 If element names in \code{varying} are missing, the elements themselves are 
 used. Call and symbol elements are represented as character values (via 
 \code{deparse}), and everything except numeric, logical, character and 
-\code{NULL} values is replaced by item numbers (e.g. \code{varying = 
-list(family = list(..., Gamma)} should be referred to as \code{subset = 
-V(family) == 2}. This can quickly become confusing, therefore it is recommended 
-to use named lists in most cases. \code{demo(dredge.varying)} provides examples.
+\code{NULL} values is replaced by item numbers (e.g. \code{varying =} 
+\code{list(family =} \code{list(..., Gamma)} should be referred to as 
+\code{subset = V(family) == 2}. This can quickly become confusing, therefore it 
+is recommended to use named lists. \code{demo(dredge.varying)} provides examples.
 
-The \code{subset} expression can also contain variable \code{`*nvar*`} (needs to
-be backtick-quoted), which is equal to number of terms in the model (\bold{not}
-the number of estimated parameters \var{K}).
+The \code{subset} expression can also contain variable 
+\code{\verb{`}*nvar*\verb{`}} (backtick-quoted), equal to number of terms in 
+the model (\bold{not} the number of estimated parameters \var{K}).
 
 To make inclusion of a variable conditional on presence of some other variable,
 a function \code{dc} (\dQuote{\bold{d}ependency \bold{c}hain}) can be used in
@@ -192,10 +192,12 @@ are also present (e.g. \code{subset = dc(a, b, c)} allows for models of form
 
 \code{subset} expression can have a form of an unevaluated \code{call},
 \code{expression} object, or a one sided \code{formula}. See \sQuote{Examples}.
+
 Compound model terms (such as \sQuote{as-is} expressions within \code{I()} or
 smooths in \code{gam}) should be treated as non-syntactic names and enclosed in
-back-ticks (e.g. \code{subset = `s(x, k = 2)` || `I(log(x))`}, see
-\link[base]{Quotes}). Mind the spacing, names must match exactly the term names
+back-ticks (e.g. \code{subset = \verb{`}s(x, k = 2)\verb{`} ||} 
+\code{\verb{`}I(log(x))\verb{`}},
+ see \link[base]{Quotes}). Mind the spacing, names must match exactly the term names
 as given by \code{getAllTerms}. To simply keep certain 
 terms in all models, use of argument \code{fixed} is more 
 efficient. Note that the \code{fixed} formula is interpreted in the same manner 
@@ -213,7 +215,7 @@ quoted.
 		must be present \cr
 	\code{dc(a, b, c,...)} \tab \sQuote{dependency chain}: \var{a} is allowed only
 		if \var{b} is present, and \var{b} only if \var{c} is present, etc. \cr
-	\code{`*nvar*`} \tab number of variables \cr
+	\verb{`}\code{*nvar*}\verb{`} \tab number of variables \cr
 	}
 }
 }
