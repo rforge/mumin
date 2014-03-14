@@ -89,12 +89,14 @@ function (model) {
 	c(model$b, model$phi)
 }
 
-
 `coeffs.asreml` <- 
 function (model) {
 	coef(model)$fixed  ## should include also '$sparse' ?
 }
 
+`coeffs.cpglmm` <-
+function (model) 
+model@fixef
 
 `coeffs.default` <-
 function(model) coef(model)

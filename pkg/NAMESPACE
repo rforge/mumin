@@ -301,3 +301,14 @@ S3method(coeffs, asreml)
 
 S3method(nobs, phylolm)
 S3method(logLik, phylolm)
+
+S3method(coefTable, cplm)
+S3method(coefTable, cpglmm)
+S3method(nobs, cplm)
+S3method(nobs, cpglmm)
+S3method(logLik, cplm)
+S3method(coeffs, cpglmm)
+S3method(getAllTerms, cpglmm)
+
+
+

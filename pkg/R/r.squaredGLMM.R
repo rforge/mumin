@@ -128,7 +128,8 @@ function(fam, varFx, varRe, varResid, beta0) {
 		poisson.log = {
 			expBeta0 <- exp(beta0)
 			if(expBeta0 < 6.0)
-				.cry(sys.call(-1L), "exp(beta0) == %0.1f \n", expBeta0, warn = TRUE)
+				.cry(sys.call(-1L), "exp(beta0) of %0.1f is close to zero, estimate may be unreliable \n", 
+					expBeta0, warn = TRUE)
 			varResid + log(1 / expBeta0 + 1)
 		},
 		poisson.sqrt = 0.25,

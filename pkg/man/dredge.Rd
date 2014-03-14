@@ -179,7 +179,7 @@ used. Call and symbol elements are represented as character values (via
 is recommended to use named lists. \code{demo(dredge.varying)} provides examples.
 
 The \code{subset} expression can also contain variable 
-\code{\verb{`}*nvar*\verb{`}} (backtick-quoted), equal to number of terms in 
+\verb{`}\code{*nvar*}\verb{`} (backtick-quoted), equal to number of terms in 
 the model (\bold{not} the number of estimated parameters \var{K}).
 
 To make inclusion of a variable conditional on presence of some other variable,
@@ -195,8 +195,8 @@ are also present (e.g. \code{subset = dc(a, b, c)} allows for models of form
 
 Compound model terms (such as \sQuote{as-is} expressions within \code{I()} or
 smooths in \code{gam}) should be treated as non-syntactic names and enclosed in
-back-ticks (e.g. \code{subset = \verb{`}s(x, k = 2)\verb{`} ||} 
-\code{\verb{`}I(log(x))\verb{`}},
+back-ticks (e.g. \code{subset = }\verb{`}\code{s(x, k = 2)}\verb{`}\code{ ||} 
+\verb{`}\code{I(log(x))}\verb{`},
  see \link[base]{Quotes}). Mind the spacing, names must match exactly the term names
 as given by \code{getAllTerms}. To simply keep certain 
 terms in all models, use of argument \code{fixed} is more 

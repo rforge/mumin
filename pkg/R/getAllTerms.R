@@ -308,11 +308,17 @@ function(x, intercept = FALSE, ...)
 getAllTerms.terms(terms(formula(x), ...), intercept = intercept)
 
 
+`getAllTerms.cpglmm` <-
+function (x, intercept = FALSE, ...) 
+getAllTerms(x@formula, intercept = intercept)
+
 
 `getAllTerms` <-
-function(x, ...) UseMethod("getAllTerms")
+function(x, ...)
+UseMethod("getAllTerms")
 
-print.allTerms <- function(x, ...) {
+print.allTerms <-
+function(x, ...) {
 	cat("Model terms: \n")
 	if(!length(x)) {
 		cat("<None>\n")

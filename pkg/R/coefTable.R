@@ -204,4 +204,11 @@ function (model, ...)  {
 		) 
 }
 
+`coefTable.cplm` <-
+function (model, ...) 
+.makeCoefTable(coef(model), sqrt(diag(vcov(model))),
+			   model@df.residual)
 
+`coefTable.cpglmm` <-
+function (model, ...) 
+.makeCoefTable(coeffs(model), sqrt(diag(vcov(model))))

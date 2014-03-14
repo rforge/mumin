@@ -17,6 +17,7 @@ functions include those returned by:
 \item \code{multinom} (\pkg{nnet});
 \item \code{lme}, \code{gls} (\pkg{nlme});
 \item \code{lmer}, \code{glmer} (\pkg{lme4});
+\item \code{cpglm}, \code{cpglmm} (\pkg{cplm});
 \item \code{gam}, \code{gamm}* (\pkg{mgcv});
 \item \code{gamm4}* (\pkg{gamm4});
 \item \code{glmmML} (\pkg{glmmML});

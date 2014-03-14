@@ -1,12 +1,16 @@
 MuMIn package news:
 
+Version: 1.9.25 (2014-03-13)
+(added) methods for 'cpglm' and 'cpglmm' (from package 'cplm')
+
 Version: 1.9.24 (2014-02-26)
 (fixed) 'getAllTerms.unmarkedFit' gave error when 'alpha' was estimated in 
 	pcount model (when else?) (reported by Lindsey Garner)
 
 Version: 1.9.23 (2014-02-24)
-added methods 'model.matrix' and 'model.frame' for lme, as the default ones give
-	wrong results when there is 'subset' or 'contrasts' set, or 'na.omit'ting.
+(added) methods 'model.matrix' and 'model.frame' for 'lme', because the default 
+	ones give wrong results when there is 'subset' or 'contrasts' set, or 
+	'na.omit'ting.
 
 Version: 1.9.22 (2014-02-20)
 r.squaredGLMM: can be now applied to models with random slopes (based on idea 

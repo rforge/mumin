@@ -90,7 +90,7 @@ function (object, ...) {
 
 `logLik.MCMCglmm` <-
 function (object, ...)
-	structure(NA, df = sum(object$Fixed$nfl, object$Random$nfl,
+	structure(-0.5 * mean(object$Deviance), df = sum(object$Fixed$nfl, object$Random$nfl,
 		object$Residual$nfl), nobs = object$Residual$nrl, 
 		class = "logLik")
 
@@ -147,3 +147,17 @@ function (object, ...) {
 	class(res) <- "logLik"
 	res
 }
+
+`logLik.cplm` <-
+## based on stats:::logLik.glm
+function (object, ...) {
+	if (!missing(...)) warning("extra arguments discarded")
+    n <- sum(!is.na(resid(object)))
+	p <- n - object@df.residual
+	val <- p - object@aic / 2
+    attr(val, "nobs") <- sum(!is.na(resid(object)))
+    attr(val, "df") <- p
+    class(val) <- "logLik"
+    val
+}
+
