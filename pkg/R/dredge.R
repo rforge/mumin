@@ -218,10 +218,19 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 				if(!all(unique(unlist(dn)) %in% allTerms))
 					warning("at least some dimnames of 'subset' matrix do not ",
 					"match term names in 'global.model'")
-				subset <- matrix(subset[match(allTerms, rownames(subset)),
+				
+				subset0 <- subset
+				subset <- matrix(subset[
+					match(allTerms, rownames(subset)),
 					match(allTerms, colnames(subset))],
 					dimnames = list(allTerms, allTerms),
 					nrow = n, ncol = n)
+				tsubset <- t(subset)
+				nas <- is.na(subset)
+				i <- lower.tri(subset) & is.na(subset) & !t(nas)
+				ti <- t(i)
+				subset[i] <- subset[ti]
+				subset[ti] <- NA
 			}
 			if(any(!is.na(subset[!lower.tri(subset)]))) {
 				warning("non-missing values exist outside the lower triangle of 'subset'")

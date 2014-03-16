@@ -1,7 +1,13 @@
 MuMIn package news:
 
+Version: 1.9.26 (2014-03-16)
+(fixed) dredge: when columns/rows in a subset matrix were in different order 
+	than model terms, the values became wrongly rearranged (spotted by 
+	a certain 'Frank' on Stackoverflow).
+
 Version: 1.9.25 (2014-03-13)
-(added) methods for 'cpglm' and 'cpglmm' (from package 'cplm')
+(added) methods for 'cpglm' and 'cpglmm' (from package 'cplm') (suggested by 
+Andrew Cooper)
 
 Version: 1.9.24 (2014-02-26)
 (fixed) 'getAllTerms.unmarkedFit' gave error when 'alpha' was estimated in 
@@ -82,8 +88,8 @@ Version: 1.9.10 (2013-08-27)
 pdredge: removed global assignments (within cluster nodes).
 
 Version: 1.9.9 (2013-05-21)
-(fixed) beta.weights: bug with dimensions dropped (thanks to Dennis Duro for 
-	spotting it and Ben Bolker for tracking it down)
+(fixed) beta.weights: bug with dimensions dropped (spotted by Dennis Duro, 
+	thanks to Ben Bolker for tracking it down)
 
 Version: 1.9.8 (2013-05-02)
 (fixed) handling bar in formulas for 'hurdle' class of models (reported by 
