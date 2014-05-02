@@ -127,12 +127,13 @@ function (..., deparse.level = 1) {
 
 `merge.model.selection` <-
 function (x, y, suffixes = c(".x",".y"), ...)  {
+	
 	a1 <- attributes(x)
 	a2 <- attributes(y)
 	if(!identical(a1$rank.call, a2$rank.call))
-		stop("model selection tables not ranked by the same IC")
+		stop("models not ranked by the same IC")
 	if(!identical(a1$nobs, a2$nobs))
-		stop("models have different number of observations")
+		stop("models fitted to different number of observations")
 	c1 <- c(a1$terms, a1$vCols)
 	c2 <- c(a2$terms, a2$vCols)
 	res <- cbind(rbindDataFrameList(list(x[, c1, drop = FALSE], y[, c2, drop = FALSE])),

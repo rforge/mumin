@@ -10,7 +10,7 @@ function(x)
 `r.squaredGLMM.lme` <-
 function(x) {
 	VarFx <- var(fitted(x, level = 0L))
-		
+
 	mmRE <- model.matrix(x$modelStruct$reStruct,
 						 data = x$data[rownames(x$fitted), ])
 	n <- nrow(mmRE)
@@ -44,7 +44,6 @@ function(x) {
 		#print(getCall(x))
 	}
 
-	
 	## can also use lme4:::subbars for that, but like this should be more
 	## efficient, because the resulting matrix has only random fx variables:
 	ranform <- (lapply(findbars(formula(x)), "[[", 2L))
@@ -53,11 +52,13 @@ function(x) {
 	frm <- as.formula(call("~", frm))
 	#frm <- .substFun4Fun(formula(x), "|", function(e, ...) e[[2L]])
 	cl <- getCall(x)
-	mmAll <- model.matrix(frm, data = model.frame(x),
-		contrasts.arg = eval(cl$contrasts,
-		envir = environment(formula(x))))
-
+	
+	mmAll <- model.matrix(frm, data = model.frame(x))
+		##Note: Argument 'contrasts' can only be specified for fixed effects
+		##contrasts.arg = eval(cl$contrasts, envir = environment(formula(x))))	
+	
 	vc <- VarCorr(x)
+
 	n <- nrow(mmAll)
 	fx <- fixef(x) # fixed effect estimates
 	fxpred <- as.vector(model.matrix(x) %*% fx)
@@ -72,13 +73,20 @@ function(x) {
 		beta0 <- NULL
 	}
 	
+	
+	if(!all(c(unlist(sapply(vc, rownames))) %in% colnames(mmAll)))
+		stop("random term names do not match those in model matrix. \n",
+			 "Have you changed 'options(contrasts)' since the model was fitted?")
+	
 	varRe <- if(length(vc) == 0L) 0L else
 		sum(sapply(vc, function(sig) {
 			mm1 <-  mmAll[, rownames(sig)]
 			sum(diag(mm1 %*% sig %*% t(mm1))) / n
 		}))
-		
 	
+	#varRe0 <- if(length(vc) == 0L) 0L else
+	#          sum(sapply(vc, function(sig) sig[[1]]))
+		
 	.rsqGLMM(fam = family(x), varFx = var(fxpred), varRe = varRe,
 			 varResid = varResid, beta0 = beta0)
 }

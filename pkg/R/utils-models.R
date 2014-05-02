@@ -352,3 +352,14 @@ function(models, withModel = FALSE, withFamily = TRUE,
 	attr(ret, "variables") <- variables
 	ret
 }
+
+
+family2char <-
+function(x, fam = x$family, link = x$link) {
+	if(nchar(fam) > 17L && (substr(fam, 1L, 17) == "Negative Binomial")) {
+		theta <- as.numeric(strsplit(fam, "[\\(\\)]")[[1L]][2L])
+		paste("negative.binomial", "(", theta, ",", link, ")", sep = "")
+	} else {
+		paste(fam, "(", link, ")", sep = "")
+	}
+}

@@ -1,5 +1,13 @@
 MuMIn package news:
 
+Version: 1.10.0 (2014-05-02)
+No significant changes to 1.9.26. A lot of changes has accumulated since the 
+	previous version published on CRAN, hence the minor version increased.
+r.squaredGLMM: throws an error if contrasts that have been used for random 
+	factors in the "merMod" model do not match the ones in model matrix. This 
+	happens if there are factors in random slope formula and user has changed 
+	relevant 'options(contrasts)' since the model was fitted.
+
 Version: 1.9.26 (2014-03-16)
 (fixed) dredge: when columns/rows in a subset matrix were in different order 
 	than model terms, the values became wrongly rearranged (spotted by 
@@ -99,7 +107,7 @@ Version: 1.9.7 (2013-04-19)
 dredge: 'subset' expression now recognizes ".(x)" notation to indicate a 
 	variable rather than a model term. Error message from within a 'rank' 
 	function gives now a more meaningfull call (apparently it is a common 
-	mistake to have some misspeled arguments that get passed to 'rank' function 
+	mistake to have some misspelled arguments that get passed to 'rank' function 
 	through '...').
 
 Version: 1.9.6 (2013-04-12)
