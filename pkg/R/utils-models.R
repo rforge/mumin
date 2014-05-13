@@ -170,7 +170,7 @@ function(f)
 
 .checkNaAction <-
 function(x, cl = getCall(x),
-		 naomi = c("na.omit", "na.exclude"), what = "model") {
+		 naomi = c("na.omit", "na.exclude", "na.pass"), what = "model") {
 	naact <- NA_character_
 	msg <- NA_character_
 	if (!is.null(cl$na.action)) {
@@ -181,7 +181,15 @@ function(x, cl = getCall(x),
 		naact <- formals(eval(cl[[1L]]))$na.action
 		if (missing(naact)) {
 			naact <- getOption("na.action")
-			if (naact %in% naomi)
+			if(is.function(naact)) {
+				statsNs <- getNamespace("stats")
+				for(i in naomi) if(identical(get(i, envir = statsNs), naact, ignore.environment = TRUE)) {
+					naact <- i
+					break
+					}
+			}
+			
+			if (is.character(naact) && (naact %in% naomi))
 				msg <- sprintf("%s's 'na.action' argument is not set and options('na.action') is \"%s\"", what, naact)
 		} else if (!is.null(naact)) {
 			naact <- as.character(naact)

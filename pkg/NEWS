@@ -1,12 +1,12 @@
 MuMIn package news:
 
 Version: 1.10.0 (2014-05-02)
-No significant changes to 1.9.26. A lot of changes has accumulated since the 
-	previous version published on CRAN, hence the minor version increased.
 r.squaredGLMM: throws an error if contrasts that have been used for random 
 	factors in the "merMod" model do not match the ones in model matrix. This 
 	happens if there are factors in random slope formula and user has changed 
 	relevant 'options(contrasts)' since the model was fitted.
+dredge: na.action checking now allows "option(na.action)" to be a function and 
+	not only character string.
 
 Version: 1.9.26 (2014-03-16)
 (fixed) dredge: when columns/rows in a subset matrix were in different order 

@@ -181,7 +181,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	nov <- as.integer(n.vars - n.fixed)
 	ncomb <- (2L ^ nov) * nvariants
 
-	if(nov > 31L) .cry(NA, "number of predictors (%d) exceeds allowed maximum (31)", nov)
+	if(nov > 31L) .cry(NA, "number of predictors (%d) exceeds allowed maximum of 31", nov)
 	#if(nov > 10L) warning(gettextf("%d predictors will generate up to %.0f combinations", nov, ncomb))
 	nmax <- ncomb * nvariants
 	if(evaluate) {
@@ -479,7 +479,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		varlev <- ord %% nvariants; varlev[varlev == 0L] <- nvariants
 		ret[, n.vars + seq_len(nvarying)] <- variants[varlev, ]
 	}
-
+	
 	ret <- as.data.frame(ret)
 	row.names(ret) <- ord
 
