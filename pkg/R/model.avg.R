@@ -483,7 +483,8 @@ function (x, digits = max(3L, getOption("digits") - 3L),
 
 	hasPval <- TRUE
     printCoefmat(x$coefmat, P.values = hasPval, has.Pvalue = hasPval,
-		digits = digits, signif.stars = FALSE)
+		digits = digits, signif.stars = signif.stars,
+		signif.legend =  FALSE)
 
 	cat("\nFull model-averaged coefficients (with shrinkage):", "\n")
     printCoefmat(x$coefmat.full, P.values = hasPval, has.Pvalue = hasPval,

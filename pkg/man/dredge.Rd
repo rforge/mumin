@@ -1,11 +1,13 @@
 \name{dredge}
 \alias{dredge}
 \alias{print.model.selection}
+\encoding{utf-8}
 
 %% \newcommand{\backquote}{\Sexpr[results=text]{paste0("`", "#1", "`")}}
 \newcommand{\bqcode}{\ifelse{latex}{\verb{#1}}{\code{#1}}}
+\newcommand{\Rsq}{\ifelse{latex}{\eqn{R^{2}}{R^2}}{\ifelse{html}{\enc{R²}{R^2}}{R^2}}}
 
-\encoding{utf-8}
+
 \title{Automated model selection}
 \description{
 Generate a set of models with combinations (subsets) of the terms in the global
@@ -69,9 +71,9 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	numeric vector.
 	These can be e.g. additional information criterions or goodness-of-fit
 	statistics. The character strings "R^2" and "adjR^2" are treated in a
-	special way, and will add a likelihood-ratio based \eqn{R^{^2}}{R^2} and
-	modified-\eqn{R^{^2}}{R^2} respectively to the result (this is more
-	efficient than using \code{\link{r.squaredLR}} directly).
+	special way, and will add a likelihood-ratio based \Rsq and
+	modified-\Rsq respectively to the result (this is more efficient than using 
+	\code{\link{r.squaredLR}} directly).
 	}
 
   \item{x}{

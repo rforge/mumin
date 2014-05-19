@@ -3,7 +3,7 @@ MuMIn package news:
 Version: 1.10.1 (2014-05-19)
 dredge: more meaningful warning message about misspecified 'fixed' argument
 pdredge: synchronized code with 'dredge'
-documentation: fixed formatting issues
+documentation: improved formatting
 
 Version: 1.10.0 (2014-05-02)
 r.squaredGLMM: throws an error if contrasts that have been used for random 
