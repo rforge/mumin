@@ -2,6 +2,9 @@
 \alias{dredge}
 \alias{print.model.selection}
 
+%% \newcommand{\backquote}{\Sexpr[results=text]{paste0("`", "#1", "`")}}
+\newcommand{\bqcode}{\ifelse{latex}{\verb{#1}}{\code{#1}}}
+
 \encoding{utf-8}
 \title{Automated model selection}
 \description{
@@ -178,9 +181,9 @@ used. Call and symbol elements are represented as character values (via
 \code{subset = V(family) == 2}. This can quickly become confusing, therefore it 
 is recommended to use named lists. \code{demo(dredge.varying)} provides examples.
 
-The \code{subset} expression can also contain variable 
-\verb{`}\code{*nvar*}\verb{`} (backtick-quoted), equal to number of terms in 
-the model (\bold{not} the number of estimated parameters \var{K}).
+The \code{subset} expression can also contain variable \bqcode{`*nvar*`} 
+	(backtick-quoted), equal to number of terms in the model (\bold{not} the 
+	number of estimated parameters \var{K}).
 
 To make inclusion of a variable conditional on presence of some other variable,
 a function \code{dc} (\dQuote{\bold{d}ependency \bold{c}hain}) can be used in
@@ -195,8 +198,7 @@ are also present (e.g. \code{subset = dc(a, b, c)} allows for models of form
 
 Compound model terms (such as \sQuote{as-is} expressions within \code{I()} or
 smooths in \code{gam}) should be treated as non-syntactic names and enclosed in
-back-ticks (e.g. \code{subset = }\verb{`}\code{s(x, k = 2)}\verb{`}\code{ ||} 
-\verb{`}\code{I(log(x))}\verb{`},
+backticks (e.g. \bqcode{subset = `s(x, k = 2)` || `I(log(x))`}),
  see \link[base]{Quotes}). Mind the spacing, names must match exactly the term names
 as given by \code{getAllTerms}. To simply keep certain 
 terms in all models, use of argument \code{fixed} is more 
@@ -205,20 +207,25 @@ as model formula and so the terms need not to be
 quoted.
 
 \subsection{\code{subset} expression syntax summary}{
-	\tabular{ll}{
-	\code{a & b} \tab indicates that model terms \var{a} and \var{b} must be
-	present (see \sQuote{\link[=Logic]{Logical Operators}}) \cr 
-	\code{V(x)} \tab indicates a \code{varying} variable \var{x} \cr
-	\code{.(x)} \tab indicates that at least one term containing variable \var{x} 
-		must be present \cr
-	\code{.(+x)} \tab indicates that all the terms containing variable \var{x} 
-		must be present \cr
-	\code{dc(a, b, c,...)} \tab \sQuote{dependency chain}: \var{a} is allowed only
-		if \var{b} is present, and \var{b} only if \var{c} is present, etc. \cr
-	\verb{`}\code{*nvar*}\verb{`} \tab number of variables \cr
+	
+	\describe{
+	\item{\code{a & b}}{ indicates that model terms \var{a} and \var{b} must be
+	present (see \link[=Logic]{Logical Operators}) } 
+	\item{\code{V(x)}}{ indicates a \code{varying} variable \var{x} }
+	\item{\code{.(x)}}{ indicates that at least one term containing variable
+		\var{x} must be present }
+	\item{\code{.(+x)}}{ indicates that all the terms containing variable \var{x} 
+		must be present }
+	\item{\code{dc(a, b, c,...)}}{ \sQuote{dependency chain}: \var{a} is allowed only
+		if \var{b} is present, and \var{b} only if \var{c} is present, etc. }
+	\item{\bqcode{`*nvar*`}}{ number of variables }
 	}
 }
+
+
 }
+
+
 
 \subsection{Missing values}{
 Use of \code{na.action = "na.omit"} (\R's default) or \code{"na.exclude"}  in 
@@ -312,7 +319,7 @@ model.avg(dd, subset = delta < 4)
 model.avg(dd, subset = cumsum(weight) <= .95) # get averaged coefficients
 
 #'Best' model
-summary(get.models(dd, 1))[[1]]
+summary(get.models(dd, 1)[[1]])
 
 \dontrun{
 # Examples of using 'subset':

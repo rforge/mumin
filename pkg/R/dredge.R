@@ -118,9 +118,10 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			.cry(NA, paste("'fixed' should be either a character vector with",
 						   " names of variables or a one-sided formula"))
 		}
-		if (!all(fixed %in% allTerms)) {
-			.cry(NA, "not all terms in 'fixed' exist in 'global.model'", warn = TRUE)
-			fixed <- fixed[fixed %in% allTerms]
+		if (!all(i <- (fixed %in% allTerms))) {
+			.cry(NA, "some terms in 'fixed' do not exist in 'global.model': %s",
+				 prettyEnumStr(fixed[!i]), warn = TRUE)
+			fixed <- fixed[i]
 		}
 	}
 	fixed <- c(fixed, allTerms[allTerms %in% interceptLabel])
