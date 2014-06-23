@@ -1,12 +1,24 @@
 # test for marginality constraints
 `formulaMargChk` <-
 function(frm, except = NULL) {
+	
 	if(isTRUE(except)) return(TRUE)
-	factors <- attr(terms(frm), "factors")
+	factors <- attr(terms.formula(frm, simplify = FALSE), "factors")
 	if(length(factors) == 0L) return(TRUE)
-	ex <- rownames(factors)[apply(factors, 1L, function(x) any(x > 1L))]
+	
+	#benchmark({
+	#X <- factors
+	#n <- nrow(X)
+	#res <- vector(mode = "logical", n)
+	#for(i in 1L:n) res[i] <- any(X[i, ] > 1L)
+	#})
+	#benchmark(rowSums(factors > 1L) != 0L)
+	#benchmark(apply(factors > 1L, 1L, any))
+	#benchmark(apply(factors, 1L, function(x) any(x > 1L)))
+	
+	ex <- dimnames(factors)[[1L]][rowSums(factors > 1L) != 0L]
 	if(is.character(except))
-		factors <- factors[!(rownames(factors) %in% except), ]
+		factors <- factors[!(dimnames(factors)[[1L]] %in% except), ]
 	ret <- all(factors < 2L)
 	attr(ret, "marg.ex") <- ex
 	return(ret)

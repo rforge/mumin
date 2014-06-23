@@ -1,5 +1,7 @@
 \name{dredge}
 \alias{dredge}
+\alias{dc}
+\alias{V}
 \alias{print.model.selection}
 \encoding{utf-8}
 
@@ -218,8 +220,9 @@ quoted.
 		\var{x} must be present }
 	\item{\code{.(+x)}}{ indicates that all the terms containing variable \var{x} 
 		must be present }
-	\item{\code{dc(a, b, c,...)}}{ \sQuote{dependency chain}: \var{a} is allowed only
-		if \var{b} is present, and \var{b} only if \var{c} is present, etc. }
+	\item{\code{dc(a, b, c,...)}}{ \sQuote{dependency chain}: \var{b} is allowed only
+		if \var{a} is present, and \var{c} only if both \code{a} and \var{b} are
+		present, etc. }
 	\item{\bqcode{`*nvar*`}}{ number of variables }
 	}
 }

@@ -110,6 +110,24 @@ tickmod.ri  <- glmer(TICKS~HEIGHT+DUMMY+YEAR + (1|INDEX) + (1|BROOD) + (1|LOCATI
 tickmod.ri0  <- glmer(TICKS~HEIGHT+DUMMY+YEAR + (1|BROOD) + (1|LOCATION),
 	family = poisson, data = grouseticks)
 
+#x1  <- glm(TICKS ~ HEIGHT+DUMMY+YEAR, family = quasipoisson, data = grouseticks)
+#
+#x2 <- glmer(TICKS~HEIGHT+DUMMY+YEAR + (1|INDEX), family = poisson, data = grouseticks)
+#
+#sqrt(VarCorr(x2)[[1]][1])
+#
+#(11.47402)^2
+#
+#?QAIC
+#qpf <- quasipoisson()
+#qpf$aic <- poisson()$aic
+#qpf$family <- "qp"
+#
+#tickmod.ri0q  <- glmer(TICKS~HEIGHT+DUMMY+YEAR + (1|BROOD) + (1|LOCATION),
+#	family = qpf, data = grouseticks)
+#tickmod.ri0q
+
+
 
 print(R2PJpois(tickmod.ri, 'INDEX'))
 print(r.squaredGLMM(tickmod.ri))
