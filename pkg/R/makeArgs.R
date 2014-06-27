@@ -34,7 +34,7 @@ function(obj, termNames, comb, opt, ...) {
 	reportProblems <- character(0L)
 	termNames[termNames %in% opt$interceptLabel] <- "1"
 	## XXX: what if 'opt$intercept' is of length > 1 ???
-	f <- Reformulate(c(if(!opt$intercept) "0", termNames), response = opt$response)
+	f <- reformulate(c(if(!opt$intercept) "0", termNames), response = opt$response)
 	environment(f) <- opt$gmFormulaEnv
 	ret <- list(formula = f)
 	if(!is.null(opt$gmCall$start)) {
