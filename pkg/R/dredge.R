@@ -369,11 +369,13 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 				isok <- FALSE
 				next;
 			}
+			
+						
 			newArgs <- makeArgs(global.model, allTerms[comb], comb, argsOptions)
 			formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
 				attr(newArgs, "formulaList")
 
-			
+				
 			if(!all(vapply(formulaList, formulaMargChk, logical(1L), marg.ex)))  {
 				isok <- FALSE; next;
 			}

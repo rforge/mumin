@@ -176,6 +176,7 @@ S3method(makeArgs, unmarkedFitDS)
 S3method(makeArgs, coxph)
 S3method(makeArgs, clmm)
 S3method(makeArgs, merMod)
+S3method(makeArgs, glmmadmb)
 
 S3method(family, default)
 S3method(family, gls)
