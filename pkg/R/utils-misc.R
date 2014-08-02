@@ -317,13 +317,15 @@ function(x, y, diag.only = FALSE) {
 	n2 <- ncol(y)
 	if(diag.only) {
 		if(n1 != n2) stop('non-conformable arguments')
-		res <- numeric(n1)
-		for(i in seq.int(n1)) res[i] <- sum(x[i, ] * y[, i])
+		## >2x faster:
+		return(rowSums(x * t(y)))
+		#res <- numeric(n1)
+		#for(i in seq.int(n1)) res[i] <- sum(x[i, ] * y[, i])
 	} else {
 		res <- matrix(nrow = n1, ncol = n2)
 		for(i in seq.int(n1)) for(j in seq.int(n2)) res[i, j] <- sum(x[i, ] * y[, j])
+		return(res)
 	}
-	res
 }
 
 
