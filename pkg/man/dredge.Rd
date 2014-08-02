@@ -273,7 +273,7 @@ call, and
   directly in a call to \code{dredge}. This produces an error message:
   \preformatted{Error in AICc(global.model, na.action = "na.fail") : 
   no applicable method for 'logLik' applied to an object of class "character"}
-	or similar. As code{dredge} does not have a formal argument called \code{na.action}
+	or similar. As \code{dredge} does not have a formal argument called \code{na.action}
 	it is passed to the \code{rank} function that in turn tries to interpret it 
 	as a model object. \emph{Solution}: either use \code{na.action} argument in 
 	the call to global model or set it as a global option (using \code{\link{options}}).
