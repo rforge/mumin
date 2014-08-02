@@ -26,13 +26,14 @@ function(frm, except = NULL) {
 
 # slightly faster than stats::reformulate
 # response must be a character string
-Reformulate <- function(termlabels, response = NULL, intercept = TRUE, envir = parent.frame()) {
-	res <- parse(text = paste(if(!is.null(response)) response, "~", paste(termlabels, collapse = "+"), collapse = ""))[[1L]]
-	class(res) <- "formula"
-	environment(res) <- envir
-	res
-}
-
+#Reformulate <- function(termlabels, response = NULL, intercept = TRUE, envir = parent.frame()) {
+#	print(termlabels)
+#	print(response)
+#	res <- parse(text = paste(if(!is.null(response)) 'Y', "~", paste(termlabels, collapse = "+"), collapse = ""))[[1L]]
+#	class(res) <- "formula"
+#	environment(res) <- envir
+#	res
+#}
 
 `.formulaEnv` <- function(object, env = .GlobalEnv) {
 	res <- as.formula(object, env = env)

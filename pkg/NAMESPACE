@@ -76,6 +76,8 @@ S3method(importance, averaging)
 S3method(importance, model.selection)
 S3method(importance, default)
 
+S3method(print, importance)
+
 S3method(Weights, model.selection)
 S3method(Weights, averaging)
 S3method(Weights, data.frame)

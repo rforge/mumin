@@ -164,8 +164,6 @@ function(obj, termNames, comb, opt, ...) {
 	ret
 }
 
-
-
 `makeArgs.hurdle` <- 
 `makeArgs.zeroinfl` <-
 function(obj, termNames, comb, opt, ...) {

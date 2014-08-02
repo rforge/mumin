@@ -220,7 +220,7 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 			vlen <- nchar(vCols)
 			vLegend <- vector(length(vCols), mode = "list")
 			names(vLegend) <- vCols
-			## i <- "family"
+
 			if(!is.null(vCols)) {
 				for(i in vCols) {
 					lev <- levels(x[, i])
@@ -309,9 +309,6 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 	if(name %in% attr(x, "terms")) class(ret) <- "data.frame"
 	ret
 }
-
-
-
 
 `row.names<-.model.selection` <- 
 function (x, value) {

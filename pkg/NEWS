@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.10.4 (2014-07-29)
+(fixed) importance, model.avg: wrong order of 'N containing models' attribute
+	(bug reported by Alba Estrada)
+
 Version: 1.10.3 (2014-06-27)
 fixed: 'dredge' no longer drops random term in 'glmmadmb' models (spotted by 
 	Carlos León)

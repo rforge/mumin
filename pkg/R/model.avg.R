@@ -207,8 +207,9 @@ function(object, ..., beta = FALSE,
 
 	importance <- apply(weight * vpresent, 2L, sum)
 	names(importance) <- all.terms
-	importance <- sort(importance, decreasing = TRUE)
-	attr(importance, "n.models") <- structure(colSums(vpresent), names = all.terms)
+	o <- order(importance, decreasing = TRUE)
+	importance <- importance[o]
+	attr(importance, "n.models") <- structure(colSums(vpresent)[o], names = all.terms)
 	class(importance) <- c("importance", "numeric") 
 
 	#global.mm <- model.matrix(fit)
