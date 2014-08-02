@@ -4,6 +4,8 @@ Version: 1.10.4 (2014-08-02)
 (fixed) importance, model.avg: wrong order of 'N containing models' attribute
 	(bug reported by Alba Estrada)
 documentation: added section "Common problems" to 'dredge' help page.
+r.squaredGLMM: should be considerably faster and memory efficient for large 
+	datasets (improved calculation of random effects variance)
 
 Version: 1.10.3 (2014-06-27)
 fixed: 'dredge' no longer drops random term in 'glmmadmb' models (spotted by 

@@ -18,15 +18,15 @@ function(x) {
 	sigma2 <- x$sigma^2
 	varRe <- sum(sapply(x$modelStruct$reStruct, function(z) {
 		sig <- pdMatrix(z) * sigma2
-		mM1 <-  mmRE[, rownames(sig)]
-		sum(diag(mM1 %*% sig %*% t(mM1))) / n
+		mm1 <-  mmRE[, rownames(sig)]
+		#sum(diag(mm1 %*% sig %*% t(mm1))) / n
+		sum(matmult(mm1 %*% sig, t(mm1), diag.only = TRUE)) / n
 	}))
 	varTot <- sum(VarFx, varRe)
 	res <- c(VarFx, varTot) / (varTot + sigma2)
 	names(res) <- c("R2m", "R2c")
 	res
 }
-
 
 `r.squaredGLMM.merMod` <-
 `r.squaredGLMM.mer` <-
@@ -73,7 +73,6 @@ function(x) {
 		beta0 <- NULL
 	}
 	
-	
 	if(!all(c(unlist(sapply(vc, rownames))) %in% colnames(mmAll)))
 		stop("random term names do not match those in model matrix. \n",
 			 "Have you changed 'options(contrasts)' since the model was fitted?")
@@ -81,7 +80,8 @@ function(x) {
 	varRe <- if(length(vc) == 0L) 0L else
 		sum(sapply(vc, function(sig) {
 			mm1 <-  mmAll[, rownames(sig)]
-			sum(diag(mm1 %*% sig %*% t(mm1))) / n
+			sum(matmult(mm1 %*% sig, t(mm1), diag.only = TRUE)) / n
+			#sum(diag(mm1 %*% sig %*% t(mm1))) / n
 		}))
 	
 	#varRe0 <- if(length(vc) == 0L) 0L else
@@ -107,9 +107,6 @@ function(x) {
 			 beta0 = mean(fxpred))
 }
 
-
-
-
 `r.squaredGLMM.lm` <-
 function(x) {
 	fam <- family(x)
@@ -124,8 +121,6 @@ function(x) {
 			NULL
 		 )
 }
-
-
 
 `.rsqGLMM` <-
 function(fam, varFx, varRe, varResid, beta0) {

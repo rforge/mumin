@@ -309,4 +309,22 @@ function(extra, r2nullfit = FALSE) {
 	sapply(extra, match.fun, simplify = FALSE)
 }
 
+## matrix multiplication with option of calculating the diagonal only
+matmult <-
+function(x, y, diag.only = FALSE) {
+	if(ncol(x) != nrow(y)) stop('non-conformable arguments')
+	n1 <- nrow(x)
+	n2 <- ncol(y)
+	if(diag.only) {
+		if(n1 != n2) stop('non-conformable arguments')
+		res <- numeric(n1)
+		for(i in seq.int(n1)) res[i] <- sum(x[i, ] * y[, i])
+	} else {
+		res <- matrix(nrow = n1, ncol = n2)
+		for(i in seq.int(n1)) for(j in seq.int(n2)) res[i, j] <- sum(x[i, ] * y[, j])
+	}
+	res
+}
+
+
 	
