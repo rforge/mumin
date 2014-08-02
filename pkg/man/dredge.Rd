@@ -230,8 +230,6 @@ quoted.
 
 }
 
-
-
 \subsection{Missing values}{
 Use of \code{na.action = "na.omit"} (\R's default) or \code{"na.exclude"}  in 
 \code{global.model} must be avoided, as it results with sub-models fitted to 
@@ -270,6 +268,30 @@ call, and
 	during the fitting, with model number appended to each. 
 }
 
+\section{Common problems}{
+  One of the most common mistake users make is to give \code{na.action} argument 
+  directly in a call to \code{dredge}. This produces an error message:
+  \preformatted{Error in AICc(global.model, na.action = "na.fail") : 
+  no applicable method for 'logLik' applied to an object of class "character"}
+	or similar. As code{dredge} does not have a formal argument called \code{na.action}
+	it is passed to the \code{rank} function that in turn tries to interpret it 
+	as a model object. \emph{Solution}: either use \code{na.action} argument in 
+	the call to global model or set it as a global option (using \code{\link{options}}).
+
+	The term names used by \code{dredge} are not exactly what is entered in the 
+	model formula. The formulas are linearised before \code{dredge} can use them
+	so, for instance, in multi-sided formulas \cr (\code{~ x1 + x2 ~ x3 + x4}, 
+	as in models from package \pkg{unmarked}) they take the form \var{X}, 
+	where \var{Par} is the parameter type and \var{X} is the model term.
+	The error 
+\preformatted{not all terms in \sQuote{fixed} exist in \sQuote{global.model}} 
+ occurs when some of the terms are misspecified. \emph{Solution}: specify 
+ terms \bold{exactly} as they are listed by \code{getAllTerms}. 
+
+ }
+
+  
+
 \author{Kamil Barto\enc{ń}{n}}
 
 \note{
@@ -301,6 +323,7 @@ regression.
 	\pkg{lars} or \pkg{glmmLasso}.
 
 }
+
 
 
 \examples{
