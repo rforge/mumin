@@ -102,17 +102,17 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 \details{
 
-Models are fitted one by one through repeated evaluation of modified calls to
+Models are fitted through repeated evaluation of modified calls to
 the \code{global.model} (in a similar fashion as with \code{update}). This
 approach, while robust in that it can be applied to a variety of different model
 object types is not very efficient and may be time-intensive.
 
 Note that the number of combinations grows exponentially with number of
 predictor variables (\ifelse{latex}{\eqn{2^{N}}}{2^N}, less when interactions
-are present, see below). As there can be potentially a large number of models to
-evaluate, to avoid memory overflow the fitted model objects are not stored in
-the result. To get (a subset of) the models, use \code{\link{get.models}} on the
-object returned by \code{dredge}.
+are present, see below). 
+
+The fitted model objects are not stored in the result. To get (a subset of) the 
+models, use \code{\link{get.models}} on the object returned by \code{dredge}. 
 
 For a list of model types that can be used as a \code{global.model} see
 \link[=MuMIn-models]{list of supported models}. 
@@ -124,15 +124,14 @@ Modelling functions not storing \code{call} in their result should be evaluated
 function or a symbol or a character string specifying
 a function to be searched for from the environment of the call to \code{dredge}.
 The function \code{rank} must accept model object as its first argument and 
-always return a scalar. Typical choice for \code{rank} would be "AIC", "BIC", or
-"QAIC".
+always return a scalar.
 }
 
 \subsection{Interactions}{
-\code{dredge} by default respects marginality
-constraints, so \dQuote{all possible combinations} do not include models
-containing interactions without their respective main effects and all lower order 
-terms. This behaviour can be altered by \code{marg.ex} argument, which can be used 
+By default marginality constraints are respected, so \dQuote{all possible 
+combinations} do not include models containing interactions without their 
+respective main effects and all lower order terms. 
+This behaviour can be altered by \code{marg.ex} argument, which can be used 
 to allow for simple nested designs. For example, with global model of form 
 \code{a / (x + z)}, one would use \code{marg.ex = "a"} and \code{fixed = "a"}. 
 If \code{global.model} uses such a formula and \code{marg.ex} is missing or 
@@ -153,8 +152,7 @@ formulation must satisfy all these conditions.
 The latter should be a lower triangular matrix with logical values, where
 columns and rows correspond to \code{global.model} terms. Value
 \code{subset["a", "b"] == FALSE} will exclude any model containing both terms 
-\var{a} and \var{b}. Values other than \code{FALSE} (or \code{0}) are taken as
-\code{TRUE}.
+\var{a} and \var{b}.
 
 In the form of \code{expression}, the argument \code{subset} acts in a similar
 fashion to that in the function \code{subset} for \code{data.frames}: model
@@ -167,7 +165,7 @@ any or all model terms including a \emph{variable} \code{x}. This concerns only
 interactions containing a particular main effect \code{x} (e.g. \code{x:z},
 \code{v:x:z}), and \emph{not} a variable in a complex expression, such as
 \code{x} in \code{log(x)} or \code{I(x^2)}. This is only useful with marginality
- exceptions, see \code{marg.ex} argument.
+ exceptions (\code{marg.ex} argument).
 
 The expression can contain any of the \code{global.model} terms
 (\code{getAllTerms(global.model)} lists them), as well as names of the
@@ -177,8 +175,8 @@ precedence when identical to names of \code{varying}, so to avoid ambiguity
 \code{V()} (e.g. \code{subset = V(family) == "Gamma"} assuming that
 \code{varying} is something like \code{list(family = c(..., "Gamma"))}).
 
-If element names in \code{varying} are missing, the elements themselves are 
-used. Call and symbol elements are represented as character values (via 
+If item names in \code{varying} are missing, the items themselves are coerced to 
+names. Call and symbol elements are represented as character values (via 
 \code{deparse}), and everything except numeric, logical, character and 
 \code{NULL} values is replaced by item numbers (e.g. \code{varying =} 
 \code{list(family =} \code{list(..., Gamma)} should be referred to as 
@@ -187,7 +185,7 @@ is recommended to use named lists. \code{demo(dredge.varying)} provides examples
 
 The \code{subset} expression can also contain variable \bqcode{`*nvar*`} 
 	(backtick-quoted), equal to number of terms in the model (\bold{not} the 
-	number of estimated parameters \var{K}).
+	number of estimated parameters).
 
 To make inclusion of a variable conditional on presence of some other variable,
 a function \code{dc} (\dQuote{\bold{d}ependency \bold{c}hain}) can be used in
@@ -204,11 +202,11 @@ Compound model terms (such as \sQuote{as-is} expressions within \code{I()} or
 smooths in \code{gam}) should be treated as non-syntactic names and enclosed in
 backticks (e.g. \bqcode{subset = `s(x, k = 2)` || `I(log(x))`}),
  see \link[base]{Quotes}). Mind the spacing, names must match exactly the term names
-as given by \code{getAllTerms}. To simply keep certain 
-terms in all models, use of argument \code{fixed} is more 
-efficient. Note that the \code{fixed} formula is interpreted in the same manner 
-as model formula and so the terms need not to be 
-quoted.
+as given by \code{getAllTerms}. 
+
+To simply keep certain terms in all models, use of argument \code{fixed} is much
+more efficient. The \code{fixed} formula is interpreted in the same manner 
+as model formula and so the terms need not to be quoted.
 
 \subsection{\code{subset} expression syntax summary}{
 	
@@ -235,6 +233,13 @@ Use of \code{na.action = "na.omit"} (\R's default) or \code{"na.exclude"}  in
 \code{global.model} must be avoided, as it results with sub-models fitted to 
 different data sets, if there are missing values. Error is thrown if it is 
 detected.
+
+It is a common mistake to give \code{na.action} as an argument in the call 
+  to \code{dredge} (typically resulting in an error from the \code{rank} 
+  function to which the argument is passed through \dots), while the correct way
+  is either to pass \code{na.action} in the call to the global model or to set 
+  it as a \link[=options]{global option}.
+
 }
 
 \subsection{Methods}{
@@ -267,30 +272,6 @@ call, and
 \code{"warnings"} - list of errors and warnings given by the modelling function
 	during the fitting, with model number appended to each. 
 }
-
-\section{Common problems}{
-  One of the most common mistake users make is to give \code{na.action} argument 
-  directly in a call to \code{dredge}. This produces an error message:
-  \preformatted{Error in AICc(global.model, na.action = "na.fail") : 
-  no applicable method for 'logLik' applied to an object of class "character"}
-	or similar. As \code{dredge} does not have a formal argument called \code{na.action}
-	it is passed to the \code{rank} function that in turn tries to interpret it 
-	as a model object. \emph{Solution}: either use \code{na.action} argument in 
-	the call to global model or set it as a global option (using \code{\link{options}}).
-
-	The term names used by \code{dredge} are not exactly what is entered in the 
-	model formula. The formulas are linearised before \code{dredge} can use them
-	so, for instance, in multi-sided formulas \cr (\code{~ x1 + x2 ~ x3 + x4}, 
-	as in models from package \pkg{unmarked}) they take the form \var{X}, 
-	where \var{Par} is the parameter type and \var{X} is the model term.
-	The error 
-\preformatted{not all terms in \sQuote{fixed} exist in \sQuote{global.model}} 
- occurs when some of the terms are misspecified. \emph{Solution}: specify 
- terms \bold{exactly} as they are listed by \code{getAllTerms}. 
-
- }
-
-  
 
 \author{Kamil Barto\enc{ń}{n}}
 
