@@ -7,7 +7,7 @@
 
 \newcommand{\Rsq}{\ifelse{latex}{\eqn{R^{2}}{R^2}}{\ifelse{html}{\enc{R²}{R^2}}{R^2}}}
 %% \newcommand{\bq}{\ifelse{latex}{\verb{`}#1\verb{`}}{\ifelse{html}{\code{`#1`}}{`#1`}}}
-\newcommand{\bq}{\verb{`}#1\verb{`}}
+\newcommand{\bq}{\verb{`}\code{#1}\verb{`}}
 
 \title{Automated model selection}
 \description{
@@ -183,7 +183,7 @@ names. Call and symbol elements are represented as character values (via
 is recommended to use named lists. \code{demo(dredge.varying)} provides examples.
 
 The \code{subset} expression can also contain variable 
-\ifelse{latex}{\code{\bq{*nvar*}}}{\code{`*nvar*`}} (backtick-quoted), equal to 
+\ifelse{latex}{\bq{*nvar*}}{\code{`*nvar*`}} (backtick-quoted), equal to 
 number of terms in the model (\bold{not} the number of estimated parameters).
 
 To make inclusion of a variable conditional on presence of some other variable,
@@ -200,7 +200,7 @@ are also present (e.g. \code{subset = dc(a, b, c)} allows for models of form
 Compound model terms (such as interactions, \sQuote{as-is} expressions within \code{I()} or
 smooths in \code{gam}) should be treated as non-syntactic names and enclosed in
 backticks (e.g. \ifelse{latex}{
-\code{subset = \bq{a:b} &&} \code{\bq{s(x, k = 2)} ||} \code{\bq{I(log(x))}}
+\code{subset = }\bq{a:b} \code{&&} \bq{s(x, k = 2)} \code{||} \bq{I(log(x))}
 }{
 \code{subset = `a:b` && `s(x, k = 2)` || `I(log(x))`}
 }),
