@@ -47,7 +47,7 @@ function (x, i = NULL, ...) {
 function(x, subset, select, recalc.weights = TRUE, recalc.delta = FALSE, ...) {
 	if (missing(select)) {
 		if(missing(subset)) return(x)
-		e <- .substHas(.substFun4Fun(substitute(subset), "dc", function(e) {
+		e <- .substHas(.substFunc(substitute(subset), "dc", function(e) {
 			e[[1]] <- call(":::", as.name(.packageName), as.name(".subset_vdc"))
 			for(i in 2L:length(e)) e[[i]] <- call("has", e[[i]])
 			e

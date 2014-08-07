@@ -115,7 +115,7 @@ function (object, newdata, se.fit = FALSE, na.action = na.fail, ...) {
     val <- c(X[, names(cf), drop = FALSE] %*% cf)
 	if(se.fit) {
 		#se <- sqrt(diag(X %*% vcov(object) %*% t(X)))
-		se1<- sqrt(rowSums((X %*% vcov(object)) * X))
+		se <- sqrt(rowSums((X %*% vcov(object)) * X))
 		val <- list(fit = val, se.fit = unname(se))
 	}
 	attr(val, "label") <- "Predicted values"

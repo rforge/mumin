@@ -24,7 +24,7 @@ pget.models(object, cluster = NA, subset, ...)
 	selected. By default, \bold{all} model objects are fitted and returned 
 	(see \sQuote{Note}). }
   \item{\dots}{additional arguments to update the models. For example, in
-    \code{lme} one may want to use \code{method = "REML"} while using "ML"
+    \code{lme} one may want to use \code{method = "REML"} while using \code{"ML"}
     for model selection.}
 	\item{cluster}{ a \code{cluster} object. See \code{\link{pdredge}} for
 	details. }

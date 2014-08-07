@@ -328,7 +328,7 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 		#if (se.fit) {
 		#	scale <- 1
 		#	covmx <- solve(t(X) %*% X)
-		#	se <- sqrt(diag(Xnew %*% covmx %*% t(Xnew))) * sqrt(scale)
+		#	se <- sqrt(diag(Xnew %*% covmx %*% t(Xnew))) * sqrt(scale) ## TODO: use matmult
 		#	return(list(fit = y, se.fit = se))
 		#}
 	} else {

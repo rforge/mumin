@@ -258,7 +258,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			rownames(gloFactorTable) <- allTerms0[!(allTerms0 %in% interceptLabel)]
 	
 			
-			subsetExpr <- .substFun4Fun(subsetExpr, ".", function(x, fac, at, vName) {
+			subsetExpr <- .substFunc(subsetExpr, ".", function(x, fac, at, vName) {
 				if(length(x) != 2L) .cry(x, "exactly one argument needed, %d given.", length(x) - 1L)
 				if(length(x[[2L]]) == 2L && x[[2L]][[1L]] == "+") {
 					fun <- "all"
@@ -281,7 +281,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			
 			if(nvarying) {
 				ssValidNames <- c("cVar", "comb", "*nvar*")
-				subsetExpr <- .substFun4Fun(subsetExpr, "V", function(x, cVar, fn) {
+				subsetExpr <- .substFunc(subsetExpr, "V", function(x, cVar, fn) {
 					if(length(x) > 2L) .cry(x, "discarding extra arguments", warn = TRUE)
 					i <- which(fn == x[[2L]])[1L]
 					if(is.na(i)) .cry(x, "'%s' is not a valid name of 'varying' element",

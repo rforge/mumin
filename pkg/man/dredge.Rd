@@ -5,10 +5,9 @@
 \alias{print.model.selection}
 \encoding{utf-8}
 
-%% \newcommand{\backquote}{\Sexpr[results=text]{paste0("`", "#1", "`")}}
-\newcommand{\bqcode}{\ifelse{latex}{\verb{#1}}{\code{#1}}}
 \newcommand{\Rsq}{\ifelse{latex}{\eqn{R^{2}}{R^2}}{\ifelse{html}{\enc{R²}{R^2}}{R^2}}}
-
+%% \newcommand{\bq}{\ifelse{latex}{\verb{`}#1\verb{`}}{\ifelse{html}{\code{`#1`}}{`#1`}}}
+\newcommand{\bq}{\verb{`}#1\verb{`}}
 
 \title{Automated model selection}
 \description{
@@ -72,7 +71,7 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	fitted model object as an argument and return a (value coercible to a)
 	numeric vector.
 	These can be e.g. additional information criterions or goodness-of-fit
-	statistics. The character strings "R^2" and "adjR^2" are treated in a
+	statistics. The character strings \dQuote{R^2} and \dQuote{adjR^2} are treated in a
 	special way, and will add a likelihood-ratio based \Rsq and
 	modified-\Rsq respectively to the result (this is more efficient than using 
 	\code{\link{r.squaredLR}} directly).
@@ -86,7 +85,7 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
   \item{warnings}{ if \code{TRUE}, errors and warnings issued during the model
 	fitting are printed below the table (currently, only with \code{pdredge}).
-	To permanently remove the warnings, set the object's attribute "warnings" to
+	To permanently remove the warnings, set the object's attribute \code{"warnings"} to
 	\code{NULL}. }
 	
   \item{ct.args}{ optional list of arguments to be passed to
@@ -108,8 +107,8 @@ approach, while robust in that it can be applied to a variety of different model
 object types is not very efficient and may be time-intensive.
 
 Note that the number of combinations grows exponentially with number of
-predictor variables (\ifelse{latex}{\eqn{2^{N}}}{2^N}, less when interactions
-are present, see below). 
+predictor variables (\ifelse{latex}{\eqn{2^{N}}}{\ifelse{html}{2ⁿ}{2^N}}, 
+less when interactions are present, see below). 
 
 The fitted model objects are not stored in the result. To get (a subset of) the 
 models, use \code{\link{get.models}} on the object returned by \code{dredge}. 
@@ -117,7 +116,7 @@ models, use \code{\link{get.models}} on the object returned by \code{dredge}.
 For a list of model types that can be used as a \code{global.model} see
 \link[=MuMIn-models]{list of supported models}. 
 Modelling functions not storing \code{call} in their result should be evaluated 
-\emph{via} the wrapper created by \code{\link{updateable}}.
+\emph{via} the wrapper function created by \code{\link{updateable}}.
 
 \subsection{Information criterion}{
 \code{rank} is found by a call to \code{match.fun} and may be specified as a
@@ -183,24 +182,28 @@ names. Call and symbol elements are represented as character values (via
 \code{subset = V(family) == 2}. This can quickly become confusing, therefore it 
 is recommended to use named lists. \code{demo(dredge.varying)} provides examples.
 
-The \code{subset} expression can also contain variable \bqcode{`*nvar*`} 
-	(backtick-quoted), equal to number of terms in the model (\bold{not} the 
-	number of estimated parameters).
+The \code{subset} expression can also contain variable 
+\ifelse{latex}{\code{\bq{*nvar*}}}{\code{`*nvar*`}} (backtick-quoted), equal to 
+number of terms in the model (\bold{not} the number of estimated parameters).
 
 To make inclusion of a variable conditional on presence of some other variable,
-a function \code{dc} (\dQuote{\bold{d}ependency \bold{c}hain}) can be used in
+the function \code{dc} (\dQuote{\bold{d}ependency \bold{c}hain}) can be used in
 the \code{subset} expression. \code{dc} takes any number of variables as
 arguments, and allows a variable to be included only if all preceding variables
 are also present (e.g. \code{subset = dc(a, b, c)} allows for models of form
-\code{a}, \code{a+b }and \code{a+b+c} but not \code{b}, \code{c}, \code{b+c} or
+\code{a}, \code{a+b} and \code{a+b+c} but not \code{b}, \code{c}, \code{b+c} or
 \code{a+c}).
 
 \code{subset} expression can have a form of an unevaluated \code{call},
 \code{expression} object, or a one sided \code{formula}. See \sQuote{Examples}.
 
-Compound model terms (such as \sQuote{as-is} expressions within \code{I()} or
+Compound model terms (such as interactions, \sQuote{as-is} expressions within \code{I()} or
 smooths in \code{gam}) should be treated as non-syntactic names and enclosed in
-backticks (e.g. \bqcode{subset = `s(x, k = 2)` || `I(log(x))`}),
+backticks (e.g. \ifelse{latex}{
+\code{subset = \bq{a:b} &&} \code{\bq{s(x, k = 2)} ||} \code{\bq{I(log(x))}}
+}{
+\code{subset = `a:b` && `s(x, k = 2)` || `I(log(x))`}
+}),
  see \link[base]{Quotes}). Mind the spacing, names must match exactly the term names
 as given by \code{getAllTerms}. 
 
@@ -221,7 +224,7 @@ as model formula and so the terms need not to be quoted.
 	\item{\code{dc(a, b, c,...)}}{ \sQuote{dependency chain}: \var{b} is allowed only
 		if \var{a} is present, and \var{c} only if both \code{a} and \var{b} are
 		present, etc. }
-	\item{\bqcode{`*nvar*`}}{ number of variables }
+	\item{\code{`*nvar*`}}{ number of variables }
 	}
 }
 

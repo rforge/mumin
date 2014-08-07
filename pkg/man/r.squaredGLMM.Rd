@@ -100,7 +100,7 @@ all random effects specifications. \emph{Methods in Ecology and Evolution}
 
 \examples{
 
-if(require(nlme)) { 
+\dontshow{ if(require(nlme)) \{   }
 data(Orthodont, package = "nlme")
 
 fm1 <- lme(distance ~ Sex * age, ~ 1 | Subject, data = Orthodont)
@@ -108,7 +108,7 @@ fm1 <- lme(distance ~ Sex * age, ~ 1 | Subject, data = Orthodont)
 r.squaredGLMM(fm1)
 r.squaredLR(fm1)
 r.squaredLR(fm1, null.RE = TRUE)
-}
+\dontshow{  \}  }
 }
 
 \keyword{models}
