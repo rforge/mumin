@@ -172,7 +172,7 @@ function(f)
 
 .checkNaAction <-
 function(x, cl = getCall(x),
-		 naomi = c("na.omit", "na.exclude", "na.pass"), what = "model") {
+		 naomi = c("na.omit", "na.exclude"), what = "model") {
 	naact <- NA_character_
 	msg <- NA_character_
 	if (!is.null(cl$na.action)) {

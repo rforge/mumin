@@ -42,6 +42,8 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 		arg1 <- names(cl)[-(1L:2L)] %in% names(formals("model.avg.default"))
 		cl1 <- cl[c(TRUE, TRUE, !arg1)]
 		cl1[[1L]] <- as.name("get.models")
+		if(is.null(cl1$subset)) cl1$subset <- NA
+		
 		cl2 <- cl[c(TRUE, TRUE, arg1)]
 		cl2[[2L]] <- cl1
 		cl2[[1L]] <- as.name("model.avg")
