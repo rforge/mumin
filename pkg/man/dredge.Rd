@@ -163,7 +163,7 @@ There is also \code{.(x)} and \code{.(+x)} notation that indicate respectively
 any or all model terms including a \emph{variable} \code{x}. This concerns only
 interactions containing a particular main effect \code{x} (e.g. \code{x:z},
 \code{v:x:z}), and \emph{not} a variable in a complex expression, such as
-\code{x} in \code{log(x)} or \code{I(x^2)}. This is only useful with marginality
+\code{x} in \code{I(x^2)}, so it is only useful with marginality
  exceptions (\code{marg.ex} argument).
 
 The expression can contain any of the \code{global.model} terms
@@ -186,10 +186,10 @@ The \code{subset} expression can also contain variable
 \ifelse{latex}{\bq{*nvar*}}{\code{`*nvar*`}} (backtick-quoted), equal to 
 number of terms in the model (\bold{not} the number of estimated parameters).
 
-To make inclusion of a variable conditional on presence of some other variable,
+To make inclusion of a model term conditional on presence of another model term,
 the function \code{dc} (\dQuote{\bold{d}ependency \bold{c}hain}) can be used in
-the \code{subset} expression. \code{dc} takes any number of variables as
-arguments, and allows a variable to be included only if all preceding variables
+the \code{subset} expression. \code{dc} takes any number of term names as
+arguments, and allows a term to be included only if all preceding ones
 are also present (e.g. \code{subset = dc(a, b, c)} allows for models of form
 \code{a}, \code{a+b} and \code{a+b+c} but not \code{b}, \code{c}, \code{b+c} or
 \code{a+c}).
@@ -207,10 +207,6 @@ backticks (e.g. \ifelse{latex}{
  see \link[base]{Quotes}). Mind the spacing, names must match exactly the term names
 as given by \code{getAllTerms}. 
 
-To simply keep certain terms in all models, use of argument \code{fixed} is much
-more efficient. The \code{fixed} formula is interpreted in the same manner 
-as model formula and so the terms need not to be quoted.
-
 \subsection{\code{subset} expression syntax summary}{
 	
 	\describe{
@@ -222,11 +218,15 @@ as model formula and so the terms need not to be quoted.
 	\item{\code{.(+x)}}{ indicates that all the terms containing variable \var{x} 
 		must be present }
 	\item{\code{dc(a, b, c,...)}}{ \sQuote{dependency chain}: \var{b} is allowed only
-		if \var{a} is present, and \var{c} only if both \code{a} and \var{b} are
+		if \var{a} is present, and \var{c} only if both \var{a} and \var{b} are
 		present, etc. }
 	\item{\code{`*nvar*`}}{ number of variables }
 	}
 }
+
+To simply keep certain terms in all models, use of argument \code{fixed} is much
+more efficient. The \code{fixed} formula is interpreted in the same manner 
+as model formula and so the terms need not to be quoted.
 
 
 }
@@ -239,7 +239,7 @@ detected.
 
 It is a common mistake to give \code{na.action} as an argument in the call 
   to \code{dredge} (typically resulting in an error from the \code{rank} 
-  function to which the argument is passed through \dots), while the correct way
+  function to which the argument is passed through \sQuote{\dots}), while the correct way
   is either to pass \code{na.action} in the call to the global model or to set 
   it as a \link[=options]{global option}.
 
@@ -259,7 +259,8 @@ Coefficients can be extracted with \code{coef} or \code{\link{coefTable}}.
 \code{dredge} returns an object of class \code{model.selection}, being a
 \code{data.frame} with models' coefficients (or presence/\code{NA} for factors),
 	\emph{df} - number of parameters, log-likelihood, the information criterion
-	value, delta-IC and \emph{Akaike weight}. Models are ordered by the value of
+	value,  \ifelse{latex}{\eqn{\Delta_{IC}}}{\enc{Δ}{Delta}_IC} and 
+	\sQuote{Akaike weights}. Models are ordered by the value of
 	the information criterion specified by \code{rank} (lowest on top).
 
 The attribute \code{"calls"} is a list containing the model calls used (arranged

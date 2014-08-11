@@ -328,5 +328,13 @@ function(x, y, diag.only = FALSE) {
 	}
 }
 
+## matmultdiag(x, ty = y) == diag(x %*% t(y))
+matmultdiag <-
+function(x, y, ty = t(y)) {
+	if(ncol(x) != ncol(ty)) stop('non-conformable arguments')
+	if(nrow(x) != nrow(ty)) stop('result is not a square matrix')
+	return(rowSums(x * ty))
+}
+
 
 	

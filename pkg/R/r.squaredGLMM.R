@@ -12,16 +12,18 @@ function(x) {
 	VarFx <- var(fitted(x, level = 0L))
 
 	mmRE <- model.matrix(x$modelStruct$reStruct,
-						 data = x$data[rownames(x$fitted), ])
+						 data = x$data[rownames(x$fitted), , drop = FALSE])
 	n <- nrow(mmRE)
 
 	sigma2 <- x$sigma^2
+	
 	varRe <- sum(sapply(x$modelStruct$reStruct, function(z) {
 		sig <- pdMatrix(z) * sigma2
-		mm1 <-  mmRE[, rownames(sig)]
+		mm1 <-  mmRE[, rownames(sig), drop = FALSE]
 		#sum(diag(mm1 %*% sig %*% t(mm1))) / n
-		sum(matmult(mm1 %*% sig, t(mm1), diag.only = TRUE)) / n
+		sum(matmultdiag(mm1 %*% sig, ty = mm1)) / n
 	}))
+
 	varTot <- sum(VarFx, varRe)
 	res <- c(VarFx, varTot) / (varTot + sigma2)
 	names(res) <- c("R2m", "R2c")
@@ -79,8 +81,9 @@ function(x) {
 	
 	varRe <- if(length(vc) == 0L) 0L else
 		sum(sapply(vc, function(sig) {
-			mm1 <-  mmAll[, rownames(sig)]
-			sum(matmult(mm1 %*% sig, t(mm1), diag.only = TRUE)) / n
+			mm1 <-  mmAll[, rownames(sig), drop = FALSE]
+			# sum(matmult(mm1 %*% sig, t(mm1), diag.only = TRUE)) / n
+			sum(matmultdiag(mm1 %*% sig, ty = mm1)) / n
 			#sum(diag(mm1 %*% sig %*% t(mm1))) / n
 		}))
 	

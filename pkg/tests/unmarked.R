@@ -48,7 +48,7 @@ pferUMF <- unmarkedFrameOccu(pfer.bin)
 siteCovs(pferUMF) <- data.frame(sitevar1 = rnorm(numSites(pferUMF)),sitevar2 = rnorm(numSites(pferUMF)))
 
 global <- occu(~ sitevar1 + I(sitevar1^2) + sitevar2 ~ 1, pferUMF)
-dd1<-dredge(global) # <- has models containing quadratic 'I(sitecar1^2)' without corresponding 'sitevar1' (not what I want)
+dd1 <- dredge(global) # <- has models containing quadratic 'I(sitecar1^2)' without corresponding 'sitevar1' (not what I want)
 
 getAllTerms(global)
 
@@ -78,7 +78,7 @@ stopifnot(!any(is.na(dd2[, "p(habitat)"]) & !is.na(dd2[, "p(veght)"])))
 
 
 model.sel(dd, rank = "AIC")
-models <- get.models(dd[1:3])
+models <- get.models(dd, subset = 1:3)
 
 summary(ma1 <- model.avg(models))
 summary(ma2 <- model.avg(dd[1:3]))
