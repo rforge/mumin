@@ -1,5 +1,10 @@
 MuMIn package news:
 
+Version: 1.10.6 (2014-08-13)
+(added) methods for 'maxlike' (from package with the same name)
+lazy loading of datasets
+plot.model.selection: improved and documented 
+
 Version: 1.10.5 (2014-08-08)
 get.models: can now use parallel computation if a valid 'cluster' is provided.
 	It takes over the functionality of 'pget.models', which is now deprecated. 

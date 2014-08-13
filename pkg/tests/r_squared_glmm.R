@@ -1,3 +1,5 @@
+if(length(find.package(c("lme4", "nlme"), quiet = TRUE))) {
+
 library(lme4)
 library(nlme)
 library(MuMIn) ## needs  version >= 1.9.22
@@ -75,9 +77,7 @@ model.matrix(model1a, TRUE)
 
 ###########################
 
-if(
-   require(glmmML)
-   ) {
+if(require(glmmML)) {
 
 ## tests models evaluated in a strange environment
 with(env <- new.env(), {
@@ -154,3 +154,4 @@ stopifnot(all.equal(R2PJpois(tickmod.rs, 'INDEX'), r.squaredGLMM(tickmod.rs)))
 #r.squaredGLMM(tickmod3)
 #r.squaredGLMM(tickmod3a)
 #r.squaredGLMM(tickmod.rs0)
+}

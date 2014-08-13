@@ -75,7 +75,6 @@ if(MuMIn:::.parallelPkgCheck(quiet = TRUE)) \{
 \dontrun{require(parallel) || require(snow)}
 
 # From example(Beetle)
-data(Beetle)
 
 Beetle100 <- Beetle[sample(nrow(Beetle), 100, replace = TRUE),]
 

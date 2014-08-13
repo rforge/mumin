@@ -196,15 +196,14 @@ function (object, newdata, level, asList = FALSE,
         y <- y + offset
     fam <- family(object)
     if (se.fit) {
-        covmat <- as.matrix(vcov(object))
-		se <- sqrt(matmultdiag(X %*% covmat, ty = X))
+        # covmat <- as.matrix(vcov(object))
+		se <- sqrt(matmultdiag(X %*% as.matrix(vcov(object)), ty = X))
 		# se <- sqrt(rowSums((X %*% covmat) * X))
         # se <- sqrt(diag(X %*% covmat %*% t(X)))
         if (type == "response" && inherits(fam, "family")) 
             list(fit = fam$linkinv(y), se.fit = se * abs(fam$mu.eta(y)))
         else list(fit = y, se.fit = se)
-    }
-    else {
+    } else {
         if (type == "response" && inherits(fam, "family")) 
             fam$linkinv(y)
         else y
@@ -288,3 +287,8 @@ function(object, ...) {
 	class(fam) <- "family"
 	fam
 }
+
+
+formula.maxlikeFit <-
+function (x, ...) 
+as.formula(.getCall(x)$formula, env = parent.frame())

@@ -67,7 +67,6 @@ Possible alternatives: \code{\link[bbmle]{ICtab}} (in package \pkg{bbmle}), or
 
 \examples{
 
-data(Cement)
 Cement$X1 <- cut(Cement$X1, 3)
 Cement$X2 <- cut(Cement$X2, 2)
 

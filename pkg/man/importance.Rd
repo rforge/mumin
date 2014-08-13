@@ -35,7 +35,6 @@ importance(x)
 \examples{
 
 # Generate some models
-data(Cement)
 fm1 <- lm(y ~ ., data = Cement)
 ms1 <- dredge(fm1)
 

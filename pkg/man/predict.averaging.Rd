@@ -107,7 +107,6 @@ on the outermost level (equivalent to \code{level = 0} in
 if(require(graphics)) {
 
 # Example from Burnham and Anderson (2002), page 100:
-data(Cement)
 fm1 <- lm(y ~ X1 + X2 + X3 + X4, data = Cement)
 
 ms1 <- dredge(fm1)

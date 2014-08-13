@@ -131,7 +131,7 @@
 	structure(ox, order = ord)
 }
 
-getResponse <-
+getResponseFormula <-
 function(f)
 	if((length(f) == 2L) || (is.call(f[[2L]]) && f[[2L]][[1L]] == "~"))
 		0 else f[[2L]]
@@ -147,7 +147,7 @@ function(f)
 		else function(x) warning(simpleWarning(x, cl))
 	res <- TRUE
 
-	responses <- lapply(models, function(x) getResponse(formula(x)))
+	responses <- lapply(models, function(x) getResponseFormula(formula(x)))
 
  	if(!all(vapply(responses[-1L], "==", logical(1L), responses[[1L]]))) {
 		err("response differs between models")

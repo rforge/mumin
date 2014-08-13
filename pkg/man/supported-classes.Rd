@@ -22,7 +22,7 @@ functions include those returned by:
 \item \code{gamm4}* (\pkg{gamm4});
 \item \code{glmmML} (\pkg{glmmML});
 \item \code{glmmadmb} (\pkg{glmmADMB} from R-Forge);
-\item \code{asreml} (\pkg{asreml}, non-free commercial package; REML comparisons only);
+\item \code{asreml} (\pkg{asreml}, non-free commercial package; \acronym{REML} comparisons only);
 \item \code{hurdle}, \code{zeroinfl} (\pkg{pscl});
 \item \code{negbin}, \code{betabin} (class \code{glimML}, package \pkg{aod});
 \item \code{aodml}, \code{aodql} (\pkg{aods3});
@@ -35,13 +35,13 @@ functions include those returned by:
 \item \code{clm} and \code{clmm} (\pkg{ordinal});
 \item \code{logistf} (\pkg{logistf}); %% Bias-reduced logistic regression
 \item \code{crunch}*, \code{pgls} (\pkg{caper});
+\item \code{maxlike} (\pkg{maxlike});
 \item functions from package \pkg{unmarked} (within the class \code{unmarkedFit});
 \item \code{mark} and related functions (class \code{mark} from package
 	\pkg{RMark}). Currently \code{dredge} can only manipulate \code{formula}
 	element of the argument \code{model.parameters}, keeping its other elements
 	intact.
 }
-
 
 Generalized Estimation Equation model implementations: \code{\link[geepack]{geeglm}} 
 from package \pkg{geepack}, \code{\link[gee]{gee}} from \pkg{gee}, and 

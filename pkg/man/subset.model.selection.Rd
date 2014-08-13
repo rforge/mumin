@@ -66,7 +66,6 @@ subsetting and extracting from \code{data.frame}s.
 }
 
 \examples{
-data(Cement)
 fm1 <- lm(formula = y ~ X1 + X2 + X3 + X4, data = Cement)
 
 # generate models where each variable is included only if the previous

@@ -49,7 +49,6 @@ Unlike the \code{merge} method for \code{data.frame}, this method appends
 \dontrun{
 
 require(mgcv)
-data(Beetle)
 
 ms1 <- dredge(glm(Prop ~ dose + I(dose^2) + log(dose) + I(log(dose)^2),
     data = Beetle, family = binomial, na.action = na.fail))

@@ -313,5 +313,7 @@ S3method(logLik, cplm)
 S3method(coeffs, cpglmm)
 S3method(getAllTerms, cpglmm)
 
-
-
+S3method(logLik, maxlikeFit)
+S3method(nobs, maxlikeFit)
+S3method(formula, maxlikeFit)
+S3method(coefTable, maxlikeFit)

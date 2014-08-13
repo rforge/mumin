@@ -9,7 +9,7 @@ carbon disulfide CS\eqn{_{2}}{2}, from Bliss (1935).
 }
 
 \usage{
-data(Beetle)
+Beetle
 }
 
 \format{
@@ -38,8 +38,6 @@ Springer-Verlag.
 
 # "Logistic regression example"
 # from Burnham & Anderson (2002) chapter 4.11
-
-data(Beetle)
 
 # Fit a global model with all the considered variables
 globmod <- glm(Prop ~ dose + I(dose^2) + log(dose) + I(log(dose)^2),

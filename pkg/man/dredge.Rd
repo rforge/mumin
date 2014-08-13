@@ -246,9 +246,9 @@ It is a common mistake to give \code{na.action} as an argument in the call
 }
 
 \subsection{Methods}{
-There are \code{\link[=subset.model.selection]{subset}} and \code{plot} methods,
-the latter produces a graphical representation of model weights and variable
-relative importance.
+There are \code{\link[=subset.model.selection]{subset}} and
+\code{\link[=plot.model.selection]{plot}} methods, the latter creates a
+graphical representation of model weights and variable relative importance.
 Coefficients can be extracted with \code{coef} or \code{\link{coefTable}}.
 }
 
@@ -313,7 +313,7 @@ regression.
 
 \examples{
 # Example from Burnham and Anderson (2002), page 100:
-data(Cement)
+
 options(na.action = "na.fail")   #  prevent fitting models to different datasets
 
 fm1 <- lm(y ~ ., data = Cement)
@@ -321,8 +321,10 @@ dd <- dredge(fm1)
 subset(dd, delta < 4)
 
 # Visualize the model selection table:
-if(require(graphics))
-    plot(dd)
+if(require(graphics)) {
+	par(mar = c(3,5,6,4))
+    plot(dd, labAsExpr = TRUE)
+}
 
 
 # Model average models with delta AICc < 4
