@@ -62,7 +62,8 @@ Other implementations:
 
 #Model-averaging mixed models
 
-if(require(nlme)) {
+\dontshow{ if(require(nlme)) \{ }
+
 data(Orthodont, package = "nlme")
 
 # Fit model by REML
@@ -85,7 +86,7 @@ summary(model.avg(fmList))
 
 # same result
 #model.avg(fmList, rank = "AICc", rank.args = list(REML=FALSE))
-}
+\dontshow{ \} }
 
 }
 

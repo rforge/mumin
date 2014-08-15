@@ -1,3 +1,8 @@
+\newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}} 
+\newcommand{\lxcode}{\code{\link[#2]{#1}}}
+\newcommand{\lcode}{\code{\link{#1}}}
+
+
 \name{MuMIn-models}
 \alias{MuMIn-models}
 \encoding{utf-8}
@@ -12,43 +17,48 @@ Fitted model objects that can be used with model selection and model averaging
 functions include those returned by:
 
 \itemize{
-\item \code{lm}, \code{glm} (package \pkg{stats});
-\item \code{rlm}, \code{glm.nb} and \code{polr} (\pkg{MASS});
-\item \code{multinom} (\pkg{nnet});
-\item \code{lme}, \code{gls} (\pkg{nlme});
-\item \code{lmer}, \code{glmer} (\pkg{lme4});
-\item \code{cpglm}, \code{cpglmm} (\pkg{cplm});
-\item \code{gam}, \code{gamm}* (\pkg{mgcv});
-\item \code{gamm4}* (\pkg{gamm4});
-\item \code{glmmML} (\pkg{glmmML});
-\item \code{glmmadmb} (\pkg{glmmADMB} from R-Forge);
-\item \code{asreml} (\pkg{asreml}, non-free commercial package; \acronym{REML} comparisons only);
-\item \code{hurdle}, \code{zeroinfl} (\pkg{pscl});
-\item \code{negbin}, \code{betabin} (class \code{glimML}, package \pkg{aod});
-\item \code{aodml}, \code{aodql} (\pkg{aods3});
-\item \code{betareg} (\pkg{betareg});
-\item \code{sarlm}, \code{spautolm} (\pkg{spdep});
-\item \code{spml}* (if fitted by \acronym{ML}, \pkg{splm});
-\item \code{coxph}, \code{survreg} (\pkg{survival});
-\item \code{coxme}, \code{lmekin} (\pkg{coxme});
-\item \code{rq} (\pkg{quantreg});
-\item \code{clm} and \code{clmm} (\pkg{ordinal});
-\item \code{logistf} (\pkg{logistf}); %% Bias-reduced logistic regression
-\item \code{crunch}*, \code{pgls} (\pkg{caper});
-\item \code{maxlike} (\pkg{maxlike});
-\item functions from package \pkg{unmarked} (within the class \code{unmarkedFit});
-\item \code{mark} and related functions (class \code{mark} from package
-	\pkg{RMark}). Currently \code{dredge} can only manipulate \code{formula}
+\item \lcode{lm}, \lcode{glm} (package \pkg{stats});
+\item \lcode{rlm}, \lcode{glm.nb} and \lcode{polr} (\CRANpkg{MASS});
+\item \lcode{multinom} (\CRANpkg{nnet});
+\item \lcode{lme}, \lcode{gls} (\CRANpkg{nlme});
+\item \lcode{lmer}, \lcode{glmer} (\CRANpkg{lme4});
+\item \lcode{cpglm}, \lcode{cpglmm} (\CRANpkg{cplm});
+\item \lxcode{gam}{mgcv}, \lxcode{gamm}{mgcv}* (\CRANpkg{mgcv});
+\item \lcode{gamm4}* (\CRANpkg{gamm4});
+\item \lcode{glmmML} (\CRANpkg{glmmML});
+\item \code{glmmadmb} (\href{http://glmmadmb.r-forge.r-project.org/}{\pkg{glmmADMB}}
+	from R-Forge);
+\item \code{asreml} (\pkg{asreml}, non-free commercial package; allows only for 
+	\acronym{REML} comparisons);
+\item \lcode{hurdle}, \lcode{zeroinfl} (\CRANpkg{pscl});
+\item \lcode{negbin}, \lcode{betabin} (class \code{\linkS4class{glimML}},
+	package \CRANpkg{aod});
+\item \lcode{aodml}, \lcode{aodql} (\CRANpkg{aods3});
+\item \lcode{betareg} (\CRANpkg{betareg});
+\item \lcode{brglm} (\CRANpkg{brglm});
+\item \lcode{sarlm}, \lcode{spautolm} (\CRANpkg{spdep});
+\item \lcode{spml}* (if fitted by \acronym{ML}, \CRANpkg{splm});
+\item \lcode{coxph}, \lcode{survreg} (\CRANpkg{survival});
+\item \lcode{coxme}, \lcode{lmekin} (\CRANpkg{coxme});
+\item \lcode{rq} (\CRANpkg{quantreg});
+\item \lcode{clm} and \lcode{clmm} (\CRANpkg{ordinal});
+\item \lcode{logistf} (\CRANpkg{logistf}); %% Bias-reduced logistic regression
+\item \lcode{crunch}*, \lcode{pgls} (\CRANpkg{caper});
+\item \lcode{maxlike} (\CRANpkg{maxlike});
+\item functions from package \CRANpkg{unmarked} (within the class 
+	\code{\linkS4class{unmarkedFit}});
+\item \lxcode{mark}{RMark} and related functions (class \code{mark} from package
+	\CRANpkg{RMark}). Currently \code{dredge} can only manipulate \code{formula}
 	element of the argument \code{model.parameters}, keeping its other elements
 	intact.
 }
 
 Generalized Estimation Equation model implementations: \code{\link[geepack]{geeglm}} 
-from package \pkg{geepack}, \code{\link[gee]{gee}} from \pkg{gee}, and 
-\code{yags} from \pkg{yags} (from R-Forge) can be used with \code{\link{QIC}} 
-as the selection criterion.
+from package \CRANpkg{geepack}, \code{\link[gee]{gee}} from \CRANpkg{gee}, and 
+\code{yags} from \href{http://yags.r-forge.r-project.org/}{\pkg{yags}} (from 
+R-Forge) can be used with \code{\link{QIC}} as the selection criterion.
 
-\code{MCMCglmm}* models (package \pkg{MCMCglmm}) with e.g. \code{\link{DIC}} as the 
+\code{MCMCglmm}* models (package \CRANpkg{MCMCglmm}) with e.g. \code{\link{DIC}} as the 
 \code{rank} function are accepted by \code{model.sel} and \code{dredge}.
 
 Other classes are also likely to be supported, in particular if they inherit

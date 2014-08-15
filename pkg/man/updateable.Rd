@@ -94,7 +94,8 @@ update(ct2, alternative = "two.sided")
 
 
 ## predefined wrapper for 'gamm':
-if(require(mgcv)) {
+\dontshow{ if(require(mgcv)) \{ }
+
 set.seed(0)
 dat <- gamSim(6, n = 100, scale = 5, dist = "normal")
 
@@ -103,7 +104,7 @@ fmm1 <- uGamm(y ~s(x0)+ s(x3) + s(x2), family = gaussian, data = dat,
 
 getCall(fmm1)
 class(fmm1)
-}
+\dontshow{ \} }
 ###
 
 

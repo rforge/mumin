@@ -1,4 +1,4 @@
-if(length(find.package(c("lme4", "nlme"), quiet = TRUE))) {
+if(length(find.package(c("lme4", "nlme"), quiet = TRUE)) == 2) {
 
 library(lme4)
 library(nlme)

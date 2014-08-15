@@ -71,10 +71,10 @@ fm1 <- lm(y ~ ., data = Cement)
 ms1 <- dredge(fm1)
 
 # Visualize the model selection table:
-if(require(graphics)) {
-	par(mar = c(3,5,6,4))
-    plot(ms1, labAsExpr = TRUE)
-}
+\dontshow{ if(require(graphics)) \{ }
+par(mar = c(3,5,6,4))
+plot(ms1, labAsExpr = TRUE)
+\dontshow{ \} }
 
 model.avg(ms1, subset = delta < 4)
 

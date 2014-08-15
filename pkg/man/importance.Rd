@@ -13,7 +13,7 @@ importance(x)
 }
 
 \arguments{
-    \item{x}{Either a list of fitted model objects, or a \code{"model.selection"}
+    \item{x}{either a list of fitted model objects, or a \code{"model.selection"}
     or \code{"averaging"} object. }
 
 }

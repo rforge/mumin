@@ -321,11 +321,10 @@ dd <- dredge(fm1)
 subset(dd, delta < 4)
 
 # Visualize the model selection table:
-if(require(graphics)) {
-	par(mar = c(3,5,6,4))
-    plot(dd, labAsExpr = TRUE)
-}
-
+\dontshow{ if(require(graphics)) \{ }
+par(mar = c(3,5,6,4))
+plot(dd, labAsExpr = TRUE)
+\dontshow{ \} }
 
 # Model average models with delta AICc < 4
 model.avg(dd, subset = delta < 4)

@@ -30,6 +30,23 @@ function(x) {
 	res
 }
 
+## extracts random effect formula. e.g:
+## ~ ... + (a | ...) + (b + c | ...) --> ~ a + b + c
+ranform <- function (form) {
+#	z <- list()
+#	.substFunc(form[[3L]], "|", function(x) z <<- c(z, x[[2L]]))
+#	frm <- z[[1L]]
+#	for(x in z[-1L]) frm <- call("+", x, frm)
+#	as.formula(call("~", frm))
+#}
+## == ~4x faster:
+	z <- .findbars(form[[3L]])
+	frm <- z[[1L]][[2L]]
+	for(x in z[-1L]) frm <- call("+", x[[2L]], frm)
+	as.formula(call("~", frm))
+}
+
+
 `r.squaredGLMM.merMod` <-
 `r.squaredGLMM.mer` <-
 function(x) {
@@ -46,16 +63,7 @@ function(x) {
 		#print(getCall(x))
 	}
 
-	## can also use lme4:::subbars for that, but like this should be more
-	## efficient, because the resulting matrix has only random fx variables:
-	ranform <- (lapply(findbars(formula(x)), "[[", 2L))
-	frm <- ranform[[1L]]
-	for(a in ranform[-1L]) frm <- call("+", a, frm)
-	frm <- as.formula(call("~", frm))
-	#frm <- .substFun4Fun(formula(x), "|", function(e, ...) e[[2L]])
-	cl <- getCall(x)
-	
-	mmAll <- model.matrix(frm, data = model.frame(x))
+	mmAll <- model.matrix(ranform(formula(x)), data = model.frame(x))
 		##Note: Argument 'contrasts' can only be specified for fixed effects
 		##contrasts.arg = eval(cl$contrasts, envir = environment(formula(x))))	
 	
