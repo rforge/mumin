@@ -14,52 +14,53 @@ List of model classes accepted by \code{model.avg}, \code{model.sel},
 
 \details{
 Fitted model objects that can be used with model selection and model averaging
-functions include those returned by:
+functions include those produced by:
 
 \itemize{
 \item \lcode{lm}, \lcode{glm} (package \pkg{stats});
 \item \lcode{rlm}, \lcode{glm.nb} and \lcode{polr} (\CRANpkg{MASS});
 \item \lcode{multinom} (\CRANpkg{nnet});
-\item \lcode{lme}, \lcode{gls} (\CRANpkg{nlme});
-\item \lcode{lmer}, \lcode{glmer} (\CRANpkg{lme4});
-\item \lcode{cpglm}, \lcode{cpglmm} (\CRANpkg{cplm});
+\item \lxcode{lme}{nlme}, \lxcode{gls}{nlme} (\CRANpkg{nlme});
+\item \lxcode{lmer}{lme4}, \lxcode{glmer}{lme4} (\CRANpkg{lme4});
+\item \lxcode{cpglm}{cplm}, \lxcode{cpglmm}{cplm} (\CRANpkg{cplm});
 \item \lxcode{gam}{mgcv}, \lxcode{gamm}{mgcv}* (\CRANpkg{mgcv});
-\item \lcode{gamm4}* (\CRANpkg{gamm4});
-\item \lcode{glmmML} (\CRANpkg{glmmML});
+\item \lxcode{gamm4}{gamm4}* (\CRANpkg{gamm4});
+\item \lxcode{glmmML}{glmmML} (\CRANpkg{glmmML});
 \item \code{glmmadmb} (\href{http://glmmadmb.r-forge.r-project.org/}{\pkg{glmmADMB}}
 	from R-Forge);
-\item \code{asreml} (\pkg{asreml}, non-free commercial package; allows only for 
+\item \code{asreml} (non-free commercial package \pkg{asreml}; allows only for 
 	\acronym{REML} comparisons);
-\item \lcode{hurdle}, \lcode{zeroinfl} (\CRANpkg{pscl});
-\item \lcode{negbin}, \lcode{betabin} (class \code{\linkS4class{glimML}},
-	package \CRANpkg{aod});
-\item \lcode{aodml}, \lcode{aodql} (\CRANpkg{aods3});
-\item \lcode{betareg} (\CRANpkg{betareg});
-\item \lcode{brglm} (\CRANpkg{brglm});
-\item \lcode{sarlm}, \lcode{spautolm} (\CRANpkg{spdep});
-\item \lcode{spml}* (if fitted by \acronym{ML}, \CRANpkg{splm});
-\item \lcode{coxph}, \lcode{survreg} (\CRANpkg{survival});
-\item \lcode{coxme}, \lcode{lmekin} (\CRANpkg{coxme});
-\item \lcode{rq} (\CRANpkg{quantreg});
-\item \lcode{clm} and \lcode{clmm} (\CRANpkg{ordinal});
-\item \lcode{logistf} (\CRANpkg{logistf}); %% Bias-reduced logistic regression
-\item \lcode{crunch}*, \lcode{pgls} (\CRANpkg{caper});
-\item \lcode{maxlike} (\CRANpkg{maxlike});
+\item \lxcode{hurdle}{pscl}, \lxcode{zeroinfl}{pscl} (\CRANpkg{pscl});
+\item \lxcode{negbin}{glimML}, \lxcode{betabin}{glimML}
+(class \code{"glimML"}), package \CRANpkg{aod});
+\item \lxcode{aodml}{aods3}, \lxcode{aodql}{aods3} (\CRANpkg{aods3});
+\item \lxcode{betareg}{betareg} (\CRANpkg{betareg});
+\item \lxcode{brglm}{brglm} (\CRANpkg{brglm});
+\item \code{*sarlm} models, \lxcode{spautolm}{spdep} (\CRANpkg{spdep});
+\item \lxcode{spml}{splm}* (if fitted by \acronym{ML}, \CRANpkg{splm});
+\item \lxcode{coxph}{survival}, \lxcode{survreg}{survival} (\CRANpkg{survival});
+\item \lxcode{coxme}{coxme}, \lxcode{lmekin}{coxme} (\CRANpkg{coxme});
+\item \lxcode{rq}{quantreg} (\CRANpkg{quantreg});
+\item \lxcode{clm}{ordinal} and \lxcode{clmm}{ordinal} (\CRANpkg{ordinal});
+\item \lxcode{logistf}{logistf} (\CRANpkg{logistf}); %% Bias-reduced logistic regression
+\item \lxcode{crunch}{caper}*, \lxcode{pgls}{caper} (\CRANpkg{caper});
+\item \lxcode{maxlike}{maxlike} (\CRANpkg{maxlike});
 \item functions from package \CRANpkg{unmarked} (within the class 
-	\code{\linkS4class{unmarkedFit}});
+	\code{"unmarkedFit"});
 \item \lxcode{mark}{RMark} and related functions (class \code{mark} from package
 	\CRANpkg{RMark}). Currently \code{dredge} can only manipulate \code{formula}
 	element of the argument \code{model.parameters}, keeping its other elements
 	intact.
 }
 
-Generalized Estimation Equation model implementations: \code{\link[geepack]{geeglm}} 
-from package \CRANpkg{geepack}, \code{\link[gee]{gee}} from \CRANpkg{gee}, and 
+Generalized Estimation Equation model implementations: \lxcode{geeglm}{geepack}
+from package \CRANpkg{geepack}, \lxcode{gee}{gee} from \CRANpkg{gee}, and 
 \code{yags} from \href{http://yags.r-forge.r-project.org/}{\pkg{yags}} (from 
 R-Forge) can be used with \code{\link{QIC}} as the selection criterion.
 
-\code{MCMCglmm}* models (package \CRANpkg{MCMCglmm}) with e.g. \code{\link{DIC}} as the 
-\code{rank} function are accepted by \code{model.sel} and \code{dredge}.
+\lxcode{MCMCglmm}{MCMCglmm}* models (package \CRANpkg{MCMCglmm}) with e.g. 
+\code{\link{DIC}} as the \code{rank} function are accepted by \code{model.sel} 
+and \code{dredge}.
 
 Other classes are also likely to be supported, in particular if they inherit
 from one of the above classes. In general, the models averaged with

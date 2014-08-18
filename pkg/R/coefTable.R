@@ -62,13 +62,13 @@ function(model, adjustSigma = TRUE, ...) {
 	se <- sqrt(diag(as.matrix(model$varFix)))
 	if (adjustSigma && model$method == "ML")
 		se <- se * sqrt(model$dims$N / (model$dims$N - length(se)))
-	.makeCoefTable(fixef(model), se, model$fixDF[["X"]])
+	.makeCoefTable(nlme::fixef(model), se, model$fixDF[["X"]])
 }
 
 `coefTable.mer` <-
 function(model, ...)
 	#sm <- eval(expression(summary), asNamespace("lme4"))
-	.makeCoefTable(fixef(model), vcov(model, ...)@factors$correlation@sd)
+	.makeCoefTable(lme4::fixef(model), vcov(model, ...)@factors$correlation@sd)
 
 `coefTable.multinom` <- 
 function (model, ...) {

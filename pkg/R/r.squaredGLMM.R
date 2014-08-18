@@ -18,7 +18,7 @@ function(x) {
 	sigma2 <- x$sigma^2
 	
 	varRe <- sum(sapply(x$modelStruct$reStruct, function(z) {
-		sig <- pdMatrix(z) * sigma2
+		sig <- nlme::pdMatrix(z) * sigma2
 		mm1 <-  mmRE[, rownames(sig), drop = FALSE]
 		#sum(diag(mm1 %*% sig %*% t(mm1))) / n
 		sum(matmultdiag(mm1 %*% sig, ty = mm1)) / n
@@ -67,10 +67,10 @@ function(x) {
 		##Note: Argument 'contrasts' can only be specified for fixed effects
 		##contrasts.arg = eval(cl$contrasts, envir = environment(formula(x))))	
 	
-	vc <- VarCorr(x)
+	vc <- lme4::VarCorr(x)
 
 	n <- nrow(mmAll)
-	fx <- fixef(x) # fixed effect estimates
+	fx <- lme4::fixef(x) # fixed effect estimates
 	fxpred <- as.vector(model.matrix(x) %*% fx)
 	
 	if(pois.log) {

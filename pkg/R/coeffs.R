@@ -19,7 +19,7 @@ function(model) model$coefficients$fixed
 function(model) model@fixef
 
 `coeffs.merMod` <-
-function (model) fixef(model)
+function (model) lme4::fixef(model)
 
 `coeffs.coxme` <-
 `coeffs.lmekin` <-
