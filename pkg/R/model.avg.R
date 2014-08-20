@@ -51,6 +51,8 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 		return(eval(cl2, parent.frame()))
 	}
 
+	if(nrow(object) <= 1L) stop("'object' consists of only one model")
+	
 	ct <- attr(object, "coefTables")
 
 	cfarr <- coefArray(ct)

@@ -31,8 +31,8 @@ functions include those produced by:
 \item \code{asreml} (non-free commercial package \pkg{asreml}; allows only for 
 	\acronym{REML} comparisons);
 \item \lxcode{hurdle}{pscl}, \lxcode{zeroinfl}{pscl} (\CRANpkg{pscl});
-\item \lxcode{negbin}{glimML}, \lxcode{betabin}{glimML}
-(class \code{"glimML"}), package \CRANpkg{aod});
+\item \lxcode{negbin}{aod}, \lxcode{betabin}{aod} (class \code{"glimML"}), 
+	package \CRANpkg{aod});
 \item \lxcode{aodml}{aods3}, \lxcode{aodql}{aods3} (\CRANpkg{aods3});
 \item \lxcode{betareg}{betareg} (\CRANpkg{betareg});
 \item \lxcode{brglm}{brglm} (\CRANpkg{brglm});
