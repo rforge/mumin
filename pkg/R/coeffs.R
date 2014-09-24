@@ -66,23 +66,17 @@ function (model) coef(model$gam)
 	cf
 }
 
+
 `coeffs.multinom` <- 
 function (model) {
-	coefs <- coef(model)
-	if (is.vector(coefs)) {
-      	coefs <- t(as.matrix(coefs))
-    	}
-    	coefdim <- dim(coefs)
-	Names <- dimnames(coefs)
-	if (is.null(Names[[1L]])) 
-      	Names <- Names[[2L]]
-    	else Names <- as.vector(outer(Names[[2L]], Names[[1L]], function(name2, 
-      	name1) paste(name1, name2, sep = ":")))
-	res <- as.vector(coefs)
-	names(res) <- Names
-	res
+	cf <- coef(model)
+	if (!is.vector(cf)) {
+		cf <- t(as.matrix(cf))
+    	cfnames <- expand.grid(dimnames(cf), stringsAsFactors = FALSE)
+		cfnames <- sprintf("%s(%s)", cfnames[,2L], cfnames[,1L])
+		structure(as.vector(cf), names = cfnames)
+	} else cf
 }
-
 
 `coeffs.aodml` <-
 function (model) {

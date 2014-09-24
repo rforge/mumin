@@ -57,7 +57,8 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	ICName <- as.character(attr(IC, "call")[[1L]])
 	
 	if(length(tryCatch(IC(global.model), error = function(e) {
-		e$call <- do.call(substitute, list(attr(IC, "call"), list(x = as.name("global.model"))))
+		e$call <- do.call(substitute, list(attr(IC, "call"), 
+			list(x = as.name("global.model"))))
 		stop(e)
 	})) != 1L) {
 		.cry(NA, "result of '%s' is not of length 1", deparse(attr(IC,
@@ -267,10 +268,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 					fun <- "any"
 					sx <- as.character(x[[2L]])
 				}
-				#print(sx)
 				dn <- dimnames(fac)
-				#print(dn)
-				#browser()
 				if(!(sx %in% dn[[2L]])) .cry(x, "unknown variable name '%s'", sx)
 				as.call(c(as.name(fun), call("[", vName, as.call(c(as.name("c"), 
 					match(dn[[1L]][fac[, sx]], at))))))
@@ -428,7 +426,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 					tmp[match(names(extraResult1), names(extraResult))] <- extraResult1
 					extraResult1 <- tmp
 				}
-				#row1 <- c(row1, extraResult1)
 			}
 
 			#mcoef1 <- matchCoef(fit1, all.terms = allTerms, beta = beta,
@@ -438,7 +435,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			ll <- logLik(fit1)
 			nobs1 <- nobs(fit1)
 			if(nobs1 != gmNobs) warning(gettextf(
-				"number of observations in model #%d (%d) differs from that in the global model (%d)",
+				"number of observations in model #%d (%d) differs from that in global model (%d)",
 				iComb, nobs1, gmNobs))
 
 			row1 <- c(mcoef1[allTerms], extraResult1,

@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.10.7 (2014-09-24)
+(fixed) coef.multinom: gave a wrong order of coefficients for multiple level 
+	responses (thanks to Alistair Senior who spotted this)
+
 Version: 1.10.6 (2014-08-17)
 (added) methods for 'maxlike' (from package with the same name)
 lazy loading of datasets
