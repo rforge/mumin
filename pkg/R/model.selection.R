@@ -45,19 +45,26 @@ function (x, i = NULL, ...) {
 
 `subset.model.selection` <-
 function(x, subset, select, recalc.weights = TRUE, recalc.delta = FALSE, ...) {
+	
+	expr.sub.expand <- expression(.substHas(.substFunc(
+				.substFunc(substitute(subset), "dc", .sub_has, as.name(".subset_vdc")),
+					"Term", .sub_Term)))
+					
+	subst <- function(cl, ...) eval(call("substitute", cl, list(...)))
+
 	if (missing(select)) {
 		if(missing(subset)) return(x)
-		e <- .substHas(.substFunc(substitute(subset), "dc", function(e) {
-			e[[1]] <- call(":::", as.name(.packageName), as.name(".subset_vdc"))
-			for(i in 2L:length(e)) e[[i]] <- call("has", e[[i]])
-			e
-		}))
+		e <- eval(expr.sub.expand)
+		e <- subst(e, . = x)
+		# print(e)
 		
 		i <- eval(e, x, parent.frame())
 		return(`[.model.selection`(x, i, recalc.weights = recalc.weights, 
 			recalc.delta = recalc.delta, ...))
 	} else {
 		cl <- match.call(expand.dots = FALSE)
+		if(!missing(subset)) cl$subset <- 
+			subst(eval(expr.sub.expand), . = substitute(x))
 	    cl <- cl[c(1L, match(names(formals("subset.data.frame")), names(cl), 0L))]
 	    cl[[1L]] <- as.name("subset.data.frame")
 		ret <- eval(cl, parent.frame())
@@ -333,7 +340,7 @@ function (object, ...) {
 			#for(i in seq_along(fam1)) fam1[[i]] <- list(family = eval(fam1[[i]]), index = index[[i]])
 			#fam <- family(dd1)
 			#index <- lapply(fam, "[[", "index")
-			#ret <- rep(lapply(fam, "[[", "family"), vapply(index, length, integer(1L)))[order(unlist(index))]
+			#ret <- rep(lapply(fam, "[[", "family"), vapply(index, length, 1L))[order(unlist(index))]
 			return(ret)
 		} else return(family(attr(object, "global")))
 	} else {
@@ -390,7 +397,7 @@ function(cl, family = NULL, class = NULL,
 	}
 	
 	if(different.only)
-		arg <- arg[, vapply(arg, nlevels, integer(1L)) != 1L, drop = FALSE]
+		arg <- arg[, vapply(arg, nlevels, 1L) != 1L, drop = FALSE]
 
 	#if(ncol(arg) != 0L) arg <- gsub("([\"'\\s]+|\\w+ *=)","", arg, perl = TRUE)
 	arg

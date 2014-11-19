@@ -3,6 +3,9 @@
 \alias{[.model.selection}
 \alias{has}
 
+\newcommand{\bq}{\verb{`}\code{#1}\verb{`}}
+
+
 \encoding{utf-8}
 \title{Subsetting model selection table}
 \description{Return subsets of a model selection table returned by
@@ -36,7 +39,7 @@ When columns are selected (arguments \code{select} or \code{j} are provided), a
 plain \code{data.frame} is returned.
 }
 
-\note{
+\details{
 Unlike the method for \code{data.frame}, extracting with only one index
 (i.e. \code{x[i]}) will select rows rather than columns.
 
@@ -45,7 +48,12 @@ their value), a pseudo-function \code{has} may be used, e.g.
 \code{subset(x, has(a, !b))}
 will select rows  with \emph{a} \bold{and} without \emph{b} (this is
 equivalent to \code{!is.na(a) & is.na(b)}). \code{has} can take any number of
-arguments. Importantly, the \code{has()} notation cannot be used in the
+arguments.
+
+Complex model terms need either to be backtick quoted or enclosed within \code{Term()}
+(e.g \code{Term(s(a,k=2) | }\bq{log(b)}), except the ones within \code{has}. 
+
+Note that the \code{has()} notation cannot be used in the
 \code{subset} argument for \code{dredge}, where the variable names should be
 given directly, with the same effect.
 

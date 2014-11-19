@@ -1,7 +1,9 @@
 `dredge` <-
 function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
-		 fixed = NULL, m.max = NA, m.min = 0, subset, marg.ex = NULL,
-		 trace = FALSE, varying, extra, ct.args = NULL, ...) {
+		 fixed = NULL, m.max = NA, m.min = 0, subset,
+		 trace = FALSE, varying, extra, ct.args = NULL,
+		 #newMargCheck = TRUE,
+		 ...) {
 
 	gmEnv <- parent.frame()
 	gmCall <- .getCall(global.model)
@@ -28,7 +30,8 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		if(length(is.dotted) > 0L) {
 			substGmCall <- substitute(global.model)
 			if(is.name(substGmCall)) {
-				.cry(NA, "call to 'global.model' contains '...' arguments and cannot be updated: %s", deparse(gmCall, control = NULL))
+				.cry(NA, "call to 'global.model' contains '...' arguments and cannot be updated: %s",
+					 deparse(gmCall, control = NULL))
 			} else gmCall[is.dotted] <-
 				substitute(global.model)[names(gmCall[is.dotted])]
 		}
@@ -125,10 +128,20 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			fixed <- fixed[i]
 		}
 	}
+	
+	deps <- attr(allTerms0, "deps")
+	fixed <- union(fixed, rownames(deps)[rowSums(deps, na.rm = TRUE) == ncol(deps)])
 	fixed <- c(fixed, allTerms[allTerms %in% interceptLabel])
 	n.fixed <- length(fixed)
+	message(sprintf(ngettext(n.fixed, "Fixed term is %s", "Fixed terms are %s"),
+		prettyEnumStr(fixed)))
+
 	termsOrder <- order(allTerms %in% fixed)
 	allTerms <- allTerms[termsOrder]
+	
+	di <- match(allTerms, rownames(deps))
+	deps <- deps[di, di]	
+	
 	gmFormulaEnv <- environment(as.formula(formula(global.model), env = gmEnv))
 	# TODO: gmEnv <- gmFormulaEnv ???
 
@@ -258,34 +271,16 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			
 			rownames(gloFactorTable) <- allTerms0[!(allTerms0 %in% interceptLabel)]
 	
-			
-			subsetExpr <- .substFunc(subsetExpr, ".", function(x, fac, at, vName) {
-				if(length(x) != 2L) .cry(x, "exactly one argument needed, %d given.", length(x) - 1L)
-				if(length(x[[2L]]) == 2L && x[[2L]][[1L]] == "+") {
-					fun <- "all"
-					sx <- as.character(x[[2L]][[2L]])
-				} else {
-					fun <- "any"
-					sx <- as.character(x[[2L]])
-				}
-				dn <- dimnames(fac)
-				if(!(sx %in% dn[[2L]])) .cry(x, "unknown variable name '%s'", sx)
-				as.call(c(as.name(fun), call("[", vName, as.call(c(as.name("c"), 
-					match(dn[[1L]][fac[, sx]], at))))))
-			}, gloFactorTable, allTerms, as.name("comb"))
-			
+			subsetExpr <- .substFunc(subsetExpr, ".", .sub_dot, gloFactorTable, 
+				allTerms, as.name("comb"))
+			subsetExpr <- .substFunc(subsetExpr, "Term", .sub_Term)
 			subsetExpr <- .subst4Vec(subsetExpr, allTerms, as.name("comb"))
 			
 			
 			if(nvarying) {
 				ssValidNames <- c("cVar", "comb", "*nvar*")
-				subsetExpr <- .substFunc(subsetExpr, "V", function(x, cVar, fn) {
-					if(length(x) > 2L) .cry(x, "discarding extra arguments", warn = TRUE)
-					i <- which(fn == x[[2L]])[1L]
-					if(is.na(i)) .cry(x, "'%s' is not a valid name of 'varying' element",
-									  as.character(x[[2L]]), warn = TRUE)
-					call("[[", cVar, i)
-				}, as.name("cVar"), varying.names)
+				subsetExpr <- .substFunc(subsetExpr, "V", .sub_V, 
+					as.name("cVar"), varying.names)
 				if(!all(all.vars(subsetExpr) %in% ssValidNames))
 					subsetExpr <- .subst4Vec(subsetExpr, varying.names,
 											 as.name("cVar"), fun = "[[")
@@ -330,20 +325,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	matchCoefCall <- as.call(c(alist(matchCoef, fit1, all.terms = allTerms,
 		  beta = beta, allCoef = TRUE), ct.args))
 	
-	# TODO: allow for 'marg.ex' per formula in multi-formula models
-	if(missing(marg.ex) || (!is.null(marg.ex) && is.na(marg.ex))) {
-		newArgs <- makeArgs(global.model, allTerms, rep(TRUE, length(allTerms)),
-							argsOptions)
-		formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
-			attr(newArgs, "formulaList")
-
-		marg.ex <- unique(unlist(lapply(sapply(formulaList, formulaMargChk,
-			simplify = FALSE), attr, "marg.ex")))
-		if(!length(marg.ex)) marg.ex <- NULL else
-			cat("Marginality exceptions:", sQuote(marg.ex), "\n")
-	}
-	###
-
 	retColIdx <- if(nvarying) -n.vars - seq_len(nvarying) else TRUE
 
 	prevJComb <- 0L
@@ -355,8 +336,9 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			
 			comb <- c(as.logical(intToBits(jComb - 1L)[comb.seq]), comb.sfx)
 			nvar <- sum(comb) - nInts
-				
+							
 			if(nvar > m.max || nvar < m.min ||
+			   !formula_margin_check(comb, deps) ||
 			   switch(hasSubset,
 					FALSE,
 					!all(subset[comb, comb], na.rm = TRUE),
@@ -365,18 +347,13 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 					FALSE
 			   )) {
 				isok <- FALSE
-				next;
+				next
 			}
 			
-						
 			newArgs <- makeArgs(global.model, allTerms[comb], comb, argsOptions)
 			formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
 				attr(newArgs, "formulaList")
 
-				
-			if(!all(vapply(formulaList, formulaMargChk, logical(1L), marg.ex)))  {
-				isok <- FALSE; next;
-			}
 			if(!is.null(attr(newArgs, "problems"))) {
 				print.warnings(structure(vector(mode = "list",
 					length = length(attr(newArgs, "problems"))),
@@ -392,7 +369,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		clVariant <- cl
 		if (nvarying) {
 			cvi <- variants[(iComb - 1L) %% nvariants + 1L, ]
-
 			if(hasSubset == 4L &&
 				!.evalExprIn(subsetExpr, env = ssEnv, enclos = parent.frame(),
 					comb = comb, `*nvar*` = nvar, cVar = flat.variant.Vvals[cvi]))
@@ -496,7 +472,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	if(nvarying) {
 		variant.names <- vapply(flat.variant.Vvals, function(x) if(is.character(x)) x else
-			deparse(x, control = NULL, width.cutoff = 20L)[1L], character(1L))
+			deparse(x, control = NULL, width.cutoff = 20L)[1L], "")
 		vnum <- split(seq_len(sum(vlen)), rep(seq_len(nvarying), vlen))
 		names(vnum) <- varying.names
 		for (i in varying.names) ret[, i] <-

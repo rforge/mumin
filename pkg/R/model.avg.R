@@ -136,7 +136,7 @@ function(object, ..., beta = FALSE,
 
 	# sort by level (main effects first)
 	all.terms <- all.terms[order(vapply(gregexpr(":", all.terms),
-		function(x) if(x[1L] == -1L) 0L else length(x), numeric(1L)), all.terms)]
+		function(x) if(x[1L] == -1L) 0L else length(x), 1L), all.terms)]
 
 	# all.model.names <- modelNames(models, asNumeric = FALSE,
 		# withRandomTerms = FALSE, withFamily = FALSE)
@@ -166,14 +166,14 @@ function(object, ..., beta = FALSE,
 	logLik <- LL$logLik
 	lLName <- LL$name
 
-	ic <- vapply(models, rank, numeric(1L))
+	ic <- vapply(models, rank, 0)
 	logLiks <- lapply(models, logLik)
 	delta <- ic - min(ic)
 	weight <- exp(-delta / 2) / sum(exp(-delta / 2))
 	model.order <- order(weight, decreasing = TRUE)
 
 	# ----!!! From now on, everything MUST BE ORDERED by 'weight' !!!-----------
-	mstab <- cbind(df = vapply(logLiks, attr, numeric(1L), "df"),
+	mstab <- cbind(df = vapply(logLiks, attr, 0, "df"),
 		logLik = as.numeric(logLiks), IC = ic, Delta = delta, Weight = weight,
 		deparse.level = 0L)
 	if(!is.null(dispersion)) mstab <- cbind(mstab, Dispersion = dispersion)
@@ -237,7 +237,7 @@ function(object, ..., beta = FALSE,
 	
 	modelClasses <- lapply(models, class)
 	frm <-
-	if(all(vapply(modelClasses[-1L], identical, logical(1L), modelClasses[[1L]]))) {
+	if(all(vapply(modelClasses[-1L], identical, FALSE, modelClasses[[1L]]))) {
 		trm <- tryCatch(terms(models[[1L]]),
 				error = function(e) terms(formula(models[[1L]])))
 		response <- attr(trm, "response")
@@ -301,7 +301,7 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 
 	# Benchmark: vapply is ~4x faster
 	#system.time(for(i in 1:1000) sapply(models, inherits, what="gam")) /
-	#system.time(for(i in 1:1000) vapply(models, inherits, logical(1L), what="gam"))
+	#system.time(for(i in 1:1000) vapply(models, inherits, FALSE, what="gam"))
 
 	# If all models inherit from lm:
 	if ((missing(se.fit) || !se.fit)
@@ -344,7 +344,7 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 		cl$backtransform <- cl$full <- NULL
 		cl[[1L]] <- as.name("predict")
 		#if("type" %in% names(cl)) cl$type <- "link"
-		if(!missing(newdata)) cl$newdata <- as.name("newdata")
+		#if(!missing(newdata)) cl$newdata <- as.name("newdata")
 		cl <- as.call(cl)
 
 		#predict.lme <- MuMIn:::predict.lme
@@ -352,7 +352,8 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 		pred <- lapply(models, function(x) {
 			cl[[2L]] <- x
 			y <- tryCatch({
-				y <- eval(cl)
+				print(cl)
+				y <- eval(cl, parent.frame())
 				if(is.numeric(y)) y else structure(as.list(y[c(1L, 2L)]),
 					names = c("fit", "se.fit"))
 				}, error = function(e) e)

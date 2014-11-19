@@ -17,7 +17,7 @@ model, with optional rules for model inclusion.
 
 \usage{
 dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc", 
-    fixed = NULL, m.max = NA, m.min = 0, subset, marg.ex = NULL, 
+    fixed = NULL, m.max = NA, m.min = 0, subset, 
     trace = FALSE, varying, extra, ct.args = NULL, ...)
 
 \method{print}{model.selection}(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...)
@@ -47,12 +47,6 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	\item{subset}{ logical expression describing models to keep in the resulting
 		set. See \sQuote{Subsetting}. }
 
-	\item{marg.ex}{a character vector specifying names of variables for which
-	NOT to check for marginality restrictions when generating model formulas. If
-	this argument is set to \code{TRUE}, all combinations of terms are used
-	(i.e. no checking). If \code{NA} or missing, the exceptions will be found
-	based on the terms of \code{global.model}. See \sQuote{Details}.  }
-
 	\item{trace}{if \code{TRUE}, all calls to the fitting function (i.e. updated
 	\code{global.model} calls) are printed before actual fitting takes place. }
 
@@ -62,7 +56,7 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	list(choice1, choice2, ...), ...)}). Complex elements in the choice list
 	(such as \code{family} objects) should be either named (uniquely) or quoted
 	(unevaluated, e.g. using \code{\link{alist}}, see \code{\link{quote}}),
-	otherwise it may produce rather unpleasant effects. See example in
+	otherwise it may produce rather visually unpleasant effects. See example in
 	\code{\link{Beetle}}. }
 
 	\item{extra}{ optional additional statistics to include in the result,
@@ -127,14 +121,12 @@ always return a scalar.
 }
 
 \subsection{Interactions}{
-By default marginality constraints are respected, so \dQuote{all possible 
-combinations} do not include models containing interactions without their 
-respective main effects and all lower order terms. 
-This behaviour can be altered by \code{marg.ex} argument, which can be used 
-to allow for simple nested designs. For example, with global model of form 
-\code{a / (x + z)}, one would use \code{marg.ex = "a"} and \code{fixed = "a"}. 
-If \code{global.model} uses such a formula and \code{marg.ex} is missing or 
-\code{NA}, it will be adjusted automatically.
+By default, marginality constraints are respected, so \dQuote{all possible 
+combinations} include only those containing interactions with their 
+respective main effects and all lower order terms.
+However, if \code{global.model} makes an exception to this principle (e.g. due 
+to a nested design such as \code{a / (b + d)}), this will be reflected in the 
+subset models.
 }
 
 \subsection{Subsetting}{
@@ -164,7 +156,7 @@ any or all model terms including a \emph{variable} \code{x}. This concerns only
 interactions containing a particular main effect \code{x} (e.g. \code{x:z},
 \code{v:x:z}), and \emph{not} a variable in a complex expression, such as
 \code{x} in \code{I(x^2)}, so it is only useful with marginality
- exceptions (\code{marg.ex} argument).
+ exceptions.
 
 The expression can contain any of the \code{global.model} terms
 (\code{getAllTerms(global.model)} lists them), as well as names of the

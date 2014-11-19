@@ -1,5 +1,19 @@
 MuMIn package news:
 
+Version: 1.11.1 (2014-11-19)
+dredge: more efficient checking for marginality (with 4-way interaction it 
+	can be ~10x faster). The argument 'marg.ex' is removed (exceptions for 
+	marginality rule are inferred from the global model). 
+getAllTerms: result has a new attribute 'deps' with a "term dependency matrix". 
+nested.within: new function listing nested models (suggested by Giacomo 
+	Assandri).
+updateable: added new argument 'eval.args'
+
+Version: 1.10.8 (2014-11-14)
+dredge, subset.model.selection: improved interpretation of 'subset' expressions. 
+	"Term(x)" notation can be used instead of backtick quotes for complex term 
+	names.
+
 Version: 1.10.7 (2014-09-24)
 (fixed) coef.multinom: gave a wrong order of coefficients for multiple level 
 	responses (thanks to Alistair Senior who spotted this)

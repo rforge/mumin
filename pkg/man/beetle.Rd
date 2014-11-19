@@ -41,7 +41,7 @@ Springer-Verlag.
 
 # Fit a global model with all the considered variables
 globmod <- glm(Prop ~ dose + I(dose^2) + log(dose) + I(log(dose)^2),
-    data = Beetle, family = binomial)
+    data = Beetle, family = binomial, na.action = na.fail)
 
 
 # A logical expression defining the subset of models to use:

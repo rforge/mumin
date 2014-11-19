@@ -68,7 +68,6 @@ function(x, ...) eval(x$call$formula, parent.frame())
 `family.zeroinfl` <-
 function(object, ...) binomial(link = object$link)
 
-
 #_______________________________________________________________________________
 
 `formula.glimML` <- function(x, ...) x@formula

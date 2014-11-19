@@ -26,7 +26,7 @@
 `formula.mark` <- function (x, expand = TRUE, ...) {
 	param <- if(is.null(x$model.parameters)) x$parameters else  x$model.parameters
 	f <- lapply(param, "[[", 'formula')
-	f <- f[!vapply(f, is.null, logical(1L))]
+	f <- f[!vapply(f, is.null, FALSE)]
 	
 	npty <- length(f)
 	z <- vector(npty, mode = "list")
