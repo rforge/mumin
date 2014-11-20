@@ -113,7 +113,7 @@
 					parseq <- unlist(parens, use.names = FALSE)
 					p <- cumsum(rep(c(1L, -1L), sapply(parens, length))[order(parseq)])
 					if(any(p[-length(p)] == 0L)) -1 else parseq[1L]
-				}, numeric(1L), USE.NAMES = FALSE)
+				}, 1L, USE.NAMES = FALSE)
 				k[k] <- pos != -1
 				pos <- pos[pos != -1]
 				if(any(k)) ret[k] <- substring(x[k], pos + 1L, nchar(x[k]) - 1L)
@@ -158,7 +158,7 @@ function(f)
 	# XXX: when using only 'nobs' - seems to be evaluated first outside of MuMIn
 	# namespace which e.g. gives an error in glmmML - the glmmML::nobs method 
 	# is faulty.
-	nresid <- vapply(models, function(x) nobs(x), numeric(1L)) # , nall=TRUE
+	nresid <- vapply(models, function(x) nobs(x), 1) # , nall=TRUE
 	
 	if(!all(sapply(datas[-1L], identical, datas[[1L]])) ||
 		!all(nresid[-1L] == nresid[[1L]])) {
