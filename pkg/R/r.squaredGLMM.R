@@ -40,9 +40,9 @@ ranform <- function (form) {
 #	as.formula(call("~", frm))
 #}
 ## == ~4x faster:
-	z <- .findbars(form[[3L]])
+	z <- .findbars(form[[length(form)]])
 	frm <- z[[1L]][[2L]]
-	for(x in z[-1L]) frm <- call("+", x[[2L]], frm)
+	for(x in z[-1L]) frm <- call("+", frm, x[[2L]])
 	as.formula(call("~", frm))
 }
 
@@ -83,7 +83,7 @@ function(x) {
 		beta0 <- NULL
 	}
 	
-	if(!all(c(unlist(sapply(vc, rownames))) %in% colnames(mmAll)))
+	if(!all(unlist(sapply(vc, rownames), use.names = FALSE) %in% colnames(mmAll)))
 		stop("random term names do not match those in model matrix. \n",
 			 "Have you changed 'options(contrasts)' since the model was fitted?")
 	

@@ -1,12 +1,13 @@
 # gives formula terms as a list of symbols (interactions as sub-list)
-# note that it does not expand (simplify) formulas
+# [note that it does not expand formulas]
 # termlist(terms(~a * b+ c, simplify = TRUE))
+## termlist(~a+b+a:b) --> list(a, b, list(a, b))
 termlist <- function(x) {
 	is.plus <- function(x) is.call(x) && x[[1L]] == "+"
-	# is it an expression for interaction? (e.g. a:b:c)
-	is.intr <- function(x) is.call(x) && x[[1L]] == ":"
 	## parses interaction expression into list: a:b:c --> list(a,b,c)
 	intr <- function(x) {
+		# is it an expression for interaction? (e.g. a:b:c)
+		is.intr <- function(x) is.call(x) && x[[1L]] == ":"
 		if(is.intr(x)) {
 			res <- list()
 			repeat {
@@ -23,7 +24,7 @@ termlist <- function(x) {
 		res <- c(intr(x[[3L]]), res)
 		x <- x[[2L]]
 	}
-	res <- c(x, res)
+	res <- c(intr(x), res)
 	res	
 }
 
