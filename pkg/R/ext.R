@@ -209,6 +209,10 @@ function (object, newdata, level, asList = FALSE,
     }
 }
 
+# `predict.gamm` <- function (object, ...) mgcv::predict.gam(object[['gam']], ...)
+
+
+
 # support for unmarked
 
 #setMethod("logLik", "unmarkedFit", logLik.unmarkedFit)

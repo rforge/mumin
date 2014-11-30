@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.11.2 (2014-11-30)
+some fixes to formula-decomposition related functions (that sometimes caused 
+	problems with 'r.squaredGLMM' for 'lmer', reported by Yevgen Matusevych)
+
 Version: 1.11.1 (2014-11-19)
 dredge: more efficient checking for marginality (with 4-way interaction it 
 	can be ~10x faster). The argument 'marg.ex' is removed (exceptions for 
