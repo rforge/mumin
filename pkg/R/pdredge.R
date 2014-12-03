@@ -76,6 +76,18 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	}
 	
 	rankArgs <- list(...)
+
+	if(any(wrongarg <- names(rankArgs) == "marg.ex")) {
+		.cry(NA, "argument \"marg.ex\" is no longer used and has been ignored",
+			 warn = TRUE)
+		rankArgs <- rankArgs[!wrongarg]
+	}
+	if(any(names(rankArgs) == "na.action")) {
+		.cry(call("RTFM", as.name("dredge")), "argument \"na.action\" is in inappropriate place",
+			 warn = FALSE)
+	}
+	
+	
 	IC <- .getRank(rank, rankArgs)
 	ICName <- as.character(attr(IC, "call")[[1L]])
 

@@ -2,7 +2,6 @@
 function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		 fixed = NULL, m.max = NA, m.min = 0, subset,
 		 trace = FALSE, varying, extra, ct.args = NULL,
-		 #newMargCheck = TRUE,
 		 ...) {
 
 	gmEnv <- parent.frame()
@@ -56,6 +55,18 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	}
 	
 	rankArgs <- list(...)
+
+	if(any(wrongarg <- names(rankArgs) == "marg.ex")) {
+		.cry(NA, "argument \"marg.ex\" is no longer used and has been ignored",
+			 warn = TRUE)
+		rankArgs <- rankArgs[!wrongarg]
+	}
+	if(any(names(rankArgs) == "na.action")) {
+		.cry(call("RTFM", as.name("dredge")), "argument \"na.action\" is in inappropriate place",
+			 warn = FALSE)
+	}
+	
+	
 	IC <- .getRank(rank, rankArgs)
 	ICName <- as.character(attr(IC, "call")[[1L]])
 	

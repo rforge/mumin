@@ -171,6 +171,7 @@ S3method(nobs, gamm)
 S3method(coeffs, gamm)
 S3method(getAllTerms, gamm)
 S3method(coefTable, gamm)
+S3method(predict, gamm)
 
 S3method(makeArgs, default)
 S3method(makeArgs, gls)

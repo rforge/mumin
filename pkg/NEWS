@@ -1,13 +1,19 @@
 MuMIn package news:
 
-Version: 1.11.2 (2014-11-30)
-some fixes to formula-decomposition related functions (that sometimes caused 
+Version: 1.11.2 (2014-12-01)
+(fixed) r.squaredGLMM: for "binomial" family models, the residual variance is 
+	used for additive dispersion (thanks to Paul Johnson). 
+	There are still problems with 'lmer' when 'subset' argument is given, 
+	observation-level random term has to be specified manually in this case.
+(fixed) some formula-decomposition related functions (that sometimes caused 
 	problems with 'r.squaredGLMM' for 'lmer', reported by Yevgen Matusevych)
+dredge: warning for 'na.action' misuse
+(added) predict method for 'gamm' class
 
 Version: 1.11.1 (2014-11-19)
-dredge: more efficient checking for marginality (with 4-way interaction it 
-	can be ~10x faster). The argument 'marg.ex' is removed (exceptions for 
-	marginality rule are inferred from the global model). 
+dredge: more efficient checking for marginality in model terms (~10x faster in 
+	case of 4-way interaction). The argument 'marg.ex' is removed (exceptions 
+	to marginality rule are inferred from the global model). 
 getAllTerms: result has a new attribute 'deps' with a "term dependency matrix". 
 nested.within: new function listing nested models (suggested by Giacomo 
 	Assandri).

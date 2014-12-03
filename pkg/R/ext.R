@@ -209,7 +209,8 @@ function (object, newdata, level, asList = FALSE,
     }
 }
 
-# `predict.gamm` <- function (object, ...) mgcv::predict.gam(object[['gam']], ...)
+`predict.gamm` <- 
+function (object, ...) mgcv::predict.gam(object[['gam']], ...)
 
 
 
