@@ -57,17 +57,22 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	rankArgs <- list(...)
 
 	if(any(wrongarg <- names(rankArgs) == "marg.ex")) {
-		.cry(NA, "argument \"marg.ex\" is no longer used and has been ignored",
+		.cry(NA, "argument \"marg.ex\" is defunct and has been ignored",
 			 warn = TRUE)
 		rankArgs <- rankArgs[!wrongarg]
 	}
 	if(any(names(rankArgs) == "na.action")) {
-		.cry(call("RTFM", as.name("dredge")), "argument \"na.action\" is in inappropriate place",
+		.cry(call("RTFM", as.name("dredge")), "argument \"na.action\" is inappropriate here",
 			 warn = FALSE)
 	}
 	
-	
 	IC <- .getRank(rank, rankArgs)
+	
+	if(any(wrongarg <- is.na(match(names(rankArgs),
+		c(names(formals(get("rank", environment(IC))))[-1L], names(formals()))))))
+		warning(gettextf("arguments %s are not formal arguments of 'dredge' or 'rank'",
+						 prettyEnumStr(names(rankArgs[wrongarg]))))
+	
 	ICName <- as.character(attr(IC, "call")[[1L]])
 	
 	if(length(tryCatch(IC(global.model), error = function(e) {

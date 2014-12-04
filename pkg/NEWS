@@ -7,7 +7,7 @@ Version: 1.11.2 (2014-12-01)
 	observation-level random term has to be specified manually in this case.
 (fixed) some formula-decomposition related functions (that sometimes caused 
 	problems with 'r.squaredGLMM' for 'lmer', reported by Yevgen Matusevych)
-dredge: warning for 'na.action' misuse
+dredge: warns about potentially misspecified arguments 
 (added) predict method for 'gamm' class
 
 Version: 1.11.1 (2014-11-19)

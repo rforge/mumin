@@ -347,12 +347,10 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 		#if(!missing(newdata)) cl$newdata <- as.name("newdata")
 		cl <- as.call(cl)
 
-		#predict.lme <- MuMIn:::predict.lme
-
 		pred <- lapply(models, function(x) {
 			cl[[2L]] <- x
 			y <- tryCatch({
-				print(cl)
+				# DEBUG print(cl)
 				y <- eval(cl, parent.frame())
 				if(is.numeric(y)) y else structure(as.list(y[c(1L, 2L)]),
 					names = c("fit", "se.fit"))
