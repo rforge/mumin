@@ -87,8 +87,13 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 			 warn = FALSE)
 	}
 	
-	
 	IC <- .getRank(rank, rankArgs)
+	
+	if(any(wrongarg <- is.na(match(names(rankArgs),
+		c(names(formals(get("rank", environment(IC))))[-1L], names(formals()))))))
+		warning(gettextf("arguments %s are not formal arguments of 'dredge' or 'rank'",
+						 prettyEnumStr(names(rankArgs[wrongarg]))))
+	
 	ICName <- as.character(attr(IC, "call")[[1L]])
 
 	if(length(tryCatch(IC(global.model), error = function(e) {
@@ -163,7 +168,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	fixed <- union(fixed, rownames(deps)[rowSums(deps, na.rm = TRUE) == ncol(deps)])
 	fixed <- c(fixed, allTerms[allTerms %in% interceptLabel])
 	n.fixed <- length(fixed)
-	message(sprintf(ngettext(n.fixed, "Fixed term is %s", "Fixed terms are %s"),
+	if(n.fixed > 0L) message(sprintf(ngettext(n.fixed, "Fixed term is %s", "Fixed terms are %s"),
 		prettyEnumStr(fixed)))
 	
 	termsOrder <- order(allTerms %in% fixed)

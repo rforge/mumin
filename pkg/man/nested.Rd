@@ -1,5 +1,5 @@
-\name{nested.within}
-\alias{nested.within}
+\name{nested}
+\alias{nested}
 \encoding{utf-8}
 
 \title{Identify nested models}
@@ -9,7 +9,7 @@ selection table.
 }
 
 \usage{
-nested.within(x, indices = c("none", "numeric", "rownames"), rank = NULL)
+nested(x, indices = c("none", "numeric", "rownames"), rank = NULL)
 }
 
 \arguments{
@@ -85,10 +85,10 @@ ms <- dredge(fm)
 
 # filter out overly complex models according to the 
 # "nesting selection rule":
-subset(ms, !nested.within(.)) # dot represents the ms table object
+subset(ms, !nested(.)) # dot represents the ms table object
 
 # print model "4" and all models nested within it
-nst <- nested.within(ms, indices = "row")
+nst <- nested(ms, indices = "row")
 ms[c("4", nst[["4"]])]
 
 ms$nested <- sapply(nst, paste, collapse = ",")

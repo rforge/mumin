@@ -1,4 +1,4 @@
-`nested.within` <- 
+`nested` <- 
 function(x, indices = c("none", "numeric", "rownames"), rank = NULL) {
 
 	indices <- match.arg(indices)

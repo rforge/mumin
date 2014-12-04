@@ -149,7 +149,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	fixed <- union(fixed, rownames(deps)[rowSums(deps, na.rm = TRUE) == ncol(deps)])
 	fixed <- c(fixed, allTerms[allTerms %in% interceptLabel])
 	n.fixed <- length(fixed)
-	message(sprintf(ngettext(n.fixed, "Fixed term is %s", "Fixed terms are %s"),
+	if(n.fixed > 0L) message(sprintf(ngettext(n.fixed, "Fixed term is %s", "Fixed terms are %s"),
 		prettyEnumStr(fixed)))
 
 	termsOrder <- order(allTerms %in% fixed)

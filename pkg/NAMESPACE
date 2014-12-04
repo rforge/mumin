@@ -11,36 +11,12 @@ export(
 	simplify.formula, expand.formula,
 	updateable, updateable2,
 	uGamm,
-	nested.within
+	nested
 )
 
 importFrom(stats, family)
-
-# XXX: compatibility with R < 2.13.0
-if (getRversion() >= "2.13.0") {
-if (getRversion() >= "2.14.0") {
-	importFrom(stats, nobs, getCall)
-	S3method(getCall, yagsResult)
-}
-} else {
-# I couldn't find a way to make version-dependent documentation, so can't
-# export nobs here...
-#export(nobs)
-S3method(nobs, default)
-S3method(nobs, glm)
-}
-
-# including the lines below makes this package dependent on 'lme4'
-# so, until I figure out how to deal with it, no imports is used....
-
-#importFrom(stats, AIC, as.formula, coef, delete.response, deviance, fitted,
-#	formula, logLik, model.frame, model.matrix, na.omit, predict, qnorm, qt,
-#	reformulate, residuals, sd, terms, update, weighted.mean)
-
-#importFrom(stats, logLik, terms)
-#importMethodsFrom(stats, logLik, terms)
-#importFrom(methods, slot, slotNames)
-#importFrom(lme4, lmer, logLik, terms)
+importFrom(stats, nobs, getCall)
+S3method(getCall, yagsResult)
 
 S3method("$<-", model.selection)
 
@@ -136,8 +112,6 @@ S3method(predict, gls)
 
 S3method(model.frame, lme)
 S3method(model.matrix, lme)
-
-
 
 S3method(getAllTerms, mer)
 S3method(coeffs, mer)
@@ -284,7 +258,6 @@ S3method(coefTable, aodml)
 S3method(makeArgs, aodml)
 S3method(nobs, aodql)
 S3method(coefTable, aodql)
-
 
 S3method(getAllTerms, betareg)
 S3method(makeArgs, betareg)
