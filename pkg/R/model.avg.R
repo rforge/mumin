@@ -326,9 +326,6 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 
 		Xnew <- Xnew[, match(names(coeff), colnames(Xnew), nomatch = 0L)]
 		ret <- (Xnew %*% coeff)[, 1L]
-		
-		Xnew
-
 		#if (se.fit) {
 		#	scale <- 1
 		#	covmx <- solve(t(X) %*% X)
@@ -343,20 +340,16 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 		cl <- as.list(match.call())
 		cl$backtransform <- cl$full <- NULL
 		cl[[1L]] <- as.name("predict")
-		#if("type" %in% names(cl)) cl$type <- "link"
-		#if(!missing(newdata)) cl$newdata <- as.name("newdata")
 		cl <- as.call(cl)
-
-		pred <- lapply(models, function(x) {
+		pred <- lapply(models, function(x, pfr) {
 			cl[[2L]] <- x
 			y <- tryCatch({
-				# DEBUG print(cl)
-				y <- eval(cl, parent.frame())
+				y <- eval(cl, pfr)
 				if(is.numeric(y)) y else structure(as.list(y[c(1L, 2L)]),
 					names = c("fit", "se.fit"))
 				}, error = function(e) e)
-		})
-
+		}, pfr = parent.frame())
+		
 		err <- sapply(pred, inherits, "condition")
 		if (any(err)) {
 			lapply(pred[err], warning)

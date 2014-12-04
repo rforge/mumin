@@ -47,8 +47,9 @@ globmod <- glm(Prop ~ dose + I(dose^2) + log(dose) + I(log(dose)^2),
 # A logical expression defining the subset of models to use:
 # * either log(dose) or dose
 # * the quadratic terms can appear only together with linear terms
-msubset <- expression(xor(dose,`log(dose)`) & (dose | !`I(dose^2)`)
-    & (`log(dose)` | !`I(log(dose)^2)`))
+msubset <- expression(xor(dose, `log(dose)`) &
+    dc(dose, `I(dose^2)`) &
+    dc(`log(dose)`, `I(log(dose)^2)`))
 
 
 # Table 4.6
@@ -83,8 +84,6 @@ logit.ci <- function(p, se, quantile = 2) {
 
 mavg3 <- model.avg(mod3, revised.var = FALSE)
 
-pred <- sapply(mod3, predict, newdata = list(dose = 40), se.fit = TRUE,
-    type = "response")
 
 # get predictions both from component and averaged models
 pred <- lapply(c(component = mod3, list(averaged = mavg3)), predict,
