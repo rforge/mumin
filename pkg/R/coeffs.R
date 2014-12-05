@@ -38,7 +38,7 @@ function(model) {
 		vapply(ret, length, 1L))
 	ret <- unlist(unname(ret))
 	Ints <- which(names(ret) == "Int")
-	names(ret) <- paste(pfx, "(", names(ret), ")", sep = "")
+	names(ret) <- paste0(pfx, "(", names(ret), ")")
 	attr(ret, "Intercept") <- Ints
 	ret
 }

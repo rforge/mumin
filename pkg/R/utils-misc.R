@@ -173,10 +173,10 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 	if(is.function(quote))
 		x <- quote(x) else {
 			if(identical(quote, TRUE)) quote <- '"'
-			if(is.character(quote)) x <- paste(quote, x, quote, sep = "")
+			if(is.character(quote)) x <- paste0(quote, x, quote)
 		}
-	paste(x, if(n > 1L) c(rep(sep, n - 2L), sep.last, "") else NULL,
-		collapse = "", sep = "")
+	paste0(x, if(n > 1L) c(rep(sep, n - 2L), sep.last, "") else NULL,
+		collapse = "")
 }
 
 # `splitList` <- function (x, k) {

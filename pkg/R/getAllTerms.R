@@ -69,8 +69,7 @@ function(x, offset = TRUE, intercept = FALSE, ...) {
 
 	if (length(ran) > 0L) {
 		attr(ret, "random.terms") <- ran
-		f.random <- reformulate(c(".", paste("(", ran, ")",
-			sep = "")), response = ".")
+		f.random <- reformulate(c(".", paste0("(", ran, ")")), response = ".")
 		environment(f.random) <- environment(x)
 		attr(ret, "random") <- f.random
 	}
@@ -164,10 +163,10 @@ function(x, intercept = FALSE, ...) {
 	zz <- unlist(z)
 	Ints <- which(zz == "(Intercept)")
 	#zz[Ints] <- "1"
-	#zz <- paste(rep(c("count", "zero")[seq_along(z)], sapply(z, length)),
-		#"(", zz, ")", sep = "")
-	zz <- paste(rep(c("count", "zero")[seq_along(z)], sapply(z, length)),
-		"_", zz, sep = "")
+	#zz <- paste0(rep(c("count", "zero")[seq_along(z)], sapply(z, length)),
+		#"(", zz, ")")
+	zz <- paste0(rep(c("count", "zero")[seq_along(z)], sapply(z, length)),
+				 "_", zz)
 	
 	dimnames(deps) <- list(zz[-Ints], zz[-Ints])
 	
@@ -217,12 +216,11 @@ function(x, ...)  {
 
 	attrInt <- sapply(ret, attr, "intercept")
 	#ret <- unlist(lapply(names(ret), function(i) sprintf("%s(%s)", i, ret[[i]])))
-	ret <- unlist(lapply(names(ret), function(i) if(length(ret[[i]])) paste(i, "(", ret[[i]], ")",
-		sep = "") else character(0L)))
+	ret <- unlist(lapply(names(ret), function(i) if(length(ret[[i]])) paste0(i, "(", ret[[i]], ")") else character(0L)))
 
 	dimnames(deps) <- list(ret, ret)
 
-	Ints <- paste(names(attrInt[attrInt != 0L]), "(Int)", sep = "")
+	Ints <- paste0(names(attrInt[attrInt != 0L]), "(Int)")
 	if(intercept) ret <- c(Ints, ret)
 	attr(ret, "intercept") <- attrInt
 	attr(ret, "interceptLabel") <- Ints

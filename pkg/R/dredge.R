@@ -94,8 +94,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	#XXX: use.ranef <- FALSE
 	#if(use.ranef && inherits(global.model, "mer")) {
-		#allTerms <- c(allTerms, paste("(", attr(allTerms0, "random.terms"), ")",
-			#sep = ""))
+		#allTerms <- c(allTerms, paste0("(", attr(allTerms0, "random.terms"), ")"))
 	#}
 
 

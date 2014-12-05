@@ -33,8 +33,8 @@
 	pty <- names(f)
 	
 	if(expand) {
-		for(i in seq_len(npty)) z[[i]] <- paste(pty[i], "(",
-				getAllTerms(f[[i]], intercept = TRUE), ")", sep = "")
+		for(i in seq_len(npty)) z[[i]] <- paste0(pty[i], "(",
+				getAllTerms(f[[i]], intercept = TRUE), ")")
 		res <- reformulate(gsub("((Intercept))", "(1)", unlist(z), fixed = TRUE))
 	} else {
 		for(i in seq_len(npty)) z[[i]] <- call(pty[i], f[[i]][[2L]])

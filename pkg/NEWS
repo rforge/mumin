@@ -1,5 +1,8 @@
 MuMIn package news:
 
+Version: 1.11.3 (2014-12-05)
+smarter sorting of interaction terms in coefficient names
+
 Version: 1.11.2 (2014-12-01)
 (fixed) r.squaredGLMM: in "binomial" family models the residual variance is 
 	used for additive dispersion (thanks to Paul Johnson). 

@@ -23,7 +23,7 @@ function (model) coef.model.selection(model)
 
 `coefArray` <- function(object) {
 	coefNames <- fixCoefNames(unique(unlist(lapply(object, rownames),
-		use.names = FALSE)), sort = TRUE)
+		use.names = FALSE)))
 	nCoef <- length(coefNames)
 	nModels <- length(object)
 	ret <- array(NA_real_, dim = c(nModels, 3L, nCoef),
@@ -148,8 +148,8 @@ function (x, y, suffixes = c(".x",".y"), ...)  {
 										 y[, !(colnames(y) %in% c2), drop = FALSE])))
 	
 	if(!is.null(suffixes))
-		row.names(res) <- c(paste(row.names(x), suffixes[1L], sep = ""),
-			 paste(rownames(y), suffixes[2L], sep = ""))
+		row.names(res) <- c(paste0(row.names(x), suffixes[1L]),
+			 paste0(rownames(y), suffixes[2L]))
 
 	nm <- rownames(res)
 	
@@ -259,7 +259,7 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 			cat("Abbreviations:", sep = "\n")
 			for(i in names(vLegend)) {
 				cat(vLegend[[i]], sep = ", ", fill = TRUE, labels =
-					c(paste(i, ":", sep = ""), rep(paste(rep(" ", nchar(i) + 1L),
+					c(paste0(i, ":"), rep(paste(rep(" ", nchar(i) + 1L),
 					collapse = ""), length(vLegend[[i]]) - 1L)))
 			}
 		}
@@ -377,9 +377,9 @@ function(cl, family = NULL, class = NULL,
 		j <- !is.na(fam[2L,])
 		famname <- fam[1L, j]
 		famname <- ifelse(substring(famname, nchar(famname)) != ")",
-			paste(famname, "(", sep = ""), paste(substring(famname, 1L, nchar(famname) - 1L),
-				", ", sep = ""))
-		fam[1L, j] <- paste(famname, fam[2L, j], ")", sep = "")
+			paste0(famname, "("), paste0(substring(famname, 1L, nchar(famname) - 1L),
+				", "))
+		fam[1L, j] <- paste0(famname, fam[2L, j], ")")
 		arg <- cbind(arg, t(fam))
 	}
 	if(!is.null(class)) arg[, "class"] <- rep(class, length.out = nrow(arg))

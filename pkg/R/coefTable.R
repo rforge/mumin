@@ -111,8 +111,7 @@ function(model, ...)
 function(model, ...) {
 	cts <- summary(model)$coefficients
 	ct <- do.call("rbind", unname(cts))
-	cfnames <- paste(rep(names(cts), vapply(cts, nrow, 1L)), "_", rownames(ct),
-		sep = "")
+	cfnames <- paste0(rep(names(cts), vapply(cts, nrow, 1L)), "_", rownames(ct))
 	.makeCoefTable(ct[, 1L], ct[, 2L], coefNames = cfnames)
 	#.makeCoefTable(coef(model), sqrt(diag(vcov(model, ...))))
 }

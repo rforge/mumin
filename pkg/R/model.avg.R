@@ -158,7 +158,7 @@ function(object, ..., beta = FALSE,
 	dup <- unique(sapply(mcoeffs, function(i) which(sapply(mcoeffs, identical, i))))
 	dup <- dup[sapply(dup, length) > 1L]
 	if (length(dup) > 0L) stop("models are not unique. Duplicates: ",
-		prettyEnumStr(sapply(dup, paste, sep = "", collapse = " = "),
+		prettyEnumStr(sapply(dup, paste0, collapse = " = "),
 			quote = "'"))
 
 
