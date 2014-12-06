@@ -4,8 +4,7 @@ function(x)
 	UseMethod("r.squaredGLMM")
 
 `r.squaredGLMM.default` <-
-function(x) 
-	.NotYetImplemented()
+function(x) .NotYetImplemented()
 	
 `r.squaredGLMM.lme` <-
 function(x) {
@@ -51,14 +50,14 @@ ranform <- function (form) {
 `r.squaredGLMM.mer` <-
 function(x) {
 	fam <- family(x)
-	
 	useObsLevVar <- (fam$family == "poisson" && fam$link == "log") || fam$family == "binomial"
 	## for poisson(log) and binomial(*), update 'x' to include individual-level
 	## variance (1 | 1:nobs(x)):
     if (useObsLevVar && !any(sapply(x@flist, nlevels) == nobs(x))) {
 		cl <- getCall(x)
         frm <- formula(x)
-		nRowData <- eval(call("eval", as.expression(call("NROW", cl$formula[[2L]])), envir = cl$data), envir = environment(frm),
+		nRowData <- eval(call("eval", as.expression(call("NROW", cl$formula[[2L]])),
+							  envir = cl$data), envir = environment(frm),
 						 enclos = parent.frame())
 		fl <- length(frm)
 		frx <- . ~ . + 1
@@ -66,8 +65,8 @@ function(x) {
 		cl$formula <- update.formula(frm, frx)		
 		x <- tryCatch(eval(cl, envir = environment(frm), enclos = parent.frame()),
 			error = function(e) {
-			.cry(conditionCall(e), conditionMessage(e), warn = TRUE)
-			.cry(cl, "re-fitting the model with the observation-level random effect term failed. Add the term manually")
+				.cry(conditionCall(e), conditionMessage(e), warn = TRUE)
+				.cry(cl, "fitting model with the observation-level random effect term failed. Add the term manually")
 		})
 		message("The result is correct only if all data used by the model ",
 				"has not changed since model was fitted.", domain = "R-MuMIn")

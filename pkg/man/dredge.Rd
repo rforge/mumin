@@ -189,22 +189,24 @@ are also present (e.g. \code{subset = dc(a, b, c)} allows for models of form
 \code{subset} expression can have a form of an unevaluated \code{call},
 \code{expression} object, or a one sided \code{formula}. See \sQuote{Examples}.
 
-Compound model terms (such as interactions, \sQuote{as-is} expressions within \code{I()} or
-smooths in \code{gam}) should be treated as non-syntactic names and enclosed in
-backticks (e.g. \ifelse{latex}{
-\code{subset = }\bq{a:b} \code{&&} \bq{s(x, k = 2)} \code{||} \bq{I(log(x))}
+Compound model terms (such as interactions, \sQuote{as-is} expressions within
+\code{I()} or smooths in \code{gam}) should be enclosed within \code{Term()} or
+ treated as non-syntactic names and quoted in \link[=Quotes]{backticks} (e.g.
+\ifelse{latex}{
+\code{subset = }\bq{a:b} \code{&&} \bq{s(x, k = 2)} \code{|| Term(I(x^2))}
 }{
-\code{subset = `a:b` && `s(x, k = 2)` || `I(log(x))`}
-}),
- see \link[base]{Quotes}). Mind the spacing, names must match exactly the term names
+\code{subset = `a:b` && `s(x, k = 2)` || Term(I(x^2))}
+}). Mind the spacing, backticks-quoted names must match exactly the term names
 as given by \code{getAllTerms}. 
 
 \subsection{\code{subset} expression syntax summary}{
 	
 	\describe{
 	\item{\code{a & b}}{ indicates that model terms \var{a} and \var{b} must be
-	present (see \link[=Logic]{Logical Operators}) } 
-	\item{\code{V(x)}}{ indicates a \code{varying} variable \var{x} }
+	present (see \link[=Logic]{Logical Operators}) }
+    \item{\code{Term(log(x,2))} \emph{or} \bq{log(x, 2)}}{ represent a complex 
+		model term \var{log(x, 2)}}
+	\item{\code{V(x)}}{ represents a \code{varying} variable \var{x} }
 	\item{\code{.(x)}}{ indicates that at least one term containing variable
 		\var{x} must be present }
 	\item{\code{.(+x)}}{ indicates that all the terms containing variable \var{x} 
@@ -219,8 +221,6 @@ as given by \code{getAllTerms}.
 To simply keep certain terms in all models, use of argument \code{fixed} is much
 more efficient. The \code{fixed} formula is interpreted in the same manner 
 as model formula and so the terms need not to be quoted.
-
-
 }
 
 \subsection{Missing values}{

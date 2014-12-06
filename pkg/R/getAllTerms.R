@@ -216,7 +216,8 @@ function(x, ...)  {
 
 	attrInt <- sapply(ret, attr, "intercept")
 	#ret <- unlist(lapply(names(ret), function(i) sprintf("%s(%s)", i, ret[[i]])))
-	ret <- unlist(lapply(names(ret), function(i) if(length(ret[[i]])) paste0(i, "(", ret[[i]], ")") else character(0L)))
+	ret <- unlist(lapply(names(ret), function(i) if(length(ret[[i]]))
+						 paste0(i, "(", ret[[i]], ")") else character(0L)))
 
 	dimnames(deps) <- list(ret, ret)
 
@@ -341,13 +342,14 @@ getAllTerms(x@formula, intercept = intercept)
 function(x, ...)
 UseMethod("getAllTerms")
 
+# TODO: return object of class 'allTerms'
 print.allTerms <-
 function(x, ...) {
 	cat("Model terms: \n")
 	if(!length(x)) {
-		cat("<None>\n")
+		cat("<None> \n")
 	} else {
-	print.default(as.vector(x),quote = TRUE)
+		print.default(as.vector(x), quote = TRUE)
 	}
 	ints <- attr(x, "interceptLabel")
 	if(!is.null(ints)) {

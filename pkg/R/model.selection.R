@@ -206,7 +206,6 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 			random.terms <- attr(getAllTerms(attr(x, "global")), "random.terms")
 			if(!is.null(random.terms)) random.terms <- list(random.terms)
 		} else random.terms <- attr(x, "random.terms")
-
 		cat("Model selection table \n")
 		dig <- c(AnyIC = 1L, "R^2" = 4L, df = 0L, logLik = 3L,
 			delta = 2L,	weight = 3L)
@@ -263,6 +262,8 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 					collapse = ""), length(vLegend[[i]]) - 1L)))
 			}
 		}
+		
+		cat("Models ranked by", deparse(attr(attr(x, 'rank'), "call"), control = NULL), "\n")
 
 		if(!is.null(random.terms)) {
 			if(addrandcol) {

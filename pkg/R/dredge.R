@@ -11,31 +11,32 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	if (is.null(gmCall)) {
 		gmCall <- substitute(global.model)
 		if(!is.call(gmCall)) {
-			stop("need a 'global.model' with call component. Consider using ", 
+			stop("need a 'global.model' with a call component. Consider using ", 
 				if(inherits(global.model, c("gamm", "gamm4"))) 
 					"'uGamm'" else "'updateable'")
 		}
 		#"For objects without a 'call' component the call to the fitting function \n",
 		#" must be used directly as an argument to 'dredge'.")
-		# NB: this is unlikely to happen:
+		# NB: this is unlikely to happen
 		if(!is.function(eval(gmCall[[1L]], parent.frame())))
-			gettext('could not find function "%s"', deparse(gmCall[[1L]], 
-				control = NULL), domain = "R")
+			.cry(NA, "could not find function '%s'", deparse(gmCall[[1L]],
+				control = NULL))
 	} else {
-		# if 'update' method does not expand dots, we have a problem
-		# with expressions like ..1, ..2 in the call.
-		# So, try to replace them with respective arguments in the original call
+		# if 'update' method does not expand dots, we have a problem with
+		# expressions like ..1, ..2 in the call. So try to replace them with
+		# respective arguments in the original call
 		is.dotted <- grep("^\\.\\.", sapply(as.list(gmCall), deparse))
 		if(length(is.dotted) > 0L) {
 			substGmCall <- substitute(global.model)
 			if(is.name(substGmCall)) {
-				.cry(NA, "call to 'global.model' contains '...' arguments and cannot be updated: %s",
+				.cry(NA, "call to 'global.model' contains unexpanded dots and cannot be updated: \n%s",
 					 deparse(gmCall, control = NULL))
 			} else gmCall[is.dotted] <-
 				substitute(global.model)[names(gmCall[is.dotted])]
 		}
 		
-		## object from 'run.mark.model' has $call of 'make.mark.model' - fixing it here:
+		# object from 'run.mark.model' has $call of 'make.mark.model' - fixing
+		# it here:
 		if(inherits(global.model, "mark") && gmCall[[1L]] == "make.mark.model") {
 			gmCall <- call("run.mark.model", model = gmCall, invisible = TRUE)
 		}
@@ -62,7 +63,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		rankArgs <- rankArgs[!wrongarg]
 	}
 	if(any(names(rankArgs) == "na.action")) {
-		.cry(call("RTFM", as.name("dredge")), "argument \"na.action\" is inappropriate here",
+		.cry("RTFM", "argument \"na.action\" is really inappropriate here",
 			 warn = FALSE)
 	}
 	
@@ -70,8 +71,8 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	
 	if(any(wrongarg <- is.na(match(names(rankArgs),
 		c(names(formals(get("rank", environment(IC))))[-1L], names(formals()))))))
-		warning(gettextf("arguments %s are not formal arguments of 'dredge' or 'rank'",
-						 prettyEnumStr(names(rankArgs[wrongarg]))))
+		.cry(NA, "arguments %s are not formal arguments of 'dredge' or 'rank'",
+			 prettyEnumStr(names(rankArgs[wrongarg])), warn = TRUE)
 	
 	ICName <- as.character(attr(IC, "call")[[1L]])
 	
