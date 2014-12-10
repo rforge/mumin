@@ -10,8 +10,7 @@ export(
 	beta.weights, model.names,
 	simplify.formula, expand.formula,
 	updateable, updateable2,
-	uGamm,
-	nested
+	uGamm, nested, stdize, stdize.logical
 )
 
 importFrom(stats, family)
@@ -294,3 +293,14 @@ S3method(logLik, maxlikeFit)
 S3method(nobs, maxlikeFit)
 S3method(formula, maxlikeFit)
 S3method(coefTable, maxlikeFit)
+
+S3method(stdize, default)
+S3method(stdize, numeric)
+S3method(stdize, logical)
+S3method(stdize, factor)
+S3method(stdize, data.frame)
+S3method(stdize, formula)
+S3method(stdize, matrix)
+
+
+

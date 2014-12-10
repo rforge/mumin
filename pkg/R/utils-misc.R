@@ -1,4 +1,10 @@
-`DebugPrint` <- function(x) { cat(deparse(substitute(x)), "= \n") ; print(x) }
+`DebugPrint` <- function(x) {
+	if(isTRUE(getOption('mumin.debug'))) {
+		cat("~", deparse(substitute(x)), "=");
+		print(x)	
+	}
+}
+	
 `srcc` <- function() {
 	ret <- eval(expression(source("clipboard", local = TRUE)), .GlobalEnv)
 	return(if(ret$visible) ret$value else invisible(ret$value))

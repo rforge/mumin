@@ -112,6 +112,7 @@ avpred <- predict(mavg3, newdata, se.fit = TRUE, type = "response")
 
 avci <- matrix(logit.ci(avpred$fit, avpred$se.fit, quantile = 2), ncol = 2)
 
+\dontshow{ if(require(graphics)) \{ }
 matplot(newdata$dose, sapply(mod3, predict, newdata, type = "response"),
     type = "l", xlab = quote(list("Dose of" ~ CS[2],(mg/L))),
     ylab = "Mortality", col = 2:4, lty = 3, lwd = 1
@@ -121,6 +122,7 @@ matplot(newdata$dose, cbind(avpred$fit, avci), type = "l", add = TRUE,
 
 legend("topleft", NULL, c(as.character(ms3$family), expression(`averaged`
     \%+-\% CI)), lty = c(3, 3, 3, 1), col = c(2:4, 1))
+\dontshow{ \} }
 
 }
 

@@ -50,8 +50,10 @@ will select rows  with \emph{a} \bold{and} without \emph{b} (this is
 equivalent to \code{!is.na(a) & is.na(b)}). \code{has} can take any number of
 arguments.
 
-Complex model terms need either to be backtick quoted or enclosed within \code{Term()}
-(e.g \code{Term(s(a,k=2) | }\bq{log(b)}), except the ones within \code{has}. 
+Complex model terms need either to enclosed within curly brackets or backticks
+ (e.g \code{{s(a,k=2} |} \bq{log(b)}), except  \code{has}. 
+ Backticks-quoted names must match exactly (including whitespace) the term names 
+ as returned by \code{getAllTerms}.
 
 Note that the \code{has()} notation cannot be used in the
 \code{subset} argument for \code{dredge}, where the variable names should be

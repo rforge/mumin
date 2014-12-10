@@ -289,7 +289,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	
 			subsetExpr <- .substFunc(subsetExpr, ".", .sub_dot, gloFactorTable, 
 				allTerms, as.name("comb"))
-			subsetExpr <- .substFunc(subsetExpr, "Term", .sub_Term)
+			subsetExpr <- .substFunc(subsetExpr, c("{", "Term"), .sub_Term)
 			subsetExpr <- .subst4Vec(subsetExpr, allTerms, as.name("comb"))
 			
 			

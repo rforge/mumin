@@ -65,7 +65,7 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	fitted model object as an argument and return a (value coercible to a)
 	numeric vector.
 	These can be e.g. additional information criterions or goodness-of-fit
-	statistics. The character strings \dQuote{R^2} and \dQuote{adjR^2} are treated in a
+	statistics. The character strings \code{"R^2"} and \code{"adjR^2"} are treated in a
 	special way, and will add a likelihood-ratio based \Rsq and
 	modified-\Rsq respectively to the result (this is more efficient than using 
 	\code{\link{r.squaredLR}} directly).
@@ -190,21 +190,22 @@ are also present (e.g. \code{subset = dc(a, b, c)} allows for models of form
 \code{expression} object, or a one sided \code{formula}. See \sQuote{Examples}.
 
 Compound model terms (such as interactions, \sQuote{as-is} expressions within
-\code{I()} or smooths in \code{gam}) should be enclosed within \code{Term()} or
- treated as non-syntactic names and quoted in \link[=Quotes]{backticks} (e.g.
-\ifelse{latex}{
-\code{subset = }\bq{a:b} \code{&&} \bq{s(x, k = 2)} \code{|| Term(I(x^2))}
-}{
-\code{subset = `a:b` && `s(x, k = 2)` || Term(I(x^2))}
-}). Mind the spacing, backticks-quoted names must match exactly the term names
-as given by \code{getAllTerms}. 
+\code{I()} or smooths in \code{gam}) should be enclosed within curly brackets
+ (e.g. \code{{s(x,k=2)}}), or \link[=Quotes]{backticks} (like non-syntactic
+ names, e.g. \ifelse{latex}{
+ \bq{s(x, k = 2)}
+ }{
+ \code{`s(x, k = 2)`}
+ }).
+ Backticks-quoted names must match exactly (including whitespace) the term names
+ as given by \code{getAllTerms}.
 
 \subsection{\code{subset} expression syntax summary}{
 	
 	\describe{
 	\item{\code{a & b}}{ indicates that model terms \var{a} and \var{b} must be
 	present (see \link[=Logic]{Logical Operators}) }
-    \item{\code{Term(log(x,2))} \emph{or} \bq{log(x, 2)}}{ represent a complex 
+    \item{\code{{log(x,2)}} \emph{or} \bq{log(x, 2)}}{ represent a complex 
 		model term \var{log(x, 2)}}
 	\item{\code{V(x)}}{ represents a \code{varying} variable \var{x} }
 	\item{\code{.(x)}}{ indicates that at least one term containing variable

@@ -11,7 +11,8 @@
 	for(i in seq.int(2L, n)) {
 		ex <- if(length(e[[i]]) == 2L && e[[i]][[1L]] == "!")
 			call("is.na", e[[i]][[2L]]) else
-			call("!", call("is.na", if(is.name(e[[i]])) e[[i]] else as.name(deparse(e[[i]], control = NULL))))
+			call("!", call("is.na", if(is.name(e[[i]])) e[[i]] else
+						   as.name(deparse(e[[i]], control = NULL))))
 
 		res <- if(i == 2L) ex else call("&", res, ex)
 	}
@@ -26,7 +27,7 @@
 	if(n == 0L) return(e) else if (n == 1L) {
 		if (!is.call(e)) return(e)
 	} else for(i in 2L:n) e[i] <- list(.substFunc(e[[i]], name, func, ...))
-	if(e[[1L]] == name) e <- func(e, ...)
+	if(any(e[[1L]] == name)) e <- func(e, ...)
 	return(e)
 }
 
@@ -51,6 +52,7 @@
 	as.name(deparse(x[[2L]], control = NULL))
 }
 
+
 .sub_dot <- function(x, fac, at, vName) {
 	if(length(x) != 2L) .cry(x, "exactly one argument needed, %d given.", length(x) - 1L)
 	if(length(x[[2L]]) == 2L && x[[2L]][[1L]] == "+") {
@@ -66,10 +68,22 @@
 		match(dn[[1L]][fac[, sx]], at))))))
 }
 
-.sub_has <- function(e, fname) {
+.sub_dc_has <- function(e, fname) {
 		e[[1L]] <- call(":::", as.name(.packageName), fname)
 		for(i in 2L:length(e)) e[[i]] <- call("has", e[[i]])
 		e
+}
+
+.sub_has <- function(e) {
+	n <- length(e)
+	for(i in seq.int(2L, n)) {
+		ex <- if(length(e[[i]]) == 2L && e[[i]][[1L]] == "!")
+			call("is.na", e[[i]][[2L]]) else
+			call("!", call("is.na", if(is.name(e[[i]])) e[[i]] else
+						   as.name(deparse(e[[i]], control = NULL))))
+		res <- if(i == 2L) ex else call("&", res, ex)
+	}
+	call("(", res)
 }
 
 .sub_V <- function(x, cVar, fn) {

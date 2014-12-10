@@ -45,10 +45,12 @@ function (x, i = NULL, ...) {
 
 `subset.model.selection` <-
 function(x, subset, select, recalc.weights = TRUE, recalc.delta = FALSE, ...) {
-	
-	expr.sub.expand <- expression(.substHas(.substFunc(
-				.substFunc(substitute(subset), "dc", .sub_has, as.name(".subset_vdc")),
-					"Term", .sub_Term)))
+	expr.sub.expand <- expression(
+		.substFunc(.substFunc(.substFunc(
+			substitute(subset),
+			"dc", .sub_dc_has, as.name(".subset_vdc")),
+			c("{", "Term"), .sub_Term),
+			"has", .sub_has))
 					
 	subst <- function(cl, ...) eval(call("substitute", cl, list(...)))
 
@@ -56,8 +58,7 @@ function(x, subset, select, recalc.weights = TRUE, recalc.delta = FALSE, ...) {
 		if(missing(subset)) return(x)
 		e <- eval(expr.sub.expand)
 		e <- subst(e, . = x)
-		# print(e)
-		
+		DebugPrint(e)
 		i <- eval(e, x, parent.frame())
 		return(`[.model.selection`(x, i, recalc.weights = recalc.weights, 
 			recalc.delta = recalc.delta, ...))
@@ -67,6 +68,7 @@ function(x, subset, select, recalc.weights = TRUE, recalc.delta = FALSE, ...) {
 			subst(eval(expr.sub.expand), . = substitute(x))
 	    cl <- cl[c(1L, match(names(formals("subset.data.frame")), names(cl), 0L))]
 	    cl[[1L]] <- as.name("subset.data.frame")
+		DebugPrint(cl)
 		ret <- eval(cl, parent.frame())
 		if(recalc.weights && ("weight" %in% colnames(ret)))
 			ret[, 'weight'] <- ret[, 'weight'] / sum(ret[, 'weight'])

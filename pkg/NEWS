@@ -1,7 +1,9 @@
 MuMIn package news:
 
-Version: 1.11.3 (2014-12-05)
-smarter sorting of interaction terms in coefficient names
+Version: 1.11.3 (2014-12-10)
+(added) stdize: new function for standardizing data
+(fixed) smarter sorting of interaction terms in coefficient names
+print.model.selection: rank function call is added to the output
 
 Version: 1.11.2 (2014-12-01)
 (fixed) r.squaredGLMM: in "binomial" family models the residual variance is 
