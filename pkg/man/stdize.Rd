@@ -8,7 +8,7 @@
 
 \title{Standardize data}
 \description{
-Standardize variables by centering and scaling.
+Standardize variables by centring and scaling.
 }
 
 \usage{
@@ -37,10 +37,20 @@ Standardize variables by centering and scaling.
 	     of length equal to the number of columns of \code{x}. 
 		 \code{scale} can be also a function to be used for scaling. 
 		 }
+	\item{binary}{specifies how binary variables (logical or two-level factors)
+		are scaled. Default is to \code{"center"} by subtracting the mean
+		assuming levels are equal to 0 and 1; use \code{"scale"} to
+		both centre and scale by \acronym{SD}, \code{"binary"} to centre to 0 /
+		1, \code{"half"} to centre to -0.5 / 0.5, and \code{"omit"} to leave
+		binary variables unmodified.
+		This argument has precedence over \code{center} and \code{scale}, unless
+		it is set to \code{NA} (in which case binary variables are treated like
+		numeric variables).
+		}
 	 \item{source}{a reference \code{data.frame}, being a result of previous  
-	     \code{stdize}, from which scale and center values are taken. Column 
-		 names are matched. This is used for scaling new data using statistics
-		 of another data.  
+	     \code{stdize}, from which \code{scale} and \code{center} values are 
+		 taken. Column names are matched. This can be used for scaling new data 
+		 using statistics of another data.  
 		  }
 	\item{omit.cols}{ column names or numeric indices of columns that should 
 	     be left unaltered. }
@@ -48,19 +58,13 @@ Standardize variables by centering and scaling.
 		transformed columns should be prefixed, or a two-element character vector
 	    giving the prefixes. The prefixes default to \dQuote{z.} for scaled and
 	    \dQuote{c.} for centred variables. }
-	\item{binary}{specifies how binary variables (logical or two-level factors)
-		are scaled. Default is to \code{"center"} them; use \code{"scale"} to
-		both centre and scale by \acronym{SD}, \code{"binary"} to center to 0 /
-		1, \code{"half"} to center to -0.5 / 0.5, and \code{"omit"} to leave
-		binary variables unmodified. 
-		If \code{center} or \code{scale} are given, this argument is ignored. 
-		}
+
 	\item{response}{logical, stating whether the response be standardized. By
 	    default only variables on the right-hand side of formula are standardized. }
 	\item{data}{ an object coercible to \code{data.frame}, containing the
 	    variables in \code{formula}. Passed to, and used by \code{\link{model.frame}}. }
 	\item{\dots}{ for the \code{formula} method, additional arguments passed to
-	    \code{\link{model.frame}}. For other methods, silently ignored. }
+	    \code{\link{model.frame}}. For other methods it is silently ignored. }
 }
 
 \value{
@@ -77,21 +81,21 @@ If \code{center} or \code{scale} are numeric vectors with length equal
 to the number of columns of \code{x} (or numeric scalars for vector methods), then 
 these are used instead.
 
-Binary variables, logical or factors with two levels, are are converted to
+Binary variables, logical or factors with two levels, are converted to
 numeric variables and transformed according to the argument \code{binary},
 unless \code{center} or \code{scale} are explicitly given.
 
 The returned value is compatible with that of \code{\link{scale}} in that the
-numeric centering and scalings used are stored in attributes attributes
+numeric centring and scalings used are stored in attributes attributes
 \code{"scaled:center"} and \code{"scaled:scale"} (these can be \code{NA} if no
-centering or scaling has been done).
+centring or scaling has been done).
 }
 
 \details{
-\code{stdize} is very similar to \code{\link{scale}}, but uses special rules
+\code{stdize} resembles \code{\link{scale}}, but uses special rules
 for factors, similarly to \code{\link[arm]{standardize}} in package \pkg{arm}.
 
-This function differs from \code{\link[arm]{standardize}} in that it is used on
+\code{stdize} differs from \code{\link[arm]{standardize}} in that it is used on
 data rather than on the fitted model object. The scaled data should afterwards
 be passed to the modelling function, instead of the original data.
 
@@ -99,19 +103,20 @@ Unlike \code{standardize}, it applies special \sQuote{binary} scaling only to
 two-level \code{factor}s and logical variables, rather than to any variable with
 two unique values.
 
-By default, \code{stdize} scales by dividing by \acronym{SD} rather than twice
-the \acronym{SD} as \code{standardize} does. Unlike \code{scale}, scaling by
-\acronym{SD} is used also on uncentered values, which is different from where
-root-mean-square centering is done.
+By default, \code{stdize} scales by dividing by standard deviation rather than twice
+the \acronym{SD} as \code{standardize} does. Scaling by \acronym{SD} is used 
+also on uncentred values, which is different from \code{\link{scale}} where
+root-mean-square is used.
 }
 
 \author{Kamil Barto\enc{ń}{n}}
 
 \seealso{
-Compare with \code{\link{scale}} or \code{\link[arm]{standardize}} and
+Compare with \code{\link{scale}} and \code{\link[arm]{standardize}} or
 \code{\link[arm]{rescale}} (the latter two in package \pkg{arm}).
 
-\code{\link{apply}} and \code{\link{sweep}} for arbitrary transformations. 
+\code{\link{apply}} and \code{\link{sweep}} for arbitrary transformations of 
+columns in a \code{data.frame}. 
 }
 
 \examples{
@@ -142,8 +147,8 @@ fmz <- lmer(uptake ~ z.conc + I(z.conc^2) + (1 | Plant), data = z.CO2)
 # create new data as a sequence along "conc"
 newdata <-  data.frame(conc = seq(min(CO2$conc), max(CO2$conc), length = 10))
 
-# scale new data using scale and center of the original data: 
-z.newdata <- stdize(newdata, z = z.CO2)
+# scale new data using scale and center of the original scaled data: 
+z.newdata <- stdize(newdata, source = z.CO2)
 
 \dontshow{ if(require(graphics)) \{ }
 # plot predictions against "conc" on real scale:
@@ -153,8 +158,8 @@ plot(newdata$conc, predict(fmz, z.newdata, re.form = NA))
 # compare with "arm::standardize"
 \dontrun{
 library(arm)
-    fms <- standardize(lmer(uptake ~ conc + I(conc^2) + (1 | Plant), data = CO2))
-    plot(newdata$conc, predict(fms, z.newdata, re.form = NA))
+fms <- standardize(lmer(uptake ~ conc + I(conc^2) + (1 | Plant), data = CO2))
+plot(newdata$conc, predict(fms, z.newdata, re.form = NA))
 }
 }
 }

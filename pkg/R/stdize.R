@@ -3,6 +3,11 @@ isFALSE <- function(x) identical(FALSE, x)
 stdize <-
 function(x, ...) UseMethod("stdize")
 
+rootmeansq <- function(v) {
+	v <- as.numeric(v[!is.na(v)])
+	sqrt(sum(v^2) / max(1, length(v) - 1L))
+}
+
 stdize.default <-
 stdize.numeric <-
 function(x, center = TRUE, scale = TRUE, ...) {
@@ -49,16 +54,8 @@ center = TRUE, scale = FALSE,
 ...) {
 	#if(length(list(...))) warning("additional arguments ignored")
 	if(nlevels(x) == 2L) {
-		cl <- match.call()
-		cl$x <- call("-", call("as.numeric", cl$x), 1)
-		cl[[1L]] <- as.name("stdize.logical")
-		eval(cl, envir = parent.frame(), enclos = asNamespace("MuMIn"))
+		stdize.logical(as.numeric(x) - 1, binary, center, scale)
 	} else x
-}
-
-rootmeansq <- function(v) {
-	v <- as.numeric(v[!is.na(v)])
-	sqrt(sum(v^2) / max(1, length(v) - 1L))
 }
 
 stdize.logical <-
@@ -66,18 +63,15 @@ function(x, binary = c("center", "scale", "binary", "half", "omit"),
 center = TRUE, scale = FALSE, 
 ...) {
 	#if(length(list(...))) warning("additional arguments ignored")
-
-	if(!missing(center) || !missing(scale)) {
-		if(!missing(binary)) warning("argument 'binary' ignored when 'center' or 'scale' is given")
-		stdize.numeric(as.numeric(x), center = center, scale = scale)
-	} else {
-		switch(match.arg(binary),
+	binary <- if(is.null(binary) || is.na(binary)) "" else match.arg(binary)
+	switch(binary,
 			   center = stdize.numeric(x, center = TRUE, scale = 1),
 			   scale = stdize.numeric(x, center = TRUE, scale = TRUE),
 			   half = stdize.numeric(x, center = 0.5, scale = 1),
 			   binary = stdize.numeric(x, center = 0, scale = 1),
-			   omit = x, NA)
-	}
+			   omit = x,
+			   stdize.numeric(as.numeric(x), center = center, scale = scale)
+			   )
 }
 
 stdize.data.frame <-
@@ -85,24 +79,24 @@ function(x, binary = c("center", "scale", "binary", "half", "omit"),
 	center = TRUE, scale = TRUE,
 	omit.cols = NULL,
 	source = NULL, prefix = TRUE, ...) {
+
 	if(is.function(scale)) {
 		scaleFunc <- scale
 		scale <- TRUE
 	} else scaleFunc <- function(x) sd(x, na.rm = TRUE)
 
 	if(!is.null(source)) {
-		if(!missing(center) || !missing(scale))
-			warning("arguments 'center' and 'scale' ignored if 'source' is given")
-	
+		if(!missing(center) || !missing(scale) || !missing(binary))
+			warning("arguments 'center', 'scale' and 'binary' ignored if 'source' is given")
 		j <- match(colnames(x), attr(source, "orig.names"))
 		if(any(is.na(j))) stop("some columns in 'x' are missing from 'source'")
 		center <- attr(source, "scaled:center")[j]
 		scale <- attr(source, "scaled:scale")[j]
+		binary <- ""
 		if(is.null(center) || is.null(scale)) stop("invalid 'source' object")
-	}
-	binary <- match.arg(binary)
-    nc <- ncol(x)
-
+	} else
+		binary <- if(is.null(binary) || is.na(binary)) "" else match.arg(binary)
+	
 	dataClasses <- vapply(x, function(x) {
 		if (is.logical(x)) return("logical")
 		if (is.factor(x)) if(nlevels(x) == 2L) return("factor2") else 
@@ -112,70 +106,63 @@ function(x, binary = c("center", "scale", "binary", "half", "omit"),
 		 return("other")
 	}, "")
 	
-	if(is.character(omit.cols))
-		dataClasses[colnames(x) %in% omit.cols] <- "omit"
-	else if(is.numeric(omit.cols))
-		dataClasses[omit.cols] <- "omit"
-	
+	if(is.character(omit.cols)) dataClasses[colnames(x) %in% omit.cols] <- "omit"
+		else if(is.numeric(omit.cols)) dataClasses[omit.cols] <- "omit"
+		
 	numData <- dataClasses == "numeric"
-	binaryData <- if(binary == "omit") FALSE else
-		dataClasses == "factor2" | dataClasses == "logical"
-	if(binary != "omit") for (i in which(binaryData)) x[, i] <- as.numeric(x[, i]) -
-		if(dataClasses[i] == "factor2") 1 else 0
-	
-    if (is.logical(center)) {
-		if(length(center) != 1 && length(center) != nc)
-			stop("length of 'center' must equal one or the number of columns of 'x'")
-		center <- rep(center, length.out = nc)
-		binCenter <- switch(binary, center = TRUE, scale = TRUE, half = .5, 
-			binary = 0, omit = FALSE, NA)
-		jCenter <- (center & numData) | (isTRUE(binCenter) & binaryData)
-		center[jCenter] <- colMeans(x[, jCenter, drop = FALSE], na.rm = TRUE)
-		if(is.numeric(binCenter)) {
-			jCenter[binaryData] <- TRUE
-			center[binaryData] <- binCenter
-		}
-    } else if (is.numeric(center)) {
-		if(length(center) != nc) 
-			stop("length of 'center' must equal the number of columns of 'x'")
-		jCenter <- !is.na(center) & (numData | binaryData)
-	} else stop("invalid 'center' argument")
-	if (is.logical(scale)) {
-		if(length(scale) != 1 && length(scale) != nc)
-			stop("length of 'scale' must equal one or the number of columns of 'x'")
-		scale <- rep(scale, length.out = nc)
-		binScale <- switch(binary, center = 1, scale = TRUE, half = 1, 
-			binary = 1, omit = FALSE, NA)
-		jScale <- (scale & numData) | (isTRUE(binScale) & binaryData)
-		scale <- numeric(nc)
-		for (i in which(jScale)) scale[i] <- scaleFunc(as.numeric(x[, i]))
-		if(is.numeric(binScale)) {
-			jScale[binaryData] <- TRUE
-			scale[binaryData] <- binScale
-		}
-    } else if (is.numeric(scale)) {
-		if(length(scale) != nc) 
-			stop("length of 'scale' must equal the number of columns of 'x'")
-		jScale <- !is.na(scale) & (numData | binaryData)
-	} else stop("invalid 'scale' argument")
 
-	jTransformed <- jScale | jCenter
-	center[jTransformed & !jCenter] <- 0
-	scale[jTransformed & !jScale] <- 1
+	if(binary == "omit")  {
+		binaryData <- FALSE
+	} else {
+		binaryData <- dataClasses == "factor2" | dataClasses == "logical"
+		for (i in which(binaryData))
+			x[, i] <- as.numeric(x[, i]) - if(dataClasses[i] == "factor2") 1 else 0
+	}
+		
+	nc <- ncol(x)
+
+	f <- function(x, bin) {
+		if(is.numeric(x)) {
+			calc <- isTRUE(bin) & binaryData
+			do <- numData | calc | (binaryData & (is.na(bin) | !isFALSE(bin)))
+			x[!calc & do & binaryData & !is.na(bin)] <-  bin
+			return(list(x, calc, do))
+		} else {
+			calc <- (numData & x) | (binaryData & ((is.na(bin) & x) | isTRUE(bin)))
+			do <- calc | (binaryData & (!is.na(bin) & !isFALSE(bin)))
+			num <- numeric(nc)
+			num[!calc & do & binaryData & !is.na(bin)] <-  bin
+			return(list(num, calc, do))
+		}
+	}
+	
+	ctr <- f(center, switch(binary, center = TRUE, scale = TRUE, half = .5, 
+		binary = 0, omit = FALSE, NA))
+	scl <- f(scale, switch(binary, center = FALSE, scale = TRUE, half = 1, 
+		binary = FALSE, omit = FALSE, NA))
+	
+	center <- ctr[[1L]]
+	scale <- scl[[1L]]
+	center[ctr[[2L]]] <- colMeans(x[, ctr[[2L]], drop = FALSE], na.rm = TRUE)
+	scale[scl[[2L]]] <- apply(x[, scl[[2L]], drop = FALSE], 2L, scaleFunc)
+	
+	jTransformed <- ctr[[3L]] | scl[[3L]]
+	center[jTransformed & !ctr[[3L]]] <- 0
+	scale[jTransformed & !scl[[3L]]] <- 1
 	for (i in which(jTransformed)) x[, i] <- (x[, i] - center[i]) / scale[i]
 	
-	attr(x, "scaled:center") <- ifelse(jCenter, center, NA)
-	attr(x, "scaled:scale") <- ifelse(jScale, scale, NA)
+	attr(x, "scaled:center") <- ifelse(jTransformed, center, NA)
+	attr(x, "scaled:scale") <- ifelse(jTransformed, scale, NA)		
 	attr(x, "orig.names") <- colnames(x)
 	doprefix <-  FALSE
 	if(is.character(prefix) ||
 	   (doprefix <- (is.logical(prefix) && isTRUE(prefix)))) {
 		prefix <- if(doprefix) c("z.", "c.") else rep(prefix, length.out = 2L)
-		colnames(x)[jTransformed] <- 	
-			paste0(prefix[jTransformed + (jCenter & !jScale)], 
+		colnames(x)[jTransformed] <-
+			paste0(prefix[jTransformed + (ctr[[3L]] & !scl[[3L]])], 
 				colnames(x)[jTransformed])
 	}
-	return(x)
+	x
 }
 
 stdize.formula <-
