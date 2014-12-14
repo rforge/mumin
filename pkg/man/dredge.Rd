@@ -11,7 +11,7 @@
 
 \title{Automated model selection}
 \description{
-Generate a set of models with combinations (subsets) of the terms in the global
+Generate a set of models with combinations (subsets) of terms in the global
 model, with optional rules for model inclusion.
 }
 
@@ -62,11 +62,11 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	\item{extra}{ optional additional statistics to include in the result,
 	provided as functions, function names or a list of such (best if named
 	or quoted). Similarly as in \code{rank} argument, each function must accept
-	fitted model object as an argument and return a (value coercible to a)
+	fitted model object as an argument and return (a value coercible to) a
 	numeric vector.
 	These can be e.g. additional information criterions or goodness-of-fit
-	statistics. The character strings \code{"R^2"} and \code{"adjR^2"} are treated in a
-	special way, and will add a likelihood-ratio based \Rsq and
+	statistics. The character strings \code{"R^2"} and \code{"adjR^2"} are 
+	treated in a special way, and will add a likelihood-ratio based \Rsq and
 	modified-\Rsq respectively to the result (this is more efficient than using 
 	\code{\link{r.squaredLR}} directly).
 	}
@@ -74,13 +74,13 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
   \item{x}{
     a \code{model.selection} object, returned by \code{dredge}. }
 
-  \item{abbrev.names}{ should printed variable names be abbreviated?
-	(useful with many variables). }
+  \item{abbrev.names}{ should printed term names be abbreviated?
+	(useful with complex models). }
 
   \item{warnings}{ if \code{TRUE}, errors and warnings issued during the model
 	fitting are printed below the table (currently, only with \code{pdredge}).
-	To permanently remove the warnings, set the object's attribute \code{"warnings"} to
-	\code{NULL}. }
+	To permanently remove the warnings, set the object's attribute 
+	\code{"warnings"} to \code{NULL}. }
 	
   \item{ct.args}{ optional list of arguments to be passed to
 	\code{\link{coefTable}} (e.g. \code{dispersion} parameter for \code{glm}
@@ -94,17 +94,16 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 
 \details{
-
-Models are fitted through repeated evaluation of modified calls to
-the \code{global.model} (in a similar fashion as with \code{update}). This
-approach, while robust in that it can be applied to a variety of different model
-object types is not very efficient and may be time-intensive.
+Models are fitted through repeated evaluation of modified call extracted from 
+the \code{global.model} (in a similar fashion as with \code{update}). This 
+approach, while robust in that it can be applied to majority of model
+types is not the most efficient and may be computationally-intensive.
 
 Note that the number of combinations grows exponentially with number of
-predictor variables (\ifelse{latex}{\eqn{2^{N}}}{\ifelse{html}{2ⁿ}{2^N}}, 
-less when interactions are present, see below). 
+predictors (\ifelse{latex}{\eqn{2^{N}}}{\ifelse{html}{2ⁿ}{2^N}}, less when 
+interactions are present, see below). 
 
-The fitted model objects are not stored in the result. To get (a subset of) the 
+The fitted model objects are not stored in the result. To get (a subset of)  
 models, use \code{\link{get.models}} on the object returned by \code{dredge}. 
 
 For a list of model types that can be used as a \code{global.model} see
@@ -143,20 +142,22 @@ formulation must satisfy all these conditions.
 The latter should be a lower triangular matrix with logical values, where
 columns and rows correspond to \code{global.model} terms. Value
 \code{subset["a", "b"] == FALSE} will exclude any model containing both terms 
-\var{a} and \var{b}.
+\var{a} and \var{b}. 
+\code{demo(dredge.subset)} has examples of using the \code{subset} matrix in 
+conjunction with correlation matrices to exclude models containing collinear 
+predictors.
 
 In the form of \code{expression}, the argument \code{subset} acts in a similar
 fashion to that in the function \code{subset} for \code{data.frames}: model
 terms can be referred to by name as variables in the expression, with the
-difference being that they are always logical (i.e. \code{TRUE} if a term exists
-in the model).
+difference being that they are logical (i.e. equal to \code{TRUE} if the 
+term exists in the model).
 
 There is also \code{.(x)} and \code{.(+x)} notation that indicate respectively
 any or all model terms including a \emph{variable} \code{x}. This concerns only
 interactions containing a particular main effect \code{x} (e.g. \code{x:z},
 \code{v:x:z}), and \emph{not} a variable in a complex expression, such as
-\code{x} in \code{I(x^2)}, so it is only useful with marginality
- exceptions.
+\code{x} in \code{I(x^2)}, so it is only useful with marginality exceptions.
 
 The expression can contain any of the \code{global.model} terms
 (\code{getAllTerms(global.model)} lists them), as well as names of the

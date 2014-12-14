@@ -164,4 +164,4 @@ plot(newdata$conc, predict(fms, z.newdata, re.form = NA))
 }
 }
 
-\keyword{models}
+\keyword{manip}

@@ -93,3 +93,17 @@
 					  as.character(x[[2L]]), warn = TRUE)
 	call("[[", cVar, i)
 }
+
+
+
+`exprApply` <-
+function(expr, what, FUN = identity, ...) {
+	if(asExpr <- is.expression(expr)) expr <- expr[[1L]]
+	n <- length(expr)
+	if(n == 0L) return(expr) else if (n == 1L) {
+		if (!is.call(expr)) return(expr)
+	} else for(i in 2L:n) expr[i] <- list(exprApply(expr[[i]], what, FUN, ...))
+	if(any(expr[[1L]] == what)) expr <- FUN(expr, ...)
+	if(asExpr) return(as.expression(expr)) 
+	return(expr)
+}
