@@ -17,8 +17,8 @@ exprApply(expr, what, FUN = identity, ...)
   \item{what}{character string giving the name of a function. Each call to
       \code{what} inside \code{expr} will be passed to \code{FUN}. \code{what} 
 	  can be also a character representation of an operator or parenthesis
-	  (including \code{\link[=Paren]{curly}} and \code{\link[Extract]{square}} 
-	  brackets) as these are also functions in \R.
+	  (including \link[=Paren]{curly} and \link[Extract]{square} brackets) as 
+	  these are functions in \R.
  }
   \item{FUN}{a function to be applied.}
   \item{\dots}{optional arguments to \code{FUN}.}
@@ -42,7 +42,7 @@ Functions useful inside \code{FUN}: \code{\link{as.name}}, \code{\link{call}},
 
 \examples{
 ### simple usage:
-# print all Y(...) terms in a formula:
+# print all Y(...) terms in a formula (note that symbol "Y" is omitted):
 exprApply(~ X(1) + Y(2 + Y(4)) + N(Y + Y(3)), "Y", print)
 
 # replace X() with log(X, base = n)
@@ -60,8 +60,7 @@ exprApply(expression(A() + B() + C()), c("A", "B", "C"), function(expr, base) {
 
 # First we create a wrapper function for lm. Within it, use "exprApply" to add
 # "degree" argument to all occurences of "poly()" having "X1" or "X2" as the
-# first argument. Values for "degree" are taken from wrapper's arguments "d1"
-# and "d2"
+# first argument. Values for "degree" are taken from arguments "d1" and "d2"
 
 lmpolywrap <- function(formula, d1 = NA, d2 = NA, ...) { 
     cl <- origCall <- match.call()
