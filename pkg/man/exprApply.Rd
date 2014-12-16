@@ -18,7 +18,7 @@ exprApply(expr, what, FUN = identity, ..., symbols = FALSE)
   \item{what}{character string giving the name of a function. Each call to
       \code{what} inside \code{expr} will be passed to \code{FUN}. \code{what} 
       can be also a character representation of an operator or parenthesis
-      (including \link[=Paren]{curly} and \link[Extract]{square} brackets) as 
+      (including \link[=Paren]{curly} and \link[=Extract]{square} brackets) as 
       these are primitive functions in \R.
  }
   \item{FUN}{a function to be applied. Defaults to \code{\link{identity}}, which

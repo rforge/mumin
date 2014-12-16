@@ -1,11 +1,14 @@
 MuMIn package news:
 
+Version: 1.12.1 (2014-12-16)
+minor corrections to the documentation
+
 Version: 1.12.0 (2014-12-16)
 (added) exprApply: new function to manipulate expressions (with example of use
 	with 'dredge' to manipulate terms inside formula).
 (p)dredge, subset.model.selection: curly braces can be used to indicate complex 
-	terms (e.g. {I(x)} or {s(x,k=2}) instead of backtick quotes. Spacing in
-    these expressions is irrelevant (as both whitespace and backticks seem to be 
+	terms (e.g. {I(x)} or {s(x,k=2}) instead of backtick quotes. Spacing in 
+	these expressions is irrelevant (as both whitespace and backticks seem to be 
 	a problem for some users).
 
 Version: 1.11.3 (2014-12-10)
