@@ -3,24 +3,28 @@
 \encoding{utf-8}
 \title{Apply a function to calls inside an expression}
 \description{
-Apply function \code{FUN} to each occurence of a call to \code{what()} in an
-unevaluated expression. It can be used for advanced manipulation of expressions.
-It is primarily intended for internal use.
+Apply function \code{FUN} to each occurence of a call to \code{what()} (or 
+a symbol \code{what}) in an unevaluated expression. It can be used for advanced 
+manipulation of expressions.
+Intended primarily for internal use.
 }
 
 \usage{
-exprApply(expr, what, FUN = identity, ...)
+exprApply(expr, what, FUN = identity, ..., symbols = FALSE)
 }
 
 \arguments{
   \item{expr}{an unevaluated expression. }
   \item{what}{character string giving the name of a function. Each call to
       \code{what} inside \code{expr} will be passed to \code{FUN}. \code{what} 
-	  can be also a character representation of an operator or parenthesis
-	  (including \link[=Paren]{curly} and \link[Extract]{square} brackets) as 
-	  these are functions in \R.
+      can be also a character representation of an operator or parenthesis
+      (including \link[=Paren]{curly} and \link[Extract]{square} brackets) as 
+      these are primitive functions in \R.
  }
-  \item{FUN}{a function to be applied.}
+  \item{FUN}{a function to be applied. Defaults to \code{\link{identity}}, which
+      does nothing. }
+  \item{symbols}{logical value controlling whether \code{FUN} should be applied
+      to symbols as well as calls.}
   \item{\dots}{optional arguments to \code{FUN}.}
 }
 
@@ -35,8 +39,8 @@ exprApply(expr, what, FUN = identity, ...)
 Expression-related functions: \code{\link{substitute}}, 
 \code{\link{expression}}, \code{\link{quote}} and \code{\link{bquote}}.
 
-Functions useful inside \code{FUN}: \code{\link{as.name}}, \code{\link{call}},
-\code{\link{as.call}}, \code{\link{match.call}} etc.
+Functions useful inside \code{FUN}: \code{\link{as.name}}, \code{\link{as.call}},
+\code{\link{call}}, \code{\link{match.call}} etc.
 
 }
 
@@ -69,7 +73,7 @@ lmpolywrap <- function(formula, d1 = NA, d2 = NA, ...) {
         i <- which(e[[2]] == x)[1]
         if(!is.na(i) && !is.na(degree[i])) e$degree <- degree[i]
         e
-    }, c(d1, d2), c("X1", "X2"))
+    }, degree = c(d1, d2), x = c("X1", "X2"))
     cl$d1 <- cl$d2 <- NULL
     fit <- eval(cl, parent.frame())
     fit$call <- origCall # replace the stored call
