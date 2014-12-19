@@ -50,7 +50,7 @@ will select rows  with \emph{a} \bold{and} without \emph{b} (this is
 equivalent to \code{!is.na(a) & is.na(b)}). \code{has} can take any number of
 arguments.
 
-Complex model terms need either to enclosed within curly brackets or backticks
+Complex model terms need to be enclosed within either curly brackets or backticks
  (e.g \code{{s(a,k=2} |} \bq{log(b)}), except  \code{has}. 
  Backticks-quoted names must match exactly (including whitespace) the term names 
  as returned by \code{getAllTerms}.

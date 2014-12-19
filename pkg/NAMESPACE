@@ -72,10 +72,6 @@ S3method(coefTable, model.selection)
 
 S3method(print, coefTable)
 
-S3method(AICc, default)
-
-S3method(AICc, logLik)
-
 S3method(getAllTerms, formula)
 S3method(getAllTerms, terms)
 

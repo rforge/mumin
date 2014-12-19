@@ -62,17 +62,20 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			 warn = TRUE)
 		rankArgs <- rankArgs[!wrongarg]
 	}
-	if(any(names(rankArgs) == "na.action")) {
+	if(any(names(rankArgs) == "na.action"))
 		.cry("RTFM", "argument \"na.action\" is really inappropriate here",
 			 warn = FALSE)
-	}
+
 	
 	IC <- .getRank(rank, rankArgs)
 	
 	if(any(wrongarg <- is.na(match(names(rankArgs),
 		c(names(formals(get("rank", environment(IC))))[-1L], names(formals()))))))
-		.cry(NA, "arguments %s are not formal arguments of 'dredge' or 'rank'",
-			 prettyEnumStr(names(rankArgs[wrongarg])), warn = TRUE)
+		.cry("RTFM", ngettext(sum(wrongarg),
+			"argument %s is not a name of formal argument of %s",
+			"arguments %s are not names of formal arguments of %s"),
+			prettyEnumStr(names(rankArgs[wrongarg])), "'dredge' or 'rank'", 
+			warn = TRUE)
 	
 	ICName <- as.character(attr(IC, "call")[[1L]])
 	

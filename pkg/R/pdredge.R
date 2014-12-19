@@ -92,10 +92,10 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	if(any(wrongarg <- is.na(match(names(rankArgs),
 		c(names(formals(get("rank", environment(IC))))[-1L], names(formals()))))))
 		.cry("RTFM", ngettext(sum(wrongarg),
-			"argument %s is not a name of formal argument of 'pdredge' or 'rank'",
-			"arguments %s are not names of formal arguments of 'pdredge' or 'rank'"),
-			prettyEnumStr(names(rankArgs[wrongarg])), warn = TRUE)
-	
+			"argument %s is not a name of formal argument of %s",
+			"arguments %s are not names of formal arguments of %s"),
+			prettyEnumStr(names(rankArgs[wrongarg])), "'pdredge' or 'rank'")
+
 	ICName <- as.character(attr(IC, "call")[[1L]])
 
 	if(length(tryCatch(IC(global.model), error = function(e) {
