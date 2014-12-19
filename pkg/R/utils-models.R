@@ -1,9 +1,14 @@
 # Hidden functions
 `.getLogLik` <- function()
-	if(isGeneric("logLik")) .xget("stats4", "logLik") else
-		.xget("stats", "logLik")
-	#if(isGeneric("logLik")) stats4:::logLik else
-	#	stats::logLik
+	if(isGeneric("logLik")) getFrom("stats4", "logLik") else
+		getFrom("stats", "logLik")
+	
+fixLogLik <-
+function(ll, object) {
+	if(is.null(attr(ll, "nall")) && is.null(attr(ll, "nobs")))
+		attr(ll, "nobs") <- nobs(object)
+	ll	
+}
 
 		
 `.getLik` <- function(x) {

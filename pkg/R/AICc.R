@@ -18,9 +18,10 @@
 	
 	loglik <- .getLogLik()
 	llCall <-  call("loglik", as.name("object"))
-	if(!is.null(REML)) llCall[['REML']] <- REML
-	ll <- function(object) eval(llCall)
-
+	if(!is.null(REML)) llCall$REML <- REML
+	ll <- function(object) fixLogLik(NA, object)
+	body(ll)[[2L]] <- llCall
+	
 	if(length(objectlist) > 1L) {
 		lls <- lapply(objectlist, ll)
 		val <- data.frame(df = vapply(lls, attr, 1, "df"),

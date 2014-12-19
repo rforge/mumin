@@ -223,6 +223,7 @@ function (object, ...)
 if (!is.null(w <- object$prior.weights)) sum(w != 0) else length(object$residuals)
 	
 ## Cheating RCheck:
+getFrom <-
 .xget <-
 function(pkg, name)
 get(name, envir = asNamespace(pkg), inherits = FALSE)

@@ -16,7 +16,7 @@ function(x, center = TRUE, scale = TRUE, ...) {
 		scale <- TRUE
 	} else scaleFunc <- function(x) sd(x, na.rm = TRUE)
 	
-	#if(length(list(...))) warning("additional arguments ignored")
+	#if(!missing(...)) warning("additional arguments ignored")
 	if(length(scale) != 1L) warning("only first element of 'center' is used")
 	if(length(center) != 1L) warning("only first element of 'scale' is used")
 	scale <- scale[1L]
@@ -32,7 +32,7 @@ function(x, center = TRUE, scale = TRUE, ...) {
 stdize.matrix <-
 function(x, center = TRUE, scale = TRUE, ...) {
 	if(!is.numeric(x)) return(x)
-	#if(length(list(...))) warning("additional arguments ignored")
+	#if(!missing(...)) warning("additional arguments ignored")
 	if(is.function(scale)) {
 		scaleFunc <- scale
 		scale <- TRUE
@@ -52,7 +52,7 @@ stdize.factor <-
 function(x, binary = c("center", "scale", "binary", "half", "omit"),
 center = TRUE, scale = FALSE, 
 ...) {
-	#if(length(list(...))) warning("additional arguments ignored")
+	#if(!missing(...)) warning("additional arguments ignored")
 	if(nlevels(x) == 2L) {
 		stdize.logical(as.numeric(x) - 1, binary, center, scale)
 	} else x
@@ -62,7 +62,7 @@ stdize.logical <-
 function(x, binary = c("center", "scale", "binary", "half", "omit"),
 center = TRUE, scale = FALSE, 
 ...) {
-	#if(length(list(...))) warning("additional arguments ignored")
+	#if(!missing(...)) warning("additional arguments ignored")
 	binary <- if(is.null(binary) || is.na(binary)) "" else match.arg(binary)
 	switch(binary,
 			   center = stdize.numeric(x, center = TRUE, scale = 1),
