@@ -1,7 +1,7 @@
 `model.avg` <-
 function (object, ..., revised.var = TRUE) {
 	if (isTRUE("method" %in% names(match.call())))
-		stop("argument 'method' is no longer accepted")
+		stop("argument 'method' is defunct")
 	UseMethod("model.avg")
 }
 
@@ -36,18 +36,25 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 		names(cl)[2L] <- "x"
 		object <- eval(cl[1L:3L], parent.frame())
 	}
-	if(fit || length(list(...))) {
+	
+	# TODO: check first if with ...
+	# TODO: unify refitting conditions in model.avg and model.sel
+	
+	
+	if(fit || !missing(...)) {
 		cl <- match.call()
 		cl$fit <- NULL
 		arg1 <- names(cl)[-(1L:2L)] %in% names(formals("model.avg.default"))
 		cl1 <- cl[c(TRUE, TRUE, !arg1)]
 		cl1[[1L]] <- as.name("get.models")
-		if(is.null(cl1$subset)) cl1$subset <- NA
+		if(is.null(cl1[["subset"]])) cl1[["subset"]] <- NA
+		# TODO: subset = TRUE
+		
 		
 		cl2 <- cl[c(TRUE, TRUE, arg1)]
 		cl2[[2L]] <- cl1
 		cl2[[1L]] <- as.name("model.avg")
-		#message("recreating the model objects")
+		#message("recreating model objects")
 		return(eval(cl2, parent.frame()))
 	}
 
@@ -127,9 +134,10 @@ function(object, ..., beta = FALSE,
 	if(nModels == 1L) stop("only one model supplied. Nothing to do")
 	.checkModels(models)
 
+	ICname <- deparse(attr(rank, "call")[[1L]])
+
     alpha <- 0.05
 	.fnull <- function(...) return(NULL)
-	ICname <- deparse(attr(rank, "call")[[1L]])
 
 	allterms1 <- lapply(models, getAllTerms)
 	all.terms <- unique(unlist(allterms1, use.names = FALSE))
@@ -299,10 +307,6 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 	models <- attr(object, "modelList")
 	if(is.null(models)) stop("can only predict from 'averaging' object created with a model list")
 
-	# Benchmark: vapply is ~4x faster
-	#system.time(for(i in 1:1000) sapply(models, inherits, what="gam")) /
-	#system.time(for(i in 1:1000) vapply(models, inherits, FALSE, what="gam"))
-
 	# If all models inherit from lm:
 	if ((missing(se.fit) || !se.fit)
 		&& (is.na(type) || type == "link")
@@ -453,7 +457,7 @@ function (object, parm, level = 0.95, full = FALSE, ...) {
     wts <- object$summary$Weight
     ci <- t(sapply(parm, function(i)
 		par.avg(cf[,i], se[,i], wts, dfs[, i], alpha = a2)))[, 4L:5L]
-    pct <- .xget("stats", "format.perc")(c(a, 1L - a), 3L)
+    pct <- getFrom("stats", "format.perc")(c(a, 1L - a), 3L)
 
 	ci[is.na(object$coef.shrinkage), ] <- NA_real_
     colnames(ci) <- pct

@@ -1,5 +1,13 @@
 MuMIn package news:
 
+Version: 1.12.4 (2014-12-26)
+(new) stdizeFit: utility to modify model object or a call to modelling function 
+	to use standardized data.
+
+Version: 1.12.3 (2014-12-23)
+(fixed) checkModels: workaround for the "dotted argument identity" issue (namely
+	sometimes equal "..1"s are not identical).
+
 Version: 1.12.2 (2014-12-19)
 (fixed) [Q]AICc: previously they ignored REML argument for some model classes.
 	The code has been rewritten so that most of the core calculation is done by
@@ -24,8 +32,8 @@ print.model.selection: rank function call is added to the output
 Version: 1.11.2 (2014-12-01)
 (fixed) r.squaredGLMM: in "binomial" family models the residual variance is 
 	used for additive dispersion (thanks to Paul Johnson). 
-	There are still problems with 'lmer' when 'subset' argument is given, 
-	observation-level random term has to be specified manually in this case.
+	There is still issue with 'lmer' with 'subset' argument, and 
+	observation-level random term has to be specified manually.
 (fixed) some formula-decomposition related functions (that sometimes caused 
 	problems with 'r.squaredGLMM' for 'lmer', reported by Yevgen Matusevych)
 dredge: warns about potentially misspecified arguments 

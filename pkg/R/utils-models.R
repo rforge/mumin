@@ -197,12 +197,17 @@ function(f)
 
 	responses <- lapply(models, function(x) getResponseFormula(formula(x)))
 
- 	if(!all(vapply(responses[-1L], "==", logical(1L), responses[[1L]]))) {
+ 	if(!all(vapply(responses[-1L], "==", FALSE, responses[[1L]]))) {
 		err("response differs between models")
 		res <- FALSE
 	}
 
-	datas <- lapply(models, function(x) .getCall(x)$data)
+	#datas <- lapply(models, function(x) .getCall(x)$data)
+	# XXX: need to compare deparse'd 'datas' due to ..1 bug(?) in which dotted
+	#  arguments (..1 etc) passed by lapply are not "identical"
+	datas <- vapply(lapply(models, function(x) getCall(x)$data), deparse, "", nlines = 1L)
+	
+		
 	# XXX: when using only 'nobs' - seems to be evaluated first outside of MuMIn
 	# namespace which e.g. gives an error in glmmML - the glmmML::nobs method 
 	# is faulty.
