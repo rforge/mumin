@@ -30,68 +30,68 @@ variables.
 \method{stdize}{formula}(x, data = NULL, response = FALSE,
     binary = c("center", "scale", "binary", "half", "omit"),
     center = TRUE, scale = TRUE, omit.cols = NULL, prefix = TRUE,
-	append = FALSE, ...)
-	
+    append = FALSE, ...)
+    
 stdizeFit(object, data, which = c("formula", "subset", "offset", "weights"),
-		 evaluate = TRUE, quote = NA)
+    evaluate = TRUE, quote = NA)
 }
 
 \arguments{
-	\item{x}{a numeric or logical vector, factor, numeric matrix, 
-	     \code{data.frame} or a formula. }
-	\item{center, scale}{ either a logical value or vector, or a numeric vector
-		 of length equal to the number of columns of \code{x} (see
-		 \sQuote{Details}). \code{scale} can be also a function to use for
-		 scaling. 
-		 }
-	\item{binary}{specifies how binary variables (logical or two-level factors)
-		are scaled. Default is to \code{"center"} by subtracting the mean
-		assuming levels are equal to 0 and 1; use \code{"scale"} to
-		both centre and scale by \acronym{SD}, \code{"binary"} to centre to 0 /
-		1, \code{"half"} to centre to -0.5 / 0.5, and \code{"omit"} to leave
-		binary variables unmodified.
-		This argument has precedence over \code{center} and \code{scale}, unless
-		it is set to \code{NA} (in which case binary variables are treated like
-		numeric variables).
-		}
-	 \item{source}{a reference \code{data.frame}, being a result of previous  
-	     \code{stdize}, from which \code{scale} and \code{center} values are 
-		 taken. Column names are matched. This can be used for scaling new data 
-		 using statistics of another data.  
-		  }
-	\item{omit.cols}{ column names or numeric indices of columns that should 
-	     be left unaltered. }
-	\item{prefix}{ either a logical value specifying whether the names of
-		transformed columns should be prefixed, or a two-element character vector
-	    giving the prefixes. The prefixes default to \dQuote{z.} for scaled and
-	    \dQuote{c.} for centred variables. }
-		
-	\item{append}{ logical, if \code{TRUE}, modified columns are appended to the
-		original data frame. }
-	\item{response}{logical, stating whether the response be standardized. By
-	    default only variables on the right-hand side of formula are standardized. }
-	\item{data}{ an object coercible to \code{data.frame}, containing the
-	    variables in \code{formula}. Passed to, and used by 
-		\code{\link{model.frame}}.
-		
-		For \code{stdizeFit}, a \code{stdize}d \code{data.frame} to use.
-		}
-	\item{\dots}{ for the \code{formula} method, additional arguments passed to
-	    \code{\link{model.frame}}. For other methods it is silently ignored. }
-	\item{object}{a fitted model object or an expression being a \code{call} to
-		the modelling function. }
-	\item{which}{ a character string naming arguments which should be modified.
-		This should be all arguments which are evaluated in the \code{data}
-		environment. Can be also \code{TRUE} to modify the expression as a
-		whole. The \code{data} argument is additionally replaced with that
-		passed to \code{stdizeFit}.
-		}
-	\item{evaluate}{ if \code{TRUE}, the modified call is evaluated and the
-		fitted model object is returned. }
-	\item{quote}{ if \code{TRUE}, avoids evaluating \code{object}. Equivalent to
-		\code{stdizeFit(quote(expr), ...)}. Defaults to \code{NA} in which case
-		\code{object} being a call to non-primitive function is quoted. 
-		}
+    \item{x}{a numeric or logical vector, factor, numeric matrix, 
+         \code{data.frame} or a formula. }
+    \item{center, scale}{ either a logical value or vector, or a numeric vector
+         of length equal to the number of columns of \code{x} (see
+         \sQuote{Details}). \code{scale} can be also a function to use for
+         scaling. 
+         }
+    \item{binary}{specifies how binary variables (logical or two-level factors)
+        are scaled. Default is to \code{"center"} by subtracting the mean
+        assuming levels are equal to 0 and 1; use \code{"scale"} to
+        both centre and scale by \acronym{SD}, \code{"binary"} to centre to 0 /
+        1, \code{"half"} to centre to -0.5 / 0.5, and \code{"omit"} to leave
+        binary variables unmodified.
+        This argument has precedence over \code{center} and \code{scale}, unless
+        it is set to \code{NA} (in which case binary variables are treated like
+        numeric variables).
+        }
+     \item{source}{a reference \code{data.frame}, being a result of previous  
+         \code{stdize}, from which \code{scale} and \code{center} values are 
+         taken. Column names are matched. This can be used for scaling new data 
+         using statistics of another data.  
+          }
+    \item{omit.cols}{ column names or numeric indices of columns that should 
+         be left unaltered. }
+    \item{prefix}{ either a logical value specifying whether the names of
+        transformed columns should be prefixed, or a two-element character vector
+        giving the prefixes. The prefixes default to \dQuote{z.} for scaled and
+        \dQuote{c.} for centred variables. }
+        
+    \item{append}{ logical, if \code{TRUE}, modified columns are appended to the
+        original data frame. }
+    \item{response}{logical, stating whether the response be standardized. By
+        default only variables on the right-hand side of formula are standardized. }
+    \item{data}{ an object coercible to \code{data.frame}, containing the
+        variables in \code{formula}. Passed to, and used by 
+        \code{\link{model.frame}}.
+        
+        For \code{stdizeFit}, a \code{stdize}d \code{data.frame} to use.
+        }
+    \item{\dots}{ for the \code{formula} method, additional arguments passed to
+        \code{\link{model.frame}}. For other methods it is silently ignored. }
+    \item{object}{a fitted model object or an expression being a \code{call} to
+        the modelling function. }
+    \item{which}{ a character string naming arguments which should be modified.
+        This should be all arguments which are evaluated in the \code{data}
+        environment. Can be also \code{TRUE} to modify the expression as a
+        whole. The \code{data} argument is additionally replaced with that
+        passed to \code{stdizeFit}.
+        }
+    \item{evaluate}{ if \code{TRUE}, the modified call is evaluated and the
+        fitted model object is returned. }
+    \item{quote}{ if \code{TRUE}, avoids evaluating \code{object}. Equivalent to
+        \code{stdizeFit(quote(expr), ...)}. Defaults to \code{NA} in which case
+        \code{object} being a call to non-primitive function is quoted. 
+        }
 }
 
 \value{
@@ -195,8 +195,8 @@ z.CO2a <- stdize(CO2, source = z.CO2, append = TRUE)
 # "formula" argument, keeping "subset" as-is. For that reason we needed the
 # untransformed variables in "data".
 stdizeFit(lmer(uptake ~ conc + I(conc^2) + (1 | Plant),
-	subset = conc > 100,
-	), data = z.CO2a, which = "formula", evaluate = FALSE)
+    subset = conc > 100,
+    ), data = z.CO2a, which = "formula", evaluate = FALSE)
 
 
 # create new data as a sequence along "conc"
@@ -216,19 +216,6 @@ library(arm)
 fms <- standardize(lmer(uptake ~ conc + I(conc^2) + (1 | Plant), data = CO2))
 plot(newdata$conc, predict(fms, z.newdata, re.form = NA))
 }
-}
-
-
-# Using stdizeFit:
-\dontrun{
-
-#stdizeFit(lm(y ~ X1 + X2 + X3 + X4, offset = off), data = zCement, evaluate = FALSE, quote = TRUE)
-#stdizeFit(fm, zCement, evaluate = FALSE)
-#stdizeFit(fm$call, zCement, eval = FALSE)
-#stdizeFit(getCall(fm), zCement, eval = FALSE)
-
-
-
 }
 
 }

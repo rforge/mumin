@@ -291,9 +291,6 @@ function(object, ..., beta = FALSE,
 function(object, full = FALSE, ...) if(full) object$coef.shrinkage else
 	object$avg.model[, 1L]
 
-
- #TODO: predict p -="response" + average on response scale
- 
 `predict.averaging` <-
 function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 	type = NA, backtransform = FALSE,
@@ -302,7 +299,7 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 	if (!missing(interval)) .NotYetUsed("interval", error = FALSE)
 	
 	if(backtransform && !is.na(type) && type == "response")
-		warning("back-transforming predictions already on response scale")
+		warning("back-transforming predictions that are already on response scale")
 
 	models <- attr(object, "modelList")
 	if(is.null(models)) stop("can only predict from 'averaging' object created with a model list")
@@ -310,24 +307,24 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 	# If all models inherit from lm:
 	if ((missing(se.fit) || !se.fit)
 		&& (is.na(type) || type == "link")
+		&& !backtransform
 		&& all(linherits(models, c(gam = FALSE, lm = TRUE)))
 		&& !any(is.na(object$coef.shrinkage))
 		) {
 		
 		coeff <- coef(object, full = full)
-		frm <- formula(object)
 
-		tt <- delete.response(terms(frm))
 		X <- model.matrix(object)
-
 		if (missing(newdata) || is.null(newdata)) {
 			Xnew <- X
 		} else {
+			tt <- delete.response(terms(formula(object)))
 			xlev <- unlist(unname(lapply(models, "[[", "xlevels")),
 						   recursive = FALSE, use.names = TRUE)
 			Xnew <- model.matrix(tt, data = newdata, xlev = xlev)
 		}
-
+		
+		colnames(Xnew) <- fixCoefNames(colnames(Xnew))
 		Xnew <- Xnew[, match(names(coeff), colnames(Xnew), nomatch = 0L)]
 		ret <- (Xnew %*% coeff)[, 1L]
 		#if (se.fit) {
@@ -364,16 +361,14 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 		}
 
 		.untransform <- function(fit, se.fit = NULL, models) {
-			fam <- tryCatch(vapply(models, function(z)
-				unlist(family(z)[c("family", "link")]), character(2L)),
+			links <- tryCatch(vapply(models, function(m) family(m)[["link"]], ""),
 							error = function(e) NULL)
-			if (!is.null(fam)) {
-				if(any(fam[, 1L] != fam[, -1L]))
-				stop("cannot calculate prediction on a response scale ",
-					 "with models using different families or link functions")
+			
+			if (!is.null(links)) {
+				if(any(links[1L] != links[-1L]))
+					.cry(sys.call(-1L), "cannot inverse-transform averaged prediction of models using different link functions")
 				fam1 <- family(models[[1L]])
-				if(is.null(se.fit))
-					return(fam1$linkinv(fit))
+				if(is.null(se.fit)) return(fam1$linkinv(fit))
 				else return(list(fit = fam1$linkinv(fit),
 					se.fit = se.fit * abs(fam1$mu.eta(fit))
 					))
@@ -413,7 +408,8 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 }
 
 `fitted.averaging` <-
-function (object, ...) predict.averaging(object)
+function (object, ...) .NotYetImplemented()
+# predict.averaging(object, backtransform = TRUE, type = "link")
 
 `model.matrix.averaging` <-
 function (object, ...) object$x
