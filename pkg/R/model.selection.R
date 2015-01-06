@@ -69,7 +69,7 @@ function(x, subset, select, recalc.weights = TRUE, recalc.delta = FALSE, ...) {
 	    cl <- cl[c(1L, match(names(formals("subset.data.frame")), names(cl), 0L))]
 	    cl[[1L]] <- as.name("subset.data.frame")
 		DebugPrint(cl)
-		ret <- eval(cl, parent.frame())
+		ret <- eval.parent(cl)
 		if(recalc.weights && ("weight" %in% colnames(ret)))
 			ret[, 'weight'] <- ret[, 'weight'] / sum(ret[, 'weight'])
 		if(recalc.delta && ("delta" %in% colnames(ret)))
@@ -301,7 +301,7 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
             cl <- as.call(cl)
         }
     }
-    return(if (evaluate) eval(cl, parent.frame()) else cl)
+    return(if (evaluate) eval.parent(cl) else cl)
 }
 
 `logLik.model.selection` <- function (object, ...) {

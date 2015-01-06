@@ -46,9 +46,16 @@ function (object, random = FALSE, ...) {
 	model.matrix(formula(terms(mf)), mf, contrasts.arg = object$contrasts)
 }
 
+# Class 'betareg' from package 'betareg':
+
+family.betareg <-
+function (object, ...) {
+	ret <- binomial(object$link$mean)
+	attr(ret, "link-precision") <- object$link$precision
+	ret
+}
 
 # Classes 'coxme' and 'lmekin' from package 'coxme':
-
 
 `formula.coxme` <-
 function(x, ...)  {
@@ -60,7 +67,7 @@ function(x, ...)  {
 }
 
 `formula.lmekin` <-
-function(x, ...) eval(x$call$formula, parent.frame())
+function(x, ...) eval.parent(x$call$formula)
 
 
 ## Classes 'hurdle' and 'zeroinfl' from package 'pscl':
@@ -131,7 +138,7 @@ function (object, newdata, level, asList = FALSE,
 	cl <- match.call()
 	cl$se.fit <- NULL
 	cl[[1L]] <- call("get", "predict.lme", asNamespace("nlme"))	
-	res <- eval(cl, parent.frame())
+	res <- eval.parent(cl)
 	
 	if(se.fit && (missing(level) || any(level > 0)))
 		warning("cannot calculate standard errors for level > 0")
@@ -161,13 +168,14 @@ function (object, newdata, level, asList = FALSE,
 		offset = object@offset,
 		...)
 
-`predict.merMod` <- function (object, newdata, type = c("link", "response"), se.fit = FALSE, 
+
+`predict.merMod` <- function (object, newdata, type = c("link", "response"), se.fit = FALSE,
     ...)
-.predict_glm(object, newdata, type, se.fit,
-		trms = delete.response(terms(formula(object, fixed.only = TRUE))),
-		coeff = lme4::fixef(object),
-		offset = lme4::getME(object, "offset"),
-		...)
+	.predict_glm(object, newdata, type, se.fit,
+			trms = delete.response(terms(formula(object, fixed.only = TRUE))),
+			coeff = lme4::fixef(object),
+			offset = lme4::getME(object, "offset"),
+			...)
 
 
 .predict_glm <- function (object, newdata, type = c("link", "response"), se.fit = FALSE,
@@ -236,7 +244,7 @@ function (object, ...) object$beta
 	# cl[[1L]] <- as.name("model.matrix")
 	# cl$object <- cl$formula
 	# cl$id <- cl$corstr <- cl$formula <- NULL
-	# eval(cl, parent.frame())
+	# eval.parent(cl)
 # }
 
 
@@ -256,7 +264,7 @@ structure(object@coefficients, names = object@varnames)
 
 `formula.yagsResult` <-
 function (x, ...) 
-eval(x@Call$formula, parent.frame())
+eval.parent(x@Call$formula)
 
 
 ##=============================================================================

@@ -39,7 +39,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		#"For objects without a 'call' component the call to the fitting function \n",
 		#" must be used directly as an argument to 'dredge'.")
 		# NB: this is unlikely to happen
-		if(!is.function(eval(gmCall[[1L]], parent.frame())))
+		if(!is.function(eval.parent(gmCall[[1L]])))
 			.cry(NA, "could not find function '%s'", deparse(gmCall[[1L]],
 				control = NULL))
 	} else {
@@ -126,10 +126,8 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	
 
 	if(names(gmCall)[2L] == "") gmCall <-
-		match.call(gmCall, definition = eval(gmCall[[1L]], envir = parent.frame()),
+		match.call(gmCall, definition = eval.parent(gmCall[[1L]]),
 				   expand.dots = TRUE)
-
-
 
 	gmCoefNames <- fixCoefNames(names(coeffs(global.model)))
 
@@ -213,7 +211,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 															 .packageName), inherits = FALSE),
 					 substitute(extra), r2nullfit = TRUE)), parent.frame())
 		
-		#extra <- eval(call(".get.extras", substitute(extra), r2nullfit = TRUE), parent.frame())
+		#extra <- eval.parent(call(".get.extras", substitute(extra), r2nullfit = TRUE))
 		if(any(c("adjR^2", "R^2") %in% names(extra))) {
 			nullfit_ <- null.fit(global.model, evaluate = TRUE, envir = gmFormulaEnv)
 		}

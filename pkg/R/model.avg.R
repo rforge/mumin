@@ -34,12 +34,11 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 		cl <- match.call()
 		cl[[1L]] <- as.name("subset")
 		names(cl)[2L] <- "x"
-		object <- eval(cl[1L:3L], parent.frame())
+		object <- eval.parent(cl[1L:3L])
 	}
 	
 	# TODO: check first if with ...
 	# TODO: unify refitting conditions in model.avg and model.sel
-	
 	
 	if(fit || !missing(...)) {
 		cl <- match.call()
@@ -302,7 +301,7 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 		warning("back-transforming predictions that are already on response scale")
 
 	models <- attr(object, "modelList")
-	if(is.null(models)) stop("can only predict from 'averaging' object created with a model list")
+	if(is.null(models)) stop("can predict only from 'averaging' object containing model list")
 
 	# If all models inherit from lm:
 	if ((missing(se.fit) || !se.fit)
@@ -383,7 +382,7 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 			revised.var <- attr(object, "revised.var")
 
 			apred <- unname(vapply(seq(nrow(fit)), function(i)
-				par.avg(fit[i, ], se.fit[i, ], weight = object$summary$Weight,
+				par.avg(fit[i, ], se.fit[i, ], weight = Weights(object),
 					df = NA_integer_, revised.var = revised.var),
 					FUN.VALUE = double(5L)))
 
@@ -398,7 +397,7 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 			i <- !vapply(pred, is.numeric, FALSE)
 			if(any(i)) pred[i] <- lapply(pred[i], "[[", 1L)
 			ret <- apply(do.call("cbind", pred), 1L, weighted.mean,
-				w = object$summary$Weight)
+				w = Weights(object))
 			if (backtransform)
 				ret <- .untransform(ret, models = models)
 		}
@@ -427,7 +426,7 @@ function (object, ...) {
 	}
 		
 	object$coefmat <- .makecoefmat(object$avg.model)
-	object$coefmat.full <- .makecoefmat(.coefarr.avg(object$coefArray, object$summary$Weight,
+	object$coefmat.full <- .makecoefmat(.coefarr.avg(object$coefArray, Weights(object),
 		attr(object, "revised.var"), TRUE, 0.05)) 
 	object$coef.nmod <- colSums(!is.na(object$coefArray[, 1L,]))
 	
@@ -450,7 +449,7 @@ function (object, parm, level = 0.95, full = FALSE, ...) {
 		if(!all(is.na(dfs))) dfs[missing.par] <- Inf
 	}
 
-    wts <- object$summary$Weight
+    wts <- Weights(object)
     ci <- t(sapply(parm, function(i)
 		par.avg(cf[,i], se[,i], wts, dfs[, i], alpha = a2)))[, 4L:5L]
     pct <- getFrom("stats", "format.perc")(c(a, 1L - a), 3L)
@@ -511,14 +510,14 @@ function(x, ...) {
 
 `vcov.averaging` <- function (object, full = FALSE, ...) {
 	models <- attr(object, "modelList")
-	if(is.null(models)) stop("can calculate covariance matrix from ",
-							 "'averaging' object created with a model list")
+	if(is.null(models)) stop("cannot calculate covariance matrix from ",
+							 "'averaging' object without model list")
 
 	vcovs <- lapply(lapply(models, vcov), as.matrix)
 	names.all <- dimnames(object$coefArray)[[3L]]
 	nvars <- length(names.all)
 	nvarseq <- seq(nvars)
-	wts <- object$summary$Weight
+	wts <- Weights(object)
 	wts <- wts / sum(wts) # normalize just in case
 
 	vcov0 <- matrix(if(full) 0 else NA_real_, nrow = nvars,

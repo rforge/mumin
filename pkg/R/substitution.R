@@ -18,7 +18,7 @@ subst <- function(expr, env) {
 	cl <- match.call()
 	cl$expr <- expr
 	cl[[1L]] <- as.name("substitute")
-	eval(cl, parent.frame())
+	eval.parent(cl)
 }
 
 # substitute function calls in 'e'. 'func' must take care of the substitution job.

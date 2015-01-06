@@ -60,7 +60,7 @@ function (x, ...)
 	clx <- match.call(clx, definition = eval(funcl, envir = ns))
 	clx[[1L]] <- funcl
 	#list(clx, cl)
-	res <- eval(clx, parent.frame())
+	res <- eval.parent(clx)
 	res$call <- cl
 	class(res) <- c(if(lme4) "gamm4", "gamm", "list")
 	res

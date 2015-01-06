@@ -234,6 +234,6 @@ function(object, data, which = c("formula", "subset", "offset", "weights"),
 		else
 		for(i in which) if(!is.null(cl[[i]])) cl[[i]] <- subst(cl[[i]], env)
 	cl[['data']] <- thiscall[['data']] #substitute(data)
-	if(evaluate) eval(cl, parent.frame()) else cl
+	if(evaluate) eval.parent(cl) else cl
 }
 

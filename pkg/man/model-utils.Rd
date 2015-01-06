@@ -10,6 +10,7 @@
 \alias{coefTable.gee}
 \alias{getAllTerms}
 \alias{getAllTerms.terms}
+\alias{get.response}
 
 \encoding{utf-8}
 \newcommand{\href}{#2}
@@ -30,9 +31,10 @@ These functions extract or calculate various values from provided fitted model
 \code{coefTable} extracts a table of coefficients, standard errors and
 	associated degrees of freedom when possible;
 
-\code{model.names} generates shorthand (alpha)numeric names for one or several fitted
-models.
+\code{get.response} extracts response variable from fitted model object;
 
+\code{model.names} generates shorthand (alpha)numeric names for one or several
+	fitted models.
 
 }
 
@@ -47,6 +49,8 @@ getAllTerms(x, ...)
 coefTable(model, ...)
 \method{coefTable}{lme}(model, adjustSigma, ...)
 \method{coefTable}{gee}(model, ..., type = c("naive", "robust"))
+
+get.response(x, ...)
 
 model.names(object, ..., labels = NULL, use.letters = FALSE)
 

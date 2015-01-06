@@ -1,7 +1,9 @@
 #TODO: checking if models are fitted to the same dataset <- model.avg
 
+
+`mod.sel` <- function (object, ...) .Defunct("model.sel")
+
 `model.sel` <-
-`mod.sel` <-
 function (object, ...) UseMethod("model.sel")
 
 `model.sel.model.selection` <-
@@ -22,7 +24,7 @@ function (object, rank = NULL, rank.args = NULL, ..., beta = FALSE, extra) {
 			cl[[1L]] <- as.name("model.sel.default")
 			cl$object <- call("get.models", cl$object)
 			if(is.null(cl$subset)) cl$subset <- NA
-			ret <- eval(cl, parent.frame())
+			ret <- eval.parent(cl)
 		} else {
 			oldRankCol <- as.character(attr(attr(object, "rank"), "call")[[1L]])
 			rankCol <- as.character(attr(rank, "call")[[1L]])
@@ -125,10 +127,9 @@ function(object, ..., rank = NULL, rank.args = NULL, beta = FALSE, extra) {
 	
 	if(!missing(extra) && length(extra) != 0L) {
 		# a cumbersome way of evaluating a non-exported function in a parent frame:
-		#extra <- eval(call(".get.extras", substitute(extra)), parent.frame())
-		extra <- eval(as.call(list(call("get", ".get.extras", envir = call("asNamespace",
-			.packageName), inherits = FALSE), substitute(extra), r2nullfit = TRUE)),
-					  parent.frame())
+		#extra <- eval.parent(call(".get.extras", substitute(extra)))
+		extra <- eval.parent(as.call(list(call("get", ".get.extras", envir = call("asNamespace",
+			.packageName), inherits = FALSE), substitute(extra), r2nullfit = TRUE)))
 	
 		res <- lapply(models, function(x) unlist(lapply(extra, function(f) f(x))))
 		extraResultNames <- unique(unlist(lapply(res, names)))

@@ -143,6 +143,7 @@ function(x, ...) getAllTerms(getFrom("lme4", "formula")(x), ...)
 `getAllTerms.hurdle` <- 
 `getAllTerms.zeroinfl` <-
 function(x, intercept = FALSE, ...) {
+
 	f <- formula(x)
 	if(length(f[[3L]]) != 1L && f[[3L]][[1L]] == "|"){
 		f1 <- call("~", f[[2L]], f[[3L]][[2L]])
@@ -155,20 +156,28 @@ function(x, intercept = FALSE, ...) {
 		formula)
 	z <- lapply(fs, getAllTerms, intercept = TRUE)
 	
+	oneform <- is.null(f2)
+	if(oneform) z <- c(z, z)
+
 	deps <- termdepmat_combine(lapply(z, attr, "deps"))
 
 	ord <- unlist(lapply(z, attr, "order"))
 	n <- sapply(z, length)
 	if(length(z) > 1L) ord[-j] <- ord[-(j <- seq_len(n[1L]))] + n[1L]
+		
 	zz <- unlist(z)
 	Ints <- which(zz == "(Intercept)")
-	#zz[Ints] <- "1"
-	#zz <- paste0(rep(c("count", "zero")[seq_along(z)], sapply(z, length)),
-		#"(", zz, ")")
+		
 	zz <- paste0(rep(c("count", "zero")[seq_along(z)], sapply(z, length)),
 				 "_", zz)
 	
 	dimnames(deps) <- list(zz[-Ints], zz[-Ints])
+	
+	if(oneform) { # dependency of count_X and zero_X
+		k <- length(zz[-Ints]) / 2
+		deps[c(seq(k + 1L, by = 2L * k + 1L, length.out = k),
+			   seq((2L * k * k) + 1L, by = 2L * k + 1L, length.out = k))] <- TRUE
+	}
 	
 	ret <- if(!intercept) zz[-Ints] else zz
 	attr(ret, "intercept") <- pmin(Ints, 1)
@@ -177,7 +186,6 @@ function(x, intercept = FALSE, ...) {
 	attr(ret, "order") <- if(!intercept) order(ord[-Ints]) else ord
 	attr(ret, "deps") <- deps
 	ret
-	
 }
 
 `getAllTerms.glimML` <- function(x, intercept = FALSE, ...) {
@@ -331,7 +339,6 @@ function(x, intercept = FALSE, ...) {
 `getAllTerms.asreml`  <-
 function(x, intercept = FALSE, ...)
 getAllTerms.terms(terms(formula(x), ...), intercept = intercept)
-
 
 `getAllTerms.cpglmm` <-
 function (x, intercept = FALSE, ...) 

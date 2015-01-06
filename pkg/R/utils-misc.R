@@ -238,7 +238,7 @@ function(extra, r2nullfit = FALSE) {
 	}
 	if(any(sapply(extra, is.function))) {
 		extraExpr[[1L]] <- as.name("alist")
-		extra <- eval(extraExpr, parent.frame())
+		extra <- eval.parent(extraExpr)
 	}
 	extraNames <- sapply(extra, function(x) switch(mode(x),
 		call = deparse(x[[1L]]), name = deparse(x), character = , x))

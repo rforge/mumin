@@ -182,9 +182,31 @@ function(x, split = ":",
 }
 
 getResponseFormula <-
-function(f)
+function(f) {
+	f <- formula(f)
 	if((length(f) == 2L) || (is.call(f[[2L]]) && f[[2L]][[1L]] == "~"))
 		0 else f[[2L]]
+}
+
+get.response <-
+function(x, ...)
+UseMethod("get.response")
+
+get.response.default <-
+function(x, ...) {
+	model.frame(x)[, deparse(getResponseFormula(x), control = NULL)]
+}
+
+get.response.lm <-
+function(x, ...) 
+if(!is.null(x$y)) x$y else NextMethod()
+	
+get.response.averaging <-
+function(x, ...) {
+	if(is.null(attr(x, "modelList")))
+		stop("'x' has no model list")
+	get.response(attr(x, "modelList")[[1L]])
+}
 
 
 #Tries to find out whether the models are fitted to the same data

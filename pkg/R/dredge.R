@@ -18,7 +18,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		#"For objects without a 'call' component the call to the fitting function \n",
 		#" must be used directly as an argument to 'dredge'.")
 		# NB: this is unlikely to happen
-		if(!is.function(eval(gmCall[[1L]], parent.frame())))
+		if(!is.function(eval.parent(gmCall[[1L]])))
 			.cry(NA, "could not find function '%s'", deparse(gmCall[[1L]],
 				control = NULL))
 	} else {
@@ -108,7 +108,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	
 	
 	if(names(gmCall)[2L] == "") gmCall <-
-		match.call(gmCall, definition = eval(gmCall[[1L]], envir = parent.frame()),
+		match.call(gmCall, definition = eval.parent(gmCall[[1L]]),
 				   expand.dots = TRUE)
 		
 		
@@ -521,3 +521,16 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		vCols = varying.names
 	)
 } ######
+
+`dredgeAll` <-
+function(global.model, beta = FALSE, ...) {
+	cl <- match.call(definition = dredge)
+	cl$evaluate <- FALSE
+	cl[[1L]] <- as.name("dredge")
+	models <- lapply(eval.parent(cl), eval, parent.frame())
+	ret <- model.sel(models)
+	attr(ret, "global") <- global.model
+	attr(ret, "global.call") <- getCall(global.model)
+	attr(ret, "call") <- cl
+	ret
+}

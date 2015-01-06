@@ -1,5 +1,12 @@
 MuMIn package news:
 
+Version: 1.13.1 (2015-01-06)
+(fixed) getAllTerms: now properly handles single formula in 'hurdle' and 
+	'zeroinfl' models (package 'pscl').
+
+Version: 1.13.0 (2015-01-03)
+(new) get.response: utility to extract response variable.
+
 Version: 1.12.4 (2014-12-26)
 (new) stdizeFit: utility to modify model object or a call to modelling function 
 	to use standardized data.
