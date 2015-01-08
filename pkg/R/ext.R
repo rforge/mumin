@@ -159,7 +159,13 @@ function (object, newdata, level, asList = FALSE,
 	} else res
 }
 
-
+`predict.mer` <- function (object, newdata, type = c("link", "response"), se.fit = FALSE, 
+    ...)
+.predict_glm(object, newdata, type, se.fit,
+		trms =  delete.response(attr(object@frame, "terms")),
+		coeff = object@fixef,
+		offset = object@offset,
+		...)
 `predict.merMod` <- function (object, newdata, type = c("link", "response"), se.fit = FALSE,
 		re.form = NULL, ...) {
 	if(!se.fit) {
@@ -179,9 +185,6 @@ function (object, newdata, level, asList = FALSE,
 			offset = lme4::getME(object, "offset"),
 			...)
 }
-
-
-
 
 .predict_glm <- function (object, newdata, type = c("link", "response"), se.fit = FALSE,
 		trms, coeff, offset, ...) {
