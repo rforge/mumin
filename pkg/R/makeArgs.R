@@ -74,8 +74,8 @@ function(obj, termNames, comb, opt, ...) {
 `makeArgs.mer` <- 
 function(obj, termNames, comb, opt, ...) {
 	ret <- makeArgs.default(obj, termNames, comb, opt)
-	#if(isTRUE(opt$use.ranef))
-	ret$formula <- update.formula(ret$formula, opt$random)
+	if(!is.null(opt$random)) ret[['formula']] <-
+		update.formula(ret[['formula']], opt$random)
 	ret
 }
 

@@ -14,7 +14,6 @@ Build a model selection table.
 \usage{
 
 model.sel(object, ...)
-%mod.sel(object, ...)
 
 \method{model.sel}{model.selection}(object, rank = NULL, rank.args = NULL, ..., beta = FALSE, extra)
 \method{model.sel}{default}(object, ..., rank = NULL, rank.args = NULL, beta = FALSE, extra)

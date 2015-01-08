@@ -12,6 +12,8 @@ fm1 <- gam(y ~ s(x1, by = fac) + s(x2, by = fac), data = dat)
 fm1$formula <- update.formula(fm1, . ~ . + s(x1) + s(x2))
 getAllTerms(fm1)
 
+AICc(fm1)
+
 dredge(fm1, subset = !(`s(x1)` & `s(x1, by = fac)`) & !(`s(x2)` & `s(x2, by = fac)`) )
 
 

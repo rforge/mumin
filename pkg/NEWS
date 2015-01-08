@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.13.2 (2015-01-08)
+(fixed) makeArgs (hence 'dredge'): gave error if no random effects 
+	was specified in 'glmmadmb' model (reported by Szymek Drobniak).
+
 Version: 1.13.1 (2015-01-06)
 (fixed) getAllTerms: now properly handles single formula in 'hurdle' and 
 	'zeroinfl' models (package 'pscl').

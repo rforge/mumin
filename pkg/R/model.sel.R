@@ -152,6 +152,7 @@ function(object, ..., rank = NULL, rank.args = NULL, beta = FALSE, extra) {
 			unique(unlist(lapply(allTermsList, attr, "interceptLabel")))),
 		model.calls = lapply(models, .getCall)[o],
 		model.family = lapply(models, function(x) tryCatch(family(x), error = function(e) NULL)),
+		modelList = models[o],
 		order = o,
 		rank = rank,
 		rank.call = attr(rank, "call"),

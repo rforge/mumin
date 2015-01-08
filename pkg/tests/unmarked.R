@@ -102,7 +102,7 @@ summary(model.avg(dd, delta <= 4))
 #family.unmarkedFit <- function (object, ...) NA
 
 # Model selection
-print(mod.sel(fm1oc, fm2oc, fm3oc))
+print(model.sel(fm1oc, fm2oc, fm3oc))
 
 
 #models <- list(fm1oc, fm2oc, fm3oc)

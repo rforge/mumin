@@ -495,8 +495,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		vnum <- split(seq_len(sum(vlen)), rep(seq_len(nvarying), vlen))
 		names(vnum) <- varying.names
 		for (i in varying.names) ret[, i] <-
-			factor(ret[, i], levels = vnum[[i]], labels = variant.names[vnum[[i]]])
-			
+			factor(ret[, i], levels = vnum[[i]], labels = variant.names[vnum[[i]]])	
 	}
 
 	o <- order(ret[, ICName], decreasing = FALSE)
@@ -529,6 +528,7 @@ function(global.model, beta = FALSE, ...) {
 	cl[[1L]] <- as.name("dredge")
 	models <- lapply(eval.parent(cl), eval, parent.frame())
 	ret <- model.sel(models)
+	attr(ret, "modelList") <- models
 	attr(ret, "global") <- global.model
 	attr(ret, "global.call") <- getCall(global.model)
 	attr(ret, "call") <- cl

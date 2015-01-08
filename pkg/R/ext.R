@@ -160,22 +160,27 @@ function (object, newdata, level, asList = FALSE,
 }
 
 
-`predict.mer` <- function (object, newdata, type = c("link", "response"), se.fit = FALSE, 
-    ...)
-.predict_glm(object, newdata, type, se.fit,
-		trms =  delete.response(attr(object@frame, "terms")),
-		coeff = object@fixef,
-		offset = object@offset,
-		...)
-
-
 `predict.merMod` <- function (object, newdata, type = c("link", "response"), se.fit = FALSE,
-    ...)
+		re.form = NULL, ...) {
+	if(!se.fit) {
+		fun <- getFrom("lme4", "predict.merMod")
+		cl <- as.list(match.call())
+		cl[1L] <- NULL
+		cl$se.fit <- NULL
+		return(do.call(fun, cl, envir = parent.frame()))
+	}
+	level0 <- (!is.null(re.form) && !inherits(re.form, "formula") && is.na(re.form)) || 
+        (inherits(re.form, "formula") && length(re.form) == 2L && identical(re.form[[2L]], 
+            0))
+	if(!level0) stop("cannot calculate predictions with both 'se.fit' and random effects")
 	.predict_glm(object, newdata, type, se.fit,
 			trms = delete.response(terms(formula(object, fixed.only = TRUE))),
 			coeff = lme4::fixef(object),
 			offset = lme4::getME(object, "offset"),
 			...)
+}
+
+
 
 
 .predict_glm <- function (object, newdata, type = c("link", "response"), se.fit = FALSE,

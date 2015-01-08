@@ -29,7 +29,7 @@ importance(x)
 \seealso{
 \code{\link{Weights}}
 
-\code{\link{dredge}}, \code{\link{model.avg}}, \code{\link{mod.sel}}
+\code{\link{dredge}}, \code{\link{model.avg}}, \code{\link{model.sel}}
 }
 
 \examples{
@@ -41,7 +41,7 @@ ms1 <- dredge(fm1)
 # Importance can be calculated/extracted from various objects:
 importance(ms1)
 \dontrun{
-importance(subset(mod.sel(ms1), delta <= 4))
+importance(subset(model.sel(ms1), delta <= 4))
 importance(model.avg(ms1, subset = delta <= 4))
 importance(subset(ms1, delta <= 4))
 importance(get.models(ms1, delta <= 4))
@@ -53,7 +53,7 @@ importance(get.models(ms1, delta <= 4))
 # 'nobs' is not used here for backwards compatibility
 lognobs <- log(length(resid(fm1)))
 
-importance(subset(mod.sel(ms1, rank = AIC, rank.args = list(k = lognobs)),
+importance(subset(model.sel(ms1, rank = AIC, rank.args = list(k = lognobs)),
     cumsum(weight) <= .95))
 
 # This gives a different result than previous command, because 'subset' is
