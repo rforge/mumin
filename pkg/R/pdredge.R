@@ -1,6 +1,5 @@
 ## TODO: chunk size for evaluate = FALSE
 
-`xpdredge` <-
 `pdredge` <-
 function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	rank = "AICc", fixed = NULL, m.max = NA, m.min = 0, subset,
@@ -8,10 +7,13 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 
 #FIXME: m.max cannot be 0 - e.g. for intercept only model
 
+	trace <- min(as.integer(trace), 2L)
+
+
 ###PAR
 	qlen <- 25L
 	# Imports: clusterCall, clusterApply
-	doParallel <- inherits(cluster, "cluster")
+	doParallel <- evaluate && inherits(cluster, "cluster")
 	if(doParallel) {
 		.parallelPkgCheck() # XXX: workaround to avoid importing from 'parallel'
 		clusterCall <- get("clusterCall")
@@ -232,16 +234,13 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	if(nov > 31L) cry(NA, "number of predictors (%d) exceeds allowed maximum of 31", nov)
 	#if(nov > 10L) warning(gettextf("%d predictors will generate up to %.0f combinations", nov, ncomb))
 	nmax <- ncomb * nVariants
+	rvChunk <- 25L
 	if(evaluate) {
-		rvChunk <- 25L
 		rvNcol <- nVars + nVarying + 3L + nextra
 		ret <- matrix(NA_real_, ncol = rvNcol, nrow = rvChunk)
 		coefTables <- vector(rvChunk, mode = "list")
-	} else {
-		rvChunk <- nmax
 	}
 
-	calls <- vector(mode = "list", length = rvChunk)
 
 	## BEGIN: Manage 'subset'
 	## @param:	hasSubset, subset, allTerms, [interceptLabel], 
@@ -308,8 +307,8 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 			subsetExpr <- .exprapply(subsetExpr, c("{", "Term"), .sub_Term)
 			
 			tmp <- updateDeps(subsetExpr, deps)
-				subsetExpr <- tmp$expr
-				deps <- tmp$deps
+			subsetExpr <- tmp$expr
+			deps <- tmp$deps
 				
 			subsetExpr <- .exprapply(subsetExpr, "dc", .sub_args_as_vars)
 			subsetExpr <- .subst4Vec(subsetExpr, allTerms, as.name("comb"))
@@ -342,6 +341,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	comb.seq <- if(nov != 0L) seq_len(nov) else 0L
 	k <- 0L
 	extraResult1 <- integer(0L)
+	calls <- vector(mode = "list", length = rvChunk)
 	ord <- integer(rvChunk)
 
 	argsOptions <- list(
@@ -392,6 +392,18 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	# END parallel
 
 	retColIdx <- if(nVarying) -nVars - seq_len(nVarying) else TRUE
+
+	if(trace > 1L) {
+		progressBar <- if(.Platform$GUI == "Rgui") {
+			 winProgressBar(max = ncomb, title = "'dredge' in progress")
+		} else txtProgressBar(max = ncomb, style = 3)
+		setProgressBar <- switch(class(progressBar),
+			txtProgressBar = setTxtProgressBar,
+			winProgressBar = setWinProgressBar,
+			function(...) {})
+		on.exit(close(progressBar))
+	}
+
 
 	warningList <- list()
 
@@ -446,15 +458,25 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 			}
 			
 			if(isok2) {
-				if(trace) {
-					cat(iComb, ": "); print(clVariant)
-					utils::flush.console()
-				}
 				if(evaluate) {
+					if(trace == 1L) {
+						cat(iComb, ": "); print(clVariant)
+						utils::flush.console()
+					} else if(trace == 2L) {
+						setProgressBar(progressBar, value = iComb, title = sprintf("dredge: %d of %d subsets", iComb, ncomb))
+					}
 					qi <- qi + 1L
 					queued[[(qi)]] <- list(call = clVariant, id = iComb)
 				} else { # if !evaluate
 					k <- k + 1L # all OK, add model to table
+					rvlen <- length(ord)	
+					if(k > rvlen) {
+						nadd <- min(rvChunk, nmax - rvlen)
+						message(sprintf("extending result from %d to %d", rvlen, rvlen + nadd))
+						addi <- seq.int(rvlen + 1L, length.out = nadd)
+						calls[addi] <- vector("list", nadd)
+						ord[addi] <- integer(nadd)
+					}
 					calls[[k]] <- clVariant
 					ord[k] <- iComb
 				}
@@ -501,7 +523,8 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 			qrows <- lapply(qresult[withoutProblems], "[[", "value")
 			qresultLen <- length(qrows)
 			rvlen <- nrow(ret)
-			if(k + qresultLen > rvlen) {
+
+			if(retNeedsExtending <- k + qresultLen > rvlen) {
 				nadd <- min(max(rvChunk, qresultLen), nmax - rvlen)
 				ret <- rbind(ret, matrix(NA_real_, ncol = rvNcol, nrow = nadd),
 					deparse.level = 0L)

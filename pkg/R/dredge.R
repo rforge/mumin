@@ -4,7 +4,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		 trace = FALSE, varying, extra, ct.args = NULL,
 		 ...) {
 	
-	trace <- as.integer(trace)
+	trace <- min(as.integer(trace), 2L)
 
 	gmEnv <- parent.frame()
 	gmCall <- .getCall(global.model)
@@ -176,10 +176,6 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		variantsFlat <- unlist(lapply(varying, .makeListNames),
 			recursive = FALSE, use.names = FALSE)
 		
-		DebugPrint(variants)
-		DebugPrint(fvarying)
-		DebugPrint(variantsFlat)
-		
 	} else {
 		variants <- varyingNames <- NULL
 		nVariants <- 1L
@@ -219,16 +215,12 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	if(nov > 31L) cry(NA, "number of predictors (%d) exceeds allowed maximum of 31", nov)
 	#if(nov > 10L) warning(gettextf("%d predictors will generate up to %.0f combinations", nov, ncomb))
 	nmax <- ncomb * nVariants
+	rvChunk <- 25L
 	if(evaluate) {
-		rvChunk <- 25L
 		rvNcol <- nVars + nVarying + 3L + nextra
 		ret <- matrix(NA_real_, ncol = rvNcol, nrow = rvChunk)
 		coefTables <- vector(rvChunk, mode = "list")
-	} else {
-		rvChunk <- nmax
 	}
-
-	calls <- vector(mode = "list", length = rvChunk)
 
 	## BEGIN: Manage 'subset'
 	## @param:	hasSubset, subset, allTerms, [interceptLabel], 
@@ -326,6 +318,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	comb.seq <- if(nov != 0L) seq_len(nov) else 0L
 	k <- 0L
 	extraResult1 <- integer(0L)
+	calls <- vector(mode = "list", length = rvChunk)
 	ord <- integer(rvChunk)
 
 	argsOptions <- list(
@@ -358,7 +351,8 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		setProgressBar <- switch(class(progressBar),
 			    txtProgressBar = setTxtProgressBar,
 			   #tkProgressBar = setTkProgressBar,
-			   winProgressBar = setWinProgressBar, function(...) {})
+			   winProgressBar = setWinProgressBar,
+			   function(...) {})
 		on.exit(close(progressBar))
 	}
 	iComb <- -1L
@@ -416,9 +410,10 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		if(trace == 1L) {
 			cat(iComb, ": "); print(clVariant)
 			utils::flush.console()
-		} else if(trace != 0L) {
-			setProgressBar(progressBar, value = iComb)
+		} else if(trace == 2L) {
+			setProgressBar(progressBar, value = iComb, title = sprintf("dredge: %d of %d subsets", iComb, ncomb))
 		}
+	
 
 		if(evaluate) {
 			# begin row1: (clVariant, gmEnv, modelId, IC(), applyExtras(),
@@ -455,21 +450,27 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			## end -> row1
 
 			k <- k + 1L # all OK, add model to table
-
 			rvlen <- nrow(ret)
-			if(k > rvlen) { # append if necesarry
+			if(retNeedsExtending <- k > rvlen) { # append if necesarry
 				nadd <- min(rvChunk, nmax - rvlen)
 				ret <- rbind(ret, matrix(NA_real_, ncol = rvNcol, nrow = nadd),
 					deparse.level = 0L)
 				addi <- seq.int(rvlen + 1L, length.out = nadd)
 				coefTables[addi] <- vector("list", nadd)
-				calls[addi] <- vector("list", nadd)
-				ord[addi] <- integer(nadd)
 			}
 			ret[k, retColIdx] <- row1
 			coefTables[[k]] <- attr(mcoef1, "coefTable")
 		} else { # if !evaluate
 			k <- k + 1L
+			rvlen <- length(ord)	
+			if(retNeedsExtending <- k > rvlen) {
+				nadd <- min(rvChunk, nmax - rvlen)
+				addi <- seq.int(rvlen + 1L, length.out = nadd)
+			}
+		}
+		if(retNeedsExtending) {
+			calls[addi] <- vector("list", nadd)
+			ord[addi] <- integer(nadd)
 		}
 		ord[k] <- iComb
 		calls[[k]] <- clVariant
