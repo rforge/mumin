@@ -47,8 +47,10 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	\item{subset}{ logical expression describing models to keep in the resulting
 		set. See \sQuote{Subsetting}. }
 
-	\item{trace}{if \code{TRUE}, all calls to the fitting function (i.e. updated
-	\code{global.model} calls) are printed before actual fitting takes place. }
+	\item{trace}{if \code{TRUE} or \code{1}, all calls to the fitting function 
+	are printed before actual fitting takes place. If \code{> 1}, a progress bar 
+	is displayed.
+	}
 
 	\item{varying}{ optionally, a named list describing the additional arguments
 	to vary between the generated models. Item names correspond to the
@@ -96,9 +98,9 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 \details{
 Models are fitted through repeated evaluation of modified call extracted from 
 the \code{global.model} (in a similar fashion as with \code{update}). This 
-approach, while robust in that it can be applied to majority of model
-types is not the most efficient and may be computationally-intensive.
-
+approach, while robust in that it can be applied to most model types is not 
+the most efficient and may be computationally-intensive.
+ 
 Note that the number of combinations grows exponentially with number of
 predictors (\ifelse{latex}{\eqn{2^{N}}}{\ifelse{html}{2ⁿ}{2^N}}, less when 
 interactions are present, see below). 

@@ -411,10 +411,10 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			cat(iComb, ": "); print(clVariant)
 			utils::flush.console()
 		} else if(trace == 2L) {
-			setProgressBar(progressBar, value = iComb, title = sprintf("dredge: %d of %d subsets", iComb, ncomb))
+			setProgressBar(progressBar, value = iComb,
+				title = sprintf("dredge: %d of %.0f subsets", k, (k / iComb) * ncomb))
 		}
 	
-
 		if(evaluate) {
 			# begin row1: (clVariant, gmEnv, modelId, IC(), applyExtras(),
 			#              nextra, allTerms, beta,

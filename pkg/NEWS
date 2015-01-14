@@ -1,6 +1,6 @@
 MuMIn package news:
 
-Version: 1.13.3 (2015-01-14)
+Version: 1.14.0 (2015-01-14)
 get.models+subset.model.selection: unified 'subset' expression handling
 dredge: no longer exceeds memory limit with some complex models, and its 
 	efficiency has somewhat improved. Can displays progress bar with trace = 2.
@@ -8,9 +8,9 @@ model.sel: has new 'fit' attribute.
 "averaging" object now stores component models.
 model.sel, subset, get.models: unified interpretation of the "subset" expression
 (added) glm.link: new function to extract/calculate link-glm object from
-	model object (not exported)
+	model object (not exported yet)
 (added) invtransform, std_predict: to be used by predict.averaging for 
-	type="invlink"
+	type="invlink" (not exported/used yet)
 
 Version: 1.13.2 (2015-01-08)
 (fixed) makeArgs (and hence 'dredge'): gave error if no random effects 

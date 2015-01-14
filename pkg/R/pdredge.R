@@ -463,7 +463,8 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 						cat(iComb, ": "); print(clVariant)
 						utils::flush.console()
 					} else if(trace == 2L) {
-						setProgressBar(progressBar, value = iComb, title = sprintf("dredge: %d of %d subsets", iComb, ncomb))
+						setProgressBar(progressBar, value = iComb,
+							title = sprintf("pdredge: %d of %.0f subsets", k, (k / iComb) * ncomb))
 					}
 					qi <- qi + 1L
 					queued[[(qi)]] <- list(call = clVariant, id = iComb)
@@ -472,7 +473,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 					rvlen <- length(ord)	
 					if(k > rvlen) {
 						nadd <- min(rvChunk, nmax - rvlen)
-						message(sprintf("extending result from %d to %d", rvlen, rvlen + nadd))
+						#message(sprintf("extending result from %d to %d", rvlen, rvlen + nadd))
 						addi <- seq.int(rvlen + 1L, length.out = nadd)
 						calls[addi] <- vector("list", nadd)
 						ord[addi] <- integer(nadd)
