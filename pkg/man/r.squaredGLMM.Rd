@@ -73,9 +73,6 @@ Currently methods exist for classes: \code{mer}(\code{Mod}), \code{lme},
 See note in \code{\link{r.squaredLR}} help page for comment on using \Rsq in 
 model selection. 
 
-\bold{This function is still in experimental stage and should be used with 
-caution.} 
-
 }
 
 \author{

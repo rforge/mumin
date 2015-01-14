@@ -33,7 +33,7 @@ function(x) {
 ## ~ ... + (a | ...) + (b + c | ...) --> ~ a + b + c
 ranform <- function (form) {
 #	z <- list()
-#	.substFunc(form[[3L]], "|", function(x) z <<- c(z, x[[2L]]))
+#	.exprapply(form[[3L]], "|", function(x) z <<- c(z, x[[2L]]))
 #	frm <- z[[1L]]
 #	for(x in z[-1L]) frm <- call("+", x, frm)
 #	as.formula(call("~", frm))
@@ -65,8 +65,8 @@ function(x) {
 		cl$formula <- update.formula(frm, frx)		
 		x <- tryCatch(eval(cl, envir = environment(frm), enclos = parent.frame()),
 			error = function(e) {
-				.cry(conditionCall(e), conditionMessage(e), warn = TRUE)
-				.cry(cl, "fitting model with the observation-level random effect term failed. Add the term manually")
+				cry(conditionCall(e), conditionMessage(e), warn = TRUE)
+				cry(cl, "fitting model with the observation-level random effect term failed. Add the term manually")
 		})
 		message("The result is correct only if all data used by the model ",
 				"has not changed since model was fitted.", domain = "R-MuMIn")
@@ -119,7 +119,7 @@ function(x) {
 	fam <- family(x)
 	useObsLevVar <- (fam$family == "poisson" && fam$link == "log") || fam$family == "binomial"
 		if(useObsLevVar) {
-			.cry(NA, "cannot calculate 'unit variance' in glmmML")
+			cry(NA, "cannot calculate 'unit variance' in glmmML")
 	} 
 	fxpred <- as.vector(x$x %*% coef(x))
 	.rsqGLMM(family(x), varFx = var(fxpred), varRe = x$sigma^2, varResid = NULL,
@@ -149,12 +149,12 @@ function (fam, varFx, varRe, varResid, beta0) {
         binomial.probit = 1,
 		poisson.log = {
             expBeta0 <- exp(beta0)
-            if (expBeta0 < 6) .cry(sys.call(-1L), "exp(beta0) of %0.1f is too close to zero, estimate may be unreliable \n", 
+            if (expBeta0 < 6) cry(sys.call(-1L), "exp(beta0) of %0.1f is too close to zero, estimate may be unreliable \n", 
                 expBeta0, warn = TRUE)
             log1p(1 / expBeta0)
         },
 		poisson.sqrt = 0.25,
-		.cry(sys.call(-1L), "do not know how to calculate variance for this family/link combination")
+		cry(sys.call(-1L), "do not know how to calculate variance for this family/link combination")
 		)
 	
 	#print(c(Sf = varFx, Sl = varRe, Se = varResid, Sd = varDistr))

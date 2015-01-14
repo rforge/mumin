@@ -1,5 +1,5 @@
 # evaluate 'expr' in 'env' after adding variables passed as '...'
-.evalExprIn <- function(expr, env, enclos, ...) {
+evalExprInEnv <- function(expr, env, enclos, ...) {
 	list2env(list(...), env)
 	eval(expr, envir = env, enclos = enclos)
 }
@@ -14,32 +14,34 @@
 }
 
 # like substitute, but does evaluate 'expr'.
-subst <- function(expr, env) {
-	cl <- match.call()
-	cl$expr <- expr
-	cl[[1L]] <- as.name("substitute")
-	eval.parent(cl)
+subst <-
+function(expr, envir = NULL, ...) {
+	eval.parent(call("substitute", expr, c(envir, list(...))))
 }
 
+asChar <- function(x, control = NULL, nlines = 1L, ...) 
+	if(is.character(x)) x[1L:nlines] else
+	deparse(x, control = control, nlines = nlines, ...)
+
 # substitute function calls in 'e'. 'func' must take care of the substitution job.
-`.substFunc` <- function(e, name, func = identity, ...) {
+`.exprapply` <- function(e, name, func, ...) {
 	if(is.expression(e)) e <- e[[1L]]
 	n <- length(e)
 	if(n == 0L) return(e) else if (n == 1L) {
 		if (!is.call(e)) return(e)
-	} else for(i in 2L:n) e[i] <- list(.substFunc(e[[i]], name, func, ...))
+	} else for(i in 2L:n) e[i] <- list(.exprapply(e[[i]], name, func, ...))
 	if(any(e[[1L]] == name)) e <- func(e, ...)
 	return(e)
 }
 
-## .sub_* functions used with '.substFunc' as 'func'
+## .sub_* functions used with '.exprapply' as 'func'
 .sub_Term <- function(x) {
-	if(length(x) < 2L) .cry(x, "'Term' needs one argument")
-	as.name(deparse(x[[2L]], control = NULL))
+	if(length(x) < 2L) cry(x, "'Term' needs one argument")
+	as.name(asChar(x[[2L]]))
 }
 
 .sub_dot <- function(x, fac, at, vName) {
-	if(length(x) != 2L) .cry(x, "exactly one argument needed, %d given.", length(x) - 1L)
+	if(length(x) != 2L) cry(x, "exactly one argument needed, %d given.", length(x) - 1L)
 	if(length(x[[2L]]) == 2L && x[[2L]][[1L]] == "+") {
 		fun <- "all"
 		sx <- as.character(x[[2L]][[2L]])
@@ -48,15 +50,23 @@ subst <- function(expr, env) {
 		sx <- as.character(x[[2L]])
 	}
 	dn <- dimnames(fac)
-	if(!(sx %in% dn[[2L]])) .cry(x, "unknown variable name '%s'", sx)
+	if(!(sx %in% dn[[2L]])) cry(x, "unknown variable name '%s'", sx)
 	as.call(c(as.name(fun), call("[", vName, as.call(c(as.name("c"), 
 		match(dn[[1L]][fac[, sx]], at))))))
 }
 
 .sub_dc_has <- function(e, fname) {
-		e[[1L]] <- call(":::", as.name(.packageName), fname)
+		#e[[1L]] <- call(":::", as.name(.packageName), fname)
+		e[[1L]] <- fname
 		for(i in 2L:length(e)) e[[i]] <- call("has", e[[i]])
 		e
+}
+
+.sub_args_as_vars <- function(e) {
+	for(i in 2L:length(e))
+		if(!is.name(e[[i]]))
+			e[[i]] <- as.name(asChar(e[[i]]))
+	e
 }
 
 .sub_has <- function(e) {
@@ -65,16 +75,16 @@ subst <- function(expr, env) {
 		ex <- if(length(e[[i]]) == 2L && e[[i]][[1L]] == "!")
 			call("is.na", e[[i]][[2L]]) else
 			call("!", call("is.na", if(is.name(e[[i]])) e[[i]] else
-						   as.name(deparse(e[[i]], control = NULL))))
+						   as.name(asChar(e[[i]]))))
 		res <- if(i == 2L) ex else call("&", res, ex)
 	}
 	call("(", res)
 }
 
 .sub_V <- function(x, cVar, fn) {
-	if(length(x) > 2L) .cry(x, "discarding extra arguments", warn = TRUE)
+	if(length(x) > 2L) cry(x, "discarding extra arguments", warn = TRUE)
 	i <- which(fn == x[[2L]])[1L]
-	if(is.na(i)) .cry(x, "'%s' is not a valid name of 'varying' element",
+	if(is.na(i)) cry(x, "'%s' is not a valid name of 'varying' element",
 					  as.character(x[[2L]]), warn = TRUE)
 	call("[[", cVar, i)
 }

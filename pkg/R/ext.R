@@ -1,3 +1,9 @@
+
+# replace default method from stats
+df.residual.default <-
+function (object, ...)
+getElement(object, 'df.residual')
+
 # This is merely to get rid of the annoying behaviour in summary.glmML.
 # it does not do anything except for printing the model output.
 `summary.glmmML` <- function(object, ...) object
@@ -69,7 +75,6 @@ function(x, ...)  {
 `formula.lmekin` <-
 function(x, ...) eval.parent(x$call$formula)
 
-
 ## Classes 'hurdle' and 'zeroinfl' from package 'pscl':
 
 `family.zeroinfl` <-
@@ -132,13 +137,16 @@ function (object, newdata, se.fit = FALSE, na.action = na.fail, ...) {
 	val
 }
 
+
 `predict.lme` <-
 function (object, newdata, level, asList = FALSE,
 	na.action = na.fail, se.fit = FALSE, ...) {
-	cl <- match.call()
-	cl$se.fit <- NULL
-	cl[[1L]] <- call("get", "predict.lme", asNamespace("nlme"))	
-	res <- eval.parent(cl)
+
+	arg <- match.call()
+	arg$se.fit <- NULL
+	if (missing(newdata) || is.null(newdata)) arg$newdata <- NULL
+	arg <- as.list(arg)[-1L]
+	rval <- do.call(getFrom("nlme", "predict.lme"), arg, envir = parent.frame())
 	
 	if(se.fit && (missing(level) || any(level > 0)))
 		warning("cannot calculate standard errors for level > 0")
@@ -154,26 +162,25 @@ function (object, newdata, level, asList = FALSE,
 		se <- sqrt(matmultdiag(X %*% vcov(object), ty = X))
 		# se <- sqrt(rowSums((X %*% vcov(object)) * X))
 		# se <- sqrt(diag(X %*% vcov(object) %*% t(X))) ## TODO: use matmult
-		names(se) <- names(res)
-		list(fit = c(res), se.fit = se)
-	} else res
+		names(se) <- names(rval)
+		list(fit = c(rval), se.fit = se)
+	} else rval
 }
 
 `predict.mer` <- function (object, newdata, type = c("link", "response"), se.fit = FALSE, 
     ...)
-.predict_glm(object, newdata, type, se.fit,
-		trms =  delete.response(attr(object@frame, "terms")),
-		coeff = object@fixef,
-		offset = object@offset,
-		...)
+	.predict_glm(object, newdata, type, se.fit,
+			trms =  delete.response(attr(object@frame, "terms")),
+			coeff = object@fixef,
+			offset = object@offset,
+			...)
+
 `predict.merMod` <- function (object, newdata, type = c("link", "response"), se.fit = FALSE,
 		re.form = NULL, ...) {
 	if(!se.fit) {
-		fun <- getFrom("lme4", "predict.merMod")
-		cl <- as.list(match.call())
-		cl[1L] <- NULL
+		cl <- as.list(match.call())[-1L]
 		cl$se.fit <- NULL
-		return(do.call(fun, cl, envir = parent.frame()))
+		return(do.call(getFrom("lme4", "predict.merMod"), cl, envir = parent.frame()))
 	}
 	level0 <- (!is.null(re.form) && !inherits(re.form, "formula") && is.na(re.form)) || 
         (inherits(re.form, "formula") && length(re.form) == 2L && identical(re.form[[2L]], 
@@ -207,8 +214,7 @@ function (object, newdata, level, asList = FALSE,
         if (!length(offset))  offset <- NULL
     }
     y <- (X %*% coeff)[, 1L]
-    if (!is.null(offset)) 
-        y <- y + offset
+    if (!is.null(offset)) y <- y + offset
     fam <- family(object)
     if (se.fit) {
         # covmat <- as.matrix(vcov(object))
@@ -229,13 +235,13 @@ function (object, newdata, level, asList = FALSE,
 function (object, ...) mgcv::predict.gam(object[['gam']], ...)
 
 
-
-# support for unmarked
+##=============================================================================
+## Class: unmarkedFit
+##=============================================================================
 
 #setMethod("logLik", "unmarkedFit", logLik.unmarkedFit)
 
 `formula.unmarkedFit` <- function (x, ...) x@formula
-
 
 ##=============================================================================
 ## Classes: gee & geeglm

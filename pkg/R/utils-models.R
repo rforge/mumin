@@ -10,7 +10,6 @@ function(ll, object) {
 	ll	
 }
 
-		
 `.getLik` <- function(x) {
     if(isGEE(x)) {
 		logLik <- quasiLik
@@ -194,7 +193,7 @@ UseMethod("get.response")
 
 get.response.default <-
 function(x, ...) {
-	model.frame(x)[, deparse(getResponseFormula(x), control = NULL)]
+	model.frame(x)[, asChar(getResponseFormula(x), control = NULL)]
 }
 
 get.response.lm <-
@@ -227,8 +226,7 @@ function(x, ...) {
 	#datas <- lapply(models, function(x) .getCall(x)$data)
 	# XXX: need to compare deparse'd 'datas' due to ..1 bug(?) in which dotted
 	#  arguments (..1 etc) passed by lapply are not "identical"
-	datas <- vapply(lapply(models, function(x) getCall(x)$data), deparse, "", nlines = 1L)
-	
+	datas <- vapply(lapply(models, function(x) getCall(x)$data), asChar, "")
 		
 	# XXX: when using only 'nobs' - seems to be evaluated first outside of MuMIn
 	# namespace which e.g. gives an error in glmmML - the glmmML::nobs method 
@@ -413,7 +411,7 @@ function(models, withModel = FALSE, withFamily = TRUE,
 		cl[haveNoCall] <- lapply(cl[haveNoCall], function(x) call("none", formula = NA))
  		arg <- lapply(cl, function(x) sapply(x[-1L], function(argval)
 			switch(mode(argval), character = , logical = argval,
-			numeric = signif(argval, 3L), deparse(argval, control = NULL, nlines = 1L))))
+			numeric = signif(argval, 3L), asChar(argval))))
 		arg <- rbindDataFrameList(lapply(lapply(arg, t), as.data.frame))
 		arg <- cbind(class = as.factor(sapply(lapply(models, class), "[", 1L)),
 			arg[, !(colnames(arg) %in% remove.cols), drop = FALSE])
@@ -437,7 +435,6 @@ function(models, withModel = FALSE, withFamily = TRUE,
 	ret
 }
 
-
 family2char <-
 function(x, fam = x$family, link = x$link) {
 	if(nchar(fam) > 17L && (substr(fam, 1L, 17) == "Negative Binomial")) {
@@ -447,3 +444,44 @@ function(x, fam = x$family, link = x$link) {
 		paste0(fam, "(", link, ")")
 	}
 }
+
+`commonCallStr` <-
+function(models, calls = lapply(models, getCall)) {
+	
+	x <- lapply(calls, as.list)
+	alln <- unique(unlist(lapply(x, names)))
+	uniq <- vector("list", length(alln))
+	names(uniq) <- alln
+	uniq[[1L]] <- lapply(x, "[[", 1L)
+	for(i in alln[-1]) uniq[[i]] <- lapply(x, "[[", i)
+	uniq <- lapply(uniq, unique)
+	nu <- sapply(uniq, length)
+	strvarious <- "<*>"
+	rval <- lapply(uniq, '[[', 1L)
+	j <- sapply(rval, inherits, "formula")
+	for(i in which(j))
+		rval[[i]] <- call("~", getResponseFormula(rval[[i]]), as.name(sprintf("__%d-rhsform__", nu[i])))
+	j <- nu > 1 & !j
+	rval[j] <- paste("<", nu[j], " unique values>", sep = "")
+	if(nu[1L] > 1) rval[[1L]] <- paste(sapply(uniq[[1L]], asChar), collapse = "|")
+	rval <- paste(rval[[1L]], "(", paste(names(rval[-1L]), "=", rval[-1L], collapse = ", "), ")", sep = "")
+	rval <- sub("`__(\\d+)-rhsform__`", "<\\1 unique rhs>", rval, perl = TRUE)
+	rval
+	
+}
+
+updateDeps <-
+function(expr, deps) {
+	ret <- list()
+	env <- sys.frame(sys.nframe())
+	expr <- .exprapply(expr, "dc", function(z) {
+		v <- vapply(as.list(z[-1L]), asChar, "")
+		n <- length(v)
+		k <- match(v, colnames(deps))
+		for(i in 2L:n) deps[k[1L:(i - 1L)], k[i]] <- TRUE
+		assign("deps", deps, envir = env, inherits = FALSE)
+		TRUE
+	})
+	list(deps = deps, expr = expr)
+}
+

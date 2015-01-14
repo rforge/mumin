@@ -34,8 +34,7 @@ quasiLik(object, ...)
 
 \note{
 This implementation is based partly on (revised) code from packages \pkg{yags}
- (R-Forge) and \pkg{ape}. The functions are still in experimental stage and 
- should be used with caution.
+ (R-Forge) and \pkg{ape}.
 }
 
 \references{

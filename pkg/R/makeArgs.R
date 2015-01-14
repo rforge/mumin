@@ -80,7 +80,6 @@ function(obj, termNames, comb, opt, ...) {
 }
 
 
-
 # used by makeArgs.unmarkedFit*
 `.makeUnmarkedFitFunnyFormulas` <- 
 function(termNames, opt, fnames) {

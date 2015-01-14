@@ -37,7 +37,6 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 		object <- eval.parent(cl[1L:3L])
 	}
 	
-	# TODO: check first if with ...
 	# TODO: unify refitting conditions in model.avg and model.sel
 	
 	if(fit || !missing(...)) {
@@ -48,12 +47,11 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 		cl1[[1L]] <- as.name("get.models")
 		if(is.null(cl1[["subset"]])) cl1[["subset"]] <- NA
 		# TODO: subset = TRUE
-		
-		
+
 		cl2 <- cl[c(TRUE, TRUE, arg1)]
 		cl2[[2L]] <- cl1
 		cl2[[1L]] <- as.name("model.avg")
-		#message("recreating model objects")
+		#message("Re-fitting model objects...")
 		return(eval(cl2, parent.frame()))
 	}
 
@@ -83,7 +81,7 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 	all.model.names <- .modelNames(allTerms = allterms1, uqTerms = all.vterms)
 
 	mstab <- object[, -(seq_len(ncol(object) - 5L))]
-	colnames(mstab)[4L:5L] <- c("Delta", "Weight")
+	colnames(mstab)[4L:5L] <- c("delta", "weight")
 	rownames(mstab) <- all.model.names
 
 	avgcoef[is.nan(avgcoef)] <- NA_real_
@@ -104,6 +102,10 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 		call = match.call()
 	)
 
+	attr(ret, "rank") <- attr(object, "rank")
+	attr(ret, "modelList") <- attr(object, "modelList")
+	if(is.null(attr(ret, "modelList")))
+		attr(ret, "model.calls") <- attr(object, "model.calls")
 	attr(ret, "beta") <- attr(object, "beta")
 	attr(ret, "nobs") <- attr(object, "nobs")
 	attr(ret, "revised.var") <- revised.var
@@ -133,7 +135,7 @@ function(object, ..., beta = FALSE,
 	if(nModels == 1L) stop("only one model supplied. Nothing to do")
 	.checkModels(models)
 
-	ICname <- deparse(attr(rank, "call")[[1L]])
+	ICname <- asChar(attr(rank, "call")[[1L]])
 
     alpha <- 0.05
 	.fnull <- function(...) return(NULL)
@@ -181,12 +183,12 @@ function(object, ..., beta = FALSE,
 
 	# ----!!! From now on, everything MUST BE ORDERED by 'weight' !!!-----------
 	mstab <- cbind(df = vapply(logLiks, attr, 0, "df"),
-		logLik = as.numeric(logLiks), IC = ic, Delta = delta, Weight = weight,
+		logLik = as.numeric(logLiks), IC = ic, delta = delta, weight = weight,
 		deparse.level = 0L)
 	if(!is.null(dispersion)) mstab <- cbind(mstab, Dispersion = dispersion)
 	rownames(mstab) <- all.model.names
 	mstab <- mstab[model.order, ]
-	weight <- mstab[, "Weight"] # has been sorted in table
+	weight <- mstab[, "weight"] # has been sorted in table
 	models <- models[model.order]
 	coefTables <- coefTables[model.order]
 
@@ -222,10 +224,6 @@ function(object, ..., beta = FALSE,
 	importance <- importance[o]
 	attr(importance, "n.models") <- structure(colSums(vpresent)[o], names = all.terms)
 	class(importance) <- c("importance", "numeric") 
-
-	#global.mm <- model.matrix(fit)
-	#cnmmxx2 <- unique(unlist(lapply(gm, function(x) names(coef(x)))))
-	#mmx <- gmm[, cnmmxx[match(colnames(gmm), cnmmxx, nomatch = 0)]]
 
 	mmxs <- tryCatch(cbindDataFrameList(lapply(models, model.matrix)),
 					 error = .fnull, warning = .fnull)
@@ -278,6 +276,7 @@ function(object, ..., beta = FALSE,
 		call = match.call()
 	)
 
+	attr(ret, "rank") <- rank
 	attr(ret, "modelList") <- models
 	attr(ret, "beta") <- beta
 	attr(ret, "nobs") <- nobs(object)
@@ -365,7 +364,7 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 			
 			if (!is.null(links)) {
 				if(any(links[1L] != links[-1L]))
-					.cry(sys.call(-1L), "cannot inverse-transform averaged prediction of models using different link functions")
+					cry(sys.call(-1L), "cannot inverse-transform averaged prediction of models using different link functions")
 				fam1 <- family(models[[1L]])
 				if(is.null(se.fit)) return(fam1$linkinv(fit))
 				else return(list(fit = fam1$linkinv(fit),
@@ -463,10 +462,22 @@ function (object, parm, level = 0.95, full = FALSE, ...) {
 function (x, digits = max(3L, getOption("digits") - 3L),
     signif.stars = getOption("show.signif.stars"), ...) {
 
-    cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"),
+    cat("\nCall:\n", paste(asChar(x$call, nlines = -1L), sep = "\n", collapse = "\n"),
         "\n\n", sep = "")
 
-    cat("Component models: \n")
+		
+	comcallstr <- 
+	if(!is.null(attr(x, "model.calls"))) {
+		commonCallStr(calls = attr(x, "model.calls"))
+	} else if(!is.null(attr(x, "modelList"))) {
+		commonCallStr(attr(x, "modelList"))
+	} else NA
+	if(!is.na(comcallstr)) {
+		cat("Component model call: \n")
+		cat(strwrap(comcallstr), sep = " \n     ")
+	}		
+		
+    cat("\nComponent models: \n")
 	print(round(as.matrix(x$summary), 2L), na.print = "")
 
 	cat("\nTerm codes: \n")
@@ -497,7 +508,7 @@ function (x, digits = max(3L, getOption("digits") - 3L),
 
 `print.averaging` <-
 function(x, ...) {
-    cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"),
+    cat("\nCall:\n", paste(asChar(x$call, nlines = -1L), sep = "\n", collapse = "\n"),
         "\n\n", sep = "")
     cat("Component models:", "\n")
 	comp.names <- rownames(x$summary)

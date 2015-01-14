@@ -125,7 +125,6 @@ function(x, ...) getAllTerms(getFrom("lme4", "formula")(x), ...)
 
 `getAllTerms.glmmML` <- function (x, ...) {
 	ret <- getAllTerms.terms(terms(x), ...)
-	#attr(ret, "random.terms") <-  deparse(call("|", 1,  x$call$cluster))
 	attr(ret, "random.terms") <-  paste("1 |",  x$call$cluster)
 	return(ret)
 }
@@ -257,7 +256,7 @@ function(x, ...)  {
 function (x, ...) {
 	res <- getAllTerms.default(x, ...) 
 	attr(res, "random") <- .formulaEnv(.~., environment(formula(x)))
-	attr(res, "random.terms") <- deparse(x$Random$formula, control = NULL)[1]
+	attr(res, "random.terms") <- asChar(x$Random$formula)[1L]
 	res
 }
 
@@ -279,7 +278,7 @@ function (x, intercept = FALSE, ...) {
 	wrapfunc <- function(x, func) if(length(x) == 0L) x else paste0(func, "(", x, ")")
 
 	alltermlist <- lapply(formlist, function(x, intercept) {
-		func <- deparse(x[[1L]], control = NULL)
+		func <- asChar(x[[1L]])
 		at <- getAllTerms(terms(eval(call("~", x[[2L]]))), intercept = intercept)
 		at[] <- wrapfunc(at, func)
 		dn <- wrapfunc(rownames(attr(at, "deps")), func)

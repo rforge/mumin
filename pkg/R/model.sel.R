@@ -7,45 +7,56 @@
 function (object, ...) UseMethod("model.sel")
 
 `model.sel.model.selection` <-
-function (object, rank = NULL, rank.args = NULL, ..., beta = FALSE, extra) {
-	reFit <- !missing(extra) || !missing(beta)
-	if(!is.null(rank)) {
+function (object, rank = NULL, rank.args = NULL, fit = NA, ..., beta = FALSE, extra) {
+	reFit <- !missing(extra) || (beta != attr(object, "beta"))
+	if(!is.null(rank.args) && !identical(fit, FALSE)) reFit <- TRUE
+	
+	if(!isTRUE(fit) && !is.null(rank)) {
 		rank <- .getRank(rank, rank.args = rank.args)
-		ic <- tryCatch(sapply(logLik(object), rank), error = function(e) e)
+		ic <- tryCatch(sapply(logLik(object), rank), error = identity)
 		if(inherits(ic, "error") || !is.numeric(ic)) {
-			message("'rank' cannot be applied to 'logLik' object. Re-creating fitted model objects.")
+			#message("'rank' cannot be applied to 'logLik' object. Re-fitting model objects.")
 			reFit <- TRUE
-		} else if (reFit) {
-			message("to calculate 'extras' or beta-weights, need to re-create fitted model objects.")
-		} else reFit <- FALSE
-
-		if(reFit) {
-			cl <- match.call()
-			cl[[1L]] <- as.name("model.sel.default")
-			cl$object <- call("get.models", cl$object)
-			if(is.null(cl$subset)) cl$subset <- NA
-			ret <- eval.parent(cl)
-		} else {
-			oldRankCol <- as.character(attr(attr(object, "rank"), "call")[[1L]])
-			rankCol <- as.character(attr(rank, "call")[[1L]])
-			colnames(object)[colnames(object) == oldRankCol] <- rankCol
-			object[, rankCol] <- ic
-			object$delta <- ic - min(ic)
-			object$weight <- Weights(ic)
-			ret <- object[order(ic), ]
-			attr(ret, "rank") <- rank
-			attr(ret, "rank.call") <- attr(rank, "call")
 		}
-		return(ret)
-	} else return(object)
+	} #else rank <- .getRank(attr(object, "rank"))
+
+	if(reFit && !isTRUE(fit)) {
+		if(is.na(fit)) message("Re-fitting models...")
+		else stop("Cannot proceed without re-fitting models ('fit' is FALSE)")
+	}
+	
+	if(isTRUE(fit) || reFit) {
+		#message("to compute 'extras' or beta-weights, need to re-fit model objects.")
+		#message("Re-fitting...")
+		cl <- match.call()
+		ss <- if(is.null(cl$subset)) TRUE else cl$subset
+		models <- do.call("get.models", list(object, subset = ss), envir = parent.frame())
+		cl$subset <- NULL
+		cl$object <- models
+		ret <- do.call("model.sel", as.list(cl), envir = parent.frame())
+	} else if(!is.null(rank)) {
+		oldRankCol <- as.character(attr(attr(object, "rank"), "call")[[1L]])
+		rankCol <- as.character(attr(rank, "call")[[1L]])
+		message(gettextf("New rank '%s' applied to logLik objects", rankCol))
+		DebugPrint(oldRankCol)
+		DebugPrint(rankCol)
+		colnames(object)[colnames(object) == oldRankCol] <- rankCol
+		object[, rankCol] <- ic
+		object$delta <- ic - min(ic)
+		object$weight <- Weights(ic)
+		ret <- object[order(ic), ]
+		attr(ret, "rank") <- rank
+		attr(ret, "rank.call") <- attr(rank, "call")
+	} else ret <- object
+	return(ret)
 }
 
 
 `model.sel.default` <-
 function(object, ..., rank = NULL, rank.args = NULL, beta = FALSE, extra) {
 	.makemnames <- function(cl) {
-		cl[1L] <- cl$rank <- cl$rank.args <- NULL
-		unlist(.makeListNames(cl))
+		cl[c("rank", "rank.args", "beta", "extra")] <- NULL
+		unlist(.makeListNames(cl[-1]))
 	}
 
 	if (missing(object) && length(models <- list(...)) > 0L) {
@@ -74,7 +85,7 @@ function(object, ..., rank = NULL, rank.args = NULL, beta = FALSE, extra) {
 	names(models) <- make.unique(names(models), sep = "")
 
 	rank <- .getRank(rank, rank.args = rank.args, object = object)
-	ICname <- deparse(attr(rank, "call")[[1L]])
+	ICname <- asChar(attr(rank, "call")[[1L]])
 	allTermsList <- lapply(models, getAllTerms, intercept = TRUE)
 	random.terms <- lapply(allTermsList, attr, "random.terms")
 	all.terms <- unique(unlist(allTermsList, use.names = FALSE))
@@ -104,14 +115,13 @@ function(object, ..., rank = NULL, rank.args = NULL, beta = FALSE, extra) {
 		ic <- tryCatch(rank(x), error = function(e) e)
 		if(inherits(ic, "error")) {
 			ic$call <- sys.call(sys.nframe() - 4L)
-			ic$message <- gettextf("evaluating 'rank' for an object failed with message: %s",
-								   ic$message)
+			ic$message <- gettextf("evaluating 'rank' failed with message: %s",
+				ic$message)
 			stop(ic)
 		}
 		c(attr(ll, "df"), ll, ic)
 		}, structure(double(3L), names = c("df", lLName, ICname)))
 	ret <- as.data.frame(t(ret))
-
 	ret <- cbind(d, ret)
 	ret[, "delta"] <- ret[, ICname] - min(ret[, ICname])
 	ret[, "weight"] <- Weights(ret[,ICname])
@@ -156,7 +166,8 @@ function(object, ..., rank = NULL, rank.args = NULL, beta = FALSE, extra) {
 		order = o,
 		rank = rank,
 		rank.call = attr(rank, "call"),
-		call = match.call(expand.dots = TRUE),
+		beta = beta,
+		call = match.call(),
 		nobs = nobs(models[[1L]]),
 		coefTables = retCoefTable[o],
 		vCols = colnames(descrf),

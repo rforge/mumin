@@ -31,7 +31,7 @@ model.avg(object, ..., revised.var = TRUE)
 
     \item{beta}{ logical, should standardized coefficients be returned? }
 
-	\item{rank}{ optionally, a custom rank function (information criterion) to
+	\item{rank}{ optionally, a rank function (information criterion) to
 		use instead of \code{AICc}, e.g. \code{BIC} or \code{QAIC}, may be
 		omitted if \code{object} is a model list returned by \code{get.models}
 		or a \code{model.selection} object. See \sQuote{Details}. }

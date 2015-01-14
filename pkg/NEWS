@@ -1,7 +1,19 @@
 MuMIn package news:
 
+Version: 1.13.3 (2015-01-14)
+get.models+subset.model.selection: unified 'subset' expression handling
+dredge: no longer exceeds memory limit with some complex models, and its 
+	efficiency has somewhat improved. Can displays progress bar with trace = 2.
+model.sel: has new 'fit' attribute.
+"averaging" object now stores component models.
+model.sel, subset, get.models: unified interpretation of the "subset" expression
+(added) glm.link: new function to extract/calculate link-glm object from
+	model object (not exported)
+(added) invtransform, std_predict: to be used by predict.averaging for 
+	type="invlink"
+
 Version: 1.13.2 (2015-01-08)
-(fixed) makeArgs (hence 'dredge'): gave error if no random effects 
+(fixed) makeArgs (and hence 'dredge'): gave error if no random effects 
 	was specified in 'glmmadmb' model (reported by Szymek Drobniak).
 
 Version: 1.13.1 (2015-01-06)
@@ -9,10 +21,10 @@ Version: 1.13.1 (2015-01-06)
 	'zeroinfl' models (package 'pscl').
 
 Version: 1.13.0 (2015-01-03)
-(new) get.response: utility to extract response variable.
+(added) get.response: utility to extract response variable.
 
 Version: 1.12.4 (2014-12-26)
-(new) stdizeFit: utility to modify model object or a call to modelling function 
+(added) stdizeFit: utility to modify model object or a call to modelling function 
 	to use standardized data.
 
 Version: 1.12.3 (2014-12-23)
