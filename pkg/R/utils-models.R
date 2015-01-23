@@ -21,6 +21,7 @@ function(ll, object) {
 	list(logLik = logLik, name = lLName)
 }
 
+
 `.getRank` <- function(rank = NULL, rank.args = NULL, object = NULL, ...) {
 	rank.args <- c(rank.args, list(...))
 
@@ -28,9 +29,9 @@ function(ll, object) {
 		x <- NULL # just not to annoy R check
 		IC <- as.function(c(alist(x =, do.call("AICc", list(x)))))
 		attr(IC, "call") <- call("AICc", as.name("x"))
-		class(IC) <- c("function", "ICWithCall")
+		class(IC) <- c("function", "rankFunction")
 		return(IC)
-	} else if(inherits(rank, "ICWithCall") && length(rank.args) == 0L) {
+	} else if(inherits(rank, "rankFunction") && length(rank.args) == 0L) {
 		return(rank)
 	}
 
@@ -51,7 +52,7 @@ function(ll, object) {
 	}
 
 	attr(IC, "call") <- ICCall
-	class(IC) <- c("function", "ICWithCall")
+	class(IC) <- c("function", "rankFunction")
 	IC
 }
 

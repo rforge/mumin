@@ -27,6 +27,8 @@ function(cfarr, weight, revised.var, full, alpha) {
 }
 
 
+
+
 `model.avg.model.selection` <-
 function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 
@@ -78,23 +80,21 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 		| apply(is.na(object[, all.terms]), 2L, all))]
 	#allterms1 <- apply(!is.na(object[, all.vterms, drop = FALSE]), 1L, function(x) all.vterms[x])
 	allterms1 <- applyrns(!is.na(object[, all.vterms, drop = FALSE]), function(x) all.vterms[x])
-	all.model.names <- .modelNames(allTerms = allterms1, uqTerms = all.vterms)
+	allmodelnames <- .modelNames(allTerms = allterms1, uqTerms = all.vterms)
 
 	mstab <- object[, -(seq_len(ncol(object) - 5L))]
 	colnames(mstab)[4L:5L] <- c("delta", "weight")
-	rownames(mstab) <- all.model.names
+	rownames(mstab) <- allmodelnames
 
 	avgcoef[is.nan(avgcoef)] <- NA_real_
 
 	ret <- list(
-		summary = as.data.frame(mstab),
-		term.codes = attr(all.model.names, "variables"),
-		avg.model = avgcoef,
+		msTable = structure(as.data.frame(mstab),
+			term.codes = attr(allmodelnames, "variables")),
+		coefTable = avgcoef,
 		coef.shrinkage = coef.shrink,
 		coefArray = cfarr,
 		importance = importance(object),
-		beta = attr(object, "beta"),
-		term.names = coefNames,
 		x = NULL,
 		residuals = NULL,
 		formula = if(!is.null(attr(object, "global")))
@@ -115,9 +115,8 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 
 
 `model.avg.default` <-
-function(object, ..., beta = FALSE,
-	rank = NULL, rank.args = NULL, revised.var = TRUE,
-	dispersion = NULL, ct.args = NULL) {
+function(object, ..., beta = FALSE,	rank = NULL, rank.args = NULL,
+	revised.var = TRUE, dispersion = NULL, ct.args = NULL) {
 
 	if (inherits(object, "list")) {
 		if(length(object) == 0L) stop("'object' is an empty list")
@@ -147,11 +146,11 @@ function(object, ..., beta = FALSE,
 	all.terms <- all.terms[order(vapply(gregexpr(":", all.terms),
 		function(x) if(x[1L] == -1L) 0L else length(x), 1L), all.terms)]
 
-	# all.model.names <- modelNames(models, asNumeric = FALSE,
+	# allmodelnames <- modelNames(models, asNumeric = FALSE,
 		# withRandomTerms = FALSE, withFamily = FALSE)
-	all.model.names <- .modelNames(allTerms = allterms1, uqTerms = all.terms)
+	allmodelnames <- .modelNames(allTerms = allterms1, uqTerms = all.terms)
 
-	#if(is.null(names(models))) names(models) <- all.model.names
+	#if(is.null(names(models))) names(models) <- allmodelnames
 	
 	coefTableCall <- as.call(c(alist(coefTable, models[[i]],
 		dispersion = dispersion[i]), ct.args))
@@ -186,7 +185,7 @@ function(object, ..., beta = FALSE,
 		logLik = as.numeric(logLiks), IC = ic, delta = delta, weight = weight,
 		deparse.level = 0L)
 	if(!is.null(dispersion)) mstab <- cbind(mstab, Dispersion = dispersion)
-	rownames(mstab) <- all.model.names
+	rownames(mstab) <- allmodelnames
 	mstab <- mstab[model.order, ]
 	weight <- mstab[, "weight"] # has been sorted in table
 	models <- models[model.order]
@@ -262,14 +261,12 @@ function(object, ..., beta = FALSE,
 	
 
 	ret <- list(
-		summary = as.data.frame(mstab),
-		term.codes = attr(all.model.names, "variables"),
-		avg.model = avgcoef,
+		msTable = structure(as.data.frame(mstab),
+			term.codes = attr(allmodelnames, "variables")),
+		coefTable = avgcoef,
 		coef.shrinkage = coef.shrink,
 		coefArray = cfarr,
 		importance = importance,
-		beta = beta,
-		term.names = coefNames,
 		x = mmxs,
 		residuals = NULL, # no residuals
 		formula = frm,
@@ -287,7 +284,7 @@ function(object, ..., beta = FALSE,
 
 `coef.averaging` <-
 function(object, full = FALSE, ...) if(full) object$coef.shrinkage else
-	object$avg.model[, 1L]
+	object$coefTable[, 1L]
 
 `predict.averaging` <-
 function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
@@ -386,7 +383,7 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 					FUN.VALUE = double(5L)))
 
 			# TODO: ase!
-			#no.ase <- all(is.na(object$avg.model[,3]))
+			#no.ase <- all(is.na(object$coefTable[,3]))
 			# if(no.ase) 2 else 3
 			ret <-  if (backtransform)
 					.untransform(apred[1L, ], apred[2L, ], models = models) else
@@ -414,7 +411,7 @@ function (object, ...) object$x
 
 `summary.averaging` <-
 function (object, ...) {
-	cf <- object$avg.model
+	cf <- object$coefTable
 	
 	.makecoefmat <- function(cf) {
 		no.ase <- all(is.na(cf[, 3L]))
@@ -424,7 +421,7 @@ function (object, ...) {
 			`z value` = z, `Pr(>|z|)` = zapsmall(pval))
 	}
 		
-	object$coefmat <- .makecoefmat(object$avg.model)
+	object$coefmat <- .makecoefmat(object$coefTable)
 	object$coefmat.full <- .makecoefmat(.coefarr.avg(object$coefArray, Weights(object),
 		attr(object, "revised.var"), TRUE, 0.05)) 
 	object$coef.nmod <- colSums(!is.na(object$coefArray[, 1L,]))
@@ -478,10 +475,10 @@ function (x, digits = max(3L, getOption("digits") - 3L),
 	}		
 		
     cat("\nComponent models: \n")
-	print(round(as.matrix(x$summary), 2L), na.print = "")
+	print(round(as.matrix(x$msTable), 2L), na.print = "")
 
 	cat("\nTerm codes: \n")
-	print.default(x$term.codes, quote = FALSE)
+	print.default(attr(x$msTable, "term.codes"), quote = FALSE)
 
 	cat("\nModel-averaged coefficients: \n")
 	if (nnotdef <- sum(is.na(x$coefmat[, 1L])))
@@ -511,11 +508,11 @@ function(x, ...) {
     cat("\nCall:\n", paste(asChar(x$call, nlines = -1L), sep = "\n", collapse = "\n"),
         "\n\n", sep = "")
     cat("Component models:", "\n")
-	comp.names <- rownames(x$summary)
+	comp.names <- rownames(x$msTable)
 	comp.names[comp.names == ""] <- "null"
 	cat(format(sQuote(comp.names), justify = "l"), fill = TRUE)
 	cat("\nCoefficients:", "\n")
-	print(rbind(subset = x$avg.model[, 1L], full = x$coef.shrinkage))
+	print(rbind(subset = x$coefTable[, 1L], full = x$coef.shrinkage))
     x
 }
 
@@ -544,7 +541,7 @@ function(x, ...) {
 		b1[is.na(b1)] <- 0
 		avgb <- object$coef.shrinkage
 	} else {
-		avgb <- object$avg.model[, 1L]
+		avgb <- object$coefTable[, 1L]
 	}
 	
 	res <- sapply(nvarseq, function(c1) sapply(nvarseq, function(c2) {
@@ -559,17 +556,17 @@ function(x, ...) {
 	models <- attr(object, "modelList")
 	if(is.null(models)) {
 		nobs <- attr(object, "nobs")
-		apply(object$summary, 1L, function(x) structure(list(x[2L]),
+		apply(object$msTable, 1L, function(x) structure(list(x[2L]),
 			df = x[1L], nobs = nobs, class = "logLik"))
 	} else {
 		structure(lapply(attr(object, "modelList"), .getLogLik()),
-			names = rownames(object$summary))
+			names = rownames(object$msTable))
 	}
 }
 
 `coefTable.averaging` <-
 function (model, full = FALSE, ...) {
-	if(full) {
-		summary(model)$coefmat.full[, 1L:2L]
-	} else model$avg.model[, 1L:2L]
+	if(full)
+		summary(model)$coefmat.full[, 1L:2L] else
+		model$coefTable[, 1L:2L]
 }

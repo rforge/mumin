@@ -65,34 +65,40 @@ model.avg(object, ..., revised.var = TRUE)
 
 An object of class \code{averaging} is a list with components:
 
-\item{summary}{ a \code{data.frame} with log-likelihood, \emph{IC}, 
+\item{msTable}{ 
+a \code{data.frame} with log-likelihood, \emph{IC}, 
 \ifelse{latex}{\eqn{\Delta_{IC}}}{\enc{Δ}{Delta}_IC} and
-	\sQuote{Akaike weights} for the component models. }
-\item{coef.shrinkage}{ a vector of full model-averaged coefficients, see
+	\sQuote{Akaike weights} for the component models.
+	"df", "logLik", "AICc", "delta", "weight".
+	Its attribute \code{"term.codes"} is a named vector with numerical representation of
+	the terms in \code{msTable} row names. 
+}
+\item{avg.model}{the model averaged parameters. A \code{matrix} with rows for
+	model terms, columns for averaged coefficient, unconditional standard error,
+	adjusted SE (NA if \emph{df}s are not available), z-test statistic (coefficient and SE) 
+	and significance (of the z-test, i.e. assuming normal error distribution 
+	of the coefficient). }
+\item{coef.shrinkage}{a vector of \dQuote{full} model-averaged coefficients, see
 	\sQuote{Note}. }
-\item{coefArray}{ an \code{array} of component models' coefficients, their
-	standard errors, and degrees of freedom. }
-\item{term.codes}{ names of the terms with numerical codes used in
-	the \code{summary}. }
-\item{avg.model}{ the model averaged parameters. A \code{data.frame} containing
-    averaged coefficients, unconditional standard error, adjusted SE (if
-	\emph{df}s are available) and z-values (coefficient and SE) and
-	significance (assuming a normal error distribution). }
-\item{importance}{ relative importance of the predictor variables (including
-	interactions), calculated as a sum of the \emph{Akaike weights} over all of
-	the models in which the parameter of interest appears. }
-\item{term.names}{ character vector giving names of all terms in the model. }
-\item{x, formula}{ the model matrix and formula corresponding to the one that
-	would be used in a single model. \code{formula} contains only the averaged
-	coefficients. }
-%%\item{residuals}{ model averaged residuals (response minus fitted values). }
+\item{coefArray}{ a 3-dimensional \code{array} of component models' coefficients,
+	their standard errors and degrees of freedom. }
+\item{importance}{ object of class \code{importance} containing relative 
+	importance values of each term (including interactions), calculated as a sum
+	of the \emph{Akaike weights} over all of the models in which the term
+	appears.
+}
+\item{formula}{ a formula corresponding to the one that would be used in a 
+	single model. \code{formula} contains only the averaged coefficients.
+	}
 \item{call}{ the matched call. }
 
-In addition, the object has following attributes:
-\item{modelList}{ a list of component model objects. }
-\item{beta}{ logical, were standardized coefficients used? }
-\item{revised.var}{ if \code{TRUE}, the standard errors were calculated with the
-	revised formula (See \code{\link{par.avg}}). }
+The object has following attributes:
+\item{rank}{the rank function used. }
+\item{modelList}{ a list of all component model objects. }
+\item{beta}{ Corresponds to the function argument. }
+\item{nobs}{number of observations. }
+\item{revised.var}{ Corresponds to the function argument. }
+
 }
 
 \details{
@@ -158,8 +164,8 @@ The \sQuote{subset} (or \sQuote{conditional}) average only averages over the
 Averaging models with different contrasts for the same factor would yield
 	nonsense results, currently no checking for contrast consistency is done.
 
-From version 1.0.1, \code{print} method provides only a concise output
-	(similarly as for \code{lm}). To print a full summary of the results use
+\code{print} method provides a concise output (similarly as for \code{lm}). 
+To print a full summary of the results use
 	\code{summary} function. Confidence intervals can be obtained with
 	\code{\link{confint}}.
 

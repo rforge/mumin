@@ -32,22 +32,13 @@ function(x) {
 ## extracts random effect formula. e.g:
 ## ~ ... + (a | ...) + (b + c | ...) --> ~ a + b + c
 ranform <- function (form) {
-#	z <- list()
-#	.exprapply(form[[3L]], "|", function(x) z <<- c(z, x[[2L]]))
-#	frm <- z[[1L]]
-#	for(x in z[-1L]) frm <- call("+", x, frm)
-#	as.formula(call("~", frm))
-#}
-## == ~4x faster:
-	z <- .findbars(form[[length(form)]])
-	frm <- z[[1L]][[2L]]
-	for(x in z[-1L]) frm <- call("+", frm, x[[2L]])
-	as.formula(call("~", frm))
+	ans <- update.formula(reformulate(vapply(lapply(.findbars(form),
+		"[[", 2L), deparse, "")), ~ . + 1)
+	environment(ans) <- environment(form)
+	ans
 }
 
-
 `r.squaredGLMM.merMod` <-
-`r.squaredGLMM.mer` <-
 function(x) {
 	fam <- family(x)
 	useObsLevVar <- (fam$family == "poisson" && fam$link == "log") || fam$family == "binomial"
@@ -72,6 +63,8 @@ function(x) {
 				"has not changed since model was fitted.", domain = "R-MuMIn")
     }
 
+
+	
 	mmAll <- model.matrix(ranform(formula(x)), data = model.frame(x))
 		##Note: Argument 'contrasts' can only be specified for fixed effects
 		##contrasts.arg = eval(cl$contrasts, envir = environment(formula(x))))	

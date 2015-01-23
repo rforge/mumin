@@ -8,14 +8,22 @@ glm.link.family <- function(x) {
 	rval
 }
 
+glm.link.numeric <- function(x) power(x)
+
 glm.link.character <- function(x) {
 	switch(x[1L],
 		loglog = .logloglink(),
-		logistic = make.link("logit"),
+		logit=, logistic = make.link("logit"),
+		probit=, cauchit=, cloglog=, identity=, log=, sqrt=, "1/mu^2"=, inverse=
 		make.link(x[1L]),
 		NA
 		)
 }
+
+glm.link.aodql <-
+glm.link.aodml <-
+function(x)
+glm.link.character(x$link)
 
 `glm.link.link-glm` <- function(x) x
 
@@ -54,4 +62,4 @@ function (x, ...) {
 	ret
 }
 
-	
+glm.link.cpglm <- function(x) power(x@link.power)
