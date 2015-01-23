@@ -12,7 +12,7 @@ export(
 	updateable, updateable2,
 	uGamm, nested, stdize, stdizeFit,
 	exprApply,
-	get.response,
+	get.response
 #	predict_avg, avg.predictions, std_predict
 )
 
