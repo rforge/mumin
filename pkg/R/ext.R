@@ -4,8 +4,8 @@ df.residual.default <-
 function (object, ...)
 getElement(object, 'df.residual')
 
-# This is merely to get rid of the annoying behaviour in summary.glmML.
-# it does not do anything except for printing the model output.
+# This is merely to get rid of the annoyance in summary.glmML
+# of printing the model output
 `summary.glmmML` <- function(object, ...) object
 
 # family

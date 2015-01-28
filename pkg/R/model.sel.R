@@ -56,7 +56,7 @@ function (object, rank = NULL, rank.args = NULL, fit = NA, ..., beta = FALSE, ex
 function(object, ..., rank = NULL, rank.args = NULL, beta = FALSE, extra) {
 	.makemnames <- function(cl) {
 		cl[c("rank", "rank.args", "beta", "extra")] <- NULL
-		unlist(.makeListNames(cl[-1]))
+		unlist(.makeListNames(cl[-1L]))
 	}
 
 	if (missing(object) && length(models <- list(...)) > 0L) {
