@@ -144,7 +144,7 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 # test if 'x' can be updated (in current environment or on a cluster)
 # level is 0/FALSE - no checking, 1 - check if variables and functions exist,
 # >1 - reevaluate x and compare with original 
-`testUpdatedObj` <- function(cluster = NA, x, call = .getCall(x),
+`testUpdatedObj` <- function(cluster = NA, x, call = get_call(x),
 	level = 1L, exclude = "subset") {
 	
 	if(isTRUE(level)) level <- 2L

@@ -3,11 +3,12 @@
 \alias{pget.models}
 \encoding{utf-8}
 
-\title{Evaluate models from selection table}
+\title{Retrieve models from selection table}
 
 \description{
-    Generate a list of fitted model objects from a \code{model.selection} table,
-	optionally using parallel computation in a cluster.
+    Generate or extract a list of fitted model objects from a 
+	\code{model.selection} table, optionally using parallel computation in a 
+	cluster.
 }
 
 

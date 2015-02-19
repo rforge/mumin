@@ -160,7 +160,7 @@ function(object, ..., rank = NULL, rank.args = NULL, beta = FALSE, extra) {
 		ret[o, ],
 		terms = structure(all.terms, interceptLabel =
 			unique(unlist(lapply(allTermsList, attr, "interceptLabel")))),
-		model.calls = lapply(models, .getCall)[o],
+		model.calls = lapply(models, get_call)[o],
 		model.family = lapply(models, function(x) tryCatch(family(x), error = function(e) NULL)),
 		modelList = models[o],
 		order = o,

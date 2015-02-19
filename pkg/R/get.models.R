@@ -32,7 +32,7 @@ function(object, subset, cluster = NA, ...) {
 			return(models)
 		}
 		DebugPrint("refitting...")
-		if(hasNoCalls) calls <- lapply(attr(object, "modelList")[r], getCall)
+		if(hasNoCalls) calls <- lapply(attr(object, "modelList")[r], get_call)
 	} else calls <- calls[r]
 
 	if(length(newargs)) for(i in seq_along(calls)) calls[[i]][naNames] <- newargs

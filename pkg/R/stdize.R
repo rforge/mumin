@@ -219,7 +219,7 @@ function(object, data, which = c("formula", "subset", "offset", "weights"),
 	cl <- if(quote) thiscall$object
 		else if(is.expression(object)) object[[1L]]
 		else if(is.call(object)) object
-		else getCall(object)
+		else get_call(object)
 	
 	cl <- match.call(Fun <- match.fun(cl[[1L]]), cl)
 	

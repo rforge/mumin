@@ -7,7 +7,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	trace <- min(as.integer(trace), 2L)
 
 	gmEnv <- parent.frame()
-	gmCall <- .getCall(global.model)
+	gmCall <- get_call(global.model)
 	gmNobs <- nobs(global.model)
 
 	if (is.null(gmCall)) {
@@ -283,10 +283,12 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			subsetExpr <- .exprapply(subsetExpr, ".", .sub_dot, gloFactorTable, 
 				allTerms, as.name("comb"))
 			subsetExpr <- .exprapply(subsetExpr, c("{", "Term"), .sub_Term)
+
+			#@@@ TODO has subsetExpr <- .exprapply(subsetExpr, "has", .sub_Term)
 			
 			tmp <- updateDeps(subsetExpr, deps)
-				subsetExpr <- tmp$expr
-				deps <- tmp$deps
+			subsetExpr <- tmp$expr
+			deps <- tmp$deps
 
 			subsetExpr <- .exprapply(subsetExpr, "dc", .sub_args_as_vars)
 			subsetExpr <- .subst4Vec(subsetExpr, allTerms, as.name("comb"))
@@ -550,7 +552,7 @@ function(global.model, beta = FALSE, ...) {
 	ret <- model.sel(models)
 	attr(ret, "modelList") <- models
 	attr(ret, "global") <- global.model
-	attr(ret, "global.call") <- getCall(global.model)
+	attr(ret, "global.call") <- get_call(global.model)
 	attr(ret, "call") <- cl
 	ret
 }

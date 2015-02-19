@@ -9,7 +9,7 @@
 
 \title{Pseudo-R-squared for Generalized Mixed-Effect models}
 \description{
-Calculate a conditional and marginal coefficient of determination for 
+Calculate conditional and marginal coefficient of determination for 
 Generalized mixed-effect models (\Rsqx{GLMM}).
 
 }

@@ -252,7 +252,7 @@ function(object, ..., beta = FALSE,	rank = NULL, rank.args = NULL,
 			intercept = ! identical(unique(unlist(lapply(allterms1, attr, "intercept"))), 0),
 			interceptLabel = unique(unlist(lapply(allterms1, attr, "interceptLabel"))),
 			#	random = attr(allTerms0, "random"),
-			gmCall = getCall(m1),
+			gmCall = get_call(m1),
 			gmEnv = parent.frame(),
 			allTerms = all.terms,
 			random = . ~ .
@@ -406,13 +406,23 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 function (object, ...) .NotYetImplemented()
 # predict.averaging(object, backtransform = TRUE, type = "link")
 
-`model.matrix.averaging` <-
-function (object, ...) object$x
+model.frame.averaging <-
+function (formula, ...) {
+	mergeMF(getModelList(formula))
+}
+
+
+model.matrix.averaging <-
+function (object, ...) {
+	if(j <- match("x", names(object), nomatch = 0L)) return(object[[j]])
+	
+	mf <- model.frame(object)
+	do.call("model.matrix", list(object = terms(mf), data = mf,
+		contrasts.arg = get.contrasts(object)))
+}
 
 `summary.averaging` <-
 function (object, ...) {
-	cf <- object$coefTable
-	
 	.makecoefmat <- function(cf) {
 		no.ase <- all(is.na(cf[, 3L]))
 		z <- abs(cf[, 1L] / cf[, if(no.ase) 2L else 3L])
@@ -420,7 +430,7 @@ function (object, ...) {
 		cbind(cf[, if(no.ase) 1L:2L else 1L:3L],
 			`z value` = z, `Pr(>|z|)` = zapsmall(pval))
 	}
-		
+	
 	object$coefmat <- .makecoefmat(object$coefTable)
 	object$coefmat.full <- .makecoefmat(.coefarr.avg(object$coefArray, Weights(object),
 		attr(object, "revised.var"), TRUE, 0.05)) 
@@ -444,14 +454,13 @@ function (object, parm, level = 0.95, full = FALSE, ...) {
 		se[missing.par] <- cf[missing.par] <- 0
 		if(!all(is.na(dfs))) dfs[missing.par] <- Inf
 	}
-
     wts <- Weights(object)
     ci <- t(sapply(parm, function(i)
 		par.avg(cf[,i], se[,i], wts, dfs[, i], alpha = a2)))[, 4L:5L]
-    pct <- getFrom("stats", "format.perc")(c(a, 1L - a), 3L)
-
+    
+	
 	ci[is.na(object$coef.shrinkage), ] <- NA_real_
-    colnames(ci) <- pct
+    colnames(ci) <- getFrom("stats", "format.perc")(c(a, 1L - a), 3L)
     return(ci)
 }
 
@@ -519,7 +528,7 @@ function(x, ...) {
 `vcov.averaging` <- function (object, full = FALSE, ...) {
 	models <- attr(object, "modelList")
 	if(is.null(models)) stop("cannot calculate covariance matrix from ",
-							 "'averaging' object without model list")
+							 "'averaging' object without component models")
 
 	vcovs <- lapply(lapply(models, vcov), as.matrix)
 	names.all <- dimnames(object$coefArray)[[3L]]
@@ -546,7 +555,7 @@ function(x, ...) {
 	
 	res <- sapply(nvarseq, function(c1) sapply(nvarseq, function(c2) {
 		 weighted.mean(sapply(vcovs2, "[", c1, c2) + (b1[, c1] - avgb[c1]) *
-		 (b1[, c2] - avgb[c2]), wts, na.rm = TRUE)
+			(b1[, c2] - avgb[c2]), wts, na.rm = TRUE)
 	}))
 	dimnames(res) <- list(names.all, names.all)
 	return(res)

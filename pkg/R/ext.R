@@ -1,16 +1,10 @@
-
-# replace default method from stats
-df.residual.default <-
-function (object, ...)
-getElement(object, 'df.residual')
-
-# This is merely to get rid of the annoyance in summary.glmML
-# of printing the model output
+# This is merely to get rid of the annoying behaviour in summary.glmML.
+# it does not do anything except for printing the model output.
 `summary.glmmML` <- function(object, ...) object
 
 # family
 `family.default` <- function (object, ...)  {
-	cl <- .getCall(object)
+	cl <- get_call(object)
 	if(is.null(cl)) 
 		return(NULL)
 	fam <- cl$family
@@ -23,7 +17,7 @@ getElement(object, 'df.residual')
 
 
 `family.mer` <- function (object, ...)  {
-	if(.getCall(object)[[1L]] == "lmer" && inherits(object, "mer"))
+	if(get_call(object)[[1L]] == "lmer" && inherits(object, "mer"))
 		gaussian() else family.default(object)
 }
 
@@ -74,6 +68,7 @@ function(x, ...)  {
 
 `formula.lmekin` <-
 function(x, ...) eval.parent(x$call$formula)
+
 
 ## Classes 'hurdle' and 'zeroinfl' from package 'pscl':
 
@@ -137,16 +132,13 @@ function (object, newdata, se.fit = FALSE, na.action = na.fail, ...) {
 	val
 }
 
-
 `predict.lme` <-
 function (object, newdata, level, asList = FALSE,
 	na.action = na.fail, se.fit = FALSE, ...) {
-
-	arg <- match.call()
-	arg$se.fit <- NULL
-	if (missing(newdata) || is.null(newdata)) arg$newdata <- NULL
-	arg <- as.list(arg)[-1L]
-	rval <- do.call(getFrom("nlme", "predict.lme"), arg, envir = parent.frame())
+	cl <- match.call()
+	cl$se.fit <- NULL
+	cl[[1L]] <- call("get", "predict.lme", asNamespace("nlme"))	
+	res <- eval.parent(cl)
 	
 	if(se.fit && (missing(level) || any(level > 0)))
 		warning("cannot calculate standard errors for level > 0")
@@ -162,36 +154,45 @@ function (object, newdata, level, asList = FALSE,
 		se <- sqrt(matmultdiag(X %*% vcov(object), ty = X))
 		# se <- sqrt(rowSums((X %*% vcov(object)) * X))
 		# se <- sqrt(diag(X %*% vcov(object) %*% t(X))) ## TODO: use matmult
-		names(se) <- names(rval)
-		list(fit = c(rval), se.fit = se)
-	} else rval
+		names(se) <- names(res)
+		list(fit = c(res), se.fit = se)
+	} else res
 }
+
 
 `predict.mer` <- function (object, newdata, type = c("link", "response"), se.fit = FALSE, 
     ...)
-	.predict_glm(object, newdata, type, se.fit,
-			trms =  delete.response(attr(object@frame, "terms")),
-			coeff = object@fixef,
-			offset = object@offset,
-			...)
+.predict_glm(object, newdata, type, se.fit,
+		trms =  delete.response(attr(object@frame, "terms")),
+		coeff = object@fixef,
+		offset = object@offset,
+		...)
+
 
 `predict.merMod` <- function (object, newdata, type = c("link", "response"), se.fit = FALSE,
-		re.form = NULL, ...) {
+		re.form,
+    ...) {
+	
 	if(!se.fit) {
-		cl <- as.list(match.call())[-1L]
+		fun <- getFrom("lme4", "predict.merMod")
+		cl <- match.call(definition = fun)
+		cl[[1L]] <- fun
 		cl$se.fit <- NULL
-		return(do.call(getFrom("lme4", "predict.merMod"), cl, envir = parent.frame()))
+		return(eval.parent(cl))
 	}
+	
 	level0 <- (!is.null(re.form) && !inherits(re.form, "formula") && is.na(re.form)) || 
         (inherits(re.form, "formula") && length(re.form) == 2L && identical(re.form[[2L]], 
             0))
-	if(!level0) stop("cannot calculate predictions with both 'se.fit' and random effects")
+	if(!level0) stop("cannot calculate predictions with both standard errors and random effects")
+
 	.predict_glm(object, newdata, type, se.fit,
 			trms = delete.response(terms(formula(object, fixed.only = TRUE))),
 			coeff = lme4::fixef(object),
 			offset = lme4::getME(object, "offset"),
 			...)
 }
+
 
 .predict_glm <- function (object, newdata, type = c("link", "response"), se.fit = FALSE,
 		trms, coeff, offset, ...) {
@@ -206,7 +207,7 @@ function (object, newdata, level, asList = FALSE,
             for (i in off.num) offset <- offset + eval(attr(trms, 
                 "variables")[[i + 1L]], newdata)
 		
-		cl <- getCall(object)
+		cl <- get_call(object)
         if (!is.null(cl$offset)) 
             offset <- offset + eval(cl$offset, newdata)
     } else {
@@ -214,7 +215,8 @@ function (object, newdata, level, asList = FALSE,
         if (!length(offset))  offset <- NULL
     }
     y <- (X %*% coeff)[, 1L]
-    if (!is.null(offset)) y <- y + offset
+    if (!is.null(offset)) 
+        y <- y + offset
     fam <- family(object)
     if (se.fit) {
         # covmat <- as.matrix(vcov(object))
@@ -235,13 +237,13 @@ function (object, newdata, level, asList = FALSE,
 function (object, ...) mgcv::predict.gam(object[['gam']], ...)
 
 
-##=============================================================================
-## Class: unmarkedFit
-##=============================================================================
+
+# support for unmarked
 
 #setMethod("logLik", "unmarkedFit", logLik.unmarkedFit)
 
 `formula.unmarkedFit` <- function (x, ...) x@formula
+
 
 ##=============================================================================
 ## Classes: gee & geeglm
@@ -254,7 +256,7 @@ function (object, ...) object$beta
 ## What if 'data' changed in the meantime?
 # model.matrix.gee <-
 # function (object, ...) {
-	# cl <- .getCall(fgee)
+	# cl <- get_call(fgee)
 	# cl[[1L]] <- as.name("model.matrix")
 	# cl$object <- cl$formula
 	# cl$id <- cl$corstr <- cl$formula <- NULL
@@ -274,8 +276,6 @@ structure(object@coefficients, names = object@varnames)
 `getCall.yagsResult` <-
 	function(x, ...) x@Call
 	
-	
-
 `formula.yagsResult` <-
 function (x, ...) 
 eval.parent(x@Call$formula)
@@ -317,4 +317,4 @@ function(object, ...) {
 
 formula.maxlikeFit <-
 function (x, ...) 
-as.formula(.getCall(x)$formula, env = parent.frame())
+as.formula(get_call(x)$formula, env = parent.frame())

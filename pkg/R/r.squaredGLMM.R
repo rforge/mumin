@@ -45,7 +45,7 @@ function(x) {
 	## for poisson(log) and binomial(*), update 'x' to include individual-level
 	## variance (1 | 1:nobs(x)):
     if (useObsLevVar && !any(sapply(x@flist, nlevels) == nobs(x))) {
-		cl <- getCall(x)
+		cl <- get_call(x)
         frm <- formula(x)
 		nRowData <- eval(call("eval", as.expression(call("NROW", cl$formula[[2L]])),
 							  envir = cl$data), envir = environment(frm),

@@ -69,15 +69,14 @@ An object of class \code{averaging} is a list with components:
 a \code{data.frame} with log-likelihood, \emph{IC}, 
 \ifelse{latex}{\eqn{\Delta_{IC}}}{\enc{Δ}{Delta}_IC} and
 	\sQuote{Akaike weights} for the component models.
-	"df", "logLik", "AICc", "delta", "weight".
-	Its attribute \code{"term.codes"} is a named vector with numerical representation of
-	the terms in \code{msTable} row names. 
+	"df", "logLik", "AICc", "delta", "weight". Its attribute \code{"term.codes"}
+	is a named vector with numerical representation of the terms in 
+	the row names of \code{msTable}. 
 }
 \item{avg.model}{the model averaged parameters. A \code{matrix} with rows for
 	model terms, columns for averaged coefficient, unconditional standard error,
-	adjusted SE (NA if \emph{df}s are not available), z-test statistic (coefficient and SE) 
-	and significance (of the z-test, i.e. assuming normal error distribution 
-	of the coefficient). }
+	adjusted SE (\code{NA} if \emph{df}s are not available), \emph{z}-test 
+	statistic and associated \emph{p}-value. }
 \item{coef.shrinkage}{a vector of \dQuote{full} model-averaged coefficients, see
 	\sQuote{Note}. }
 \item{coefArray}{ a 3-dimensional \code{array} of component models' coefficients,
@@ -88,7 +87,7 @@ a \code{data.frame} with log-likelihood, \emph{IC},
 	appears.
 }
 \item{formula}{ a formula corresponding to the one that would be used in a 
-	single model. \code{formula} contains only the averaged coefficients.
+	single model. The formula contains only the averaged (fixed) coefficients.
 	}
 \item{call}{ the matched call. }
 
@@ -119,10 +118,10 @@ For a list of model types that are accepted see \link[=MuMIn-models]{list of
 
 
 \code{rank} is found by a call to \code{\link[base]{match.fun}} and typically is
-	specified as a function or a symbol (e.g. a back-quoted name) or a character
-	string specifying a function to be searched for from the environment of the
-	call to lapply. \code{rank} must be a function able to accept model as a
-	first argument and must always return a scalar.
+	specified as a function or a symbol or a character string specifying a 
+	function to be searched for from the environment of the call to lapply. 
+	\code{rank} must be a function able to accept model as a first argument and 
+	must always return a numeric scalar.
 
 Several standard methods for fitted model objects exist for class
 	\code{averaging}, including \code{summary},
@@ -160,14 +159,12 @@ The \sQuote{subset} (or \sQuote{conditional}) average only averages over the
 	shrinkage estimator and for variables with a weak relationship to the
 	response they are smaller than \sQuote{subset} estimators.
 	
-	
-Averaging models with different contrasts for the same factor would yield
+	Averaging models with different contrasts for the same factor would yield
 	nonsense results, currently no checking for contrast consistency is done.
-
-\code{print} method provides a concise output (similarly as for \code{lm}). 
-To print a full summary of the results use
-	\code{summary} function. Confidence intervals can be obtained with
-	\code{\link{confint}}.
+	
+	\code{print} method provides a concise output (similarly as for \code{lm}). 
+	To print more details use \code{summary} function, and \code{\link{confint}}
+	to get confidence intervals.
 
 }
 

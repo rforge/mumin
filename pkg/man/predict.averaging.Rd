@@ -104,7 +104,9 @@ parameter calculation.
 
 \examples{
 
-\dontshow{ if(require(graphics)) \{ }
+\dontshow{
+options(na.action="na.fail")
+if(require(graphics)) \{ }
 
 # Example from Burnham and Anderson (2002), page 100:
 fm1 <- lm(y ~ X1 + X2 + X3 + X4, data = Cement)

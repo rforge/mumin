@@ -224,10 +224,10 @@ function(x, ...) {
 		res <- FALSE
 	}
 
-	#datas <- lapply(models, function(x) .getCall(x)$data)
+	#datas <- lapply(models, function(x) get_call(x)$data)
 	# XXX: need to compare deparse'd 'datas' due to ..1 bug(?) in which dotted
 	#  arguments (..1 etc) passed by lapply are not "identical"
-	datas <- vapply(lapply(models, function(x) getCall(x)$data), asChar, "")
+	datas <- vapply(lapply(models, function(x) get_call(x)$data), asChar, "")
 		
 	# XXX: when using only 'nobs' - seems to be evaluated first outside of MuMIn
 	# namespace which e.g. gives an error in glmmML - the glmmML::nobs method 
@@ -245,7 +245,7 @@ function(x, ...) {
 
 
 .checkNaAction <-
-function(x, cl = getCall(x),
+function(x, cl = get_call(x),
 		 naomi = c("na.omit", "na.exclude"), what = "model") {
 	naact <- NA_character_
 	msg <- NA_character_
@@ -407,7 +407,7 @@ function(models, withModel = FALSE, withFamily = TRUE,
 	}
 
 	if(withArguments) {
-		cl <- lapply(models, .getCall)
+		cl <- lapply(models, get_call)
 		haveNoCall <-  vapply(cl, is.null, FALSE)
 		cl[haveNoCall] <- lapply(cl[haveNoCall], function(x) call("none", formula = NA))
  		arg <- lapply(cl, function(x) sapply(x[-1L], function(argval)
@@ -447,7 +447,7 @@ function(x, fam = x$family, link = x$link) {
 }
 
 `commonCallStr` <-
-function(models, calls = lapply(models, getCall)) {
+function(models, calls = lapply(models, get_call)) {
 	
 	x <- lapply(calls, as.list)
 	alln <- unique(unlist(lapply(x, names)))

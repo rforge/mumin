@@ -28,7 +28,7 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 ###PAR
 
 	gmEnv <- parent.frame()
-	gmCall <- .getCall(global.model)
+	gmCall <- get_call(global.model)
 	gmNobs <- nobs(global.model)
 
 	if (is.null(gmCall)) {

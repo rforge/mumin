@@ -3,7 +3,6 @@ library(mgcv)
 options(na.action = "na.fail")
 set.seed(2) ## simulate some data...
 
-
 dat <- gamSim(1,n = 400, dist = "normal", scale = 2)
 
 dat$fac <- gl(2, 200)

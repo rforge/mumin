@@ -16,8 +16,8 @@ quasiLik(object, ...)
 }
 
 \arguments{
-  \item{object}{a fitted model object of class \code{gee}, \code{geepack} or
-        \code{yags}.}
+  \item{object}{a fitted model object of class \code{"gee"}, \code{"geepack"} or
+        \code{"yags"}.}
   \item{\dots}{ for QIC and QIC\eqn{_{u}}{u}, optionally more fitted model objects. }  
   \item{typeR}{ logical, whether to calculate QIC(R). QIC(R) is
     based on quasi-likelihood of a working correlation \eqn{R} model. Defaults
