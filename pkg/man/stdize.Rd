@@ -19,9 +19,9 @@ variables.
 \usage{
 \method{stdize}{default}(x, center = TRUE, scale = TRUE, ...)
 
-# also for two-level factors
 \method{stdize}{logical}(x, binary = c("center", "scale", "binary", "half", "omit"),
     center = TRUE, scale = FALSE, ...)
+## also for two-level factors
 
 \method{stdize}{data.frame}(x, binary = c("center", "scale", "binary", "half", "omit"),
     center = TRUE, scale = TRUE, omit.cols = NULL, source = NULL,

@@ -31,9 +31,9 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	\item{beta}{logical, should standardized coefficients be returned? }
 
 	\item{evaluate}{whether to evaluate and rank the models. If \code{FALSE}, a
-	list of model \code{call}s is returned. }
+	list of unevaluated \code{call}s is returned. }
 
-	\item{rank}{optional custom rank function (information criterion) to be used
+	\item{rank}{optional custom rank function (returning an information criterion) to be used
 	instead \code{AICc}, e.g. \code{AIC}, \code{QAIC} or \code{BIC}.
 	See \sQuote{Details}. }
 
@@ -90,7 +90,7 @@ dredge(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		\code{\link[=model.avg]{model averaging}}).}
 
   \item{\dots}{ optional arguments for the \code{rank} function. Any can be
-    an expression (of mode \code{call}), in which case any \code{x} within it
+    an expression (of mode \code{"call"}), in which case any \code{x} within it
     will be substituted with a current model. }
 }
 
@@ -259,11 +259,10 @@ Coefficients can be extracted with \code{coef} or \code{\link{coefTable}}.
 	\sQuote{Akaike weights}. Models are ordered by the value of
 	the information criterion specified by \code{rank} (lowest on top).
 
-The attribute \code{"calls"} is a list containing the model calls used (arranged
-in the same order as the models). A model call can be retrieved with
+The attribute \code{"model.calls"} is a list containing the model calls used 
+(arranged in the same order as in the table). A model call can be retrieved with
 \code{getCall(*, i)} where \var{i} is a vector of model index or name (if given
 as character string).
-
 
 Other attributes:
 \code{"global"} - the \code{global.model} object,
@@ -302,15 +301,13 @@ regression.
 
 \emph{Lasso} variable selection provided by various packages, e.g. \pkg{glmnet}, 
 	\pkg{lars} or \pkg{glmmLasso}.
-
 }
-
 
 
 \examples{
 # Example from Burnham and Anderson (2002), page 100:
 
-options(na.action = "na.fail")   #  prevent fitting models to different datasets
+options(na.action = "na.fail") #  prevent fitting sub-models to different datasets
 
 fm1 <- lm(y ~ ., data = Cement)
 dd <- dredge(fm1)

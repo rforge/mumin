@@ -18,7 +18,7 @@ updateable(FUN, eval.args = NULL, Class)
 
 get_call(x)
 
-# updateable wrapper for mgcv::gamm and gamm4::gamm4
+## updateable wrapper for mgcv::gamm and gamm4::gamm4
 uGamm(formula, random = NULL, ..., lme4 = inherits(random, "formula"))
 }
 

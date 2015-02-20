@@ -15,20 +15,19 @@ Build a model selection table.
 
 model.sel(object, ...)
 
+\method{model.sel}{default}(object, ..., rank = NULL, rank.args = NULL, beta = FALSE, extra)
 \method{model.sel}{model.selection}(object, rank = NULL, rank.args = NULL, fit = NA,
     ..., beta = FALSE, extra)
-\method{model.sel}{default}(object, ..., rank = NULL, rank.args = NULL, beta = FALSE, extra)
-
 }
 
 \arguments{
 	\item{object}{a fitted model object, a list of such objects, or a
 	\code{"model.selection"} object.}
 
-    \item{\dots}{ more fitted model objects. }
+    \item{\dots}{more fitted model objects. }
 	
-    \item{rank}{optional, custom rank function (information criterion) to use
-        instead of \code{AICc}, e.g. \code{QAIC} or \code{BIC}, may be omitted
+    \item{rank}{optional, custom rank function (returning an information 
+		criterion) to use instead of the default \code{AICc}, e.g. \code{QAIC} or \code{BIC}, may be omitted
         if \code{object} is a model list returned by \code{get.models}. }
 
     \item{rank.args}{optional \code{list} of arguments for the \code{rank}
@@ -42,7 +41,7 @@ model.sel(object, ...)
 	
 	\item{beta}{logical, should standardized coefficients be returned? }
 	
-	\item{extra}{ optional additional statistics to include in the result,
+	\item{extra}{optional additional statistics to include in the result,
 		provided as functions, function names or a list of such (best if named
 		or quoted). See \code{\link{dredge}} for details. }
 
@@ -61,11 +60,10 @@ value of the information criterion used,
 \details{
 \code{model.sel} used with \code{"model.selection"} object will re-fit model
 objects, unless they are stored in \code{object} (in attribute \code{"modelList"}),
- if
- argument \code{extra} is provided, or the requested \code{beta} is different
+ if argument \code{extra} is provided, or the requested \code{beta} is different
  than object's \code{"beta"} attribute, or the new \code{rank} function
  cannot be applied directly to \code{logLik} objects, or new \code{rank.args}
- are given (unless argument \code{fit} is \code{FALSE}).
+ are given (unless argument \code{fit = FALSE}).
 }
 
 

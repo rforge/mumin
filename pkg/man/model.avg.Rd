@@ -24,17 +24,17 @@ model.avg(object, ..., revised.var = TRUE)
 
 \arguments{
 	\item{object}{ a fitted model object or a list of such objects, or a
-		\code{model.selection} object. See \sQuote{Details}. }
+		\code{"model.selection"} object. See \sQuote{Details}. }
 
     \item{\dots}{ for default method, more fitted model objects. Otherwise,
 		arguments that are passed to the default method. }
 
     \item{beta}{ logical, should standardized coefficients be returned? }
 
-	\item{rank}{ optionally, a rank function (information criterion) to
+	\item{rank}{ optionally, a rank function (returning an information criterion) to
 		use instead of \code{AICc}, e.g. \code{BIC} or \code{QAIC}, may be
 		omitted if \code{object} is a model list returned by \code{get.models}
-		or a \code{model.selection} object. See \sQuote{Details}. }
+		or a \code{"model.selection"} object. See \sQuote{Details}. }
 
     \item{rank.args}{ optional \code{list} of arguments for the \code{rank}
         function. If one is an expression, an \code{x} within it is substituted
@@ -51,7 +51,7 @@ model.avg(object, ..., revised.var = TRUE)
 	     \code{\link{coefTable}} (besides \code{dispersion}). }
 		 
 	\item{subset}{ see \code{\link[=subset.model.selection]{subset}} method for
-		\code{model.selection} object. }
+		\code{"model.selection"} object. }
 
 	\item{fit}{ if \code{TRUE}, the component models are fitted using
 		\code{get.models}. See \sQuote{Details}.
@@ -63,7 +63,7 @@ model.avg(object, ..., revised.var = TRUE)
 
 \value{
 
-An object of class \code{averaging} is a list with components:
+An object of class \code{"averaging"} is a list with components:
 
 \item{msTable}{ 
 a \code{data.frame} with log-likelihood, \emph{IC}, 

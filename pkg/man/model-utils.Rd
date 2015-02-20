@@ -18,8 +18,7 @@
 \title{Model utility functions}
 \description{
 These functions extract or calculate various values from provided fitted model
-	objects(s). They are mainly meant for internal use, but may be also useful
-	for end-users.
+	objects(s). They are mainly meant for internal use.
 
 \code{beta.weights} computes standardized coefficients (beta weights) for
 	a model;
@@ -63,11 +62,11 @@ model.names(object, ..., labels = NULL, use.letters = FALSE)
   \item{intercept}{should terms names include the intercept?}
   \item{labels}{optionally, a character vector with names of all the terms,
 	e.g. from a global model. \code{model.names} enumerates the model terms in
-	order of their appearance in the list and in the models. So, changing the
-	order of the models would lead to different names. The argument 'labels' can
-	be used to prevent this happening.
+	order of their appearance in the list and in the models. Therefore changing the
+	order of the models leads to different names. Providing \code{labels}
+	prevents that.
  }
-  \item{\dots}{ for \code{model.names}, more fitted model objects.
+  \item{\dots}{for \code{model.names}, more fitted model objects.
 	For \code{coefTable} arguments that are passed to appropriate \code{\link{vcov}}
 	or \code{summary} method (e.g. \code{dispersion} parameter for \code{glm} may
 	be used here). In other functions often not used.

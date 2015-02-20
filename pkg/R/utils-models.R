@@ -199,8 +199,9 @@ function(x, ...) {
 
 get.response.lm <-
 function(x, ...) 
-if(!is.null(x$y)) x$y else NextMethod()
-	
+if((family(x)$family != "binomial") && !is.null(x$y)) x$y else NextMethod()
+# NOTE: for 'binomial' 'y' is a vector not nmatrix2  
+
 get.response.averaging <-
 function(x, ...) {
 	if(is.null(attr(x, "modelList")))
