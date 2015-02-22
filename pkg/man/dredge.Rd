@@ -307,7 +307,8 @@ regression.
 \examples{
 # Example from Burnham and Anderson (2002), page 100:
 
-options(na.action = "na.fail") #  prevent fitting sub-models to different datasets
+#  prevent fitting sub-models to different datasets
+\dontshow{oop <- }options(na.action = "na.fail")
 
 fm1 <- lm(y ~ ., data = Cement)
 dd <- dredge(fm1)
@@ -340,13 +341,12 @@ dredge(fm1, subset = !(X1 && X2))
 # Fit only models containing either X3 or X4 (but not both);
 # include X3 only if X2 is present, and X2 only if X1 is present.
 dredge(fm1, subset = dc(X1, X2, X3) && xor(X3, X4))
-# the same as above, but without using "dc"
+# the same as above, without "dc"
 dredge(fm1, subset = (X1 | !X2) && (X2 | !X3) && xor(X3, X4))
 
 # Include only models with up to 2 terms (and intercept)
 dredge(fm1, m.max = 2)
 }
-
 
 # Add R^2 and F-statistics, use the 'extra' argument
 dredge(fm1, m.max = 1, extra = c("R^2", F = function(x)
@@ -361,17 +361,9 @@ dredge(fm1, m.max = 1, extra = list(
     })
 )
 
-
 # Add other information criterions (but rank with AICc):
-\dontshow{
-# there is no BIC in R < 2.13.0, so need to add it:
-if(!exists("BIC", mode = "function"))
-    BIC <- function(object, ...)
-        AIC(object, k = log(length(resid(object))))
-}
 dredge(fm1, m.max = 1, extra = alist(AIC, BIC, ICOMP, Cp))
-
-
+\dontshow{options(oop)}
 }
 
 \keyword{models}

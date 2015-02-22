@@ -35,7 +35,7 @@ importance(x)
 \examples{
 
 # Generate some models
-fm1 <- lm(y ~ ., data = Cement)
+fm1 <- lm(y ~ ., data = Cement, na.action = na.fail)
 ms1 <- dredge(fm1)
 
 # Importance can be calculated/extracted from various objects:

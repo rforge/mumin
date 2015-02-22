@@ -54,6 +54,8 @@ over-dispersion
 \author{Kamil Barto\enc{ń}{n}}
 
 \examples{
+\dontshow{oop <- }options(na.action = "na.fail")
+
 # Based on "example(predict.glm)", with one number changed to create
 # overdispersion
 budworm <- data.frame(
@@ -78,6 +80,7 @@ x.quasibinomial <- function(...) {
 }
 QAIC(update(budworm.lg, family = x.quasibinomial), chat = chat)
 }
+\dontshow{options(oop)}
 }
 
 \keyword{models}

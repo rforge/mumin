@@ -105,7 +105,7 @@ parameter calculation.
 \examples{
 
 \dontshow{
-options(na.action="na.fail")
+oop <- options(na.action="na.fail")
 if(require(graphics)) \{ }
 
 # Example from Burnham and Anderson (2002), page 100:
@@ -151,9 +151,8 @@ legend("topleft",
     lty = 1, lwd = c(rep(2,n),3,3,3),  cex = .75, col=1:8)
 
 palette(opal)
-
-\dontshow{ \} }
-
+\dontshow{ \} 
+options(oop) }
 }
 
 \keyword{models}

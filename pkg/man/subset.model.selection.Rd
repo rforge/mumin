@@ -72,7 +72,7 @@ subsetting and extracting from \code{data.frame}s.
 }
 
 \examples{
-fm1 <- lm(formula = y ~ X1 + X2 + X3 + X4, data = Cement)
+fm1 <- lm(formula = y ~ X1 + X2 + X3 + X4, data = Cement, na.action = na.fail)
 
 # generate models where each variable is included only if the previous
 # are included too, e.g. X2 only if X1 is there, and X3 only if X2 and X1

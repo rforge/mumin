@@ -59,9 +59,7 @@ Other implementations:
 }
 
 \examples{
-
 #Model-averaging mixed models
-
 \dontshow{ if(require(nlme)) \{ }
 data(Orthodont, package = "nlme")
 

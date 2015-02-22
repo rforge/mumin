@@ -79,7 +79,7 @@ if(MuMIn:::.parallelPkgCheck(quiet = TRUE)) \{
 Beetle100 <- Beetle[sample(nrow(Beetle), 100, replace = TRUE),]
 
 fm1 <- glm(Prop ~ dose + I(dose^2) + log(dose) + I(log(dose)^2),
-    data = Beetle100, family = binomial)
+    data = Beetle100, family = binomial, na.action = na.fail)
 
 msubset <- expression(xor(dose, `log(dose)`) & (dose | !`I(dose^2)`)
     & (`log(dose)` | !`I(log(dose)^2)`))

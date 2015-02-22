@@ -361,7 +361,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	while((iComb <- iComb + 1L) < ncomb) {
 		varComb <- iComb %% nVariants
 		jComb <- (iComb - varComb) / nVariants
-		#print(c(iComb, jComb, ncomb, varComb + 1L))
+
 		if(varComb == 0L) {
 			isok <- TRUE
 			

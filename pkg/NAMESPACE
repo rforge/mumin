@@ -11,9 +11,8 @@ export(
 	simplify.formula, expand.formula,
 	updateable, updateable2,
 	uGamm, nested, stdize, stdizeFit,
-	exprApply,
-	get.response,
-	get_call,
+	exprApply, get.response, get_call, glm.link,
+	predict_avg, avg.predictions, std_predict,
 # Defunct:
 	mod.sel
 )
@@ -316,3 +315,26 @@ S3method(glm.link, glmmadmb)
 S3method(glm.link, "link-glm")
 S3method(glm.link, polr)
 
+S3method(invtransform, default)
+S3method(invtransform, glm)
+S3method(invtransform, gls)
+S3method(invtransform, hurdle)
+S3method(invtransform, lm)
+S3method(invtransform, lme)
+S3method(invtransform, zeroinfl)
+
+S3method(std_predict, caic)
+S3method(std_predict, default)
+S3method(std_predict, hurdle)
+S3method(std_predict, lm)
+S3method(std_predict, lme)
+S3method(std_predict, merMod)
+S3method(std_predict, multinom)
+S3method(std_predict, pgls)
+S3method(std_predict, polr)
+S3method(std_predict, rq)
+S3method(std_predict, unmarkedFit)
+S3method(std_predict, zeroinfl)
+
+S3method(get.contrasts, averaging)
+S3method(get.contrasts, lm)
