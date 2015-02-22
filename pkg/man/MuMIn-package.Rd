@@ -62,7 +62,8 @@ model selection by AIC.
 }
 
 \examples{
-\dontshow{oop <- }options(na.action = "na.fail") #  change the default "na.omit" to prevent models 
+\dontshow{oop <- }
+options(na.action = "na.fail") #  change the default "na.omit" to prevent models 
                                #  from being fitted to different datasets in 
                                #  case of missing values.
 

@@ -60,7 +60,10 @@ Other implementations:
 
 \examples{
 #Model-averaging mixed models
-\dontshow{ if(require(nlme)) \{ }
+\dontshow{ if(require(nlme)) \{
+oop <- }
+options(na.action = "na.fail")
+
 data(Orthodont, package = "nlme")
 
 # Fit model by REML

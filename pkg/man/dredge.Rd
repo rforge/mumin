@@ -308,7 +308,8 @@ regression.
 # Example from Burnham and Anderson (2002), page 100:
 
 #  prevent fitting sub-models to different datasets
-\dontshow{oop <- }options(na.action = "na.fail")
+\dontshow{oop <- }
+options(na.action = "na.fail")
 
 fm1 <- lm(y ~ ., data = Cement)
 dd <- dredge(fm1)

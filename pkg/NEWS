@@ -1,17 +1,5 @@
 MuMIn package news:
 
-Version: 1.14.0 (2015-04-01)
-IN DEVELOPMENT
-predict_avg: completely rewritten 'predict.averaging' to for more flexibility 
-	and consistency between different model classes. Adds predictions for each 
-	term (type = "terms"), multiple-response models (e.g. multinom), and 
-	calculation directly from linear combination of model-averaged coefficients.
-(added) invtransform, std_predict: to be used by predict.averaging for 
-	type="invlink"
-(added) glm.link: new function to extract/calculate link-glm object from
-	model object.
-
-
 Version: 1.13.3 (2015-02-19)
 get.models+subset.model.selection: unified 'subset' expression interpretation
 dredge: no longer exceeds memory limit with very complex models, and its 

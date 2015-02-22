@@ -54,7 +54,8 @@ over-dispersion
 \author{Kamil Barto\enc{ń}{n}}
 
 \examples{
-\dontshow{oop <- }options(na.action = "na.fail")
+\dontshow{oop <- }
+options(na.action = "na.fail")
 
 # Based on "example(predict.glm)", with one number changed to create
 # overdispersion
