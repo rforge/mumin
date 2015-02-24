@@ -10,7 +10,9 @@ function(cfarr, weight, revised.var, full, alpha) {
 	weight <- weight / sum(weight)
 	nCoef <- dim(cfarr)[3L]
 	if(full) {
-		cfarr[, 1:2, ][is.na(cfarr[, 1:2, ])] <- 0
+		nas <- is.na(cfarr[, 1L, ]) & is.na(cfarr[, 2L, ])
+		cfarr[, 1L, ][nas] <- cfarr[, 2L, ][nas] <- 0
+		#cfarr[, 1L:2L, ][is.na(cfarr[, 1L:2L, ])] <- 0
 		if(!all(is.na(cfarr[, 3L, ])))
 			cfarr[ ,3L, ][is.na(cfarr[ , 3L, ])] <- Inf
 	}
