@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.13.4 (2015-02-24)
+coefTable.coxph: added workaround for the case when variance-covariance matrix 
+	is NA (as in results of 'intcox') (reported by Vanessa Boukili)
+
 Version: 1.13.3 (2015-02-19)
 get.models+subset.model.selection: unified 'subset' expression interpretation
 dredge: no longer exceeds memory limit with very complex models, and its 
