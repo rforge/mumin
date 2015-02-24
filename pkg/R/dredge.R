@@ -7,9 +7,9 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	trace <- min(as.integer(trace), 2L)
 
 	gmEnv <- parent.frame()
-	gmCall <- get_call(global.model)
 	gmNobs <- nobs(global.model)
 
+	gmCall <- get_call(global.model)
 	if (is.null(gmCall)) {
 		gmCall <- substitute(global.model)
 		if(!is.call(gmCall)) {
@@ -26,11 +26,11 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		# if 'update' method does not expand dots, we have a problem with
 		# expressions like ..1, ..2 in the call. So try to replace them with
 		# respective arguments in the original call
-		isDotted <- grep("^\\.\\.", sapply(as.list(gmCall), deparse))
+		isDotted <- grep("^\\.\\.", sapply(as.list(gmCall), asChar))
 		if(length(isDotted) != 0L) {
 			if(is.name(substitute(global.model))) {
-				cry(NA, "call stored in 'global.model' contains unexpanded dots and cannot be updated: \n    %s",
-					 asChar(gmCall))
+				cry(NA, "call stored in 'global.model' contains dotted names and cannot be updated. \n    Consider using 'updateable' on the modelling function")
+		 
 			} else gmCall[isDotted] <-
 				substitute(global.model)[names(gmCall[isDotted])]
 		}
