@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.13.5 (2015-04-15)
+(fixed) r.squaredGLMM: method for 'lme' class with a multilevel grouping 
+	structure (reported by Alex Gunderson)
+
 Version: 1.13.4 (2015-02-24)
 coefTable.coxph: added workaround for the case when variance-covariance matrix 
 	is NA (as in results of 'intcox') (reported by Vanessa Boukili)

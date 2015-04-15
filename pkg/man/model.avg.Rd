@@ -73,7 +73,7 @@ a \code{data.frame} with log-likelihood, \emph{IC},
 	is a named vector with numerical representation of the terms in 
 	the row names of \code{msTable}. 
 }
-\item{avg.model}{the model averaged parameters. A \code{matrix} with rows for
+\item{coefTable}{the model averaged parameters. A \code{matrix} with rows for
 	model terms, columns for averaged coefficient, unconditional standard error,
 	adjusted SE (\code{NA} if \emph{df}s are not available), \emph{z}-test 
 	statistic and associated \emph{p}-value. }
