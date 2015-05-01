@@ -29,8 +29,6 @@ function(cfarr, weight, revised.var, full, alpha) {
 }
 
 
-
-
 `model.avg.model.selection` <-
 function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 
@@ -120,16 +118,16 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 function(object, ..., beta = FALSE,	rank = NULL, rank.args = NULL,
 	revised.var = TRUE, dispersion = NULL, ct.args = NULL) {
 
-	if (inherits(object, "list")) {
+	if (is.object(object)) {
+		models <- list(object, ...)
+        rank <- .getRank(rank, rank.args = rank.args, object = object) 
+	} else {
 		if(length(object) == 0L) stop("'object' is an empty list")
 		models <- object
 		object <- object[[1L]]
         if (!is.null(rank) || is.null(rank <- attr(models, "rank"))) {
             rank <- .getRank(rank, rank.args = rank.args, object = object)
       	}
-	} else {
-		models <- list(object, ...)
-        rank <- .getRank(rank, rank.args = rank.args, object = object)
 	}
 
 	nModels <- length(models)

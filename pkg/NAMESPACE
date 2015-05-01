@@ -220,6 +220,7 @@ S3method(getQIC, default)
 S3method(getQIC, gee)
 S3method(getQIC, geeglm)
 S3method(getQIC, yagsResult)
+S3method(getQIC, geem)
 
 S3method(print, quasiLik)
 S3method(quasiLik, gee)

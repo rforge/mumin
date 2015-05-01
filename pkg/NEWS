@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.13.6 (2015-05-01)
+(fixed) model.avg, model.sel: now better distinguish model objects from lists of 
+    objects.
+
 Version: 1.13.5 (2015-04-15)
 (fixed) r.squaredGLMM: method for 'lme' class with a multilevel grouping 
 	structure (reported by Alex Gunderson)
@@ -107,7 +111,7 @@ r.squaredGLMM: should be considerably faster and memory efficient due to
 
 Version: 1.10.3 (2014-06-27)
 (fixed) dredge: no longer drops random term in 'glmmadmb' models (spotted by 
-	Carlos Le√≥n)
+	Carlos Le¢n)
 
 Version: 1.10.2
 mystery update

@@ -88,7 +88,6 @@ function(x, typeR = FALSE) .NotYetImplemented()
 }
 
 
-
 `getQIC.gee` <- 
 function(x, typeR = FALSE) {
 	if(x$model$corstr != "Independent")
@@ -117,6 +116,17 @@ function(x, typeR = FALSE) {
 	.qic2(x@fitted.values + x@residuals, x@fitted.values, x@robust.parmvar, 
 		  xi@fitted.values, xi@naive.parmvar, family(x)$family,
 		  typeR = typeR)
+}
+
+
+`getQIC.geem` <-
+function(x, typeR = FALSE) {
+	.NotYetImplemented()
+	#fam <- tryCatch(family(x)$family, error = function(e){return("quasi")})
+    #xi <- if(x$corr != "independence")
+    #  update(x, corstr = "independence") else x
+    #.qic2(x$y, fitted(x), as.matrix(x$var), fitted(xi), as.matrix(xi$naiv.var), fam,
+    #    typeR = typeR)
 }
 
 `QIC` <- function (object, ..., typeR = FALSE) {

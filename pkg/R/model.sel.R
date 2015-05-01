@@ -62,7 +62,7 @@ function(object, ..., rank = NULL, rank.args = NULL, beta = FALSE, extra) {
 	if (missing(object) && length(models <- list(...)) > 0L) {
 		object <- models[[1L]]
 		names(models) <- .makemnames(sys.call())
-	} else if (inherits(object, "list")) {
+	} else if (is.list(object) && !is.object(object)) {
 		if(length(object) ==  0L) stop("at least one model must be given")
 		models <- object
 		object <- models[[1L]]
