@@ -574,8 +574,14 @@ function(x, ...) {
 }
 
 `coefTable.averaging` <-
-function (model, full = FALSE, ...) {
-	if(full)
-		summary(model)$coefmat.full[, 1L:2L] else
-		model$coefTable[, 1L:2L]
+function (model, full = FALSE, adjust.se = TRUE, ...) {
+    no.ase <- all(is.na(model$coefTable[, 3L]))
+	if(adjust.se && no.ase) 
+        warning("adjusted std. error not available for this type of model")
+    cols <- c(1L, if(!adjust.se || no.ase) 2L else 3L)
+	if(full) {
+		summary(model)$coefmat.full[, cols] 
+    } else {
+		model$coefTable[, cols]
+    }
 }

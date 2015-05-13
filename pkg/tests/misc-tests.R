@@ -20,7 +20,8 @@ dd <- dredge(budworm.lg, trace=TRUE)
 avgmod <- model.avg(get.models(dd, 1:4))
 
 # TEST for consistency of vcov and se calculation ------------------------------
-if(!isTRUE(all.equal(coefTable(avgmod)[,2], sqrt(diag(vcov(avgmod))), tolerance = .001)))
+if(!isTRUE(all.equal(coefTable(avgmod, adjust.se = FALSE)[,2],
+	sqrt(diag(vcov(avgmod))), tolerance = .001)))
 	stop("'vcov' has a problem")
 
 # TEST evaluation from within function -----------------------------------------

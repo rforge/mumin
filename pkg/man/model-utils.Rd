@@ -8,6 +8,7 @@
 \alias{coefTable.default}
 \alias{coefTable.lme}
 \alias{coefTable.gee}
+\alias{coefTable.averaging}
 \alias{getAllTerms}
 \alias{getAllTerms.terms}
 \alias{get.response}
@@ -46,6 +47,7 @@ getAllTerms(x, ...)
 \method{getAllTerms}{terms}(x, offset = TRUE, intercept = FALSE, ...)
 
 coefTable(model, ...)
+\method{coefTable}{averaging}(model, full = FALSE, adjust.se = TRUE, ...)
 \method{coefTable}{lme}(model, adjustSigma, ...)
 \method{coefTable}{gee}(model, ..., type = c("naive", "robust"))
 
@@ -60,25 +62,31 @@ model.names(object, ..., labels = NULL, use.letters = FALSE)
   \item{x}{a fitted model object or a \code{formula}. }
   \item{offset}{should \sQuote{offset} terms be included? }
   \item{intercept}{should terms names include the intercept?}
-  \item{labels}{optionally, a character vector with names of all the terms,
+  \item{full, adjust.se}{logical, apply to \code{"averaging"} objects. If \code{full} is 
+    \code{TRUE}, the full model averaged coefficients are returned, and 
+    subset-averaged ones otherwise.
+    If \code{adjust.se} is \code{TRUE}, inflated standard errors are returned. 
+    See \sQuote{Details} in \code{\link{par.avg}}.
+    }
+ 
+  \item{adjustSigma}{ See \code{\link[nlme]{summary.lme}}. }
+  \item{type}{ for \acronym{GEE} models, the type of covariance estimator to calculate
+		returned standard errors on. Either \code{"naive"} or \code{"robust"}
+		(\sQuote{sandwich}). }
+
+ \item{labels}{optionally, a character vector with names of all the terms,
 	e.g. from a global model. \code{model.names} enumerates the model terms in
 	order of their appearance in the list and in the models. Therefore changing the
 	order of the models leads to different names. Providing \code{labels}
-	prevents that.
- }
+	prevents that. }
+    
   \item{\dots}{for \code{model.names}, more fitted model objects.
 	For \code{coefTable} arguments that are passed to appropriate \code{\link{vcov}}
 	or \code{summary} method (e.g. \code{dispersion} parameter for \code{glm} may
 	be used here). In other functions often not used.
   }
   \item{use.letters}{logical, whether letters should be used instead of numeric codes. }
-  
-  \item{type}{ for \acronym{GEE} models, the type of covariance estimator to calculate
-		returned standard errors on. Either \code{"naive"} or \code{"robust"}
-		(\sQuote{sandwich}). }
-  \item{adjustSigma}{ See \code{\link[nlme]{summary.lme}}. }
-
-}
+ }
 
 \details{
 	The functions \code{coeffs}, \code{getAllTerms} and \code{coefTable} provide
