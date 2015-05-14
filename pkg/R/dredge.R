@@ -30,17 +30,14 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		if(length(isDotted) != 0L) {
 			if(is.name(substitute(global.model))) {
 				cry(NA, "call stored in 'global.model' contains dotted names and cannot be updated. \n    Consider using 'updateable' on the modelling function")
-		 
 			} else gmCall[isDotted] <-
 				substitute(global.model)[names(gmCall[isDotted])]
 		}
-		
 		# object from 'run.mark.model' has $call of 'make.mark.model' - fixing
 		# it here:
 		if(inherits(global.model, "mark") && gmCall[[1L]] == "make.mark.model") {
 			gmCall <- call("run.mark.model", model = gmCall, invisible = TRUE)
 		}
-		
 	}
 
 	lik <- .getLik(global.model)
@@ -357,11 +354,15 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			   function(...) {})
 		on.exit(close(progressBar))
 	}
+	
 	iComb <- -1L
 	while((iComb <- iComb + 1L) < ncomb) {
 		varComb <- iComb %% nVariants
 		jComb <- (iComb - varComb) / nVariants
 
+		#if(iComb %% 100L == 0L)
+			#setProgressBar(progressBar, value = iComb, title = sprintf("dredge: %d/%d total", k, iComb))
+		
 		if(varComb == 0L) {
 			isok <- TRUE
 			
@@ -414,7 +415,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			utils::flush.console()
 		} else if(trace == 2L) {
 			setProgressBar(progressBar, value = iComb,
-				title = sprintf("dredge: %d of %.0f subsets", k, (k / iComb) * ncomb))
+				title = sprintf("dredge: %d of %.0f subsets (%d total)", k, (k / iComb) * ncomb, iComb))
 		}
 	
 		if(evaluate) {

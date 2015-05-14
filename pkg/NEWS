@@ -1,8 +1,10 @@
 MuMIn package news:
 
-Version: 1.13.7 (2015-05-13)
+Version: 1.13.7 (2015-05-14)
 coefTable: method for 'averaging' objects gains new arguments "full" and 
 	"adjust.se".
+(fixed) getAllTerms: now correctly names coefficients of 'unmarked::gdistsamp' 
+    models (reported by Nathan Hostetter)
 
 Version: 1.13.6 (2015-05-01)
 (fixed) model.avg, model.sel: now better distinguish model objects from lists of 

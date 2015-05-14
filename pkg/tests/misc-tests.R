@@ -1,6 +1,7 @@
 # Test varia
 
 require(MuMIn)
+packageVersion("MuMIn")
 options(na.action = "na.fail")
 
 #print(packageDescription("MuMIn", fields = "Version"))
