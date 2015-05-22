@@ -1,5 +1,8 @@
 MuMIn package news:
 
+Version: 1.13.8 (2015-05-22)
+(added) QIC support for 'geem' models (request from Lee McDaniel).
+
 Version: 1.13.7 (2015-05-14)
 coefTable: method for 'averaging' objects gains new arguments "full" and 
 	"adjust.se".

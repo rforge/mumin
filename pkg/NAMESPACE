@@ -20,6 +20,10 @@ export(
 
 importFrom(stats, family)
 importFrom(stats, nobs, getCall)
+
+importFrom(Matrix, t, rowSums)
+
+
 S3method(getCall, yagsResult)
 
 S3method("$<-", model.selection)

@@ -18,9 +18,8 @@
 		   poisson = sum(y * log(mu) - mu),
 		   Gamma = -sum(y/mu + log(mu)),
 		   inverse.gaussian = sum(-y/(2 * mu^2) + 1/mu),
-		   stop("do not know how to calculate quasi-likelihood for family ",
-				dQuote(fam))
-		   )
+		   cry(NA, "do not know how to calculate quasi-likelihood for family '%s'",
+				fam))
 	ret
 }
 
@@ -49,7 +48,6 @@ function(object, ...) {
 	ret
 }
 
-
 ##=============================================================================
 ## QIC 
 ##=============================================================================
@@ -68,17 +66,14 @@ function(object, ...) {
 	c(2 * (c(QIC = tr, QICu = px) - ql), n = n)
 }
 
-
-
 `getQIC` <- 
 function(x, typeR = FALSE) UseMethod("getQIC")
 	
 `getQIC.default` <-
 function(x, typeR = FALSE) .NotYetImplemented()
 
-
 `getQIC.coxph` <- function(x, ...) {
-	warning("QIC for coxph is experimental")
+	warning("QIC for 'coxph' is experimental")
 	naive.var <- x[[ if (is.null(x$naive.var)) "var" else "naive.var" ]]
 	# tr <- sum(diag(solve(naive.var) %*% x$var))
 	tr <- sum(matmultdiag(solve(naive.var), x$var))
@@ -86,7 +81,6 @@ function(x, typeR = FALSE) .NotYetImplemented()
 	px <- x$n
 	c(2 * (c(QIC = tr, QICu = px) - ll), n = px)
 }
-
 
 `getQIC.gee` <- 
 function(x, typeR = FALSE) {
@@ -118,15 +112,14 @@ function(x, typeR = FALSE) {
 		  typeR = typeR)
 }
 
-
 `getQIC.geem` <-
 function(x, typeR = FALSE) {
-	.NotYetImplemented()
-	#fam <- tryCatch(family(x)$family, error = function(e){return("quasi")})
-    #xi <- if(x$corr != "independence")
-    #  update(x, corstr = "independence") else x
-    #.qic2(x$y, fitted(x), as.matrix(x$var), fitted(xi), as.matrix(xi$naiv.var), fam,
-    #    typeR = typeR)
+	fam <- family(x)
+	xi <- if(x$corr != "independence")
+		update(x, corstr = "independence") else x
+    .qic2(x$y, fitted(x), x$var, fitted(xi), xi$naiv.var,
+		if(inherits(fam, "family")) fam$family else "custom",
+        typeR = typeR)
 }
 
 `QIC` <- function (object, ..., typeR = FALSE) {
@@ -152,5 +145,3 @@ function(x, typeR = FALSE) {
 		val
 	} else getQIC(object, typeR = typeR)[2L]
 }
-
-
