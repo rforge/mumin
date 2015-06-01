@@ -106,7 +106,11 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 		
 	# TODO: other classes: model, fixed, etc...
-	gmCoefNames <- fixCoefNames(names(coeffs(global.model)))
+    gmCoefNames <- names(coeffs(global.model))
+    if(any(dup <- duplicated(gmCoefNames <- names(coef(global.model)))))
+        cry(NA, "model cannot have duplicated coefficient names: ",
+             prettyEnumStr(gmCoefNames[dup]))
+	gmCoefNames <- fixCoefNames(gmCoefNames)
 
 	nVars <- length(allTerms)
 

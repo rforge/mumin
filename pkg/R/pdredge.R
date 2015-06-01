@@ -28,9 +28,9 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 ###PAR
 
 	gmEnv <- parent.frame()
-	gmCall <- get_call(global.model)
 	gmNobs <- nobs(global.model)
 
+	gmCall <- get_call(global.model)
 	if (is.null(gmCall)) {
 		gmCall <- substitute(global.model)
 		if(!is.call(gmCall)) {
@@ -47,21 +47,18 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		# if 'update' method does not expand dots, we have a problem with
 		# expressions like ..1, ..2 in the call. So try to replace them with
 		# respective arguments in the original call
-		isDotted <- grep("^\\.\\.", sapply(as.list(gmCall), deparse))
+		isDotted <- grep("^\\.\\.", sapply(as.list(gmCall), asChar))
 		if(length(isDotted) != 0L) {
 			if(is.name(substitute(global.model))) {
-				cry(NA, "call to 'global.model' contains unexpanded dots and cannot be updated: \n%s",
-					 asChar(gmCall))
+				cry(NA, "call stored in 'global.model' contains dotted names and cannot be updated. \n    Consider using 'updateable' on the modelling function")
 			} else gmCall[isDotted] <-
 				substitute(global.model)[names(gmCall[isDotted])]
 		}
-		
 		# object from 'run.mark.model' has $call of 'make.mark.model' - fixing
 		# it here:
 		if(inherits(global.model, "mark") && gmCall[[1L]] == "make.mark.model") {
 			gmCall <- call("run.mark.model", model = gmCall, invisible = TRUE)
 		}
-		
 	}
 
 	lik <- .getLik(global.model)
@@ -100,7 +97,8 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 	ICName <- as.character(attr(IC, "call")[[1L]])
 
 	if(length(tryCatch(IC(global.model), error = function(e) {
-		stop(simpleError(conditionMessage(e), subst(attr(IC, "call"), x = as.name("global.model"))))
+		stop(simpleError(conditionMessage(e), subst(attr(IC, "call"),
+			x = as.name("global.model"))))
 	})) != 1L) {
 		cry(NA, "result of '%s' is not of length 1", asChar(attr(IC, "call")))
 	}
@@ -128,7 +126,12 @@ function(global.model, cluster = NA, beta = FALSE, evaluate = TRUE,
 		match.call(gmCall, definition = eval.parent(gmCall[[1L]]),
 				   expand.dots = TRUE)
 
-	gmCoefNames <- fixCoefNames(names(coeffs(global.model)))
+    gmCoefNames <- names(coeffs(global.model))
+    if(any(dup <- duplicated(gmCoefNames <- names(coef(global.model)))))
+        cry(NA, "model cannot have duplicated coefficient names: ",
+             prettyEnumStr(gmCoefNames[dup]))
+
+	gmCoefNames <- fixCoefNames(gmCoefNames)
 
 	nVars <- length(allTerms)
 

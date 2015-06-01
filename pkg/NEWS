@@ -1,9 +1,13 @@
 MuMIn package news:
 
+Version: 1.13.10 (2015-06-01)
+(fixed) compatibility with lme4-1.1.8, 'null.fit' now works properly with gamm 
+    models.
+
 Version: 1.13.9 (2015-05-28)
 stdize: improved interpretation of the argument "scale".
-new dataset "GPA" ("First-year college Grade Point Average" referred in Burnham &
-    Anderson (2002) book).
+new dataset "GPA" ("First-year college Grade Point Average" referred in Burnham 
+    & Anderson (2002)).
 
 Version: 1.13.8 (2015-05-22)
 (added) QIC support for 'geem' models (request from Lee McDaniel).

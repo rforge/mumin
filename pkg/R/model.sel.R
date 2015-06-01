@@ -89,6 +89,14 @@ function(object, ..., rank = NULL, rank.args = NULL, beta = FALSE, extra) {
 	allTermsList <- lapply(models, getAllTerms, intercept = TRUE)
 	random.terms <- lapply(allTermsList, attr, "random.terms")
 	all.terms <- unique(unlist(allTermsList, use.names = FALSE))
+    
+    lapply(models, function(fit) {
+        if(any(dup <- duplicated(cfn <- names(coeffs(fit)))))
+        cry(sys.call(-2L), "models cannot have duplicated coefficient names: %s",
+             prettyEnumStr(cfn[dup]))
+    })
+
+    
 	all.coef <- fixCoefNames(unique(unlist(lapply(lapply(models, coeffs), names),
 		use.names = FALSE)))
 

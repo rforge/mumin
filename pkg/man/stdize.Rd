@@ -31,7 +31,7 @@ variables.
     binary = c("center", "scale", "binary", "half", "omit"),
     center = TRUE, scale = TRUE, omit.cols = NULL, prefix = TRUE,
     append = FALSE, ...)
-    
+
 stdizeFit(object, data, which = c("formula", "subset", "offset", "weights"),
     evaluate = TRUE, quote = NA)
 }
