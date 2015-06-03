@@ -159,8 +159,14 @@ deviations. \emph{Statistics in medicine} 27, 2865-2873.
 Compare with \code{\link{scale}} and \code{\link[arm]{standardize}} or
 \code{\link[arm]{rescale}} (the latter two in package \pkg{arm}).
 
+For typical standardizing, model coefficients transformation may be
+easier, see \code{\link{std.coef}}.
+
 \code{\link{apply}} and \code{\link{sweep}} for arbitrary transformations of 
-columns in a \code{data.frame}. 
+columns in a \code{data.frame}.
+
+
+
 }
 
 \examples{
