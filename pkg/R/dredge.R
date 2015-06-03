@@ -141,6 +141,7 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 		cry(NA, "do not know how to standardize coefficients of '%s', argument 'beta' ignored",
 			 class(global.model)[1L], warn = TRUE)
 		betaMode <- 0L
+		strbeta <- "none"
 	}
 
 	m.max <- if (missing(m.max)) (nVars - nIntercepts) else min(nVars - nIntercepts, m.max)
@@ -362,7 +363,7 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 	matchCoefCall <- as.call(c(alist(matchCoef, fit1, all.terms = allTerms,
 		  beta = betaMode, allCoef = TRUE), ct.args))
 	
-	DebugPrint(matchCoefCall)
+
 	
 	retColIdx <- if(nVarying) -nVars - seq_len(nVarying) else TRUE
 	
