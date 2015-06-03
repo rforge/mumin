@@ -7,13 +7,15 @@ export(
 	AICc, QAIC, QAICc, Cp, ICOMP, CAICF, DIC, 
 	r.squaredLR, null.fit, r.squaredGLMM,
 	QIC, quasiLik,
-	beta.weights, model.names,
+	model.names,
 	simplify.formula, expand.formula,
 	updateable, updateable2,
 	uGamm, nested, stdize, stdizeFit,
 	exprApply,
 	get.response,
 	get_call,
+	std.coef, beta.weights, 
+ 	partial.sd,
 # Defunct:
 	mod.sel
 )
@@ -310,5 +312,3 @@ S3method(stdize, matrix)
 S3method(get.response, default)
 S3method(get.response, lm)
 S3method(get.response, averaging)
-
-

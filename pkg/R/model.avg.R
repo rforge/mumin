@@ -115,8 +115,9 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 
 
 `model.avg.default` <-
-function(object, ..., beta = FALSE,	rank = NULL, rank.args = NULL,
-	revised.var = TRUE, dispersion = NULL, ct.args = NULL) {
+function(object, ..., beta = c("none", "sd", "partial.sd"),
+		 rank = NULL, rank.args = NULL, revised.var = TRUE,
+		 dispersion = NULL, ct.args = NULL) {
 
 	if (is.object(object)) {
 		models <- list(object, ...)
@@ -129,6 +130,9 @@ function(object, ..., beta = FALSE,	rank = NULL, rank.args = NULL,
             rank <- .getRank(rank, rank.args = rank.args, object = object)
       	}
 	}
+	
+	strbeta <- betaMode <- NULL
+	eval(.expr_beta_arg)
 
 	nModels <- length(models)
 	if(nModels == 1L) stop("only one model supplied. Nothing to do")
@@ -154,15 +158,22 @@ function(object, ..., beta = FALSE,	rank = NULL, rank.args = NULL,
 	
 	coefTableCall <- as.call(c(alist(coefTable, models[[i]],
 		dispersion = dispersion[i]), ct.args))
+	
+	if(betaMode == 2L) {
+		coefTableCall[[1L]] <- as.name("std.coef")
+		coefTableCall[['partial.sd']] <- TRUE
+	}
+	
+	DebugPrint(coefTableCall)
 
 	# check if models are unique:
 	if(!is.null(dispersion)) dispersion <- rep(dispersion, length.out = nModels)
 	coefTables <- vector(nModels, mode = "list")
-	for(i in seq_len(nModels)) coefTables[[i]] <-
-		eval(coefTableCall)
+	for(i in seq_len(nModels))
+		coefTables[[i]] <-  eval(coefTableCall)
 		#coefTable(models[[i]], dispersion = dispersion[i])
+	
 	mcoeffs <- lapply(coefTables, "[", , 1L)
-
 	dup <- unique(sapply(mcoeffs, function(i) which(sapply(mcoeffs, identical, i))))
 	dup <- dup[sapply(dup, length) > 1L]
 	if (length(dup) > 0L) stop("models are not unique. Duplicates: ",
@@ -191,7 +202,7 @@ function(object, ..., beta = FALSE,	rank = NULL, rank.args = NULL,
 	models <- models[model.order]
 	coefTables <- coefTables[model.order]
 
-	if (beta) {
+	if (betaMode == 1L) {
 		response.sd <- sd(model.response(model.frame(object)))
 		for(i in seq_along(coefTables))
 			coefTables[[i]][, 1L:2L] <-

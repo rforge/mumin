@@ -1,5 +1,12 @@
 MuMIn package news:
 
+Version: 1.14.0 (2015-06-03)
+(added) partial.sd, std.coef: calculate partial std. deviation and standardize 
+    model coefficients. 'beta.weights' is now deprecated in favour of 
+    'std.coef'.
+dredge, model.avg, model.sel: argument 'beta' is modified to allow for 
+	standardizing with SD or partial SD.
+
 Version: 1.13.10 (2015-06-01)
 (fixed) compatibility with lme4-1.1.8, 'null.fit' now works properly with gamm 
     models.

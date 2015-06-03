@@ -1,11 +1,30 @@
+
+.expr_beta_arg <- expression({
+	if(is.logical(beta) && beta) {
+		betaMode <- as.integer(beta)
+		strbeta <- if(beta) "sd" else "none"
+	} else if(is.character(beta)) {
+		strbeta <- match.arg(beta)
+		beta <- strbeta != "none"
+		betaMode <- (strbeta != "none") + (strbeta == "partial.sd")
+	} else {
+		betaMode <- 0L
+		strbeta <- "none"
+	}
+})
+
+
 `dredge` <-
-function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
+function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, rank = "AICc",
 		 fixed = NULL, m.max = NA, m.min = 0, subset,
 		 trace = FALSE, varying, extra, ct.args = NULL,
 		 ...) {
 	
 	trace <- min(as.integer(trace), 2L)
-
+	
+	strbeta <- betaMode <- NULL
+	eval(.expr_beta_arg)
+	
 	gmEnv <- parent.frame()
 	gmNobs <- nobs(global.model)
 
@@ -117,11 +136,11 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 	if(isTRUE(rankArgs$REML) || (isTRUE(.isREMLFit(global.model)) && is.null(rankArgs$REML)))
 		cry(NA, "comparing models fitted by REML", warn = TRUE)
 
-	if (beta && is.null(tryCatch(beta.weights(global.model), error = function(e) NULL,
+	if ((betaMode != 0L) && is.null(tryCatch(std.coef(global.model, betaMode == 2L), error = function(e) NULL,
 		warning = function(e) NULL))) {
-		cry(NA, "do not know how to calculate beta weights for '%s', argument 'beta' ignored",
+		cry(NA, "do not know how to standardize coefficients of '%s', argument 'beta' ignored",
 			 class(global.model)[1L], warn = TRUE)
-		beta <- FALSE
+		betaMode <- 0L
 	}
 
 	m.max <- if (missing(m.max)) (nVars - nIntercepts) else min(nVars - nIntercepts, m.max)
@@ -341,7 +360,9 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		)
 	
 	matchCoefCall <- as.call(c(alist(matchCoef, fit1, all.terms = allTerms,
-		  beta = beta, allCoef = TRUE), ct.args))
+		  beta = betaMode, allCoef = TRUE), ct.args))
+	
+	DebugPrint(matchCoefCall)
 	
 	retColIdx <- if(nVarying) -nVars - seq_len(nVarying) else TRUE
 	
@@ -446,6 +467,9 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 			}
 
 			mcoef1 <- eval(matchCoefCall)
+			
+			DebugPrint(mcoef1)
+			
 			ll1 <- logLik(fit1)
 			nobs1 <- nobs(fit1)
 			if(nobs1 != gmNobs) cry(NA, "number of observations in model #%d (%d) different from global model (%d)",
@@ -531,7 +555,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 
 	ret$delta <- ret[, ICName] - min(ret[, ICName])
 	ret$weight <- exp(-ret$delta / 2) / sum(exp(-ret$delta / 2))
-
+	
 	structure(ret,
 		class = c("model.selection", "data.frame"),
 		model.calls = calls[o],
@@ -540,7 +564,7 @@ function(global.model, beta = FALSE, evaluate = TRUE, rank = "AICc",
 		terms = structure(allTerms, interceptLabel = interceptLabel),
 		rank = IC,
 		rank.call = attr(IC, "call"),
-		beta = beta,
+		beta = strbeta, #eval(formals(sys.function())[["beta"]])[betaMode + 1L],
 		call = match.call(expand.dots = TRUE),
 		coefTables = coefTables,
 		nobs = gmNobs,

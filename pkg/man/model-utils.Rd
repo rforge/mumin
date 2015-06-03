@@ -2,7 +2,6 @@
 \alias{MuMIn-model-utils}
 \alias{coeffs}
 \alias{model.names}
-\alias{beta.weights}
 \alias{tTable}
 \alias{coefTable}
 \alias{coefTable.default}
@@ -21,9 +20,6 @@
 These functions extract or calculate various values from provided fitted model
 	objects(s). They are mainly meant for internal use.
 
-\code{beta.weights} computes standardized coefficients (beta weights) for
-	a model;
-
 \code{coeffs} extracts model coefficients;
 
 \code{getAllTerms} extracts independent variable names from a model object;
@@ -39,8 +35,6 @@ These functions extract or calculate various values from provided fitted model
 }
 
 \usage{
-beta.weights(model)
-
 coeffs(model)
 
 getAllTerms(x, ...)
