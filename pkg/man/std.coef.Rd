@@ -4,6 +4,7 @@
 \alias{partial.sd}
 
 \encoding{utf-8}
+\newcommand{\myequation}{\ifelse{latex}{\eqn{#1}{#3}}{\ifelse{html}{\enc{\eqn{#2}}{#3}}{#3}}}
 
 \title{Standardized model coefficients}
 \description{
@@ -32,21 +33,41 @@ beta.weights(model)
 \details{
 	Standardizing model coefficients has the same effect as centering and
 	scaling the input variables. \dQuote{Classical} standardized coefficients
-	are calculated as: \eqn{\beta^{*}_i = \beta_i\frac{s_{X_{i}}}{s_{y}}}, where
-	\eqn{\beta} is the unstandardized coefficient, \eqn{s_{X_{i}}} is the
-	standard deviation of associated depenent variable \eqn{X_{i}} and
-	\eqn{s_{y}} is \acronym{SD} of the response variable.
+	are calculated as 
+    \myequation{\beta^{*}_i = \beta_i\frac{s_{X_{i}}}{s_{y}}
+        }{\betaᵢ* = \betaᵢ ﹡(sₓᵢ / Sᵧ)
+        }{Bi* = Bi * (SXi / Sy)}
+    , where
+	\myequation{\beta}{\beta}{B} is the unstandardized coefficient, 
+    \myequation{s_{X_{i}}}{sₓᵢ}{SXi}    
+    is the
+	standard deviation of associated depenent variable 
+    \myequation{X_i}{Xᵢ}{Xi}  and
+	\myequation{s_{y}}{Sᵧ}{Sy}
+    is \acronym{SD} of the response variable.
+    
+    
+     % \myequation{\beta_i^{*}}{\betaᵢ*}{Bi*}
 	
-	If the variables are intercorrelated, the standard deviation of \eqn{X_i}
-	used in computing the standardized coefficients \eqn{\beta_i^{*}} should be
-	replaced by a partial standard deviation of \eqn{X_i} which is adjusted for
-	the multiple correlation of \eqn{X_i} with the other \eqn{X} variables
+	If the variables are intercorrelated, the standard deviation of
+    \myequation{X_i}{Xᵢ}{Xi}
+	used in computing the standardized coefficients 
+    \myequation{\beta_i^{*}}{\betaᵢ*}{Bi*} should be
+	replaced by a partial standard deviation of 
+    \myequation{X_i}{Xᵢ}{Xi} which is adjusted for
+	the multiple correlation of 
+    \myequation{X_i}{Xᵢ}{Xi}  with the other \eqn{X} variables
 	included in the regression equation. The partial standard deviation is
-	calculated as \eqn{s_{X_{i}}^{*} = s_{X_{i}} \var{VIF}(X_i)^{-0.5} (\frac{n
-	- 1}{n - p} )^{0.5}}, where \var{VIF} is the variance inflation factor,
+	calculated as 
+    \myequation{s_{X_{i}}^{*}=s_{X_{i}} \var{VIF}(X_i)^{-0.5} (\frac{n-1}{n-p} )^{0.5}
+        }{s*ₓᵢ = sₓᵢ ﹡√(VIFₓᵢ⁻¹) ﹡√((n-1)/(n-p))
+        }{sXi* = SXi * sqrt(1/VIF(Xi)) * sqrt((n-1)/(n-p))}, 
+    where \var{VIF} is the variance inflation factor,
 	\var{n} is the number of observations and \var{p} number of predictors in
-	the model. Coefficient is then transformed as \eqn{\beta^{*}_i = \beta_i
-	s_{X_{i}}^{*}}.
+	the model. Coefficient is then transformed as 
+    \myequation{\beta^{*}_i = \beta_i s_{X_{i}}^{*}
+        }{\betaᵢ* = \betaᵢ ﹡s*ₓᵢ
+        }{Bi* = Bi * SXi*}.
 
 }
 
