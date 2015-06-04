@@ -30,8 +30,9 @@ model.avg(object, ..., revised.var = TRUE)
     \item{\dots}{ for default method, more fitted model objects. Otherwise,
 		arguments that are passed to the default method. }
 
-    \item{beta}{ indicates whether and how the coefficients estimates should be
-		standardized. See argument description in \code{\link{dredge}}. }
+    \item{beta}{ indicates whether and how the component models' coefficients 
+        should be standardized. See the argument's description in 
+        \code{\link{dredge}}. }
 
 	\item{rank}{ optionally, a rank function (returning an information criterion) to
 		use instead of \code{AICc}, e.g. \code{BIC} or \code{QAIC}, may be

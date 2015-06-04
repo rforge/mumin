@@ -6,6 +6,10 @@ Version: 1.14.0 (2015-06-03)
     'std.coef'.
 dredge, model.avg, model.sel: argument 'beta' is modified to allow for 
 	standardizing with SD or partial SD.
+coefTable, coeffs: method for class 'aodml' (package 'aod3') no longer return 
+    'phi' coefficients. This is for consistency with results of 'vcov' and 
+    'coef', as well as their counterparts for 'glimML' models.
+Removed all methods for 'mer' objects (used in lme4 < 1.0.0)
 
 Version: 1.13.10 (2015-06-01)
 (fixed) compatibility with lme4-1.1.8, 'null.fit' now works properly with gamm 

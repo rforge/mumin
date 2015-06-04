@@ -48,6 +48,17 @@ function(object, ...) {
 	ret
 }
 
+`quasiLik.geem` <-
+function(object, ...) {
+	fam <- family(object)
+	ret <- .qlik(object$y, fitted(object), if(inherits(fam, "family"))
+				 fam$family else "custom")
+	attr(ret, "df") <- NA
+	attr(ret, "nobs") <- length(object$y)
+	class(ret) <- "quasiLik"
+	ret
+}
+
 ##=============================================================================
 ## QIC 
 ##=============================================================================

@@ -19,7 +19,7 @@ function(x) {
 	R <- cov2cor(v)
 	detR <- det(R)
 	vfs <- numeric(m <- dim(v)[1L])
-	for (j in 1:m)
+	for (j in 1L:m)
 		vfs[j] <- det(as.matrix(R[j, j])) * det(as.matrix(R[-j,-j])) / detR
 	
 	rval <- numeric(length(int))
