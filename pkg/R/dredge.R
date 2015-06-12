@@ -126,9 +126,10 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 		
 	# TODO: other classes: model, fixed, etc...
     gmCoefNames <- names(coeffs(global.model))
-    if(any(dup <- duplicated(gmCoefNames <- names(coef(global.model)))))
+    if(any(dup <- duplicated(gmCoefNames)))
         cry(NA, "model cannot have duplicated coefficient names: ",
              prettyEnumStr(gmCoefNames[dup]))
+		
 	gmCoefNames <- fixCoefNames(gmCoefNames)
 
 	nVars <- length(allTerms)
@@ -469,8 +470,6 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 
 			mcoef1 <- eval(matchCoefCall)
 			
-			DebugPrint(mcoef1)
-			
 			ll1 <- logLik(fit1)
 			nobs1 <- nobs(fit1)
 			if(nobs1 != gmNobs) cry(NA, "number of observations in model #%d (%d) different from global model (%d)",
@@ -508,6 +507,8 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 		calls[[k]] <- clVariant
 	} ### for (iComb ...)
 	
+	
+	
 	if(k == 0L) stop("result is empty")
 	ord <- ord + 1L
 	names(calls) <- ord
@@ -520,7 +521,7 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 		calls <- calls[i]
 		coefTables <- coefTables[i]
 	}
-
+	
 	if(nVarying) {
 		varlev <- ord %% nVariants
 		varlev[varlev == 0L] <- nVariants
@@ -529,10 +530,10 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 	
 	ret <- as.data.frame(ret)
 	row.names(ret) <- ord
-
+	
 	# Convert columns with presence/absence of terms to factors
 	tfac <- which(!(allTerms %in% gmCoefNames))
-
+	
 	ret[tfac] <- lapply(ret[tfac], factor, levels = NaN, labels = "+")
 
 	i <- seq_along(allTerms)

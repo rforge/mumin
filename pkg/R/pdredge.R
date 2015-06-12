@@ -132,7 +132,7 @@ function(global.model, cluster = NA,
 				   expand.dots = TRUE)
 
     gmCoefNames <- names(coeffs(global.model))
-    if(any(dup <- duplicated(gmCoefNames <- names(coef(global.model)))))
+    if(any(dup <- duplicated(gmCoefNames)))
         cry(NA, "model cannot have duplicated coefficient names: ",
              prettyEnumStr(gmCoefNames[dup]))
 
@@ -307,7 +307,6 @@ function(global.model, cluster = NA,
 			#gloFactorTable <- t(attr(terms(global.model), "factors")[-1L, ] != 0)
 			gloFactorTable <- t(attr(terms(reformulate(allTerms0[!(allTerms0
 				%in% interceptLabel)])), "factors") != 0)
-			
 			rownames(gloFactorTable) <- allTerms0[!(allTerms0 %in% interceptLabel)]
 	
 			subsetExpr <- subset[[1L]]

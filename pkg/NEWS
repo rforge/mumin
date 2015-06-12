@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.14.1 (2015-06-12)
+(fixed) [p]dredge did not recognize coefficient names with [g]lmer (reported by
+    Aitor Cevidanes).
+
 Version: 1.14.0 (2015-06-03)
 (added) partial.sd, std.coef: calculate partial std. deviation and standardize 
     model coefficients. 'beta.weights' is now deprecated in favour of 
