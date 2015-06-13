@@ -158,6 +158,7 @@ function(object, ..., beta = c("none", "sd", "partial.sd"),
 	
 	coefTableCall <- as.call(c(alist(coefTable, models[[i]],
 		dispersion = dispersion[i]), ct.args))
+	if(is.null(dispersion)) coefTableCall$dispersion <- NULL
 	
 	if(betaMode == 2L) {
 		coefTableCall[[1L]] <- as.name("std.coef")

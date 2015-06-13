@@ -119,6 +119,7 @@ S3method(model.frame, lme)
 S3method(model.matrix, lme)
 
 S3method(coeffs, merMod)
+S3method(predict, merMod)
 
 S3method(coefTable, multinom)
 S3method(coeffs, multinom)

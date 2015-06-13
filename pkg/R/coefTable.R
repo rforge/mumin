@@ -136,7 +136,8 @@ function(model, ..., type = c("naive", "robust")) {
 `coefTable.geem` <-
 function(model, ..., type = c("naive", "robust")) {
 	smr <- summary(model)
-	.makeCoefTable(smr$beta, smr[[if(match.arg(type) == "naive") "se.model" else "se.robust"]],
+	.makeCoefTable(smr$beta, smr[[if(match.arg(type) == "naive")
+								  "se.model" else "se.robust"]],
 	               coefNames = smr$coefnames)
 }
 
