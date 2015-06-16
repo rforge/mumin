@@ -23,7 +23,8 @@ export(
 importFrom(stats, family)
 importFrom(stats, nobs, getCall)
 
-importFrom(Matrix, t, rowSums)
+importFrom(Matrix, t, rowSums, det, diag, solve)
+
 
 S3method(getCall, yagsResult)
 
