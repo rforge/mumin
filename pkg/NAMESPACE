@@ -44,6 +44,7 @@ S3method(print, model.selection)
 S3method(subset, model.selection)
 S3method("[", model.selection)
 S3method("row.names<-", model.selection)
+S3method(nobs, model.selection)
 
 S3method(merge, model.selection)
 

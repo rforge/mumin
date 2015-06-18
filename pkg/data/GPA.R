@@ -10,4 +10,5 @@ structure(list(y = c(1.97, 2.74, 2.19, 2.6, 2.98, 1.65, 1.89,
 3.69), x4 = c(2.63, 3.57, 2.57, 2.21, 3.48, 2.14, 2.64, 2.52, 
 3.2, 3.46, 3.37, 2.6, 2.9, 3.49, 3.2, 3.74, 2.93, 3.32, 2.7, 
 3.52)), .Names = c("y", "x1", "x2", "x3", "x4"), 
-class = "data.frame", row.names = c(NA, -20L))
+class = "data.frame", row.names = c(NA, -20L),
+comment = "First-year college Grade Point Average")

@@ -3,6 +3,8 @@ MuMIn package news:
 Version: 1.14.1 (2015-06-12)
 (fixed) [p]dredge no longer gives coefficient values as NA with [g]lmer 
     (reported by Aitor Cevidanes).
+Some tidying-up of manual and data (response in 'Cement' and 'Beetle' moved to 
+    first column so that formula(data) is correct).
 
 Version: 1.14.0 (2015-06-03)
 (added) partial.sd, std.coef: calculate partial std. deviation and standardize 

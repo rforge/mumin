@@ -4,7 +4,7 @@
 \docType{data}
 \title{Flour beetle mortality data}
 \description{
-Mortality of flour beetles (\emph{Tribolium confusu}) due to exposure to gaseous
+Mortality of flour beetles (\emph{Tribolium confusum}) due to exposure to gaseous
 carbon disulfide CS\eqn{_{2}}{2}, from Bliss (1935).
 }
 

@@ -43,7 +43,6 @@ function (x, i = NULL, ...) {
 	return(attr(x, "model.calls", exact = TRUE)[i])
 }
 
-
 evalSubsetExpr <-
 function(ss, dfr) {
 	ss <- .exprapply(.exprapply(.exprapply(
@@ -55,7 +54,6 @@ function(ss, dfr) {
 	DebugPrint(ss)
 	eval(ss, dfr)
 }
-
 
 `subset.model.selection` <-
 function(x, subset, select, recalc.weights = TRUE, recalc.delta = FALSE, ...) {
@@ -406,5 +404,6 @@ function(cl, family = NULL, class = NULL,
 	arg
 }
 
-
-
+`nobs.model.selection` <-
+function (object, ...)
+attr(object, "nobs")

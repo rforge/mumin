@@ -41,8 +41,9 @@ dredge(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE,
 	\item{evaluate}{whether to evaluate and rank the models. If \code{FALSE}, a
 	list of unevaluated \code{call}s is returned. }
 
-	\item{rank}{optional custom rank function (returning an information criterion) to be used
-	instead \code{AICc}, e.g. \code{AIC}, \code{QAIC} or \code{BIC}.
+	\item{rank}{optional custom rank function (returning an information 
+    criterion) to be used instead \code{AICc}, e.g. \code{AIC}, \code{QAIC} or 
+    \code{BIC}.
 	See \sQuote{Details}. }
 
 	\item{fixed}{optional, either a single sided formula or a character vector
@@ -81,8 +82,7 @@ dredge(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE,
 	\code{\link{r.squaredLR}} directly).
 	}
 
-  \item{x}{
-    a \code{model.selection} object, returned by \code{dredge}. }
+  \item{x}{ a \code{model.selection} object, returned by \code{dredge}. }
 
   \item{abbrev.names}{ should printed term names be abbreviated?
 	(useful with complex models). }
@@ -260,25 +260,11 @@ Coefficients can be extracted with \code{coef} or \code{\link{coefTable}}.
 
 
 \value{
-\code{dredge} returns an object of class \code{model.selection}, being a
-\code{data.frame} with models' coefficients (or presence/\code{NA} for factors),
-	\emph{df} - number of parameters, log-likelihood, the information criterion
-	value,  \ifelse{latex}{\eqn{\Delta_{IC}}}{\enc{Δ}{Delta}_IC} and 
-	\sQuote{Akaike weights}. Models are ordered by the value of
-	the information criterion specified by \code{rank} (lowest on top).
-
-The attribute \code{"model.calls"} is a list containing the model calls used 
-(arranged in the same order as in the table). A model call can be retrieved with
-\code{getCall(*, i)} where \var{i} is a vector of model index or name (if given
-as character string).
-
-Other attributes:
-\code{"global"} - the \code{global.model} object,
-\code{"rank"} - the \code{rank} function used, \code{"call"} - the matched
-call, and
-\code{"warnings"} - list of errors and warnings given by the modelling function
-	during the fitting, with model number appended to each. 
+An object of class \code{c("model.selection", "data.frame")}, being a 
+\code{data.frame}, where each row represents one model.
+See \code{\link{model.selection.object}} for its structure. 
 }
+
 
 \author{Kamil Barto\enc{ń}{n}}
 
