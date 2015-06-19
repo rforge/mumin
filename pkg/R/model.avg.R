@@ -141,7 +141,6 @@ function(object, ..., beta = c("none", "sd", "partial.sd"),
 	ICname <- asChar(attr(rank, "call")[[1L]])
 
     alpha <- 0.05
-	.fnull <- function(...) return(NULL)
 
 	allterms1 <- lapply(models, getAllTerms)
 	all.terms <- unique(unlist(allterms1, use.names = FALSE))
@@ -237,7 +236,7 @@ function(object, ..., beta = c("none", "sd", "partial.sd"),
 	class(importance) <- c("importance", "numeric") 
 
 	mmxs <- tryCatch(cbindDataFrameList(lapply(models, model.matrix)),
-					 error = .fnull, warning = .fnull)
+					 error = return_null, warning = return_null)
 
 	# Far less efficient:
 	#mmxs <- lapply(models, model.matrix)
@@ -247,7 +246,7 @@ function(object, ..., beta = c("none", "sd", "partial.sd"),
 
 	# residuals averaged (with brute force)
 	#rsd <- tryCatch(apply(vapply(models, residuals, residuals(object)), 1L,
-		#weighted.mean, w = weight), error = .fnull)
+		#weighted.mean, w = weight), error = return_null)
 	#rsd <- NULL
 	## XXX: how to calc residuals ?
 	

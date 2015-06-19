@@ -21,7 +21,6 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 		 ...) {
 	
 	trace <- min(as.integer(trace), 2L)
-	
 	strbeta <- betaMode <- NULL
 	eval(.expr_beta_arg)
 	
@@ -137,8 +136,8 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 	if(isTRUE(rankArgs$REML) || (isTRUE(.isREMLFit(global.model)) && is.null(rankArgs$REML)))
 		cry(NA, "comparing models fitted by REML", warn = TRUE)
 
-	if ((betaMode != 0L) && is.null(tryCatch(std.coef(global.model, betaMode == 2L), error = function(e) NULL,
-		warning = function(e) NULL))) {
+	if ((betaMode != 0L) && is.null(tryCatch(std.coef(global.model, betaMode == 2L),
+		error = return_null, warning = return_null))) {
 		cry(NA, "do not know how to standardize coefficients of '%s', argument 'beta' ignored",
 			 class(global.model)[1L], warn = TRUE)
 		betaMode <- 0L

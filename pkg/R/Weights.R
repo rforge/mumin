@@ -19,7 +19,6 @@ function(x) {
 
 `Weights.default` <-
 function(x) {
-	delta <- x - min(x)
-	weight <- exp(-delta / 2) / sum(exp(-delta / 2))
-	return (weight)
+	d <- exp(-x / 2)
+	d / sum(d)
 }
