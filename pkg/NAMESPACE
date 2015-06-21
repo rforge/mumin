@@ -16,6 +16,7 @@ export(
 	get_call,
 	std.coef, beta.weights, 
  	partial.sd,
+    arm.glm,
 # Defunct:
 	mod.sel
 )

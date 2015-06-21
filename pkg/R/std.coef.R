@@ -19,7 +19,7 @@ function(x) {
 		v <- v[!int, !int, drop = FALSE]
 	} else warning("no intercept: VIFs may not be sensible")
 	d <- sqrt(diag(v))
-	rval <- numeric(length(int))
+	rval <- numeric(length(nam))
 	names(rval) <- nam
 	rval[!int] <- diag(solve(v / (d %o% d)))
 	rval[int] <- 1

@@ -320,7 +320,6 @@ function(global.model, cluster = NA,
 				
 			subsetExpr <- .exprapply(subsetExpr, "dc", .sub_args_as_vars)
 			subsetExpr <- .subst4Vec(subsetExpr, allTerms, as.name("comb"))
-			
 
 			if(nVarying) {
 			ssValidNames <- c("cVar", "comb", "*nvar*")

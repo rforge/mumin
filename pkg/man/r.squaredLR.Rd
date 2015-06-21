@@ -63,7 +63,7 @@ nonlinear regression models. It is based on an improvement from \emph{null}
 
 where \logLik{x} and \logLik{0} are the log-likelihoods of the
 fitted and the \emph{null} model respectively.
-\acronym{ML} estimates are used for this purpose in when models have been 
+\acronym{ML} estimates are used if models have been 
 fitted by \acronym{RE}stricted \acronym{ML} (by calling \code{logLik} with argument 
 \code{REML = FALSE}). Note that the \emph{null} model can include the random 
 factors of the original model, in which case the statistic represents the 

@@ -1,5 +1,12 @@
 MuMIn package news:
 
+Version: 1.50.0 (2015-06-21)
+(added) arm.glm: "Adaptive Regression by Mixing" - a type of model averaging.
+Changes to "averaging" object: the elements "coef.shrinkage" and "coefTable" are
+    replaced by matrix named "coefficients". To get "P-table" use 
+    summary(...)'s elements "coefmat.full" and "coefmat.subset". Objects created
+	with previous versions will be automatically converted if needed.
+
 Version: 1.14.1 (2015-06-12)
 (fixed) [p]dredge no longer gives coefficient values as NA with [g]lmer 
     (reported by Aitor Cevidanes).

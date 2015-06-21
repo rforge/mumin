@@ -3,10 +3,13 @@
 function(x)  UseMethod("Weights")
 
 `Weights.model.selection` <-
-function(x) x[, "weight"] / sum(x[, "weight"])
+function(x) structure(x[, "weight"] / sum(x[, "weight"]),
+	names = rownames(x))
 
 `Weights.averaging` <-
-function(x) x$msTable$weight
+function(x) {
+	x$msTable[, ncol(x$msTable)]
+}
 
 `Weights.data.frame` <-
 function(x) {

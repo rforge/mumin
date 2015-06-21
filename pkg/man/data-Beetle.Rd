@@ -16,11 +16,11 @@ Beetle
 \code{Beetle} is a data frame with 5 elements.
 
 \describe{
-   \item{dose}{The dose of CS\eqn{_{2}}{2} in mg/L}
-   \item{n.tested}{Number of beetles tested}
-   \item{n.killed}{Number of beetles killed}
-   \item{Prop}{A matrix with two columns named \bold{n.killed} and \bold{n.survived}}
-   \item{mortality}{Observed mortality rate.}
+   \item{Prop}{a matrix with two columns named \bold{nkilled} and \bold{nsurvived}}
+   \item{mortality}{observed mortality rate}  
+   \item{dose}{the dose of CS\eqn{_{2}}{2} in mg/L}
+   \item{n.tested}{number of beetles tested}
+   \item{n.killed}{number of beetles killed.}
 }}
 
 \source{
