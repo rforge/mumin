@@ -14,7 +14,7 @@ function(object, y, x, wt) {
 }
 
 arm.glm <-
-function(object, R = 100, weight.by = c("aic", "loglik"), trace = FALSE) {
+function(object, R = 250, weight.by = c("aic", "loglik"), trace = FALSE) {
 	
 	maxtrials <- 10L
 	weight.by <- switch(match.arg(weight.by), aic = 1L, loglik = 2L)

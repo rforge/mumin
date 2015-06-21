@@ -7,12 +7,12 @@ Combine all-subsets GLMs using the ARM algorithm.
 }
 
 \usage{
-arm.glm(object, nrepl = 250, weight.by = c("aic", "loglik"), trace = FALSE)
+arm.glm(object, R = 250, weight.by = c("aic", "loglik"), trace = FALSE)
 }
 
 \arguments{
   \item{object}{a fitted \dQuote{global} \code{glm} object. }
-  \item{nrepl}{number of permutations. }
+  \item{R}{number of permutations. }
   \item{weight.by}{indicates whether model weights should be calculated with AIC
     or log-likelihood. }
   \item{trace}{if \code{TRUE}, information is printed during the running of
@@ -56,9 +56,9 @@ Other implementation: \code{\link[MMIX]{arms}} in package \pkg{MMIX}.
 }
 
 \examples{
-fm <- glm(y ~ X1 + X2 + X3 + X4, data=Cement)
+fm <- glm(y ~ X1 + X2 + X3 + X4, data = Cement)
 
-summary(arm.glm(fm, nrepl = 25))
+summary(arm.glm(fm, R = 25))
 }
 
 \keyword{models}
