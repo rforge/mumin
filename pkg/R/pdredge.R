@@ -4,7 +4,7 @@
 function(global.model, cluster = NA, 
 	beta = c("none", "sd", "partial.sd"),
 	evaluate = TRUE,
-	rank = "AICc", fixed = NULL, m.max = NA, m.min = 0, subset,
+	rank = "AICc", fixed = NULL, m.lim = NULL, m.min, m.max, subset,
 	trace = FALSE, varying, extra, ct.args = NULL, check = FALSE, ...) {
 
 #FIXME: m.max cannot be 0 - e.g. for intercept only model
@@ -151,7 +151,21 @@ function(global.model, cluster = NA,
 		strbeta <- "none"
 	}
 
-	m.max <- if (missing(m.max)) (nVars - nIntercepts) else min(nVars - nIntercepts, m.max)
+	if(nomlim <- is.null(m.lim)) m.lim <- c(0, NA)
+	## XXX: backward compatibility:
+	if(!missing(m.max) || !missing(m.min)) {
+		warning("arguments 'm.min' and 'm.max' are deprecated, use 'm.lim' instead")
+		if(!nomlim) stop("cannot use both 'm.lim' and 'm.min' or 'm.max'")
+		if(!missing(m.min)) m.lim[1L] <- m.min[1L]
+		if(!missing(m.max)) m.lim[2L] <- m.max[1L]
+	}
+	if(!is.numeric(m.lim) || length(m.lim) != 2L || any(m.lim < 0, na.rm = TRUE))
+		stop("invalid 'm.lim' value")
+	m.lim[2L] <- if (!is.finite(m.lim[2L])) (nVars - nIntercepts) else
+		min(nVars - nIntercepts, m.lim[2L])
+	if (!is.finite(m.lim[1L])) m.lim[1L] <- 0
+	m.min <- m.lim[1L]
+    m.max <- m.lim[2L]
 
 	# fixed variables:
 	if (!is.null(fixed)) {

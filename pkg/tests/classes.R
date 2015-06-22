@@ -18,7 +18,7 @@ varying <- list(
 	weights = alist(vp.press = varPower(form = ~ pressure), NULL)
 	)
 
-dd <- dredge(fm1Dial.gls, m.max = 2, m.min = 1, fixed=~pressure, varying = varying, extra = "R^2")
+dd <- dredge(fm1Dial.gls, m.lim=c(1,2), fixed=~pressure, varying = varying, extra = "R^2")
 
 models <- get.models(dd, subset = 1:4)
 
@@ -210,7 +210,7 @@ fm1.spautolm <- spautolm(Z ~ PEXPOSURE * PCTAGE65P + PCTOWNHOME,
  data = nydata, listw = listw_NY, family = "SAR", method = method1, verbose = FALSE)
 
 options(warn=1)
-dd <- dredge(fm1.spautolm, m.max=1, fixed = ~PEXPOSURE,
+dd <- dredge(fm1.spautolm, m.lim=c(0,1), fixed = ~PEXPOSURE,
 	varying = list(
 		family = list("CAR", "SAR"),
 		method=list("Matrix_J", method1)
@@ -218,7 +218,7 @@ dd <- dredge(fm1.spautolm, m.max=1, fixed = ~PEXPOSURE,
 options(warn=0)
 
 
-#dd <- dredge(fm1.spautolm, m.max=3, fixed=~PEXPOSURE)
+#dd <- dredge(fm1.spautolm, m.lim=c(0,3), fixed=~PEXPOSURE)
 gm <- get.models(dd, cumsum(weight) <= .99)
 ma <- model.avg(gm)
 summary(ma)

@@ -1,11 +1,13 @@
 MuMIn package news:
 
-Version: 1.50.0 (2015-06-21)
+Version: 1.50.0 (2015-06-23)
 (added) arm.glm: "Adaptive Regression by Mixing" - a type of model averaging.
 Changes to "averaging" object: the elements "coef.shrinkage" and "coefTable" are
-    replaced by matrix named "coefficients". To get "P-table" use 
-    summary(...)'s elements "coefmat.full" and "coefmat.subset". Objects created
-	with previous versions will be automatically converted if needed.
+    replaced by matrix named "coefficients". The "Pval-tables" are accessed via 
+    summary(averaging)'s elements "coefmat.full" and "coefmat.subset". Objects 
+    created with previous versions will be automatically converted if needed.
+[p]dredge: argument 'm.lim' replaces 'm.min' and 'm.max' (which are still 
+    present, but deprecated).
 
 Version: 1.14.1 (2015-06-12)
 (fixed) [p]dredge no longer gives coefficient values as NA with [g]lmer 
@@ -25,8 +27,8 @@ coefTable, coeffs: method for class 'aodml' (package 'aod3') no longer return
 Removed all methods for 'mer' objects (used in lme4 < 1.0.0)
 
 Version: 1.13.10 (2015-06-01)
-(fixed) compatibility with lme4-1.1.8, 'null.fit' now works properly with gamm 
-    models.
+(fixed) compatibility with lme4-1.1.8, 'null.fit' now works properly with 'gamm' 
+    objects.
 
 Version: 1.13.9 (2015-05-28)
 stdize: improved interpretation of the argument "scale".

@@ -292,14 +292,17 @@ function(object, ..., beta = c("none", "sd", "partial.sd"),
 }
 
 `coef.averaging` <-
-function(object, full = FALSE, ...)
-upgrade_averaging_object(object)$coefficients[if(full) "full" else "subset", ]
+function(object, full = FALSE, ...) {
+	## XXX: backward compatibility:
+	object <- upgrade_averaging_object(object)
+	object$coefficients[if(full) "full" else "subset", ]
+}
 
 `predict.averaging` <-
 function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 	type = NA, backtransform = FALSE,
 	full = TRUE, ...) {
-	
+	## XXX: backward compatibility:
 	object <- upgrade_averaging_object(object)
 
 	if (!missing(interval)) .NotYetUsed("interval", error = FALSE)
@@ -434,7 +437,7 @@ function (object, ...) {
 
 `summary.averaging` <-
 function (object, ...) {
-	
+	## XXX: backward compatibility:
 	object <- upgrade_averaging_object(object)
 
 	.makecoefmat <- function(cf) {
@@ -463,7 +466,7 @@ function (object, ...) {
 
 `confint.averaging` <-
 function (object, parm, level = 0.95, full = FALSE, ...) {
-	
+	## XXX: backward compatibility:
 	object <- upgrade_averaging_object(object)
 
     a2 <- 1 - level
@@ -520,10 +523,9 @@ function (x, digits = max(3L, getOption("digits") - 3L),
 			"component models)", sep = "")
 
 	hasPval <- TRUE
-	
 	coefTitles <- if(attr(x, "ARM"))
 		c(coefmat.full = "(ARM average)") else
-		c(coefmat.full = "(full average, with shrinkage)",
+		c(coefmat.full = "(full average)",
 		  coefmat.subset = "(conditional average)")
 		
 	n <- length(coefTitles)	
@@ -547,6 +549,7 @@ function (x, digits = max(3L, getOption("digits") - 3L),
 
 `print.averaging` <-
 function(x, ...) {
+	## XXX: backward compatibility:
 	x <- upgrade_averaging_object(x)
     cat("\nCall:\n", paste(asChar(x$call, nlines = -1L), sep = "\n", collapse = "\n"),
         "\n\n", sep = "")
@@ -561,7 +564,9 @@ function(x, ...) {
 
 
 `vcov.averaging` <- function (object, full = FALSE, ...) {
+	## XXX: backward compatibility:
 	object <- upgrade_averaging_object(object)
+	full <- as.logical(full)[1L]
 
 	models <- attr(object, "modelList")
 	if(is.null(models)) stop("cannot calculate covariance matrix from ",
@@ -583,12 +588,8 @@ function(x, ...) {
 		return(vcov0)
 	})
 	b1 <- object$coefArray[, 1L, ]
-	if(full) {
-		b1[is.na(b1)] <- 0
-		avgb <- object$coefficients[1L, ]
-	} else {
-		avgb <- object$coefficients[2L, ]
-	}
+	if(full) b1[is.na(b1)] <- 0
+	avgb <- object$coefficients[2L - full, ]
 	
 	res <- sapply(nvarseq, function(c1) sapply(nvarseq, function(c2) {
 		 weighted.mean(sapply(vcovs2, "[", c1, c2) + (b1[, c1] - avgb[c1]) *
@@ -624,13 +625,13 @@ function (model, full = FALSE, adjust.se = TRUE, ...) {
 }
 
 
-# temporary:
+## XXX: backward compatibility (< 0.15.0):
 upgrade_averaging_object <-
 function(x) {
 	if(is.matrix(x$coefficients)) return(x)
 	if(all(c("coefTable", "coef.shrinkage") %in% names(x))) {
 		x$coefficients <- rbind(full = x$coef.shrinkage, subset = x$coefTable[, 1L])
 		x$coefTable <- NULL
-	} else stop("object is corrupt")
+	} else stop("'averaging' object is corrupt")
 	x
 }
