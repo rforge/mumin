@@ -92,6 +92,7 @@ asChar <- function(x, control = NULL, nlines = 1L, ...)
 
 `exprApply` <-
 function(expr, what, FUN = identity, ..., symbols = FALSE) {
+	FUN <- match.fun(FUN)
 	if(asExpr <- is.expression(expr)) expr <- expr[[1L]]
 	n <- length(expr)
 	if(n == 0L)

@@ -47,7 +47,7 @@ function(global.model, cluster = NA,
 		#" must be used directly as an argument to 'dredge'.")
 		# NB: this is unlikely to happen
 		if(!is.function(eval.parent(gmCall[[1L]])))
-			cry(NA, "could not find function '%s'", asChar(gmCall[[1L]]))
+			cry(, "could not find function '%s'", asChar(gmCall[[1L]]))
 	} else {
 		# if 'update' method does not expand dots, we have a problem with
 		# expressions like ..1, ..2 in the call. So try to replace them with
@@ -55,7 +55,7 @@ function(global.model, cluster = NA,
 		isDotted <- grep("^\\.\\.", sapply(as.list(gmCall), asChar))
 		if(length(isDotted) != 0L) {
 			if(is.name(substitute(global.model))) {
-				cry(NA, "call stored in 'global.model' contains dotted names and cannot be updated. \n    Consider using 'updateable' on the modelling function")
+				cry(, "call stored in 'global.model' contains dotted names and cannot be updated. \n    Consider using 'updateable' on the modelling function")
 			} else gmCall[isDotted] <-
 				substitute(global.model)[names(gmCall[isDotted])]
 		}
@@ -68,20 +68,19 @@ function(global.model, cluster = NA,
 
 	lik <- .getLik(global.model)
 	logLik <- lik$logLik
-	logLikName <- lik$name
 	
 	# *** Rank ***
 	rank.custom <- !missing(rank)
 	
-	if(!rank.custom && logLikName == "qLik") {
+	if(!rank.custom && lik$name == "qLik") {
 		rank <- "QIC"
-		cry(NA, "using 'QIC' instead of 'AICc'", warn = TRUE)
+		cry(, "using 'QIC' instead of 'AICc'", warn = TRUE)
 	}
 	
 	rankArgs <- list(...)
 
 	if(any(badargs <- names(rankArgs) == "marg.ex")) {
-		cry(NA, "argument \"marg.ex\" is defunct and has been ignored",
+		cry(, "argument \"marg.ex\" is defunct and has been ignored",
 			 warn = TRUE)
 		rankArgs <- rankArgs[!badargs]
 	}
@@ -105,7 +104,7 @@ function(global.model, cluster = NA,
 		stop(simpleError(conditionMessage(e), subst(attr(IC, "call"),
 			x = as.name("global.model"))))
 	})) != 1L) {
-		cry(NA, "result of '%s' is not of length 1", asChar(attr(IC, "call")))
+		cry(, "result of '%s' is not of length 1", asChar(attr(IC, "call")))
 	}
 
 	allTerms <- allTerms0 <- getAllTerms(global.model, intercept = TRUE,
@@ -124,7 +123,7 @@ function(global.model, cluster = NA,
 
 	# Check for na.omit
 	if(!(gmNaAction <- .checkNaAction(cl = gmCall, what = "'global.model'")))
-		cry(NA, attr(gmNaAction, "message"))
+		cry(, attr(gmNaAction, "message"))
 	
 
 	if(names(gmCall)[2L] == "") gmCall <-
@@ -133,7 +132,7 @@ function(global.model, cluster = NA,
 
     gmCoefNames <- names(coeffs(global.model))
     if(any(dup <- duplicated(gmCoefNames)))
-        cry(NA, "model cannot have duplicated coefficient names: ",
+        cry(, "model cannot have duplicated coefficient names: ",
              prettyEnumStr(gmCoefNames[dup]))
 
 	gmCoefNames <- fixCoefNames(gmCoefNames)
@@ -141,11 +140,11 @@ function(global.model, cluster = NA,
 	nVars <- length(allTerms)
 
 	if(isTRUE(rankArgs$REML) || (isTRUE(.isREMLFit(global.model)) && is.null(rankArgs$REML)))
-		cry(NA, "comparing models fitted by REML", warn = TRUE)
+		cry(, "comparing models fitted by REML", warn = TRUE)
 
-	if ((betaMode != 0L) && is.null(tryCatch(std.coef(global.model, betaMode == 2L), error = function(e) NULL,
-		warning = function(e) NULL))) {
-		cry(NA, "do not know how to standardize coefficients of '%s', argument 'beta' ignored",
+	if ((betaMode != 0L) && is.null(tryCatch(std.coef(global.model, betaMode == 2L),
+		error = return_null, warning = return_null))) {
+		cry(, "do not know how to standardize coefficients of '%s', argument 'beta' ignored",
 			 class(global.model)[1L], warn = TRUE)
 		betaMode <- 0L
 		strbeta <- "none"
@@ -171,16 +170,16 @@ function(global.model, cluster = NA,
 	if (!is.null(fixed)) {
 		if (inherits(fixed, "formula")) {
 			if (fixed[[1L]] != "~" || length(fixed) != 2L)
-				cry(NA, "'fixed' should be a one-sided formula", warn = TRUE)
+				cry(, "'fixed' should be a one-sided formula", warn = TRUE)
 			fixed <- as.vector(getAllTerms(fixed))
 		} else if (identical(fixed, TRUE)) {
 			fixed <- as.vector(allTerms[!(allTerms %in% interceptLabel)])
 		} else if (!is.character(fixed)) {
-			cry(NA, paste("'fixed' should be either a character vector with",
+			cry(, paste("'fixed' should be either a character vector with",
 						   " names of variables or a one-sided formula"))
 		}
 		if (!all(i <- (fixed %in% allTerms))) {
-			cry(NA, "some terms in 'fixed' do not exist in 'global.model': %s",
+			cry(, "some terms in 'fixed' do not exist in 'global.model': %s",
 				 prettyEnumStr(fixed[!i]), warn = TRUE)
 			fixed <- fixed[i]
 		}
@@ -241,7 +240,7 @@ function(global.model, cluster = NA,
 		applyExtras <- function(x) unlist(lapply(extra, function(f) f(x)))
 		extraResult <- applyExtras(global.model)
 		if(!is.numeric(extraResult))
-			cry(NA, "function in 'extra' returned non-numeric result")
+			cry(, "function in 'extra' returned non-numeric result")
 
 		nextra <- length(extraResult)
 		extraNames <- names(extraResult)
@@ -254,7 +253,7 @@ function(global.model, cluster = NA,
 	nov <- as.integer(nVars - nFixed)
 	ncomb <- (2L ^ nov) * nVariants
 
-	if(nov > 31L) cry(NA, "number of predictors (%d) exceeds allowed maximum of 31", nov)
+	if(nov > 31L) cry(, "number of predictors (%d) exceeds allowed maximum of 31", nov)
 	#if(nov > 10L) warning(gettextf("%d predictors will generate up to %.0f combinations", nov, ncomb))
 	nmax <- ncomb * nVariants
 	rvChunk <- 25L
@@ -598,7 +597,7 @@ function(global.model, cluster = NA,
 	v <- order(termsOrder)
 	ret[, i] <- ret[, v]
 	allTerms <- allTerms[v]
-	colnames(ret) <- c(allTerms, varyingNames, extraNames, "df", logLikName, ICName)
+	colnames(ret) <- c(allTerms, varyingNames, extraNames, "df", lik$name, ICName)
 
 	if(nVarying) {
 		variant.names <- vapply(variantsFlat, asChar, "", width.cutoff = 20L)
@@ -617,7 +616,6 @@ function(global.model, cluster = NA,
 	ret$weight <- exp(-ret$delta / 2) / sum(exp(-ret$delta / 2))
 
 	ret <- structure(ret,
-		class = c("model.selection", "data.frame"),
 		model.calls = calls[o],
 		global = global.model,
 		global.call = gmCall,
@@ -628,7 +626,17 @@ function(global.model, cluster = NA,
 		call = match.call(expand.dots = TRUE),
 		coefTables = coefTables,
 		nobs = gmNobs,
-		vCols = varyingNames
+		vCols = varyingNames, ## XXX: remove
+        column.types = {
+			colTypes <- c(terms = length(allTerms), varying = length(varyingNames), 
+				extra = length(extraNames), df = 1L, loglik = 1L, ic = 1L, delta = 1L,
+				weight = 1L)
+			column.types <- rep(1L:length(colTypes), colTypes)
+			names(column.types) <- colnames(ret)
+			lv <- 1L:length(colTypes)
+			factor(column.types, levels = lv, labels = names(colTypes)[lv])
+		},
+        class = c("model.selection", "data.frame")
 	)
 
 	if(length(warningList)) {

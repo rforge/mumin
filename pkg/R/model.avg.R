@@ -318,7 +318,7 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 		&& (is.na(type) || type == "link")
 		&& !backtransform
 		&& all(linherits(models, c(gam = FALSE, lm = TRUE)))
-		&& !any(is.na(object$coefficients[1L, ]))
+		&& !anyNA(object$coefficients[1L, ])
 		) {
 		
 		coeff <- coef(object, full = full)

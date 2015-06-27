@@ -1,6 +1,6 @@
 MuMIn package news:
 
-Version: 1.50.0 (2015-06-23)
+Version: 1.50.0 (2015-06-28)
 (added) arm.glm: "Adaptive Regression by Mixing" - a type of model averaging.
 Changes to "averaging" object: the elements "coef.shrinkage" and "coefTable" are
     replaced by matrix named "coefficients". The "Pval-tables" are accessed via 
@@ -8,6 +8,10 @@ Changes to "averaging" object: the elements "coef.shrinkage" and "coefTable" are
     created with previous versions will be automatically converted if needed.
 [p]dredge: argument 'm.lim' replaces 'm.min' and 'm.max' (which are still 
     present, but deprecated).
+"model.selection" object: modifying or removing the essential columns 
+    (everything except 'varying' and 'extra') converts the object to a plain 
+    "data.frame" and removes all additional attributes. 
+(added) rbind.model.selection: combine multiple "model.selection" objects.
 
 Version: 1.14.1 (2015-06-12)
 (fixed) [p]dredge no longer gives coefficient values as NA with [g]lmer 

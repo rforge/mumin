@@ -15,6 +15,8 @@ function(object, y, x, wt) {
 
 arm.glm <-
 function(object, R = 250, weight.by = c("aic", "loglik"), trace = FALSE) {
+	if(!inherits(object, c("glm", "lm")))
+		stop("'object' must be a \"glm\" or \"lm\" object")
 	
 	maxtrials <- 10L
 	weight.by <- switch(match.arg(weight.by), aic = 1L, loglik = 2L)

@@ -28,7 +28,7 @@ function (object, rank = NULL, rank.args = NULL, fit = NA, ...,
 
 	if(reFit && !isTRUE(fit)) {
 		if(is.na(fit)) message("Re-fitting models...")
-		else stop("Cannot proceed without re-fitting models ('fit' is FALSE)")
+			else stop("cannot proceed without re-fitting models ('fit' is FALSE)")
 	}
 	
 	if(isTRUE(fit) || reFit) {
@@ -41,15 +41,20 @@ function (object, rank = NULL, rank.args = NULL, fit = NA, ...,
 		cl$object <- models
 		ret <- do.call("model.sel", as.list(cl), envir = parent.frame())
 	} else if(!is.null(rank)) {
-		oldRankCol <- as.character(attr(attr(object, "rank"), "call")[[1L]])
+		#msassign <- `[<-.data.frame`
+		oldRankCol <- names(attr(object, "column.types"))[attr(object, "column.types") == "ic"]
 		rankCol <- as.character(attr(rank, "call")[[1L]])
 		message(gettextf("New rank '%s' applied to logLik objects", rankCol))
 		DebugPrint(oldRankCol)
 		DebugPrint(rankCol)
-		colnames(object)[colnames(object) == oldRankCol] <- rankCol
-		object[, rankCol] <- ic
-		object$delta <- ic - min(ic)
-		object$weight <- Weights(ic)
+
+		attr(object, "names")[names(object) == oldRankCol] <- rankCol
+		names(attr(object, "column.types"))[attr(object, "column.types") == "ic"] <- rankCol
+		
+		#colnames(object)[colnames(object) == oldRankCol] <- rankCol
+		object <- `[<-.data.frame`(object, , rankCol, ic)
+		object <- `[<-.data.frame`(object, , 'delta', ic - min(ic))
+		object <- `[<-.data.frame`(object, , 'weight',  Weights(ic))
 		ret <- object[order(ic), ]
 		attr(ret, "rank") <- rank
 		attr(ret, "rank.call") <- attr(rank, "call")
@@ -91,7 +96,7 @@ function(object, ..., rank = NULL, rank.args = NULL,
 
 	.checkModels(models, FALSE)
 
-	if(is.null(names(models)) || any(is.na(names(models))))
+	if(is.null(names(models)) || anyNA(names(models)))
 		names(models) <- seq_along(models)
 	names(models) <- make.unique(names(models), sep = "")
 
@@ -171,8 +176,7 @@ function(object, ..., rank = NULL, rank.args = NULL,
 				tmp
 			} else x
 		})), ret[, -i])
-
-	}
+	} else nextra <- 0L
 	row.names(ret) <- names(models)
 	
 	ret <- structure(
@@ -190,6 +194,15 @@ function(object, ..., rank = NULL, rank.args = NULL,
 		nobs = nobs(models[[1L]]),
 		coefTables = retCoefTable[o],
 		vCols = colnames(descrf),
+		column.types = {
+			colTypes <- c(terms = length(all.terms), varying = ncol(descrf), 
+				extra = nextra, df = 1, loglik = 1, ic = 1, delta = 1,
+				weight = 1)
+			column.types <- rep(1L:length(colTypes), colTypes)
+			names(column.types) <- colnames(ret)
+			lv <- 1L:length(colTypes)
+			factor(column.types, levels = lv, labels = names(colTypes)[lv])
+		},
 		class = c("model.selection", "data.frame")
 	)
 	if(!("class" %in% colnames(ret)))

@@ -20,17 +20,16 @@ arm.glm(object, R = 250, weight.by = c("aic", "loglik"), trace = FALSE)
 }
 
 \details{
-The data is randomly split into two parts. For all-subsets of the 
-\dQuote{global} model, parameters are estimated using the first half of the data
-and log-likelihood given the second half of the data is used to calculate 
-AIC weights. Mean weights from \code{nrepl} permutations of the data are 
-subsequently used to average all-subsets parameters estimated using complete 
-data.
+For each of all-subsets of the \dQuote{global} model, parameters are estimated 
+using randomly sampled half of the data. Log-likelihood given the remaining half
+of the data is used to calculate AIC weights. This is repeated \code{R} 
+times and mean of the weights is used to average all-subsets parameters 
+estimated using complete data.
 }
 
 \note{
-All-subsets respect marginality constraints. Number of parameters is limited to
-\code{floor(nobs(object) / 2) - 1}.
+Number of parameters is limited to \code{floor(nobs(object) / 2) - 1}.
+All-subsets respect marginality constraints.
 }
 
 \value{

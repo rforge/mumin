@@ -26,10 +26,7 @@ importFrom(stats, nobs, getCall)
 
 importFrom(Matrix, t, rowSums, det, diag, solve)
 
-
 S3method(getCall, yagsResult)
-
-S3method("$<-", model.selection)
 
 S3method(print, averaging)
 S3method(print, summary.averaging)
@@ -43,11 +40,17 @@ S3method(vcov, averaging)
 S3method(model.matrix, averaging)
 S3method(print, model.selection)
 S3method(subset, model.selection)
-S3method("[", model.selection)
-S3method("row.names<-", model.selection)
+
 S3method(nobs, model.selection)
 
+S3method("[", model.selection)
+S3method("[<-", model.selection)
+S3method("$<-", model.selection)
+S3method("names<-", model.selection)
+S3method("row.names<-", model.selection)
+
 S3method(merge, model.selection)
+S3method(rbind, model.selection)
 
 S3method(update, model.selection)
 S3method(coef, model.selection)

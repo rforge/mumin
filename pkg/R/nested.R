@@ -4,31 +4,29 @@ function(x, indices = c("none", "numeric", "rownames"), rank = NULL) {
 	indices <- match.arg(indices)
 
 	if(!inherits(x, "model.selection")) 
-		stop("'x' is not a 'model.selection' object")
+		stop("'x' is not a \"model.selection\" object")
 		
-	nVCols <- length(vCols <- attr(x, "vCols"))
+	column.types <- attr(x, "column.types")
+	vCols <- names(column.types)[column.types == "varying"]	
 	
-	if(nVCols) {
+	if(nVCols <- length(vCols)) {
 		vtab <- x[, vCols, drop = FALSE]
 		for(i in 1L:ncol(vtab)) vtab[, i] <- as.numeric(vtab[, i])
 		vtab <- as.matrix(vtab)
 	}	
 		
-	tab <- !is.na(x[,  attr(x, "terms")])
+	tab <- !is.na(x[, attr(x, "terms")])
 	n <- nrow(tab)
 
 	if(indices == "none") {
 		if(is.null(rank)) {
 			rank <- colnames(x)[which(colnames(x) == "delta")[1L] - 1L]
 		} else if (!is.na(rank) && !rank %in% colnames(x))
-			stop(gettextf("column named \"%s\" does not exist in 'x'", rank, 
-				domain = "MuMIn"))
+			cry(, "column named \"%s\" does not exist in 'x'", rank)
 		
-		if(!is.na(rank)) {
-			if(any(diff(x[, rank]) < 0)) 
-				warning(gettextf("'x' is not ordered by \'%s\'", rank, 
-					domain = "MuMIn"))
-		}
+		if(!is.na(rank) && any(diff(x[, rank]) < 0))
+			cry(, "'x' is not ordered by \'%s\'", rank, warn = TRUE)
+	
 		
 		is.nested <- function(x, inside) all(inside == x | inside)
 		vmatch <- if(nVCols) 

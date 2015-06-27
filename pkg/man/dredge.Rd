@@ -58,7 +58,7 @@ dredge(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE,
 		set. See \sQuote{Subsetting}. }
 
 	\item{trace}{if \code{TRUE} or \code{1}, all calls to the fitting function 
-	are printed before actual fitting takes place. If \code{> 1}, a progress bar 
+	are printed before actual fitting takes place. If \code{trace > 1}, a progress bar 
 	is displayed.
 	}
 
@@ -68,7 +68,7 @@ dredge(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE,
 	list(choice1, choice2, ...), ...)}). Complex elements in the choice list
 	(such as \code{family} objects) should be either named (uniquely) or quoted
 	(unevaluated, e.g. using \code{\link{alist}}, see \code{\link{quote}}),
-	otherwise it may produce rather visually unpleasant effects. See example in
+	otherwise the result may be visually unpleasant. See example in
 	\code{\link{Beetle}}. }
 
 	\item{extra}{ optional additional statistics to include in the result,
@@ -99,8 +99,8 @@ dredge(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE,
 		\code{\link[=model.avg]{model averaging}}).}
 
   \item{\dots}{ optional arguments for the \code{rank} function. Any can be
-    an expression (of mode \code{"call"}), in which case any \code{x} within it
-    will be substituted with a current model. }
+    an unevaluatec expression, in which case any \code{x} within it will be substituted
+	with a current model. }
 }
 
 

@@ -18,7 +18,7 @@
 		   poisson = sum(y * log(mu) - mu),
 		   Gamma = -sum(y/mu + log(mu)),
 		   inverse.gaussian = sum(-y/(2 * mu^2) + 1/mu),
-		   cry(NA, "do not know how to calculate quasi-likelihood for family '%s'",
+		   cry(, "do not know how to calculate quasi-likelihood for family '%s'",
 				fam))
 	ret
 }
