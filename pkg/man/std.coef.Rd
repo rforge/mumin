@@ -31,7 +31,7 @@ beta.weights(model)
 }
 
 \details{
-	Standardizing model coefficients has the same effect as centering and
+	Standardizing model coefficients has the same effect as centring and
 	scaling the input variables. \dQuote{Classical} standardized coefficients
 	are calculated as 
     \myequation{\beta^{*}_i = \beta_i\frac{s_{X_{i}}}{s_{y}}
@@ -128,7 +128,7 @@ fmgz <- glm(log(y) ~ z.x1 + z.x2 + z.x3 + z.x4, zGPA, family = fam)
 
 # Coefficients using standardized data:
 coef(fmgz) # (intercept is unchanged because the variables haven't been
-           #  centered)
+           #  centred)
 # Standardized coefficients:
 coef(fmg) * psdg
 

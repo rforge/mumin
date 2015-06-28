@@ -3,8 +3,11 @@
 function(x)  UseMethod("Weights")
 
 `Weights.model.selection` <-
-function(x) structure(x[, "weight"] / sum(x[, "weight"]),
-	names = rownames(x))
+function(x) {
+	i <- match(type2columnname(x, "weight"), colnames(x))[1L]
+	structure(elem(x, i) / sum(elem(x, i)),	names = row.names(x))
+}
+
 
 `Weights.averaging` <-
 function(x) {

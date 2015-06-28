@@ -1,6 +1,5 @@
 `coefTable.model.selection` <-
 function (model, ...) {
-	#structure(attr(model, "coefTables"), names = rownames(model))
 	ret <- attr(model, "coefTables")
 	names(ret) <- rownames(model)
 	ret
@@ -30,7 +29,6 @@ function (model) coef.model.selection(model)
 		dimnames = list(names(object), c("Estimate", "Std. Error", "df"), coefNames))
 	for(i in seq_along(object)) {
 		z <- object[[i]]
-		ret[i, 1:3, ]
 		ret[i, seq_len(ncol(z)), ] <- t(z[match(coefNames, fixCoefNames(rownames(z))), ])
 	}
 	ret
@@ -43,27 +41,6 @@ function (x, i = NULL, ...) {
 	return(attr(x, "model.calls", exact = TRUE)[i])
 }
 
-evalSubsetExpr <-
-function(ss, dfr) {
-	ss <- .exprapply(.exprapply(.exprapply(
-		ss,
-		"dc", .sub_dc_has, as.name(".subset_vdc")),
-		c("{", "Term"), .sub_Term),
-		"has", .sub_has)
-	ss <- subst(ss, . = dfr)
-	DebugPrint(ss)
-	eval(ss, dfr)
-}
-
-`subset.model.selection` <-
-function(x, subset, select, recalc.weights = TRUE, recalc.delta = FALSE, ...) {
-	if(missing(subset) && missing(select)) return(x)
-	return(`[.model.selection`(x, evalSubsetExpr(substitute(subset), x),
-			recalc.weights = recalc.weights, 
-			recalc.delta = recalc.delta, ...))
-}
-
-
 getModelClass <-
 function(x) {
 	if(inherits(x, "model.selection")) {
@@ -72,96 +49,6 @@ function(x) {
 		if(!is.null(attr(x, "model.class"))) return(attr(x, "model.class"))
 	}
 	return(NULL)
-}
-
-`merge.model.selection` <-
-function (x, y, suffixes = c(".x", ".y"), ...) {
-	rval <- rbind(x, y, make.row.names = FALSE)
-	if (!is.null(suffixes)) row.names(rval) <-
-		c(paste0(row.names(x), suffixes[1L]), 
-            paste0(row.names(y), suffixes[2L]))
-	rval
-}
-
-`rbind.model.selection` <- 
-function (..., deparse.level = 1, make.row.names = TRUE) {
-	allargs <- list(...)
-	n <- length(allargs) 
-	if(n == 1L) return(allargs[[1L]])
-
-	if(!all(vapply(allargs, inherits, FALSE, "model.selection")))
-		stop("need all \"model.selection\" objects")
-
-	allargs <- lapply(allargs, "class<-", "data.frame") ### XXX: NO COPYING - modifies
-											            ### original objects!!!
-	on.exit({
-		lapply(allargs, "class<-", c("model.selection", "data.frame"))
-	})
-	
-	allitemsidentical <- function(x) all(vapply(x[-1L], identical, FALSE, x[[1L]]))
-	
-	if(!allitemsidentical(lapply(allargs, "attr", "rank.call")))
-		stop("tables are not ranked by the same IC")
-	if(!allitemsidentical(lapply(allargs, "attr", "nobs")))
-		stop("models are fitted to different number of observations")
-	
-
-	.combine <-
-	function(x, y, pos, len = length(y)) {
-		if(is.factor(x) || is.factor(y)) {
-			if(is.factor(x)) {
-				if(!is.factor(y)) y <- factor(y)
-			} else if(is.factor(y)) x <- factor(x)
-			alllev <- unique(c(levels(x), levels(y)))
-			x <- factor(x, levels = alllev, labels = alllev)
-		}
-		x[pos:(pos + len - 1L)] <- y
-		x
-	}
-	
-	ct <- unname(lapply(allargs, attr, "column.types"))
-	vct <- unlist(ct)
-	vct <- vct[order(as.integer(unlist(ct)), unlist(lapply(ct, seq_along)))]
-	vct <- vct[!duplicated(names(vct))]
-	# TODO: check mismatch in column.types
-	nm <- names(vct)
-
-	rval <- as.data.frame(array(NA, dim = c(sum(sapply(allargs, nrow)), length(nm)),
-								dimnames = list(NULL, nm)))
-	row1 <- 1L
-	for(z in allargs) {
-		n <- nrow(z)
-		nmz <- nm[nm %in% names(z)]
-		for(j in nmz) rval[, j] <- .combine(rval[, j], z[, j], row1, n)
-		row1 <- row1 + n
-	}
-
-	newattr <- list(column.types = vct)
-	for(i in c("model.calls", "coefTables"))
-		newattr[[i]] <- unlist(lapply(allargs, attr, i), recursive = FALSE, use.names = FALSE)
-	k <- c("rank", "rank.call", "nobs")
-	newattr[k] <- attributes(allargs[[1L]])[k]
-	
-	tmp <- lapply(allargs, attr, "terms")
-	newattr[["terms"]] <- structure(unique(unlist(tmp, recursive = FALSE, use.names = FALSE)),
-			  interceptLabel = unique(unlist(lapply(tmp, attr, "interceptLabel"))))
-	
-	for(i in names(newattr)) attr(rval, i) <- newattr[[i]]
-	class(rval) <- c("model.selection", "data.frame")
-	if(make.row.names) {
-		rn1 <- rep(names(allargs), sapply(allargs, nrow))
-		rn1[i] <- paste0(rn1[i <- rn1 != ""], ".")
-		rlabs <- paste0(rn1, unlist(lapply(allargs, rownames)))
-		if(anyDuplicated(rlabs))
-			rlabs <- make.unique(as.character(rlabs), sep = "")
-	} else {
-		rlabs <- as.character(1L:nrow(rval))
-	}
-	rownames(rval) <- rlabs	
-
-	o <- order(rval[, names(vct)[vct == "ic"]])
-	rval <- rval[o, recalc.delta = TRUE]
-	rval
 }
 
 `print.model.selection` <-
@@ -199,7 +86,7 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 			
 		vLegend <- NULL
 		if(abbrev.names) {
-			vCols <- names(column.types)[column.types == "varying"]
+			vCols <- type2columnname(column.types, "varying")
 			vCols <- vCols[(vCols %in% colnames(x)) & !(vCols %in% c("class"))]
 			vlen <- nchar(vCols)
 			vLegend <- vector(length(vCols), mode = "list")
@@ -315,172 +202,22 @@ function (object, ...) {
 	}
 }
 
-#### XXX
-.argTable <-
-function(cl, family = NULL, class = NULL,
-		 args.omit = NULL, different.only = FALSE) {
-	haveNoCall <-  vapply(cl, is.null, FALSE)
-	cl[haveNoCall] <- lapply(cl[haveNoCall], function(x) call("<unknown>", formula = NA))
-	arg <- lapply(cl, function(x) sapply(x, function(argval)
-		switch(mode(argval), character = , logical = argval,
-		numeric = signif(argval, 3L), asChar(argval))))
-	arg <- rbindDataFrameList(lapply(lapply(arg, t), as.data.frame))
-	if(!is.null(args.omit)) arg <- arg[, !(colnames(arg) %in% args.omit)]
-
-	arg[] <- lapply(arg, as.factor)
-	
-	if(!is.null(family)) {
-		.getFam <- function(x) unlist(x[c("family",	"link")])
-		fam <-  if(inherits(family, "family"))
-			matrix(.getFam(family), dimnames = list(c("family", "link"), NULL)) else
-			sapply(family, .getFam)
-		f <- fam[1L, ]
-		f[is.na(f)] <- ""
-		f <- vapply(strsplit(f, "(", fixed = TRUE), "[", "", 1L)
-		f[f == "Negative Binomial"] <- "negative.binomial"
-		fam[2L, fam[2L, ] == vapply(unique(f), function(x) if(is.na(x))
-									NA_character_ else formals(get(x))$link,
-									FUN.VALUE = "")[f]] <- NA_character_
-		j <- !is.na(fam[2L,])
-		famname <- fam[1L, j]
-		famname <- ifelse(substring(famname, nchar(famname)) != ")",
-			paste0(famname, "("), paste0(substring(famname, 1L, nchar(famname) - 1L),
-				", "))
-		fam[1L, j] <- paste0(famname, fam[2L, j], ")")
-		arg <- cbind(arg, t(fam))
-	}
-	if(!is.null(class)) arg[, "class"] <- rep(class, length.out = nrow(arg))
-
-	#arg <- as.matrix(arg)
-	#arg[is.na(arg) | arg == "NULL"] <- ""
-	colnames(arg)[1L] <- "FUN"
-	for (i in seq_len(ncol(arg))) {
-		v <- arg[, i]
-		if(any(j <- is.na(v) | v == "NULL" | v == "")) {
-			levels(v) <- c(levels(v), "")
-			v[j] <- ""
-			arg[, i] <- v
-		}
-	}
-	
-	if(different.only)
-		arg <- arg[, vapply(arg, nlevels, 1L) != 1L, drop = FALSE]
-
-	#if(ncol(arg) != 0L) arg <- gsub("([\"'\\s]+|\\w+ *=)","", arg, perl = TRUE)
-	arg
-}
-
 `nobs.model.selection` <-
 function (object, ...)
 attr(object, "nobs")
 
-`row.names<-.model.selection` <-
-function (x, value)  {
-	oldnames <- dimnames(x)[[1L]]
-	x <- NextMethod()
-	newnames <- dimnames(x)[[1L]]
-	rowattrib <- c("model.calls", "coefTables", "random.terms", "order",
-		if(!is.null(attr(x, "modelList")))"modelList")
-	for(i in rowattrib) if(!is.null(attr(x, i))) names(attr(x, i)) <- newnames
-	x
+## internal: translate column type to column names
+type2columnname <-
+function(x, type) {
+	if(inherits(x, "model.selection"))
+		x <- attr(x, "column.types")
+	names(x)[x %in% type] 
 }
 
-`names<-.model.selection` <-
-function (x, value) {
-	oldnames <- names(x)
-	if(any(attr(x, "column.types")[oldnames[oldnames != value]] %in%
-	   c('df', 'loglik', 'ic', 'delta', 'weight', 'terms'))) {
-		class(x) <- "data.frame"
-		message("rename protected column ->data.frame")
-	}
-	NextMethod()
+`elem<-` <- function(x, name, value) {
+	`[<-.data.frame`(x, , name, value)
 }
 
-verify_model_selection_object <-
-function(x, attrib, modif = NULL, rowchange = TRUE) {
-	#message(sys.call()[[1L]])
-	protectedcoltypes <- c('df', 'loglik', 'ic', 'delta', 'weight', 'terms')
-	excludeattr <- c("names", "row.names", "class")
-	column.types <- attrib[["column.types"]]
-	keepattr <- names(attrib)[!(names(attrib) %in% excludeattr)]
-	.setattr <- function(x, newattr = NULL, which = keepattr) {
-		#for(i in which) attr(x, i) <- newattr[[i]]
-		attributes(x)[which] <- if(is.null(newattr)) NULL else newattr[which]
-		x
-	}
-	if(inherits(x, "model.selection")) {
-		#message("is model.selection")
-		if(!is.null(modif) && any(modif %in% names(column.types)[
-			column.types %in% protectedcoltypes])) {
-			#message("modifying protected column ", sQuote(modif), ", ->data.frame")
-			class(x) <- "data.frame"
-			return(.setattr(x))
-		} else {
-			s <- dimnames(x)[[2L]]
-			k <- match(names(column.types), colnames(x), nomatch = 0L)
-			if(any(column.types[k == 0L] %in% protectedcoltypes)) {
-				#message("protected columns missing ", paste(names(column.types)[k == 0], collapse = ", "),
-						#" ->data.frame")
-				class(x) <- "data.frame"
-				return(.setattr(x))
-			} else {
-				if(any(column.types[k == 0L] %in% c("varying", "extra"))) {
-					#message("varying/extra columns missing")
-					column.types <- column.types[k != 0L]
-					attrib[["column.types"]] <- column.types
-				}
-			}
-		}
-		
-		oldrownames <- attrib[['row.names']]
-		newrownames <- dimnames(x)[[1L]]
-		if(rowchange && (length(oldrownames) != length(newrownames) ||
-						 any(oldrownames != newrownames))) {
-			rowattrib <- c("model.calls", "coefTables", "random.terms", "order",
-			   if(!is.null(attr(x, "modelList")))"modelList")
-			k <- match(newrownames, oldrownames)
-			#message("row order changed: ", k)
-			attrib[rowattrib] <- lapply(attrib[rowattrib], `[`, k)
-		}# else {
-			#message("rows not changed")
-		#}
-		
-		x <- .setattr(x, attrib)
-		if(!is.null(warningList <- attrib$warnings))
-			attr(x, "warnings") <- warningList[sapply(warningList, attr, "id")
-											   %in% newrownames]
-
-	} else {
-		#message("not model.selection")
-		return(.setattr(x))
-	}
-	x
-}
-
-`[<-.model.selection` <-
-function (x, i, j, value)  {
-	verify_model_selection_object(NextMethod("[<-"),
-		attributes(x), if(is.character(j)) j else colnames(x)[j])
-}
-
-`$<-.model.selection` <-
-function (x, name, value) {
-	verify_model_selection_object(NextMethod("$<-"), attributes(x), name, rowchange = FALSE)
-}
-
-`[.model.selection` <-
-function (x, i, j, recalc.weights = TRUE, recalc.delta = FALSE, ...) {
-	x <- verify_model_selection_object(`[.data.frame`(x, i, j, ...), attributes(x))
-	if(inherits(x, "model.selection")) {
-		column.types <- attr(x, "column.types")
-		nct <- names(column.types)
-		ic <- `[.data.frame`(x, , nct[column.types == "ic"])
-		if(recalc.weights) x <- `[<-.data.frame`(x, , nct[column.types == "weight"], Weights(ic))
-		if(recalc.delta) x <- `[<-.data.frame`(x, , nct[column.types == "delta"], ic - min(ic))
-	} else {
-		recalc <- c(if(recalc.delta) "delta", if(recalc.weights) "weights")
-		if(!is.null(recalc)) cry(, "cannot recalculate %s on an incomplete object",
-					prettyEnumStr(recalc), warn = TRUE)
-	}
-	x
+`elem` <- function(x, name) {
+	`[.data.frame`(x, , name)
 }

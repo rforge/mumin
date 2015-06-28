@@ -37,10 +37,8 @@ function (object, ..., REML = NULL) {
         as.vector(-2 * c(ll) + k * log(sum(diag(mat)) / k) - log(det(mat)))
 		# ICOMP = -2 * LL + k * log(tr(IFIM) / k) - log(det(IFIM))
 		# ICOMP = -2 * LL + 2 * C * (sig(model))
-		# 
 		# where C is a complexity measure and sig(model) is the variance-
 		# covariance matrix of the parameters estimated under the model.
-		
     })
     if (length(ret) > 1L) {
         Call <- match.call()
@@ -49,7 +47,6 @@ function (object, ..., REML = NULL) {
     }
     return(ret)
 }
-
 
 # Bozdogans's CAICF (C denoting "consistent" and F denoting the use of the Fisher
 # information matrix),
@@ -74,6 +71,3 @@ function (object, ..., REML = NULL) {
     }
     return(ret)
 }
-
-
-# Inverse of variance-covariance matrix is the observed (not Fisher) information matrix

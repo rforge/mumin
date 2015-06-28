@@ -6,8 +6,7 @@ function(x, indices = c("none", "numeric", "rownames"), rank = NULL) {
 	if(!inherits(x, "model.selection")) 
 		stop("'x' is not a \"model.selection\" object")
 		
-	column.types <- attr(x, "column.types")
-	vCols <- names(column.types)[column.types == "varying"]	
+	vCols <- type2columnname(x, "varying")
 	
 	if(nVCols <- length(vCols)) {
 		vtab <- x[, vCols, drop = FALSE]

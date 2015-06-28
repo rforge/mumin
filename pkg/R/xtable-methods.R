@@ -2,7 +2,8 @@ xtable.summary.averaging <-
 function (x, caption = NULL, label = NULL, align = NULL, digits = NULL, 
     display = NULL, coefType = c("full", "subset"), ...) {
 	coefType <- match.arg(coefType)
-    x <- as.data.frame(x[[switch(coefType, full = "coefmat.full", subset = "coefmat.subset")]])
+    x <- as.data.frame(x[[switch(coefType, full = "coefmat.full",
+		subset = "coefmat.subset")]])
 	has.ase <- all(!is.na(x[, 3L]))
 	if(!has.ase) x <- x[, -3L]
 	# for RCheck:
@@ -38,24 +39,17 @@ function (x, caption = NULL, label = NULL, align = NULL, digits = NULL,
 	dig <- c(terms = NA, varying = NA, extra = NA, df = 0L, loglik = 1L,
 				 ic = 1L, delta = 1L, weight = 2L)
 	decprint <- dig[column.types[colnames(x)]]
-	decprint[is.na(decprint)] <- 2
-		
+	decprint[is.na(decprint)] <- 2L
 	display <- character(ncol(x))
 	display[vclass == "character"] <- "s"
 	display[vclass == "real"] <- "f"
 	display[vclass == "integer"] <- "d"
 	display[vclass == "other"] <- "s"
-	
 	# for RCheck:
 	if(!exists("xtable")) xtable <- function(...) {}
 	xtable(x, caption = caption, label = label, align = align, digits = c(NA, decprint), 
 		display = c("s", display), ...)
 }
-
-#print(xtable(dd[]), file = "tmp.html", type = "html")
-
-
-
 
 
 

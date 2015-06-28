@@ -3,15 +3,15 @@ MuMIn package news:
 Version: 1.50.0 (2015-06-28)
 (added) arm.glm: implements model averaging with weights calculated via ARM 
     ("adaptive regression by mixing") algorithm.
-Changes to "averaging" object: the elements "coef.shrinkage" and "coefTable" are
+"averaging" object: the elements "coef.shrinkage" and "coefTable" are
     replaced by matrix named "coefficients". The "Pval-tables" are accessed via 
     summary(averaging)'s elements "coefmat.full" and "coefmat.subset". Objects 
     created with previous versions will be automatically converted if needed.
 [p]dredge: argument 'm.lim' replaces 'm.min' and 'm.max' (which are still 
     present, but deprecated).
-"model.selection" object: modifying or removing the essential columns 
-    (everything except 'varying' and 'extra') converts the object to a plain 
-    "data.frame" and removes all additional attributes. 
+"model.selection" object: changing or removing essential columns (i.e. 
+    everything except 'varying' and 'extra') converts the object to a plain 
+    "data.frame" and drops all additional attributes. 
 (added) rbind.model.selection: combine multiple "model.selection" objects.
 (added) 'xtable' methods for "averaging" and "model.selection" objects.
 
