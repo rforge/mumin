@@ -14,6 +14,8 @@ Version: 1.50.0 (2015-06-28)
     "data.frame" and drops all additional attributes. 
 (added) rbind.model.selection: combine multiple "model.selection" objects.
 (added) 'xtable' methods for "averaging" and "model.selection" objects.
+(fixed) updateable: does not cause infinite recursion when the resulting wrapper
+    has the same name as the wrapped function.
 
 Version: 1.14.1 (2015-06-12)
 (fixed) [p]dredge no longer gives coefficient values as NA with [g]lmer 

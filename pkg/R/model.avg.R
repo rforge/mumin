@@ -28,7 +28,6 @@ function(cfarr, weight, revised.var, full, alpha) {
 	return(avgcoef)
 }
 
-
 `model.avg.model.selection` <-
 function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 
@@ -62,7 +61,7 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 	ct <- attr(object, "coefTables")
 
 	cfarr <- coefArray(ct)
-	weight <- object$weight / sum(object$weight)
+	weight <- Weights(object)
 
 	cfmat <- cfarr[, 1L, ]
 	cfmat[is.na(cfmat)]<- 0
@@ -73,7 +72,6 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 		as.numeric(!is.na(cfarr[, 1L, ])), dim = dim(cfmat)))
 	coefMat[is.nan(coefMat)] <- NA_real_
 
-			  
 	#allterms1 <- lapply(attr(object, "calls"), function(x)
 		#getAllTerms(as.formula(x[[switch(as.character(x[[1L]]),
 			#lme=, lme.formula= "fixed", gls= "model", "formula")]])))
@@ -84,10 +82,8 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 	allterms1 <- applyrns(!is.na(object[, all.vterms, drop = FALSE]), function(x) all.vterms[x])
 	allmodelnames <- .modelNames(allTerms = allterms1, uqTerms = all.vterms)
 
-	mstab <- object[, -(seq_len(ncol(object) - 5L))]
-	colnames(mstab)[4L:5L] <- c("delta", "weight")
+	mstab <- elem(object, type2columnname(object, c("df", "loglik", "ic", "delta", "weight")))
 	rownames(mstab) <- allmodelnames
-
 
 	ret <- list(
 		msTable = structure(as.data.frame(mstab),
@@ -112,7 +108,6 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 	class(ret) <- "averaging"
 	return(ret)
 }
-
 
 `model.avg.default` <-
 function(object, ..., beta = c("none", "sd", "partial.sd"),
@@ -425,7 +420,6 @@ function (formula, ...) {
 	mergeMF(getModelList(formula))
 }
 
-
 model.matrix.averaging <-
 function (object, ...) {
 	if(j <- match("x", names(object), nomatch = 0L)) return(object[[j]])
@@ -561,7 +555,6 @@ function(x, ...) {
 	print(x$coefficients[!is.na(x$coefficients[,1L]), , drop = FALSE])
     x
 }
-
 
 `vcov.averaging` <- function (object, full = FALSE, ...) {
 	## XXX: backward compatibility:

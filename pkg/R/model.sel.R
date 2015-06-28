@@ -45,9 +45,9 @@ function (object, rank = NULL, rank.args = NULL, fit = NA, ...,
 		attr(object, "names")[names(object) == oldRankCol] <- rankCol
 		names(attr(object, "column.types"))[attr(object, "column.types") == "ic"] <- rankCol
 		
-		elem(objec, rankCol) <- ic
-		elem(objec, type2columnname(object, "delta")) <- ic - min(ic)
-		elem(objec, type2columnname(object, "weight")) <- Weights(ic)
+		elem(object, rankCol) <- ic
+		elem(object, type2columnname(object, "delta")) <- ic - min(ic)
+		elem(object, type2columnname(object, "weight")) <- Weights(ic)
 		rval <- object[order(ic), ]
 		attr(rval, "rank") <- rank
 		attr(rval, "rank.call") <- attr(rank, "call")
