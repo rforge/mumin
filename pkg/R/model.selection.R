@@ -55,31 +55,13 @@ function(ss, dfr) {
 	eval(ss, dfr)
 }
 
-#TODO: update 'subset' to new '['
 `subset.model.selection` <-
 function(x, subset, select, recalc.weights = TRUE, recalc.delta = FALSE, ...) {
-	
-	if (missing(select)) {
-		if(missing(subset)) return(x)
-		i <- evalSubsetExpr(substitute(subset), x)
-		return(`[.model.selection`(x, i, recalc.weights = recalc.weights, 
+	if(missing(subset) && missing(select)) return(x)
+	return(`[.model.selection`(x, evalSubsetExpr(substitute(subset), x),
+			recalc.weights = recalc.weights, 
 			recalc.delta = recalc.delta, ...))
-	} else {
-		cl <- match.call(expand.dots = FALSE)
-		if(!missing(subset)) cl$subset <- evalSubsetExpr(substitute(subset), x)
-		
-	    cl <- cl[c(1L, match(names(formals("subset.data.frame")), names(cl), 0L))]
-	    cl[[1L]] <- as.name("subset.data.frame")
-		DebugPrint(cl)
-		ret <- eval.parent(cl)
-		if(recalc.weights && ("weight" %in% colnames(ret)))
-			ret[, 'weight'] <- ret[, 'weight'] / sum(ret[, 'weight'])
-		if(recalc.delta && ("delta" %in% colnames(ret)))
-			ret[, 'delta'] <- ret[, 'delta'] - min(ret[, 'delta'])
-	    return(ret)
-	}
 }
-
 
 
 getModelClass <-
@@ -184,7 +166,6 @@ function (..., deparse.level = 1, make.row.names = TRUE) {
 
 `print.model.selection` <-
 function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
-	#cat("new\n")
 	origx <- x
 	class(x) <- "data.frame"
 	xterms <- attr(origx, "terms")
@@ -203,9 +184,12 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 		} else random.terms <- attr(origx, "random.terms")
 		cat("Model selection table \n")
 		
-		dig <- c(varying = NA, extra = NA, df = 0L, loglik = 3L, ic = 1L, delta = 2L,
-				 weight = 3L, terms = NA)
+		dig <- c(terms = NA, varying = NA, extra = NA, df = 0L, loglik = 3L, ic = 1L, delta = 2L,
+				 weight = 3L)
 		column.types <- attr(origx, "column.types")
+		
+		#stopifnot(names(dig) == levels(column.types)) ## DEBUG
+		
 		decprint <- dig[column.types[colnames(x)]]
 
 		i <- vapply(x, is.numeric, FALSE) & is.na(decprint)
@@ -215,7 +199,6 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 			
 		vLegend <- NULL
 		if(abbrev.names) {
-			
 			vCols <- names(column.types)[column.types == "varying"]
 			vCols <- vCols[(vCols %in% colnames(x)) & !(vCols %in% c("class"))]
 			vlen <- nchar(vCols)
@@ -233,7 +216,6 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 				}
 				vLegend <- vLegend[!vapply(vLegend, is.null, TRUE)]
 			}
-			
 		}
 
 		uqran <- unique(unlist(random.terms, use.names = FALSE))
@@ -247,7 +229,11 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 			x <- cbind(x[, 1L:(k - 1L)], random = colran, x[, k:ncol(x)])
 		}
 
-		print.default(as.matrix(x)[, !vapply(x, function(y) all(is.na(y)), FALSE),
+		if(nrow(x) == 0L) {
+			print.default(colnames(x), quote = FALSE)
+			cat("<0 rows>", "\n")
+		} else
+			print.default(as.matrix(x)[, !vapply(x, function(y) all(is.na(y)), FALSE),
 			drop = FALSE], na.print = "", quote = FALSE, right = TRUE)
 
 		if(abbrev.names && length(vLegend)) {
@@ -260,7 +246,6 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 		}
 		
 		cat("Models ranked by", asChar(attr(attr(origx, 'rank'), "call")), "\n")
-
 		if(!is.null(random.terms)) {
 			if(addrandcol) {
 				cat("Random terms: \n")
@@ -270,7 +255,6 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 				cat(paste(sQuote(uqran)), sep = ", ")
 				cat("\n")
 			}
-
 		}
 		if (warnings && !is.null(attr(origx, "warnings"))) {
 			cat("\n"); print.warnings(attr(origx, "warnings"))
@@ -493,6 +477,10 @@ function (x, i, j, recalc.weights = TRUE, recalc.delta = FALSE, ...) {
 		ic <- `[.data.frame`(x, , nct[column.types == "ic"])
 		if(recalc.weights) x <- `[<-.data.frame`(x, , nct[column.types == "weight"], Weights(ic))
 		if(recalc.delta) x <- `[<-.data.frame`(x, , nct[column.types == "delta"], ic - min(ic))
+	} else {
+		recalc <- c(if(recalc.delta) "delta", if(recalc.weights) "weights")
+		if(!is.null(recalc)) cry(, "cannot recalculate %s on an incomplete object",
+					prettyEnumStr(recalc), warn = TRUE)
 	}
 	x
 }

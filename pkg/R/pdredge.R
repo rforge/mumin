@@ -614,6 +614,7 @@ function(global.model, cluster = NA,
 
 	ret$delta <- ret[, ICName] - min(ret[, ICName])
 	ret$weight <- exp(-ret$delta / 2) / sum(exp(-ret$delta / 2))
+    mode(ret$df) <- "integer"
 
 	ret <- structure(ret,
 		model.calls = calls[o],

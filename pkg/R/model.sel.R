@@ -33,7 +33,6 @@ function (object, rank = NULL, rank.args = NULL, fit = NA, ...,
 	
 	if(isTRUE(fit) || reFit) {
 		#message("to compute 'extras' or beta-weights, need to re-fit model objects.")
-		#message("Re-fitting...")
 		cl <- match.call()
 		ss <- if(is.null(cl$subset)) TRUE else cl$subset
 		models <- do.call("get.models", list(object, subset = ss), envir = parent.frame())
@@ -149,6 +148,8 @@ function(object, ..., rank = NULL, rank.args = NULL,
 	ret <- cbind(d, ret)
 	ret[, "delta"] <- ret[, ICname] - min(ret[, ICname])
 	ret[, "weight"] <- Weights(ret[,ICname])
+	mode(ret[, "df"]) <- "integer"
+	
 	o <- order(ret[, "delta"], decreasing = FALSE)
 
 	descrf <- modelDescr(models)

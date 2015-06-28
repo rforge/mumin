@@ -559,8 +559,8 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 
 	rval$delta <- rval[, ICName] - min(rval[, ICName])
 	rval$weight <- exp(-rval$delta / 2) / sum(exp(-rval$delta / 2))
-    
-	
+    mode(rval$df) <- "integer"
+
 	structure(rval,
 		model.calls = calls[o],
 		global = global.model,
