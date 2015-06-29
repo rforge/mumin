@@ -1,8 +1,8 @@
 `coefTable.model.selection` <-
 function (model, ...) {
-	ret <- attr(model, "coefTables")
-	names(ret) <- rownames(model)
-	ret
+	rval <- attr(model, "coefTables")
+	names(rval) <- rownames(model)
+	rval
 }
 
 `coef.model.selection` <-
@@ -10,11 +10,11 @@ function (object, ...) {
 	ct <- attr(object, "coefTables")
 	n <- length(ct)
 	allcf <- unique(unlist(lapply(ct, rownames)))
-	ret <- matrix(NA_real_, nrow = n, ncol = length(allcf),
+	rval <- matrix(NA_real_, nrow = n, ncol = length(allcf),
 		dimnames = list(rownames(object), allcf))
 	for(i in seq_len(n))
-		ret[i, match(rownames(ct[[i]]), allcf)] <- ct[[i]][, 1L]
-	ret
+		rval[i, match(rownames(ct[[i]]), allcf)] <- ct[[i]][, 1L]
+	rval
 }
 
 `coeffs.model.selection` <-
@@ -25,13 +25,13 @@ function (model) coef.model.selection(model)
 		use.names = FALSE)))
 	nCoef <- length(coefNames)
 	nModels <- length(object)
-	ret <- array(NA_real_, dim = c(nModels, 3L, nCoef),
+	rval <- array(NA_real_, dim = c(nModels, 3L, nCoef),
 		dimnames = list(names(object), c("Estimate", "Std. Error", "df"), coefNames))
 	for(i in seq_along(object)) {
 		z <- object[[i]]
-		ret[i, seq_len(ncol(z)), ] <- t(z[match(coefNames, fixCoefNames(rownames(z))), ])
+		rval[i, seq_len(ncol(z)), ] <- t(z[match(coefNames, fixCoefNames(rownames(z))), ])
 	}
-	ret
+	rval
 }
 
 `getCall.model.selection`  <-
@@ -74,7 +74,6 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 		dig <- c(terms = NA, varying = NA, extra = NA, df = 0L, loglik = 3L, ic = 1L, delta = 2L,
 				 weight = 3L)
 		column.types <- attr(origx, "column.types")
-		
 		#stopifnot(names(dig) == levels(column.types)) ## DEBUG
 		
 		decprint <- dig[column.types[colnames(x)]]
@@ -166,17 +165,17 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
             cl <- as.call(cl)
         }
     }
-    return(if (evaluate) eval.parent(cl) else cl)
+    if (evaluate) eval.parent(cl) else cl
 }
 
 `logLik.model.selection` <- function (object, ...) {
 	nobs <- attr(object, "nobs")
 	n <- nrow(object)
-	ret <- vector(n, mode = "list")
-	for(i in 1:n) ret[[i]] <-
+	rval <- vector(n, mode = "list")
+	for(i in 1L:n) rval[[i]] <-
 		structure(object[i, "logLik"], df = object[i, "df"], nobs = nobs,
 			class = "logLik")
-	ret
+	rval
 }
 
 `family.model.selection` <-
@@ -185,20 +184,21 @@ function (object, ...) {
 		model.calls <- attr(object, "model.calls")
 		if(!is.null(model.calls[[1L]][["family"]])) {
 			fam <- lapply(model.calls, "[[", "family")
-			fam1 <- unique(fam)
-			ret <- lapply(unique(fam), eval)[
+			#fam1 <- unique(fam)
+			rval <- lapply(unique(fam), eval)[
 				as.integer(as.factor(vapply(fam, asChar, "")))
 				]
-			names(ret) <- rownames(object)
+			names(rval) <- rownames(object)
+			## WTF?
 			#index <- split(seq_along(fam), vapply(fam, asChar, ""))
 			#for(i in seq_along(fam1)) fam1[[i]] <- list(family = eval(fam1[[i]]), index = index[[i]])
 			#fam <- family(dd1)
 			#index <- lapply(fam, "[[", "index")
-			#ret <- rep(lapply(fam, "[[", "family"), vapply(index, length, 1L))[order(unlist(index))]
-			return(ret)
+			#rval <- rep(lapply(fam, "[[", "family"), vapply(index, length, 1L))[order(unlist(index))]
+			return(rval)
 		} else return(family(attr(object, "global")))
 	} else {
-		return(attr(object, "model.family"))
+		attr(object, "model.family")
 	}
 }
 
@@ -214,10 +214,10 @@ function(x, type) {
 	names(x)[x %in% type] 
 }
 
-`elem<-` <- function(x, name, value) {
-	`[<-.data.frame`(x, , name, value)
+`elem<-` <- function(x, name, i, value) {
+	`[<-.data.frame`(x, i, name, value)
 }
 
-`elem` <- function(x, name) {
-	`[.data.frame`(x, , name)
+`elem` <- function(x, name, i, ...) {
+	`[.data.frame`(x, i, name, ...)
 }

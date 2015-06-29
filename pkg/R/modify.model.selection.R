@@ -15,14 +15,14 @@ function (x, value) {
 	if(any(attr(x, "column.types")[oldnames[oldnames != value]] %in%
 	   c('df', 'loglik', 'ic', 'delta', 'weight', 'terms'))) {
 		class(x) <- "data.frame"
-		attributes(x)[-match(names(attributes(x)), c("names", "row.names", "class"), nomatch = 0)] <- NULL
+		attributes(x)[-match(names(attributes(x)), c("names", "row.names", "class"),
+							 nomatch = 0)] <- NULL
 	}
 	NextMethod()
 }
 
-verify_model_selection_object <-
+subset_model_selection <-
 function(x, attrib, modif = NULL, rowchange = TRUE) {
-	protectedcoltypes <- c("df", "loglik", "ic", "delta", "weight", "terms")
 	excludeattr <- c("names", "row.names", "class")
 	column.types <- attrib[["column.types"]]
 	keepattr <- names(attrib)[!(names(attrib) %in% excludeattr)]
@@ -32,6 +32,8 @@ function(x, attrib, modif = NULL, rowchange = TRUE) {
 	}
 	
 	if(inherits(x, "model.selection")) {
+		protectedcoltypes <- c("df", "loglik", "ic", "delta", "weight", "terms")
+
 		if(!is.null(modif) && modif %in% type2columnname(column.types, protectedcoltypes)) {
 			class(x) <- "data.frame"
 			return(.setattr(x))
@@ -48,7 +50,6 @@ function(x, attrib, modif = NULL, rowchange = TRUE) {
 				}
 			}
 		}
-		
 		oldrownames <- attrib[['row.names']]
 		newrownames <- dimnames(x)[[1L]]
 		if(rowchange && (length(oldrownames) != length(newrownames) ||
@@ -62,7 +63,6 @@ function(x, attrib, modif = NULL, rowchange = TRUE) {
 		if(!is.null(warningList <- attrib$warnings))
 			attr(x, "warnings") <- warningList[sapply(warningList, attr, "id")
 											   %in% newrownames]
-
 	} else {
 		return(.setattr(x))
 	}
@@ -71,23 +71,25 @@ function(x, attrib, modif = NULL, rowchange = TRUE) {
 
 `[<-.model.selection` <-
 function (x, i, j, value)  {
-	verify_model_selection_object(NextMethod("[<-"),
+	subset_model_selection(NextMethod("[<-"),
 		attributes(x), if(is.character(j)) j else colnames(x)[j])
 }
 
 `$<-.model.selection` <-
 function (x, name, value) {
-	verify_model_selection_object(NextMethod("$<-"), attributes(x), name,
+	subset_model_selection(NextMethod("$<-"), attributes(x), name,
 		rowchange = FALSE)
 }
 
 `[.model.selection` <-
 function (x, i, j, recalc.weights = TRUE, recalc.delta = FALSE, ...) {
-	x <- verify_model_selection_object(`[.data.frame`(x, i, j, ...), origattrib <- attributes(x))
+	x <- subset_model_selection(elem(x, j, i, ...),	origattrib <- attributes(x))
 	if(inherits(x, "model.selection")) {
-		ic <- `[.data.frame`(x, , type2columnname(x, "ic"))
-		if(recalc.weights) x <- `[<-.data.frame`(x, , type2columnname(x, "weight"), Weights(ic))
-		if(recalc.delta) x <- `[<-.data.frame`(x, , type2columnname(x, "delta"), ic - min(ic))
+		ic <- elem(x, type2columnname(x, "ic"))
+		if(recalc.weights) elem(x, type2columnname(x, "weight")) <- Weights(ic)
+		if(recalc.delta) elem(x, type2columnname(x, "delta")) <- ic - min(ic)
+		#if(recalc.weights) x <- `[<-.data.frame`(x, , type2columnname(x, "weight"), Weights(ic))
+		#if(recalc.delta) x <- `[<-.data.frame`(x, , type2columnname(x, "delta"), ic - min(ic))
 	} else {
 		k <- type2columnname(origattrib$column.types, c("weight", "delta"))
 		hasdeltaweight <- k %in% colnames(x)
