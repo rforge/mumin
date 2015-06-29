@@ -39,22 +39,19 @@ function (object, rank = NULL, rank.args = NULL, fit = NA, ...,
 		cl$object <- models
 		rval <- do.call("model.sel", as.list(cl), envir = parent.frame())
 	} else if(!is.null(rank)) {
-		oldRankCol <- type2columnname(object, "ic")
-		rankCol <- as.character(attr(rank, "call")[[1L]])
-		message(gettextf("New rank '%s' applied to logLik objects", rankCol))
-		attr(object, "names")[names(object) == oldRankCol] <- rankCol
-		names(attr(object, "column.types"))[attr(object, "column.types") == "ic"] <- rankCol
-		
-		elem(object, rankCol) <- ic
-		elem(object, type2columnname(object, "delta")) <- ic - min(ic)
-		elem(object, type2columnname(object, "weight")) <- Weights(ic)
+		newRankName <- as.character(attr(rank, "call")[[1L]])
+		message(gettextf("New rank '%s' applied to logLik objects", newRankName))
+		k <- type2col(object, "ic")
+		attr(object, "names")[k] <- names(attr(object, "column.types"))[k] <-
+			newRankName
+		itemByType(object, "ic") <- ic
+		itemByType(object, "delta") <- ic - min(ic)
+		itemByType(object, "weight") <- Weights(ic)
 		rval <- object[order(ic), ]
 		attr(rval, "rank") <- rank
-		attr(rval, "rank.call") <- attr(rank, "call")
 	} else rval <- object
 	return(rval)
 }
-
 
 `model.sel.default` <-
 function(object, ..., rank = NULL, rank.args = NULL,
@@ -182,7 +179,6 @@ function(object, ..., rank = NULL, rank.args = NULL,
 		modelList = models[o],
 		order = o,
 		rank = rank,
-		rank.call = attr(rank, "call"),
 		beta = strbeta,
 		call = match.call(),
 		nobs = nobs(models[[1L]]),

@@ -82,8 +82,9 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 	allterms1 <- applyrns(!is.na(object[, all.vterms, drop = FALSE]), function(x) all.vterms[x])
 	allmodelnames <- .modelNames(allTerms = allterms1, uqTerms = all.vterms)
 
-	mstab <- elem(object, type2columnname(object, c("df", "loglik", "ic", "delta", "weight")))
+	mstab <- itemByType(object, c("df", "loglik", "ic", "delta", "weight"))
 	rownames(mstab) <- allmodelnames
+	
 
 	ret <- list(
 		msTable = structure(as.data.frame(mstab),

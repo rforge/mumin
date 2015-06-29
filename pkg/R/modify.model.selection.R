@@ -34,7 +34,7 @@ function(x, attrib, modif = NULL, rowchange = TRUE) {
 	if(inherits(x, "model.selection")) {
 		protectedcoltypes <- c("df", "loglik", "ic", "delta", "weight", "terms")
 
-		if(!is.null(modif) && modif %in% type2columnname(column.types, protectedcoltypes)) {
+		if(!is.null(modif) && modif %in% type2colname(column.types, protectedcoltypes)) {
 			class(x) <- "data.frame"
 			return(.setattr(x))
 		} else {
@@ -69,10 +69,21 @@ function(x, attrib, modif = NULL, rowchange = TRUE) {
 	x
 }
 
+
 `[<-.model.selection` <-
 function (x, i, j, value)  {
 	subset_model_selection(NextMethod("[<-"),
 		attributes(x), if(is.character(j)) j else colnames(x)[j])
+}
+
+
+`[[<-.model.selection` <-
+function (x, i, j, value)  {
+	subset_model_selection(NextMethod(),
+		attributes(x), {
+			if(missing(j)) j <- i
+			if(is.character(j)) j else colnames(x)[j]
+		}, rowchange = FALSE)
 }
 
 `$<-.model.selection` <-
@@ -83,15 +94,13 @@ function (x, name, value) {
 
 `[.model.selection` <-
 function (x, i, j, recalc.weights = TRUE, recalc.delta = FALSE, ...) {
-	x <- subset_model_selection(elem(x, j, i, ...),	origattrib <- attributes(x))
+	x <- subset_model_selection(item(x, j, i, ...),	origattrib <- attributes(x))
 	if(inherits(x, "model.selection")) {
-		ic <- elem(x, type2columnname(x, "ic"))
-		if(recalc.weights) elem(x, type2columnname(x, "weight")) <- Weights(ic)
-		if(recalc.delta) elem(x, type2columnname(x, "delta")) <- ic - min(ic)
-		#if(recalc.weights) x <- `[<-.data.frame`(x, , type2columnname(x, "weight"), Weights(ic))
-		#if(recalc.delta) x <- `[<-.data.frame`(x, , type2columnname(x, "delta"), ic - min(ic))
+		ic <- itemByType(x, "ic")
+		if(recalc.weights) itemByType(x, "weight") <- Weights(ic)
+		if(recalc.delta) itemByType(x, "delta") <- ic - min(ic)
 	} else {
-		k <- type2columnname(origattrib$column.types, c("weight", "delta"))
+		k <- type2colname(origattrib$column.types, c("weight", "delta"))
 		hasdeltaweight <- k %in% colnames(x)
 		recalc <- c(if(recalc.delta && hasdeltaweight[2L]) "delta",
 					if(recalc.weights && hasdeltaweight[1L]) "weights")
@@ -99,6 +108,12 @@ function (x, i, j, recalc.weights = TRUE, recalc.delta = FALSE, ...) {
 					prettyEnumStr(recalc), warn = TRUE)
 	}
 	x
+}
+
+
+`[[.model.selection` <-
+function (x, ..., exact = TRUE) {
+	`[[.data.frame`(x, ..., exact = exact)
 }
 
 evalSubsetExpr <-

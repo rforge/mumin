@@ -85,7 +85,7 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 			
 		vLegend <- NULL
 		if(abbrev.names) {
-			vCols <- type2columnname(column.types, "varying")
+			vCols <- type2colname(column.types, "varying")
 			vCols <- vCols[(vCols %in% colnames(x)) & !(vCols %in% c("class"))]
 			vlen <- nchar(vCols)
 			vLegend <- vector(length(vCols), mode = "list")
@@ -206,18 +206,30 @@ function (object, ...) {
 function (object, ...)
 attr(object, "nobs")
 
+## internal: translate column type to column indices
+type2col <-
+function (x, type) {
+    if (inherits(x, "model.selection")) 
+        x <- attr(x, "column.types")
+	k <- match(x, type, nomatch = 0L)
+	i <- k != 0
+	which(i)[order(k[i])]
+}
+
 ## internal: translate column type to column names
-type2columnname <-
-function(x, type) {
-	if(inherits(x, "model.selection"))
-		x <- attr(x, "column.types")
-	names(x)[x %in% type] 
-}
+type2colname <-
+function(x, type)
+names(x)[type2col(x, type)] 
 
-`elem<-` <- function(x, name, i, value) {
-	`[<-.data.frame`(x, i, name, value)
-}
 
-`elem` <- function(x, name, i, ...) {
-	`[.data.frame`(x, i, name, ...)
-}
+`item<-` <- function(x, name, i, value)
+`[<-.data.frame`(x, i, name, value)
+
+`item` <- function(x, name, i, ...)
+`[.data.frame`(x, i, name, ...)
+
+`itemByType` <- function(x, type, i, ...) 
+`[.data.frame`(x, i, type2col(x, type), ...)
+
+`itemByType<-` <- function(x, type, i, value)
+`[<-.data.frame`(x, i, type2col(x, type), value)

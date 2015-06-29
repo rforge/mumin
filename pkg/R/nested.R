@@ -6,10 +6,9 @@ function(x, indices = c("none", "numeric", "rownames"), rank = NULL) {
 	if(!inherits(x, "model.selection")) 
 		stop("'x' is not a \"model.selection\" object")
 		
-	vCols <- type2columnname(x, "varying")
-	
-	if(nVCols <- length(vCols)) {
-		vtab <- x[, vCols, drop = FALSE]
+	vColIdx <- type2col(x, "varying")
+	if(nVCols <- length(vColIdx)) {
+		vtab <- x[, vColIdx, drop = FALSE]
 		for(i in 1L:ncol(vtab)) vtab[, i] <- as.numeric(vtab[, i])
 		vtab <- as.matrix(vtab)
 	}	

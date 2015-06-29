@@ -567,7 +567,6 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 		global.call = gmCall,
 		terms = structure(allTerms, interceptLabel = interceptLabel),
 		rank = IC,
-		rank.call = attr(IC, "call"),
 		beta = strbeta, #eval(formals(sys.function())[["beta"]])[betaMode + 1L],
 		call = match.call(expand.dots = TRUE),
 		coefTables = coefTables,

@@ -14,7 +14,7 @@ function (..., deparse.level = 1, make.row.names = TRUE) {
 	
 	allitemsidentical <- function(x) all(vapply(x[-1L], identical, FALSE, x[[1L]]))
 	
-	if(!allitemsidentical(lapply(allargs, "attr", "rank.call")))
+	if(!allitemsidentical(lapply(lapply(allargs, attr, "rank"), attr, "call")))
 		stop("tables are not ranked by the same IC")
 	if(!allitemsidentical(lapply(allargs, "attr", "nobs")))
 		stop("models are fitted to different number of observations")
@@ -52,7 +52,7 @@ function (..., deparse.level = 1, make.row.names = TRUE) {
 	newattr <- list(column.types = vct)
 	for(i in c("model.calls", "coefTables"))
 		newattr[[i]] <- unlist(lapply(allargs, attr, i), recursive = FALSE, use.names = FALSE)
-	k <- c("rank", "rank.call", "nobs")
+	k <- c("rank", "nobs")
 	newattr[k] <- attributes(allargs[[1L]])[k]
 	
 	tmp <- lapply(allargs, attr, "terms")
