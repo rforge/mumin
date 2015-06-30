@@ -2,7 +2,7 @@ Package: MuMIn
 Type: Package
 Title: Multi-Model Inference
 Version: 1.15.0
-Date: 2015-06-23
+Date: 2015-07-01
 Encoding: UTF-8
 Author: Kamil Bartoń
 Maintainer: Kamil Bartoń <kamil.barton@go2.pl>
@@ -16,3 +16,4 @@ Suggests: stats4, nlme, mgcv (>= 1.7.5), lme4 (>= 1.1.0), gamm4,
 Enhances: aod, aods3, betareg, caper, coxme, cplm, gee, glmmML, logistf, 
           MCMCglmm, ordinal, pscl, spdep, splm, unmarked, geeM (>= 0.7.5)
 LazyData: yes
+ByteCompile: yes

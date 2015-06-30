@@ -1,6 +1,6 @@
 MuMIn package news:
 
-Version: 1.50.0 (2015-06-28)
+Version: 1.50.0 (2015-07-01)
 (added) arm.glm: implements model averaging with weights calculated via ARM 
     ("adaptive regression by mixing") algorithm.
 "averaging" object: the elements "coef.shrinkage" and "coefTable" are

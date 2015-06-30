@@ -1,4 +1,5 @@
 
+# code snippet to handle argument 'beta'
 .expr_beta_arg <- expression({
 	if(is.logical(beta) && beta) {
 		betaMode <- as.integer(beta)
@@ -19,7 +20,6 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 		 fixed = NULL, m.lim = NULL, m.min, m.max, subset,
 		 trace = FALSE, varying, extra, ct.args = NULL,
 		 ...) {
-	
 	
 	trace <- min(as.integer(trace), 2L)
 	strbeta <- betaMode <- NULL
@@ -90,7 +90,8 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 			"arguments %s are not names of formal arguments of %s"),
 			prettyEnumStr(names(rankArgs[badargs])), "'dredge' or 'rank'", 
 			warn = TRUE)
-	
+		
+
 	ICName <- as.character(attr(IC, "call")[[1L]])
 	
 	if(length(tryCatch(IC(global.model), error = function(e) {
@@ -108,11 +109,6 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 	if(is.null(interceptLabel)) interceptLabel <- "(Intercept)"
 	nIntercepts <- sum(attr(allTerms, "intercept"))
 
-	#XXX: use.ranef <- FALSE
-	#if(use.ranef && inherits(global.model, "mer")) {
-		#allTerms <- c(allTerms, paste0("(", attr(allTerms0, "random.terms"), ")"))
-	#}
-
 	# Check for na.omit
 	if(!(gmNaAction <- .checkNaAction(cl = gmCall, what = "'global.model'")))
 		cry(, attr(gmNaAction, "message"))
@@ -121,7 +117,7 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 		match.call(gmCall, definition = eval.parent(gmCall[[1L]]),
 				   expand.dots = TRUE)
 
-		
+	
 	# TODO: other classes: model, fixed, etc...
     gmCoefNames <- names(coeffs(global.model))
     if(any(dup <- duplicated(gmCoefNames)))
@@ -308,7 +304,6 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 			subset <- as.expression(subset)
 			ssValidNames <- c("comb", "*nvar*")
 
-			#gloFactorTable <- t(attr(terms(global.model), "factors")[-1L, ] != 0)
 			gloFactorTable <- t(attr(terms(reformulate(allTerms0[!(allTerms0
 				%in% interceptLabel)])), "factors") != 0)
 			rownames(gloFactorTable) <- allTerms0[!(allTerms0 %in% interceptLabel)]
@@ -372,6 +367,8 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 			} else NULL,
 		gmFormulaEnv = gmFormulaEnv
 		)
+
+## [[end of common code]]
 	
 	matchCoefCall <- as.call(c(alist(matchCoef, fit1, all.terms = allTerms,
 		  beta = betaMode, allCoef = TRUE), ct.args))

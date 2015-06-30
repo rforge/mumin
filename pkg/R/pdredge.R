@@ -259,7 +259,7 @@ function(global.model, cluster = NA,
 	rvChunk <- 25L
 	if(evaluate) {
 		rvNcol <- nVars + nVarying + 3L + nextra
-		ret <- matrix(NA_real_, ncol = rvNcol, nrow = rvChunk)
+		rval <- matrix(NA_real_, ncol = rvNcol, nrow = rvChunk)
 		coefTables <- vector(rvChunk, mode = "list")
 	}
 
@@ -543,11 +543,11 @@ function(global.model, cluster = NA,
 			withoutProblems <- which(!haveProblems)
 			qrows <- lapply(qresult[withoutProblems], "[[", "value")
 			qresultLen <- length(qrows)
-			rvlen <- nrow(ret)
+			rvlen <- nrow(rval)
 
 			if(retNeedsExtending <- k + qresultLen > rvlen) {
 				nadd <- min(max(rvChunk, qresultLen), nmax - rvlen)
-				ret <- rbind(ret, matrix(NA_real_, ncol = rvNcol, nrow = nadd),
+				rval <- rbind(rval, matrix(NA_real_, ncol = rvNcol, nrow = nadd),
 					deparse.level = 0L)
 				addi <- seq.int(rvlen + 1L, length.out = nadd)
 				coefTables[addi] <- vector("list", nadd)
@@ -555,7 +555,7 @@ function(global.model, cluster = NA,
 				ord[addi] <- integer(nadd)
 			}
 			qseqOK <- seq_len(qresultLen)
-			for(m in qseqOK) ret[k + m, retColIdx] <- qrows[[m]]
+			for(m in qseqOK) rval[k + m, retColIdx] <- qrows[[m]]
 			ord[k + qseqOK] <- vapply(queued[withoutProblems], "[[", 1L, "id")
 			calls[k + qseqOK] <- lapply(queued[withoutProblems], "[[", "call")
 			coefTables[k + qseqOK] <- lapply(qresult[withoutProblems], "[[", "coefTable")
@@ -572,9 +572,9 @@ function(global.model, cluster = NA,
 	names(calls) <- ord
 	if(!evaluate) return(calls[seq_len(k)])
 
-	if(k < nrow(ret)) {
+	if(k < nrow(rval)) {
 		i <- seq_len(k)
-		ret <- ret[i, , drop = FALSE]
+		rval <- rval[i, , drop = FALSE]
 		ord <- ord[i]
 		calls <- calls[i]
 		coefTables <- coefTables[i]
@@ -583,40 +583,40 @@ function(global.model, cluster = NA,
 	if(nVarying) {
 		varlev <- ord %% nVariants
 		varlev[varlev == 0L] <- nVariants
-		ret[, nVars + seq_len(nVarying)] <- variants[varlev, ]
+		rval[, nVars + seq_len(nVarying)] <- variants[varlev, ]
 	}
 
-	ret <- as.data.frame(ret)
-	row.names(ret) <- ord
+	rval <- as.data.frame(rval)
+	row.names(rval) <- ord
 
 	# Convert columns with presence/absence of terms to factors
 	tfac <- which(!(allTerms %in% gmCoefNames))
-	ret[tfac] <- lapply(ret[tfac], factor, levels = NaN, labels = "+")
+	rval[tfac] <- lapply(rval[tfac], factor, levels = NaN, labels = "+")
 
 	i <- seq_along(allTerms)
 	v <- order(termsOrder)
-	ret[, i] <- ret[, v]
+	rval[, i] <- rval[, v]
 	allTerms <- allTerms[v]
-	colnames(ret) <- c(allTerms, varyingNames, extraNames, "df", lik$name, ICName)
+	colnames(rval) <- c(allTerms, varyingNames, extraNames, "df", lik$name, ICName)
 
 	if(nVarying) {
 		variant.names <- vapply(variantsFlat, asChar, "", width.cutoff = 20L)
 		vnum <- split(seq_len(sum(vlen)), rep(seq_len(nVarying), vlen))
 		names(vnum) <- varyingNames
-		for (i in varyingNames) ret[, i] <-
-			factor(ret[, i], levels = vnum[[i]], labels = variant.names[vnum[[i]]])
+		for (i in varyingNames) rval[, i] <-
+			factor(rval[, i], levels = vnum[[i]], labels = variant.names[vnum[[i]]])
 
 	}
 
-	o <- order(ret[, ICName], decreasing = FALSE)
-	ret <- ret[o, ]
+	o <- order(rval[, ICName], decreasing = FALSE)
+	rval <- rval[o, ]
 	coefTables <- coefTables[o]
 
-	ret$delta <- ret[, ICName] - min(ret[, ICName])
-	ret$weight <- exp(-ret$delta / 2) / sum(exp(-ret$delta / 2))
-    mode(ret$df) <- "integer"
+	rval$delta <- rval[, ICName] - min(rval[, ICName])
+	rval$weight <- exp(-rval$delta / 2) / sum(exp(-rval$delta / 2))
+    mode(rval$df) <- "integer"
 
-	ret <- structure(ret,
+	rval <- structure(rval,
 		model.calls = calls[o],
 		global = global.model,
 		global.call = gmCall,
@@ -632,7 +632,7 @@ function(global.model, cluster = NA,
 				extra = length(extraNames), df = 1L, loglik = 1L, ic = 1L, delta = 1L,
 				weight = 1L)
 			column.types <- rep(1L:length(colTypes), colTypes)
-			names(column.types) <- colnames(ret)
+			names(column.types) <- colnames(rval)
 			lv <- 1L:length(colTypes)
 			factor(column.types, levels = lv, labels = names(colTypes)[lv])
 		},
@@ -641,17 +641,17 @@ function(global.model, cluster = NA,
 
 	if(length(warningList)) {
 		class(warningList) <- c("warnings", "list")
-		attr(ret, "warnings") <- warningList
+		attr(rval, "warnings") <- warningList
 	}
 
 	if (!is.null(attr(allTerms0, "random.terms")))
-		attr(ret, "random.terms") <- attr(allTerms0, "random.terms")
+		attr(rval, "random.terms") <- attr(allTerms0, "random.terms")
 
 	if(doParallel) clusterCall(cluster, "rm",
 		list = c(".pdredge_process_model", "pdredge_props"), envir = .GlobalEnv)
 		
 
-	return(ret)
+	return(rval)
 } ######
 
 
