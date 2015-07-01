@@ -23,11 +23,12 @@ function(x) {
 }
 
 `Weights.numeric` <-
+function(x) {
 	d <- exp(-x / 2)
 	d / sum(d)
 }
 
 `Weights.default` <-
 function(x) {
-    stop("'x' must be a numeric vector")
+    cry(, "cannot use \"%s\" as 'x'", class(x)[1L])
 }

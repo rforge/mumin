@@ -120,7 +120,7 @@ function(object, R = 250, weight.by = c("aic", "loglik"), trace = FALSE) {
 			drop = FALSE], fit1$prior.weights)
 	}
 	msTable[, 4L] <- msTable[, 3L] - min(msTable[, 3L])
-	msTable[, 5L] <- Weights.default(msTable[, 3L])
+	msTable[, 5L] <- Weights(msTable[, 3L])
 	msTable[, 6L] <- wtsmean 
 
 	cfmat <- coefArray[, 1L, ]

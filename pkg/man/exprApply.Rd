@@ -10,7 +10,7 @@ Intended primarily for internal use.
 }
 
 \usage{
-exprApply(expr, what, FUN = identity, ..., symbols = FALSE)
+exprApply(expr, what, FUN = print, ..., symbols = FALSE)
 }
 
 \arguments{
@@ -20,9 +20,10 @@ exprApply(expr, what, FUN = identity, ..., symbols = FALSE)
       can be also a character representation of an operator or parenthesis
       (including \link[=Paren]{curly} and \link[=Extract]{square} brackets) as 
       these are primitive functions in \R.
+	  Set \code{what} to \code{NA} to match all names.
  }
-  \item{FUN}{a function to be applied. Defaults to \code{\link{identity}}, which
-      does nothing. }
+  \item{FUN}{a function to be applied. Defaults to \code{\link{print}}, which
+      print matched expressions but does not modify the result. }
   \item{symbols}{logical value controlling whether \code{FUN} should be applied
       to symbols as well as calls.}
   \item{\dots}{optional arguments to \code{FUN}.}
@@ -39,6 +40,13 @@ specifying a function to be searched for from the environment of the call to
 \code{exprApply}. 
 }
 
+\note{
+If \code{expr} has a \link[=srcfile]{source reference} information
+(\code{"srcref"} attribute), modifications done by \code{exprApply} will not be
+visible when printed unless \code{srcref} is removed. However, \code{exprApply}
+does remove source reference from any \code{function} expression inside
+\code{expr}.
+}
 
 \author{Kamil Barto\enc{ń}{n}}
 
