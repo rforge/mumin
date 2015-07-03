@@ -290,5 +290,3 @@ function(x, y, ty = t(y)) {
 	return(rowSums(x * ty))
 }
 
-
-	

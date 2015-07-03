@@ -6,9 +6,7 @@ function (x, caption = NULL, label = NULL, align = NULL, digits = NULL,
 		subset = "coefmat.subset")]])
 	has.ase <- all(!is.na(x[, 3L]))
 	if(!has.ase) x <- x[, -3L]
-	# for RCheck:
-	if(!exists("xtable")) xtable <- function(...) {}
-	xtable(x, caption = caption, label = label,
+	getFrom("xtable", "xtable")(x, caption = caption, label = label,
 		   align = if(is.null(align)) rep("r", ncol(x) + 1L) else align,
 		   digits = if(is.null(digits)) c(0, 4, 4, if(has.ase) 4, 2, 4) else digits, 
 		display = if(is.null(display)) c("s", "f", "f", if(has.ase) "f", "f", "f") else display,
@@ -45,9 +43,7 @@ function (x, caption = NULL, label = NULL, align = NULL, digits = NULL,
 	display[vclass == "real"] <- "f"
 	display[vclass == "integer"] <- "d"
 	display[vclass == "other"] <- "s"
-	# for RCheck:
-	if(!exists("xtable")) xtable <- function(...) {}
-	xtable(x, caption = caption, label = label, align = align, digits = c(NA, decprint), 
+	getFrom("xtable", "xtable")(x, caption = caption, label = label, align = align, digits = c(NA, decprint), 
 		display = c("s", display), ...)
 }
 

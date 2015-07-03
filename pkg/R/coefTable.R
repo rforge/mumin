@@ -124,7 +124,6 @@ function(model, ...) {
 function(model, ...)
 	.makeCoefTable(coef(model), sqrt(diag(vcov(model, ...))))
 
-	
 `coefTable.gee` <-
 `coefTable.geeglm` <-
 function(model, ..., type = c("naive", "robust")) {

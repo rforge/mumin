@@ -600,7 +600,7 @@ function(x, ...) {
 		apply(object$msTable, 1L, function(x) structure(list(x[2L]),
 			df = x[1L], nobs = nobs, class = "logLik"))
 	} else {
-		structure(lapply(attr(object, "modelList"), .getLogLik()),
+		structure(lapply(attr(object, "modelList"), logLik),
 			names = rownames(object$msTable))
 	}
 }

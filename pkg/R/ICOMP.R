@@ -15,12 +15,9 @@
 function (object, ..., REML = NULL) {
     # type <- match.arg(type)
     type <- "vcov"
-    loglik <- .getLogLik()
     ret <- sapply(list(object, ...), function(x) {
         ll <- if (!is.null(REML) && inherits(x, c("mer", "lme",
-            "gls", "lm")))
-            loglik(x, REML = REML)
-        else loglik(x)
+            "gls", "lm"))) logLik(x, REML = REML) else logLik(x)
         covmat <- vcov(x)
         k <- nrow(covmat) # attr(ll, "df")
         switch(type, vcov = {
@@ -53,10 +50,9 @@ function (object, ..., REML = NULL) {
 
 `CAICF` <-
 function (object, ..., REML = NULL) {
-	loglik <- .getLogLik()
     ret <- sapply(list(object, ...), function(x) {
         ll <- if (!is.null(REML) && inherits(x, c("mer", "lme",
-            "gls", "lm"))) loglik(x, REML = REML) else loglik(x)
+            "gls", "lm"))) logLik(x, REML = REML) else logLik(x)
         covmat <- vcov(x)
         k <- attr(ll, "df")
 		n <- attr(ll, "nobs")

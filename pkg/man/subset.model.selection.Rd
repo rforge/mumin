@@ -37,18 +37,17 @@
 
 \value{
 A \code{model.selection} object containing only the selected models (rows).
-When columns are selected (via argument \code{select} or second index 
-\code{x[, j]}) the result is either a \code{model.selection} object or, 
-if not all essential columns (i.e. all except "varying" and "extra") have been 
-selected, a plain \code{data.frame} is returned.
-Similarly, modifying values in the essential columns with \code{[<-}, 
+If columns are selected (via argument \code{select} or second index 
+\code{x[, j]}) and not all if not all essential columns (i.e. all except 
+"varying" and "extra") are present in the result, a plain \code{data.frame} is 
+returned. Similarly, modifying values in the essential columns with \code{[<-}, 
 \code{[[<-} or \code{$<-} produces a regular data frame. 
 
 }
 
 \details{
-Unlike the method for \code{data.frame}, extracting with only one index
-\code{x[i]} selects rows (models) rather than columns.
+Unlike the method for \code{data.frame}, single bracket extraction with only 
+one index \code{x[i]} selects rows (models) rather than columns.
 
 To select rows according to presence or absence of the variables (rather than
 their value), a pseudo-function \code{has} may be used with \code{subset}, e.g.

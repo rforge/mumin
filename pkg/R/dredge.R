@@ -361,6 +361,7 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 		gmEnv = gmEnv,
 		allTerms = allTerms0,
 		gmCoefNames = gmCoefNames,
+		## TODO: is 'gmDataHead' needed anymore?
 		gmDataHead = if(!is.null(gmCall$data)) {
 			if(eval(call("is.data.frame", gmCall$data), gmEnv))
 				eval(call("head", gmCall$data, 1L), gmEnv) else gmCall$data
@@ -377,14 +378,14 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 	
 	if(trace > 1L) {
 		progressBar <- if(.Platform$GUI == "Rgui") {
-			 winProgressBar(max = ncomb, title = "'dredge' in progress")
+			 utils::winProgressBar(max = ncomb, title = "'dredge' in progress")
 		#} else if(capabilities("tcltk") && ("package:tcltk" %in% search())) {
 			 #tkProgressBar(max = ncomb, title = "'dredge' in progress")
-		} else txtProgressBar(max = ncomb, style = 3)
+		} else utils::txtProgressBar(max = ncomb, style = 3)
 		setProgressBar <- switch(class(progressBar),
-			    txtProgressBar = setTxtProgressBar,
+			    txtProgressBar = utils::setTxtProgressBar,
 			   #tkProgressBar = setTkProgressBar,
-			   winProgressBar = setWinProgressBar,
+			   winProgressBar = utils::setWinProgressBar,
 			   function(...) {})
 		on.exit(close(progressBar))
 	}

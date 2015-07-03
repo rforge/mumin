@@ -1,31 +1,48 @@
+# Exports:
 export(
-	dredge, pdredge, get.models, pget.models, 
-	model.avg, par.avg, 
-	model.sel,
-	getAllTerms, coeffs, coefTable, tTable, 
-	importance, Weights, 
-	AICc, QAIC, QAICc, Cp, ICOMP, CAICF, DIC, 
-	r.squaredLR, null.fit, r.squaredGLMM,
-	QIC, quasiLik,
-	model.names,
-	simplify.formula, expand.formula,
-	updateable, updateable2,
-	uGamm, nested, stdize, stdizeFit,
-	exprApply,
-	get.response,
-	get_call,
-	std.coef, beta.weights, 
- 	partial.sd,
-    arm.glm,
-# Defunct:
-	mod.sel
+	"dredge", "pdredge", "get.models", "pget.models", 
+	"model.avg", "par.avg", 
+	"model.sel",
+	"getAllTerms", "coeffs", "coefTable", 
+	"importance", "Weights", 
+	"AICc", "QAIC", "QAICc", "Cp", "ICOMP", "CAICF", "DIC", 
+	"r.squaredLR", "null.fit", "r.squaredGLMM",
+	"QIC", "quasiLik",
+	"model.names",
+	"simplify.formula", "expand.formula",
+	"updateable",
+	"uGamm", "nested", "stdize", "stdizeFit",
+	"exprApply",
+	"get.response",
+	"get_call",
+	"std.coef", "beta.weights", 
+	"partial.sd",
+	"arm.glm",
+    # defunct and deprecated:
+	"mod.sel",  "tTable", "updateable2"
 )
 
-importFrom(stats, family)
-importFrom(stats, nobs, getCall)
+# Imports:
+importFrom("graphics", "axis", "box", "mtext", "par", "plot.new", "plot.window",
+	"rect",	"strheight", "strwidth", "title")
+#importFrom(grDevices, colorRamp, rgb)
+importFrom("methods", ".hasSlot", "isGeneric", "slot", "slotNames")
+importFrom("stats", ".checkMFClasses", ".getXlevels", ".MFclass", "AIC",
+	"as.formula", "delete.response", "deviance", "df.residual",
+	"family", "fitted", "formula", "getCall", "glm.fit",  "make.link",
+	"model.frame", "model.matrix", "model.response", "na.fail", "nobs", "pnorm",
+	"power", "predict", "printCoefmat", "qnorm", "qt", "reformulate", "resid",
+	"sd", "summary.glm", "terms", "terms.formula", "update", "update.default",
+	"update.formula", "var", "weighted.mean", "weights",
+    "gaussian", "binomial", "Gamma", "inverse.gaussian", "quasi", 
+    "quasibinomial", "quasipoisson"
+    )
+importFrom("stats4", "logLik", "coef", "vcov")
+#importFrom(utils, capture.output, setTxtProgressBar, txtProgressBar)
+importFrom("Matrix", "t", "rowSums", "det", "diag", "solve")
 
-importFrom(Matrix, t, rowSums, det, diag, solve)
 
+# Methods:
 S3method(getCall, yagsResult)
 
 S3method(print, averaging)
@@ -139,6 +156,7 @@ S3method(coefTable, gls)
 
 S3method(formula, unmarkedFit)
 S3method(getAllTerms, unmarkedFit)
+S3method(coeffs, unmarkedFit)
 S3method(coefTable, unmarkedFit)
 S3method(nobs, unmarkedFit)
 S3method(getAllTerms, unmarkedFitDS)

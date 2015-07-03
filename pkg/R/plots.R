@@ -23,7 +23,7 @@ function(x,
 	plot.window(xlim = c(0, m), ylim = c(1, 0), xaxs = "i", yaxs = "i")
 
 	pal <- if(is.na(col2)) rbind(col) else 
-		vapply(col, function(x) rgb(colorRamp(c(col2, x))(stdweight),
+		vapply(col, function(x) grDevices::rgb(grDevices::colorRamp(c(col2, x))(stdweight),
 			maxColorValue = 255), character(n))
 	npal <- ncol(pal)
 		

@@ -45,7 +45,7 @@ function(global.model, cluster = NA,
 		}
 		#"For objects without a 'call' component the call to the fitting function \n",
 		#" must be used directly as an argument to 'dredge'.")
-		# NB: this is unlikely to happen
+		# NB this is unlikely to happen
 		if(!is.function(eval.parent(gmCall[[1L]])))
 			cry(, "could not find function '%s'", asChar(gmCall[[1L]]))
 	} else {
@@ -415,11 +415,11 @@ function(global.model, cluster = NA,
 
 	if(trace > 1L) {
 		progressBar <- if(.Platform$GUI == "Rgui") {
-			 winProgressBar(max = ncomb, title = "'dredge' in progress")
-		} else txtProgressBar(max = ncomb, style = 3)
+			 utils::winProgressBar(max = ncomb, title = "'dredge' in progress")
+		} else utils::txtProgressBar(max = ncomb, style = 3)
 		setProgressBar <- switch(class(progressBar),
-			txtProgressBar = setTxtProgressBar,
-			winProgressBar = setWinProgressBar,
+			   txtProgressBar = utils::setTxtProgressBar,
+			   winProgressBar = utils::setWinProgressBar,
 			function(...) {})
 		on.exit(close(progressBar))
 	}

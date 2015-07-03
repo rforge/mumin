@@ -31,7 +31,7 @@ function (FUN, Class) .Defunct("updateable")
 `get_call` <- function(x) {
 	rval <-
 	if(isS4(x)) {
-		if(any(i <- (sln <- c("call", "CALL", "Call")) %in% slotNames(x)))
+		if(any(i <- (sln <- c("call", "CALL", "Call")) %in% methods::slotNames(x)))
 			slot(x, sln[i][1L]) else
 			if(!is.null(attr(x, "call")))
 				attr(x, "call") else NULL

@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.15.1 (2015-07-02)
+added imports from all the default packages added to NAMESPACE in order to 
+    satisfy CRAN's new stricter RCheck.
+
 Version: 1.50.0 (2015-07-01)
 (added) arm.glm: implements model averaging with weights calculated via ARM 
     ("adaptive regression by mixing") algorithm.
@@ -16,6 +20,8 @@ Version: 1.50.0 (2015-07-01)
 (added) 'xtable' methods for "averaging" and "model.selection" objects.
 (fixed) updateable: does not cause infinite recursion when the resulting wrapper
     has the same name as the wrapped function.
+(fixed) exprApply: now can deal with function expressions and 'expression's 
+    longer than one.
 
 Version: 1.14.1 (2015-06-12)
 (fixed) [p]dredge no longer gives coefficient values as NA with [g]lmer 

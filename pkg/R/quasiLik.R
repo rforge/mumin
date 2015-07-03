@@ -96,7 +96,7 @@ function(x, typeR = FALSE) .NotYetImplemented()
 `getQIC.gee` <- 
 function(x, typeR = FALSE) {
 	if(x$model$corstr != "Independent")
-		capture.output(suppressMessages(xi <- update(x, corstr = "independence",
+		utils::capture.output(suppressMessages(xi <- update(x, corstr = "independence",
 		silent = TRUE))) else
 		xi <- x
 	

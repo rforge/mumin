@@ -51,7 +51,7 @@ Yang Y. (2003) Regression with multiple candidate models: selecting or mixing?
 \seealso{
 \code{\link{model.avg}}, \code{\link{par.avg}}
 
-Other implementation: \code{\link[MMIX]{arms}} in package \pkg{MMIX}.
+Other implementation: \code{arms} in (archived) package \bold{MMIX}.
 }
 
 \examples{
