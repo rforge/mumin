@@ -451,7 +451,7 @@ function(global.model, cluster = NA,
 					)
 				) {
 
-				newArgs <- makeArgs(global.model, allTerms[comb], comb, argsOptions)
+				newArgs <- makeArgs(global.model, allTerms[comb], argsOptions) #comb
 				formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
 					attr(newArgs, "formulaList")
 			

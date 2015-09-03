@@ -106,6 +106,9 @@ S3method(coeffs, model.selection)
 S3method(coefTable, model.selection)
 
 S3method(print, coefTable)
+S3method(plot, coefTable)
+S3method(summary, coefTable)
+S3method(print, summary.coefTable)
 
 S3method(getAllTerms, formula)
 S3method(getAllTerms, terms)
@@ -339,6 +342,8 @@ S3method(stdize, matrix)
 S3method(get.response, default)
 S3method(get.response, lm)
 S3method(get.response, averaging)
+
+S3method(coefTable, bic.glm)
 
 #S3method("xtable", "summary.averaging")
 #S3method("xtable", "averaging")

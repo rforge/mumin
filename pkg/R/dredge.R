@@ -341,7 +341,7 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 			
 			hasSubset <- if(any(ssVars == "cVar")) 4L else # subset as expression
 				3L # subset as expression using 'varying' variables
-
+				
 		}
 	} # END: manage 'subset'
 	
@@ -417,9 +417,9 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 				next
 			}
 			
-			newArgs <- makeArgs(global.model, allTerms[comb], comb, argsOptions)
-			formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
-				attr(newArgs, "formulaList")
+			newArgs <- makeArgs(global.model, allTerms[comb], argsOptions) # comb
+			#formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
+			#    attr(newArgs, "formulaList")
 
 			if(!is.null(attr(newArgs, "problems"))) {
 				print.warnings(structure(vector(mode = "list",

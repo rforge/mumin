@@ -110,9 +110,11 @@ function (expr, what, FUN = print, ..., symbols = FALSE) {
 		} 
         for (i in seq.int(2L, n)) {
 			y <- self(expr[[i]], what, FUN, symbols = symbols, ...)
-			expr[i] <- list(y)
+			if(!missing(y)) expr[i] <- list(y)
 		}
     }
-    if (is.na(what) || any(expr[[1L]] == what)) expr <- FUN(expr, ...)
+
+    if (is.na(what) || (length(expr[[1L]]) == 1L && any(expr[[1L]] == what)))
+		expr <- FUN(expr, ...)
     return(expr)
 }
