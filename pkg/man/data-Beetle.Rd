@@ -61,7 +61,7 @@ varying.link <- list(family = alist(
     ))
 
 (ms12 <- dredge(globmod, subset = msubset, varying = varying.link,
-    rank = AIC)
+    rank = AIC))
  
 # Table 4.7 "models justifiable a priori"
 (ms3 <- subset(ms12, has(dose, !`I(dose^2)`))) 
