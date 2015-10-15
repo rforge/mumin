@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.15.4 (2015-10-16)
+(fixed) rbind, merge methods for "model.selection": wrong order of names of 
+    columns and rows (spotted by Ben Augustine)
+
 Version: 1.15.3 (2015-09-06)
 (fixed) Weights: bug that caused that NaN's were returned (reported by Carles 
     Alcaraz)
