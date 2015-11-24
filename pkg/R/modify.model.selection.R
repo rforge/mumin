@@ -30,7 +30,7 @@ function(x, attrib, modif = NULL, rowchange = TRUE) {
 		attributes(x)[which] <- if(is.null(newattr)) NULL else newattr[which]
 		x
 	}
-	
+
 	if(inherits(x, "model.selection")) {
 		protectedcoltypes <- c("df", "loglik", "ic", "delta", "weight", "terms")
 
@@ -58,7 +58,7 @@ function(x, attrib, modif = NULL, rowchange = TRUE) {
 			   if(!is.null(attr(x, "modelList")))"modelList")
 			k <- match(newrownames, oldrownames)
 			attrib[rowattrib] <- lapply(attrib[rowattrib], `[`, k)
-		}		
+		}
 		x <- .setattr(x, attrib)
 		if(!is.null(warningList <- attrib$warnings))
 			attr(x, "warnings") <- warningList[sapply(warningList, attr, "id")
@@ -72,6 +72,7 @@ function(x, attrib, modif = NULL, rowchange = TRUE) {
 
 `[<-.model.selection` <-
 function (x, i, j, value)  {
+	if (missing(j)) j <- TRUE
 	subset_model_selection(NextMethod("[<-"),
 		attributes(x), if(is.character(j)) j else colnames(x)[j])
 }
@@ -132,6 +133,6 @@ function(ss, dfr) {
 function(x, subset, select, recalc.weights = TRUE, recalc.delta = FALSE, ...) {
 	if(missing(subset) && missing(select)) return(x)
 	return(`[.model.selection`(x, evalSubsetExpr(substitute(subset), x),
-			recalc.weights = recalc.weights, 
+			recalc.weights = recalc.weights,
 			recalc.delta = recalc.delta, ...))
 }

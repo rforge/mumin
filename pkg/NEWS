@@ -1,8 +1,10 @@
 MuMIn package news:
 
-Version: 1.15.5 (2015-11-23)
+Version: 1.15.5 (2015-11-24)
 (fixed) [p]dredge: error with model with offsets in formula when 'subset' 
     expression was given (reported by Adam Cummings)
+(fixed) model.selection column assignment "[<-" was broken when (spotted by
+    a certain abmiller8 on Stackoverflow)
 
 Version: 1.15.4 (2015-10-16)
 (fixed) rbind, merge methods for "model.selection": wrong order of names of 
