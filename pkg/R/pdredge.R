@@ -45,7 +45,7 @@ function(global.model, cluster = NA,
 		}
 		#"For objects without a 'call' component the call to the fitting function \n",
 		#" must be used directly as an argument to 'dredge'.")
-		# NB this is unlikely to happen
+		# NB: this is unlikely to happen
 		if(!is.function(eval.parent(gmCall[[1L]])))
 			cry(, "could not find function '%s'", asChar(gmCall[[1L]]))
 	} else {
@@ -253,7 +253,7 @@ function(global.model, cluster = NA,
 	nov <- as.integer(nVars - nFixed)
 	ncomb <- (2L ^ nov) * nVariants
 
-	if(nov > 31L) cry(, "number of predictors (%d) exceeds allowed maximum of 31", nov)
+	if(nov > 31L) cry(, "number of predictors [%d] exceeds allowed maximum of 31", nov)
 	#if(nov > 10L) warning(gettextf("%d predictors will generate up to %.0f combinations", nov, ncomb))
 	nmax <- ncomb * nVariants
 	rvChunk <- 25L
@@ -316,10 +316,20 @@ function(global.model, cluster = NA,
 			subset <- as.expression(subset)
 			ssValidNames <- c("comb", "*nvar*")
 
+			tmpTerms <- terms(reformulate(allTerms0[!(allTerms0 %in% interceptLabel)]))
+			gloFactorTable <- t(attr(tmpTerms, "factors") != 0)
 
-			#gloFactorTable <- t(attr(terms(global.model), "factors")[-1L, ] != 0)
-			gloFactorTable <- t(attr(terms(reformulate(allTerms0[!(allTerms0
-				%in% interceptLabel)])), "factors") != 0)
+			offsetNames <- sapply(attr(tmpTerms, "variables")[attr(tmpTerms, "offset") + 1L], asChar)
+			if(length(offsetNames) != 0L) {
+				gloFactorTable <- rbind(gloFactorTable,
+					matrix(FALSE, ncol = ncol(gloFactorTable), nrow = length(offsetNames),
+						dimnames = list(offsetNames, NULL)))
+				diag(gloFactorTable[offsetNames, offsetNames]) <- TRUE
+			}
+
+			DebugPrint(gloFactorTable)
+
+			# fix interaction names in rownames:
 			rownames(gloFactorTable) <- allTerms0[!(allTerms0 %in% interceptLabel)]
 	
 			subsetExpr <- subset[[1L]]
@@ -608,8 +618,7 @@ function(global.model, cluster = NA,
 
 	}
 
-	o <- order(rval[, ICName], decreasing = FALSE)
-	rval <- rval[o, ]
+	rval <- rval[o <- order(rval[, ICName], decreasing = FALSE), ]
 	coefTables <- coefTables[o]
 
 	rval$delta <- rval[, ICName] - min(rval[, ICName])
