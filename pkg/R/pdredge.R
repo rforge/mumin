@@ -294,12 +294,12 @@ function(global.model, cluster = NA,
 					match(allTerms, colnames(subset))],
 					dimnames = list(allTerms, allTerms),
 					nrow = n, ncol = n)
-				tsubset <- t(subset)
 				nas <- is.na(subset)
-				i <- lower.tri(subset) & is.na(subset) & !t(nas)
-				ti <- t(i)
-				subset[i] <- subset[ti]
-				subset[ti] <- NA
+				lotri <- lower.tri(subset)
+				i <- lotri & nas & !t(nas)
+				subset[i] <- t(subset)[i]
+				subset[!lotri] <- NA
+
 			}
 			if(any(!is.na(subset[!lower.tri(subset)]))) {
 				warning("non-missing values exist outside the lower triangle of 'subset'")

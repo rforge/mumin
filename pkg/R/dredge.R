@@ -282,12 +282,12 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 					match(allTerms, colnames(subset))],
 					dimnames = list(allTerms, allTerms),
 					nrow = n, ncol = n)
-				tsubset <- t(subset)
 				nas <- is.na(subset)
-				i <- lower.tri(subset) & is.na(subset) & !t(nas)
-				ti <- t(i)
-				subset[i] <- subset[ti]
-				subset[ti] <- NA
+				lotri <- lower.tri(subset)
+				i <- lotri & nas & !t(nas)
+				subset[i] <- t(subset)[i]
+				subset[!lotri] <- NA
+
 			}
 			if(any(!is.na(subset[!lower.tri(subset)]))) {
 				warning("non-missing values exist outside the lower triangle of 'subset'")
@@ -295,6 +295,7 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 			}
 			mode(subset) <- "logical"
 			hasSubset <- 2L # subset as matrix
+
 		} else {
 			if(inherits(subset, "formula")) {
 				if (subset[[1L]] != "~" || length(subset) != 2L)
@@ -303,6 +304,7 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 			}
 			subset <- as.expression(subset)
 			ssValidNames <- c("comb", "*nvar*")
+			
 
 			tmpTerms <- terms(reformulate(allTerms0[!(allTerms0 %in% interceptLabel)]))
 			gloFactorTable <- t(attr(tmpTerms, "factors") != 0)
@@ -333,8 +335,6 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 			tmp <- updateDeps(subsetExpr, deps)
 			subsetExpr <- tmp$expr
 			deps <- tmp$deps
-
-
 
 			subsetExpr <- .exprapply(subsetExpr, "dc", .sub_args_as_vars)
 			subsetExpr <- .subst4Vec(subsetExpr, allTerms, as.name("comb"))
