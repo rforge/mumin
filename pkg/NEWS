@@ -1,5 +1,10 @@
 MuMIn package news:
 
+Version: 1.15.6 (2015-12-13)
+(fixed) get.models, dredge, subset.model.selection: enclosure for the subset 
+	expression evaluation is now `parent.frame()` rather than `.GlobalEnv` as it
+	was before (incentive from Philipp Maier).
+
 Version: 1.15.5 (2015-11-25)
 (fixed) [p]dredge: error with model with offsets in formula when 'subset' 
     expression was given (reported by Adam Cummings)
@@ -7,6 +12,8 @@ Version: 1.15.5 (2015-11-25)
     subset matrix (reported by Ben Augustine)
 (fixed) model.selection column assignment "[<-" was broken when (spotted by
     a certain abmiller8 on Stackoverflow)
+model.avg: warns when averaged 'gam' models have smooths with different
+    dimension for the same variable.
 
 Version: 1.15.4 (2015-10-16)
 (fixed) rbind, merge methods for "model.selection": wrong order of names of 

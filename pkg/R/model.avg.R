@@ -137,6 +137,8 @@ function(object, ..., beta = c("none", "sd", "partial.sd"),
 	nModels <- length(models)
 	if(nModels == 1L) stop("only one model supplied. Nothing to do")
 	.checkModels(models)
+	
+	testSmoothKConsistency(models) # for gam, if any
 
 	ICname <- asChar(attr(rank, "call")[[1L]])
 

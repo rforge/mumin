@@ -117,22 +117,54 @@ function (x, ..., exact = TRUE) {
 	`[[.data.frame`(x, ..., exact = exact)
 }
 
-evalSubsetExpr <-
-function(ss, dfr) {
-	ss <- .exprapply(
-		.exprapply(
-			.exprapply(ss, "dc", .sub_dc_has, as.name(".subset_vdc")),
-			c("{", "Term"), .sub_Term),
-		"has", .sub_has)
-	ss <- subst(ss, . = dfr)
-	DebugPrint(ss)
-	eval(ss, dfr)
+
+subset_rework <-
+function(subset, object, objectname = substitute(object)) {
+	objectname <- as.name(objectname)
+
+	#.localfunc <- function(nm) call("get", nm, asNamespace(.packageName))
+	subset <- .exprapply(.exprapply(.exprapply(subset, "dc", .sub_dc_has),
+		c("{", "Term"), .sub_Term),
+		    "has", .sub_has)
+
+	subset <- exprApply(subset, names(object), symbols = TRUE,
+		function(x, v, cl, parent) {
+			if(is.call(parent) && any(parent[[1L]] == c("I", "$", "@")))
+				return(x)
+			if(length(x) == 1L) {
+				cl[[3L]] <- match(asChar(x), v)
+				return(cl)
+			}
+			x
+		}, v = names(object), call("[[", objectname, 0L))
+	
+	subset <- exprApply(subset, "I", function(x) x[[2L]])
+	subset <- subst(subset, . = objectname)
+	subset
 }
+
+subset_eval <-
+function(subset, x, envir) {
+	eval(subset_rework(subset, x, "tmp_data_"),
+		list(tmp_data_ = x, dc = .subset_vdc),
+		envir
+		)
+}
+
 
 `subset.model.selection` <-
 function(x, subset, select, recalc.weights = TRUE, recalc.delta = FALSE, ...) {
 	if(missing(subset) && missing(select)) return(x)
-	return(`[.model.selection`(x, evalSubsetExpr(substitute(subset), x),
-			recalc.weights = recalc.weights,
-			recalc.delta = recalc.delta, ...))
+	
+	#ss <- eval(subset_rework(substitute(subset), x, "tmpdat"),
+	#	list(tmpdat = x, .subset_vdc = .subset_vdc),
+	#	parent.frame()
+	#	)
+	
+	# eval.parent(subset_rework(substitute(subset), x, substitute(x)))
+	
+	return(`[.model.selection`(x,
+		subset_eval(substitute(subset), x, parent.frame()),
+		recalc.weights = recalc.weights,
+		recalc.delta = recalc.delta, ...))
 }

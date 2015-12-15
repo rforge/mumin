@@ -9,8 +9,8 @@ function(object, subset, cluster = NA, ...) {
 		stop("'object' has no 'model.calls' attribute")
 
 	if(!missing(subset)) {
-		r <- evalSubsetExpr(substitute(subset), object)
-	    #r <- eval(substitute(subset), envir = object, enclos = parent.frame())
+		r <- subset_eval(substitute(subset), object, parent.frame())
+
 		if(!isTRUE(r) && !is.na(r)) {
 			if(is.character(r)) r <- match(r, dimnames(object)[[1L]])
 		} else r <- TRUE

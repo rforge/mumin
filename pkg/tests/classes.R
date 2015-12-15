@@ -180,6 +180,85 @@ ops <- options(warn = -1)
 gam1 <- gam(y ~ s(x0) + s(x1) + s(x2) +  s(x3) + (x1+x2+x3)^2,
 	data = dat, method = "GCV.Cp", family = binomial)
 
+
+#gam5 <- gam(y ~ s(x0, k = 5) + s(x1, k = 3), data = dat, family = binomial)
+gam3 <- gam(y ~ s(x0, k = 3) + s(x1, k = 7), data = dat, family = binomial)
+
+gam3 <- gam(y ~ s(x0, k = 3) + te(x2, x1, k = c(5, 4)), data = dat, family = binomial)
+gam3b <- gam(y ~ s(x0, k = 3) + te(x1, x2, k = c(3, 4)), data = dat, family = binomial)
+gam3c <- gam(y ~ s(x0, k = 4) + te(x1, x2, k = c(3, 4)), data = dat, family = binomial)
+glm1 <- glm(y ~ x1 * x2, data = dat, family = binomial)
+gam5 <- gam(y ~ s(x0, k = 5) + s(x0, k = 3), data = dat, family = binomial)
+
+
+options('na.action' = na.fail)
+
+testSmoothKConsistency <- MuMIn:::testSmoothKConsistency
+
+
+testSmoothKConsistency(dredge(gam3c))
+
+
+gamsmoothwrap <-
+function(formula, k1 = NA, ...) { 
+    cl <- origCall <- match.call()
+    cl[[1]] <- as.name("gam")
+    cl$formula <- exprApply(formula, "s", function(e, k, x) {
+        i <- which(e[[2]] == x)[1]
+        if(!is.na(i) && !is.na(k[i])) e[["k"]] <- k[i]
+        e
+    }, k = c(k1), x = c("x0"))
+    cl$k1 <- NULL
+	fit <- eval(cl, parent.frame())
+    fit$call <- origCall # replace the stored call
+    fit
+}
+
+glo <- gamsmoothwrap(y ~ s(x0, fx = TRUE), k1 = 3, data = dat, family = binomial)
+
+ms <- model.sel(models <- lapply(dredge(glo, varying = list(k1 = 3:16), fixed = TRUE,
+	evaluate = FALSE), eval))
+
+testSmoothKConsistency(models)
+
+library(gamm4)
+
+dat <- gamSim(4)
+
+br1 <- gamm4(y ~ fac + s(x2,by=fac, k = 4) + s(x0),data=dat)
+br2 <- uGamm(y ~ fac + s(x2,by=fac) + s(x0),data=dat)
+
+testSmoothKConsistency(list(br1, glm1))
+
+
+testSmoothKConsistency(list(gam3, glm1))
+testSmoothKConsistency(list(glm1, glm1))
+
+
+n <- 200
+dat <- data.frame(x = sort(runif(n, 0, 20)))
+#dat$y <- rnorm(n, with(dat, 2 * x - .25 * x^2), 1)
+dat$y <- rnorm(n, with(dat, 2 * x - .25 * x^2 + .008 * x^3), .15)
+#dat$y <- rnorm(n, with(dat, 5 * x), 1)
+gam1 <- gam(y ~ s(x, fx = T, k = 4), data = dat)
+coef(gam1)
+plot(y ~ x, dat)
+lines(predict(gam1) ~ x, dat)
+
+#coef(gam(y ~ x, data = dat))
+coef(gam(y ~ s(x, fx = T, k = 3), data = dat))
+coef(gam(y ~ s(x, fx = T, k = 4), data = dat))
+coef(gam(y ~ s(x, fx = T, k = 5), data = dat))
+coef(gam(y ~ s(x, fx = T, k = 6), data = dat))
+coef(gam(y ~ s(x, fx = T, k = 7), data = dat))
+
+
+curve(5 * x - .25 * x^2, 0, 20)
+
+gam1 <- gam(y ~ s(x0, fx = T, k = 3), data = dat, family = gaussian)
+
+coef(gam1)
+
 dd <- dredge(gam1, subset=!`s(x0)` & (!`s(x1)` | !x1) & (!`s(x2)` |
 	!x2) & (!`s(x3)` | !x3), fixed = "x1")
 	

@@ -304,7 +304,7 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 			}
 			subset <- as.expression(subset)
 			ssValidNames <- c("comb", "*nvar*")
-			
+
 
 			tmpTerms <- terms(reformulate(allTerms0[!(allTerms0 %in% interceptLabel)]))
 			gloFactorTable <- t(attr(tmpTerms, "factors") != 0)
@@ -337,7 +337,7 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 			deps <- tmp$deps
 
 			subsetExpr <- .exprapply(subsetExpr, "dc", .sub_args_as_vars)
-			subsetExpr <- .subst4Vec(subsetExpr, allTerms, as.name("comb"))
+			subsetExpr <- .subst4Vec(subsetExpr, allTerms, "comb")
 
 			if(nVarying) {
 				ssValidNames <- c("cVar", "comb", "*nvar*")
@@ -345,14 +345,15 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 					as.name("cVar"), varyingNames)
 				if(!all(all.vars(subsetExpr) %in% ssValidNames))
 					subsetExpr <- .subst4Vec(subsetExpr, varyingNames,
-											 as.name("cVar"), fun = "[[")
+											 "cVar", fun = "[[")
 			}
 			ssVars <- all.vars(subsetExpr)
 			okVars <- ssVars %in% ssValidNames
 			if(!all(okVars)) stop("unrecognized names in 'subset' expression: ",
 				prettyEnumStr(ssVars[!okVars]))
 
-			ssEnv <- new.env(parent = .GlobalEnv)
+			#ssEnv <- new.env(parent = .GlobalEnv)
+			ssEnv <- new.env(parent = parent.frame())
 			ssFunc <- setdiff(all.vars(subsetExpr, functions = TRUE), ssVars)
 			if("dc" %in% ssFunc) assign("dc", .subset_dc, ssEnv)
 
