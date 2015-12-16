@@ -476,7 +476,7 @@ updateDeps <-
 function(expr, deps) {
 	ret <- list()
 	env <- sys.frame(sys.nframe())
-	expr <- .exprapply(expr, "dc", function(z) {
+	expr <- exprapply0(expr, "dc", function(z) {
 		v <- vapply(as.list(z[-1L]), asChar, "")
 		n <- length(v)
 		k <- match(v, colnames(deps))

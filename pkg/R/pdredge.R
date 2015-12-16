@@ -333,20 +333,20 @@ function(global.model, cluster = NA,
 			rownames(gloFactorTable) <- allTerms0[!(allTerms0 %in% interceptLabel)]
 
 			subsetExpr <- subset[[1L]]
-			subsetExpr <- .exprapply(subsetExpr, ".", .sub_dot, gloFactorTable,
+			subsetExpr <- exprapply0(subsetExpr, ".", .sub_dot, gloFactorTable,
 				allTerms, as.name("comb"))
-			subsetExpr <- .exprapply(subsetExpr, c("{", "Term"), .sub_Term)
+			subsetExpr <- exprapply0(subsetExpr, c("{", "Term"), .sub_Term)
 
 			tmp <- updateDeps(subsetExpr, deps)
 			subsetExpr <- tmp$expr
 			deps <- tmp$deps
 
-			subsetExpr <- .exprapply(subsetExpr, "dc", .sub_args_as_vars)
+			subsetExpr <- exprapply0(subsetExpr, "dc", .sub_args_as_vars)
 			subsetExpr <- .subst4Vec(subsetExpr, allTerms, "comb")
 
 			if(nVarying) {
 			ssValidNames <- c("cVar", "comb", "*nvar*")
-				subsetExpr <- .exprapply(subsetExpr, "V", .sub_V,
+				subsetExpr <- exprapply0(subsetExpr, "V", .sub_V,
 					as.name("cVar"), varyingNames)
 			if(!all(all.vars(subsetExpr) %in% ssValidNames))
 					subsetExpr <- .subst4Vec(subsetExpr, varyingNames,
@@ -357,7 +357,7 @@ function(global.model, cluster = NA,
 			if(!all(okVars)) stop("unrecognized names in 'subset' expression: ",
 				prettyEnumStr(ssVars[!okVars]))
 
-			ssEnv <- new.env(parent = .GlobalEnv)
+			ssEnv <- new.env(parent = parent.frame())
 			ssFunc <- setdiff(all.vars(subsetExpr, functions = TRUE), ssVars)
 			if("dc" %in% ssFunc) assign("dc", .subset_dc, ssEnv)
 
@@ -625,7 +625,8 @@ function(global.model, cluster = NA,
 	rval$weight <- exp(-rval$delta / 2) / sum(exp(-rval$delta / 2))
     mode(rval$df) <- "integer"
 
-	rval <- structure(rval,
+	rval <- 
+    structure(rval,
 		model.calls = calls[o],
 		global = global.model,
 		global.call = gmCall,

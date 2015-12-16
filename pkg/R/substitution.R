@@ -93,10 +93,10 @@ function (expr, what, FUN, ..., symbols = FALSE) {
 	funcl <- as.call(c(as.name("FUN"), as.name("expr"), list(...)))
 	if(all(names(formals(FUN)) != "parent"))
 		formals(FUN)[["parent"]] <- NA
-	exprapply0(expr, what, FUN, ..., symbols = symbols)
+	.exprapply(expr, what, FUN, ..., symbols = symbols)
 }
 
-`exprapply0` <-
+`.exprapply` <-
 function (expr, what, FUN, ..., symbols = FALSE, parent = NULL) {
 	self <- sys.function()
 	if((ispairlist <- is.pairlist(expr)) || is.expression(expr)) {
@@ -130,39 +130,3 @@ function (expr, what, FUN, ..., symbols = FALSE, parent = NULL) {
     return(expr)
 }
 
-
-#`exprApply` <-
-#function (expr, what, FUN, ..., symbols = FALSE, parent = NULL) {
-#    FUN <- match.fun(FUN)
-#	self <- sys.function()
-#	if((ispairlist <- is.pairlist(expr)) || is.expression(expr)) {
-#		for (i in seq_along(expr))	expr[i] <-
-#			list(self(expr[[i]], what, FUN, ..., symbols = symbols, parent = expr))
-#		return(if(ispairlist) as.pairlist(expr) else expr)
-#	}
-#    n <- length(expr)
-#    if (n == 0L)
-#		return(expr) else
-#	if (n == 1L) {
-#		if (!is.call(expr)) {
-#            if (symbols && (is.na(what) || any(expr == what)))
-#                expr <- FUN(expr, ..., parent = parent)
-#            return(expr)
-#        }
-#    } else {
-#		if(expr[[1L]] == "function") {
-#			if(n == 4L) {
-#				n <- 3L
-#				expr[[4L]] <- NULL ## remove srcref
-#			}
-#		}
-#        for (i in seq.int(2L, n)) {
-#			y <- self(expr[[i]], what, FUN, symbols = symbols, parent = expr, ...)
-#			if(!missing(y)) expr[i] <- list(y)
-#		}
-#    }
-#
-#    if (is.na(what) || (length(expr[[1L]]) == 1L && any(expr[[1L]] == what)))
-#		expr <- FUN(expr, ..., parent = parent)
-#    return(expr)
-#}
