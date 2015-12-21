@@ -1,9 +1,12 @@
 MuMIn package news:
 
-Version: 1.15.6 (2015-12-13)
+Version: 1.15.6 (2015-12-21)
 (fixed) get.models, dredge, subset.model.selection: enclosure for the subset 
 	expression evaluation is now `parent.frame()` rather than `.GlobalEnv` as it
 	was before (incentive from Philipp Maier).
+(fixed) [p]coefTable.survreg: error due to log(scale) missing from 
+	coefficients (suggested by Nicolas Rode)
+
 
 Version: 1.15.5 (2015-11-25)
 (fixed) [p]dredge: error with model with offsets in formula when 'subset' 
