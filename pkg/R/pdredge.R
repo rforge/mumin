@@ -345,12 +345,12 @@ function(global.model, cluster = NA,
 			subsetExpr <- .subst4Vec(subsetExpr, allTerms, "comb")
 
 			if(nVarying) {
-			ssValidNames <- c("cVar", "comb", "*nvar*")
-				subsetExpr <- exprapply0(subsetExpr, "V", .sub_V,
-					as.name("cVar"), varyingNames)
-			if(!all(all.vars(subsetExpr) %in% ssValidNames))
+				ssValidNames <- c("cVar", "comb", "*nvar*")
+					subsetExpr <- exprapply0(subsetExpr, "V", .sub_V,
+						as.name("cVar"), varyingNames)
+				if(!all(all.vars(subsetExpr) %in% ssValidNames))
 					subsetExpr <- .subst4Vec(subsetExpr, varyingNames,
-											 "cVar", fun = "[[")
+						"cVar", fun = "[[")
 			}
 			ssVars <- all.vars(subsetExpr)
 			okVars <- ssVars %in% ssValidNames

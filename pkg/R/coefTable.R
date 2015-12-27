@@ -40,8 +40,8 @@ function(model, ...) {
 `coefTable.lm` <-
 function(model, ...)
 	.makeCoefTable(coef(model), sqrt(diag(vcov(model, ...))), model$df.residual)
-	
-	
+
+
 `coefTable.survreg` <- 
 function(model, ...)  
 .makeCoefTable(
@@ -50,8 +50,7 @@ function(model, ...)
 	model$df.residual,
 	dimnames(vcov(model))[[1L]]
 	)
-	
-	
+
 `coefTable.coxph` <-
 function(model, ...) {
 	.makeCoefTable(coef(model), if(all(is.na(model$var))) 
@@ -61,7 +60,6 @@ function(model, ...) {
 	
 `coefTable.glmmML` <- function(model, ...)
 	.makeCoefTable(model$coefficients, model$coef.sd)
-
 
 `coefTable.gls` <-
 function (model, ...)

@@ -122,8 +122,7 @@ subset_rework <-
 function(subset, object, objectname = substitute(object)) {
 	objectname <- as.name(objectname)
 
-	#.localfunc <- function(nm) call("get", nm, asNamespace(.packageName))
-	subset <- exprapply0(.exprapply(.exprapply(subset, "dc", .sub_dc_has),
+	subset <- exprapply0(exprapply0(exprapply0(subset, "dc", .sub_dc_has),
 		c("{", "Term"), .sub_Term),
 		    "has", .sub_has)
 

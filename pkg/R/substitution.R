@@ -84,7 +84,7 @@ asChar <- function(x, control = NULL, nlines = 1L, ...)
 }
 
 # substitute function calls in 'e'. 'func' must take care of the substitution job.
-`.exprapply` <- function(e, name, func, ...)
+`exprapply0` <- function(e, name, func, ...)
 exprApply(e, name, func, ..., symbols = FALSE)
 
 `exprApply` <-
