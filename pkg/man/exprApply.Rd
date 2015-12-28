@@ -10,7 +10,7 @@ Intended primarily for internal use.
 }
 
 \usage{
-exprApply(expr, what, FUN = print, ..., symbols = FALSE)
+exprApply(expr, what, FUN, ..., symbols = FALSE)
 }
 
 \arguments{
@@ -22,8 +22,7 @@ exprApply(expr, what, FUN = print, ..., symbols = FALSE)
       these are primitive functions in \R.
 	  Set \code{what} to \code{NA} to match all names.
  }
-  \item{FUN}{a function to be applied. Defaults to \code{\link{print}}, which
-      print matched expressions but does not modify the result. }
+  \item{FUN}{a function to be applied. }
   \item{symbols}{logical value controlling whether \code{FUN} should be applied
       to symbols as well as calls.}
   \item{\dots}{optional arguments to \code{FUN}.}

@@ -7,7 +7,6 @@ Version: 1.15.6 (2015-12-21)
 (fixed) [p]coefTable.survreg: error due to log(scale) missing from 
 	coefficients (suggested by Nicolas Rode)
 
-
 Version: 1.15.5 (2015-11-25)
 (fixed) [p]dredge: error with model with offsets in formula when 'subset' 
     expression was given (reported by Adam Cummings)

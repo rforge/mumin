@@ -120,11 +120,14 @@ function (x, ..., exact = TRUE) {
 
 subset_rework <-
 function(subset, object, objectname = substitute(object)) {
-	objectname <- as.name(objectname)
+
+	if(is.na(subset)) return(TRUE)
 
 	subset <- exprapply0(exprapply0(exprapply0(subset, "dc", .sub_dc_has),
 		c("{", "Term"), .sub_Term),
 		    "has", .sub_has)
+			
+	objectname <- as.name(objectname)
 
 	subset <- exprApply(subset, names(object), symbols = TRUE,
 		function(x, v, cl, parent) {
