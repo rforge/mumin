@@ -363,10 +363,21 @@ ms <- dredge(fmcph, fixed=c("cluster(id)", "strata(enum)"), extra = list(R2="r.s
 fits <- get.models(ms, delta < 5)
 summary(model.avg(fits))
 
-
 fmsrvrg <- survreg(Surv(futime, fustat) ~ ecog.ps + rx, ovarian, dist='weibull',
     scale = 1)
+
 summary(model.avg(dredge(fmsrvrg), delta  < 4))
+
+fmsrvrg2 <- survreg(Surv(futime, fustat) ~ ecog.ps + rx, ovarian, dist='weibull')
+
+fmsrvrg3 <- survreg(Surv(time, status) ~ ph.ecog + age + strata(sex), lung,
+	  na.action = "na.omit")
+
+
+coefTable(fmsrvrg)
+coefTable(fmsrvrg2)
+coefTable(fmsrvrg3)
+
 
 rm(list=ls())
 detach(package:survival)

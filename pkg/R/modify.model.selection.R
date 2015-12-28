@@ -121,7 +121,7 @@ function (x, ..., exact = TRUE) {
 subset_rework <-
 function(subset, object, objectname = substitute(object)) {
 
-	if(is.na(subset)) return(TRUE)
+	if(!is.language(subset) && is.na(subset)) return(TRUE)
 
 	subset <- exprapply0(exprapply0(exprapply0(subset, "dc", .sub_dc_has),
 		c("{", "Term"), .sub_Term),

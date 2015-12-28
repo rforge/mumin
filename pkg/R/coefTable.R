@@ -43,13 +43,13 @@ function(model, ...)
 
 
 `coefTable.survreg` <- 
-function(model, ...)  
+function(model, ...) {
 .makeCoefTable(
-	c(coef(model), log(model$scale)), 
+	coeffs(model), 
 	sqrt(diag(vcov(model, ...))), 
-	model$df.residual,
-	dimnames(vcov(model))[[1L]]
+	NA,
 	)
+}
 
 `coefTable.coxph` <-
 function(model, ...) {
