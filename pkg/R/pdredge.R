@@ -324,7 +324,9 @@ function(global.model, cluster = NA,
 				gloFactorTable <- rbind(gloFactorTable,
 					matrix(FALSE, ncol = ncol(gloFactorTable), nrow = length(offsetNames),
 						dimnames = list(offsetNames, NULL)))
-				diag(gloFactorTable[offsetNames, offsetNames]) <- TRUE
+				for(i in offsetNames) gloFactorTable[offsetNames, offsetNames] <- TRUE
+				#Note `diag<-` does not work for x[1x1] matrix:
+				# diag(gloFactorTable[offsetNames, offsetNames, drop = FALSE]) <- TRUE
 			}
 
 			DebugPrint(gloFactorTable)

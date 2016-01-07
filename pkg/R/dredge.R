@@ -310,13 +310,16 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 			gloFactorTable <- t(attr(tmpTerms, "factors") != 0)
 
 			offsetNames <- sapply(attr(tmpTerms, "variables")[attr(tmpTerms, "offset") + 1L], asChar)
+
 			if(length(offsetNames) != 0L) {
 				gloFactorTable <- rbind(gloFactorTable,
 					matrix(FALSE, ncol = ncol(gloFactorTable), nrow = length(offsetNames),
 						dimnames = list(offsetNames, NULL)))
-				diag(gloFactorTable[offsetNames, offsetNames]) <- TRUE
+				for(i in offsetNames) gloFactorTable[offsetNames, offsetNames] <- TRUE
+				#Note `diag<-` does not work for x[1x1] matrix:
+				# diag(gloFactorTable[offsetNames, offsetNames, drop = FALSE]) <- TRUE
 			}
-
+			
 			DebugPrint(gloFactorTable)
 
 			# fix interaction names in rownames:
@@ -597,6 +600,8 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
         class = c("model.selection", "data.frame")
 	)
 } ######
+
+
 
 `dredgeAll` <-
 function(global.model, beta = FALSE, ...) {
