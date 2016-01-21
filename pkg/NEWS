@@ -1,8 +1,8 @@
 MuMIn package news:
 
 Version: 1.15.7 (2016-01-21)
-(fixed) dredge: loop counter is a double-precision number now, so it can hold 
-	2^31 (reported by Sarah Grogan).
+(fixed) dredge: number of variables is limited to 30 to avoid integer overflow
+    (reported by Sarah Grogan).
 
 Version: 1.15.6 (2015-12-21)
 (fixed) get.models, dredge, subset.model.selection: enclosure for the subset 

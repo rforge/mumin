@@ -242,8 +242,7 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 	nov <- as.integer(nVars - nFixed)
 	ncomb <- (2L ^ nov) * nVariants
 
-	if(nov > 31L) cry(, "number of predictors [%d] exceeds allowed maximum of 31", nov)
-	#if(nov > 10L) warning(gettextf("%d predictors will generate up to %.0f combinations", nov, ncomb))
+	if(nov > 30L) cry(, "number of predictors [%d] exceeds allowed maximum of 30", nov)
 	nmax <- ncomb * nVariants
 	rvChunk <- 25L
 	if(evaluate) {
@@ -408,8 +407,8 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 		on.exit(close(progressBar))
 	}
 
-	iComb <- -1
-	while((iComb <- iComb + 1) < ncomb) {
+	iComb <- -1L
+	while((iComb <- iComb + 1L) < ncomb) {
 		varComb <- iComb %% nVariants
 		jComb <- (iComb - varComb) / nVariants
 
