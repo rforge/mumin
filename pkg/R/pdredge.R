@@ -439,8 +439,8 @@ function(global.model, cluster = NA,
 
 	warningList <- list()
 
-	iComb <- -1L
-	while((iComb <- iComb + 1L) < ncomb) {
+	iComb <- -1
+	while((iComb <- iComb + 1) < ncomb) {
 		varComb <- iComb %% nVariants
 		jComb <- (iComb - varComb) / nVariants
 		#print(c(iComb, jComb, ncomb, varComb + 1L))
@@ -517,7 +517,7 @@ function(global.model, cluster = NA,
 		} # if isok
 
 		#if(evaluate && qi && (qi + nvariants > qlen || iComb == ncomb)) {
-		if(evaluate && qi && (qi > qlen || (iComb + 1L) == ncomb)) {
+		if(evaluate && qi && (qi > qlen || (iComb + 1) == ncomb)) {
 			qseq <- seq_len(qi)
 			qresult <- .getRow(queued[qseq])
 			utils::flush.console()

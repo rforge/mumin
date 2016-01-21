@@ -1,11 +1,15 @@
 MuMIn package news:
 
+Version: 1.15.7 (2016-01-21)
+(fixed) dredge: loop counter is a double-precision number now, so it can hold 
+	2^31 (reported by Sarah Grogan).
+
 Version: 1.15.6 (2015-12-21)
 (fixed) get.models, dredge, subset.model.selection: enclosure for the subset 
     expression evaluation is now `parent.frame()` rather than `.GlobalEnv` as it
     was before (incentive from Philipp Maier).
 (fixed) coeffs.survreg, coefTable.survreg: log(scale) added to coefficients, when
-    it is estimated (suggested by Nicolas Rode)
+    it is estimated (suggested by Nicolas Rode).
 
 Version: 1.15.5 (2015-11-25)
 (fixed) [p]dredge: error with model with offsets in formula when 'subset' 

@@ -408,8 +408,8 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 		on.exit(close(progressBar))
 	}
 
-	iComb <- -1L
-	while((iComb <- iComb + 1L) < ncomb) {
+	iComb <- -1
+	while((iComb <- iComb + 1) < ncomb) {
 		varComb <- iComb %% nVariants
 		jComb <- (iComb - varComb) / nVariants
 
