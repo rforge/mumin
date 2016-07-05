@@ -1,5 +1,15 @@
 MuMIn package news:
 
+Version: 1.15.8 (2016-07-05)
+(fixed) dredge: no longer produces an error in the rare case when dependency 
+	matrix was an empty matrix [0x0].
+(fixed) r.squaredGLMM: error with naming of variance components in 'lmer' 
+	models. (both problems reported by a certain Teresa on Stackoverflow)
+(added) Weights: has an assignment version, so weights can be applied to an 
+	"averaging" object. 
+get.models: now can extract models also from an "averaging" object (only when 
+	it was created with model objects).
+
 Version: 1.15.7 (2016-01-21)
 (fixed) dredge: number of variables is limited to 30 to avoid integer overflow
     (reported by Sarah Grogan).
@@ -8,8 +18,8 @@ Version: 1.15.6 (2015-12-21)
 (fixed) get.models, dredge, subset.model.selection: enclosure for the subset 
     expression evaluation is now `parent.frame()` rather than `.GlobalEnv` as it
     was before (incentive from Philipp Maier).
-(fixed) coeffs.survreg, coefTable.survreg: log(scale) added to coefficients, when
-    it is estimated (suggested by Nicolas Rode).
+(fixed) coeffs.survreg, coefTable.survreg: log(scale) added to coefficients,
+	when it is estimated (suggested by Nicolas Rode).
 
 Version: 1.15.5 (2015-11-25)
 (fixed) [p]dredge: error with model with offsets in formula when 'subset' 
@@ -127,8 +137,8 @@ Version: 1.13.0 (2015-01-03)
 (added) get.response: utility to extract response variable.
 
 Version: 1.12.4 (2014-12-26)
-(added) stdizeFit: utility to modify model object or a call to modelling function 
-    to use standardized data.
+(added) stdizeFit: utility to modify model object or a call to modelling
+	function to use standardized data.
 
 Version: 1.12.3 (2014-12-23)
 (fixed) checkModels: workaround for the "dotted argument identity" issue (namely

@@ -186,7 +186,7 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 	allTerms <- allTerms[termsOrder]
 
 	di <- match(allTerms, rownames(deps))
-	deps <- deps[di, di]
+	deps <- deps[di, di, drop = FALSE]
 
 	gmFormulaEnv <- environment(as.formula(formula(global.model), env = gmEnv))
 	# TODO: gmEnv <- gmFormulaEnv ???

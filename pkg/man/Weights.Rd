@@ -4,11 +4,12 @@
 
 \title{Akaike weights}
 \description{
-Calculate or extract normalized model likelihoods (\sQuote{Akaike weights}).
+Calculate, extract or set normalized model likelihoods (\sQuote{Akaike weights}).
 }
 
 \usage{
 Weights(x)
+Weights(x) <- value
 }
 
 \arguments{
@@ -16,11 +17,19 @@ Weights(x)
 	objects returned by functions like \code{AIC}. There are also methods for
 	extracting \sQuote{Akaike weights} from a \code{"model.selection"} or 
 	\code{"averaging"} objects. }
+	
+	\item{value}{numeric, the new weights for the \code{"averaging"} object or
+	\code{NULL} to reset the weights based on the original IC used.}
 
 }
 
+\details{
+	The replacement function can assign new weights to an \code{"averaging"}
+	object, affecting coefficient values and order of component models.
+}
+
 \value{
-	A numeric vector of normalized likelihoods.
+	For the extractor, a numeric vector of normalized likelihoods.
 }
 
 

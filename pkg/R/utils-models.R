@@ -188,26 +188,42 @@ function(f) {
 		0 else f[[2L]]
 }
 
+
 get.response <-
-function(x, ...)
+function(x, data = NULL, ...)
 UseMethod("get.response")
 
-get.response.default <-
-function(x, ...) {
-	model.frame(x)[, asChar(getResponseFormula(x), control = NULL)]
+get.response.formula <-
+function(x, data = NULL, ...) {
+	x <- terms(x)
+	model.frame(x, data = data, ...)[,
+		asChar(attr(x, "variables")[[attr(x, "response") + 1L]])]
 }
 
 get.response.lm <-
-function(x, ...)
-if((family(x)$family != "binomial") && !is.null(x$y)) x$y else NextMethod()
+function(x, data = NULL, ...) {
+	if(missing(data) && (family(x)$family != "binomial") && !is.null(x$y))
+		x$y else
+		#get.response.default(x, data = data, ...)
+		NextMethod()
+}
 # NOTE: for 'binomial' 'y' is a vector not nmatrix2
 
 get.response.averaging <-
-function(x, ...) {
+function(x, data = NULL, ...) {
 	if(is.null(attr(x, "modelList")))
 		stop("'x' has no model list")
-	get.response(attr(x, "modelList")[[1L]])
+	get.response(attr(x, "modelList")[[1L]], data = data, ...)
 }
+
+get.response.default <-
+function(x, data = NULL, ...) {
+	#model.frame(x)[, asChar(getResponseFormula(x))]
+	if(is.null(data)) data <- model.frame(x)
+	get.response(terms(x), data = data, ...)
+}
+
+
 
 
 #Tries to find out whether the models are fitted to the same data

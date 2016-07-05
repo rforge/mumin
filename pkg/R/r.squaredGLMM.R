@@ -82,6 +82,9 @@ function(x) {
 	
 	if (useObsLevVar) {
         vname <- names(x@flist)[sapply(x@flist, nlevels) == n][1L]
+
+		if(! vname %in% names(vc)) vname <- make.names(vname)
+		stopifnot(vname %in% names(vc))
         varResid <- vc[[vname]][1L]
         beta0 <- mean(fxpred)
         vc <- vc[names(vc) != vname]

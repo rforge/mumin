@@ -529,7 +529,12 @@ function (x, digits = max(3L, getOption("digits") - 3L),
 	}		
 		
     cat("\nComponent models: \n")
-	print(round(as.matrix(x$msTable), 2L), na.print = "")
+	msTable <- x$msTable
+	wi <- ncol(msTable)
+	if(names(msTable)[wi] != "weight")
+		msTable <- msTable[, c(1L, wi), drop = FALSE]
+		
+	print(round(as.matrix(msTable), 2L), na.print = "")
 
 	if(!is.null(attr(x$msTable, "term.codes"))) {
 		cat("\nTerm codes: \n")
