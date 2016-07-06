@@ -17,11 +17,14 @@ export(
 	"get_call",
 	"std.coef", "beta.weights", 
 	"partial.sd",
-	"arm.glm",
-
+	"arm.glm", "armWeights",
+	
+	"BGWeights", "cos2Weights", "jackknifeWeights", "stackingWeights", "loo",
+	
     # defunct and deprecated:
 	"mod.sel",  "tTable", "updateable2"
 )
+
 
 # Imports:
 importFrom("graphics", "axis", "box", "mtext", "par", "plot.new", "plot.window",
@@ -363,4 +366,9 @@ S3method(coefTable, bic.glm)
 #S3method("xtable", "summary.averaging")
 #S3method("xtable", "averaging")
 #S3method("xtable", "model.selection")
+
+S3method(loo, default)
+S3method(loo, lm)
+
+S3method(print, model.weights)
 

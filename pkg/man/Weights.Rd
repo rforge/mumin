@@ -1,5 +1,6 @@
 \name{Weights}
 \alias{Weights}
+\alias{Weights<-}
 \encoding{utf-8}
 
 \title{Akaike weights}
@@ -33,6 +34,14 @@ Weights(x) <- value
 }
 
 
+\note{
+	On assigning new weights, the model order changes accordingly, so assigning
+	the same weights again will cause incorrect re-calculation of averaged
+	coefficients. To avoid that, either re-set model weights by assigning \code{NULL},
+	or use ordered weights.
+}
+
+
 \author{Kamil Barto\enc{ń}{n}}
 
 \seealso{
@@ -42,12 +51,37 @@ Weights(x) <- value
 }
 
 \examples{
+
 fm1 <- glm(Prop ~ dose, data = Beetle, family = binomial)
 fm2 <- update(fm1, . ~ . + I(dose^2))
 fm3 <- update(fm1, . ~ log(dose))
 fm4 <- update(fm3, . ~ . + I(log(dose)^2))
 
 round(Weights(AICc(fm1, fm2, fm3, fm4)), 3)
+
+
+am <- model.avg(fm1, fm2, fm3, fm4, rank = AICc)
+
+coef(am)
+
+# Assign equal weights to all models:
+Weights(am) <- rep(1, 4) # assigned weights are rescaled to sum to 1
+Weights(am)
+coef(am)
+
+# Assign dummy weights:
+wts <- c(2,1,4,3)
+Weights(am) <- wts
+coef(am)
+# Component models are now sorted according to the new weights.
+# The same weights assigned again produce incorrect results!
+Weights(am) <- wts
+coef(am) # wrong!
+#
+Weights(am) <- NULL # reset to original model weights
+Weights(am) <- wts 
+coef(am) # correct
+
 }
 
 \keyword{models}

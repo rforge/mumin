@@ -41,6 +41,15 @@ following ones are currently implemented in \R:
 \code{\link{DIC}} extractor for \acronym{MCMC} models, and \code{\link{QIC}} for
 \acronym{GEE}.
 
+
+Apart from the "regular" information criteria, model averaging can be performed
+using various types of model weighting algorithms:
+  \link[=BGWeights]{Bates-Granger},
+  \link[=cos2Weights]{cos-squared},
+  \link[=jackknifeWeights]{jackknife},
+  \link[=stackingWeights]{stacking}, or
+  \link[=armWeights]{ARM}.
+
 Most of \R's common modelling functions are supported, for a full inventory
 see \link[=MuMIn-models]{list of supported models}.
 }

@@ -5,12 +5,20 @@ function(x)  UseMethod("Weights")
 `Weights.model.selection` <-
 function(x) {
 	i <- type2col(x, "weight")
-	structure(item(x, i) / sum(item(x, i)),	names = row.names(x))
+	structure(item(x, i) / sum(item(x, i)),	names = row.names(x),
+			  name = colnames(x)[type2col(x, "ic")],
+			  class = "model.weights")
 }
 
 `Weights.averaging` <-
 function(x) {
-	x$msTable[, ncol(x$msTable)]
+	rval <- x$msTable[, ncol(x$msTable)]
+	class(rval) <- "model.weights"
+	attr(rval, "name") <- 
+		if(!is.null(attr(x, "model.weights"))) 
+			attr(x, "model.weights") else
+			asChar(attr(attr(x, "rank"), "call")[[1L]])
+	rval
 }
 
 `Weights.data.frame` <-
@@ -26,7 +34,7 @@ function(x) {
 function(x) {
 	x <- x - min(x)
 	d <- exp(-x / 2)
-	d / sum(d)
+	structure(d / sum(d), class = "model.weights")
 }
 
 `Weights.default` <-
@@ -40,7 +48,7 @@ function(x, value)  UseMethod("Weights<-")
 
 `Weights<-.default` <-
 function(x, value) {
-	stop("can assign weights only to an \"averaging\" object")
+	stop("'Weights' can assign weights only to an \"averaging\" object")
 }
 
 `Weights<-.averaging` <-
@@ -51,12 +59,22 @@ function(x, value) {
 		wts <- Weights(x$msTable[, wi - 1L])
 		x$msTable[, wi] <- wts
 		colnames(x$msTable)[wi] <- "weight"
+		attr(x, "model.weights") <- NULL
 	} else {
 		x$msTable[, wi] <- value
 		wts <- x$msTable[, wi]
 		wts <- wts / sum(wts)
 		x$msTable[, wi] <- wts
-		colnames(x$msTable)[wi] <- "[weight]"
+		
+		colnames(x$msTable)[wi] <-
+			if(inherits(value, "model.weights") && is.character(attr(value, "name")[1L])) {
+				paste0(attr(value, "name")[1L], " weight")
+			} else 	"[weight]"
+			
+		attr(x, "model.weights") <-
+			if(is.null(attr(value, "name")))
+				"unknown" else
+				attr(value, "name")
 	}
 
 	rv <-  attr(x, "revised.var")
@@ -72,4 +90,11 @@ function(x, value) {
 	x
 }
 
+
+print.model.weights <-
+function (x, ...) {
+	cat(attr(x, "name"), "model weights", "\n")
+	print.default(as.numeric(round(x, 3L)))
+	invisible(x)
+}
 

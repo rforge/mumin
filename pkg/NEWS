@@ -1,5 +1,15 @@
 MuMIn package news:
 
+Version: 1.16.0 (2016-07-10)
+New suite of functions to support model averaging. It is based on original 
+    code developed by Carsten Dormann, as an outcome of the model-averaging 
+	workshop held in Freiburg in 2015.
+(added) cos2Weights, BGWeights, jackknifeWeights, stackingWeights: calculate 
+	various types of model weights.
+(added) loo: RMSE/log-likelihood based on leave-one-out cross-validation
+(added) armWeights: similar to `arm.glm` but produces model weights.
+
+	
 Version: 1.15.8 (2016-07-05)
 (fixed) dredge: no longer produces an error in the rare case when dependency 
 	matrix was an empty matrix [0x0].
@@ -9,6 +19,7 @@ Version: 1.15.8 (2016-07-05)
 	"averaging" object. 
 get.models: now can extract models also from an "averaging" object (only when 
 	it was created with model objects).
+
 
 Version: 1.15.7 (2016-01-21)
 (fixed) dredge: number of variables is limited to 30 to avoid integer overflow

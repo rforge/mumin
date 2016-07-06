@@ -10,8 +10,8 @@
 
 \title{Automated model selection}
 \description{
-Generate a set of models with combinations (subsets) of terms in the global
-model, with optional rules for model inclusion.
+Generate a set of models with combinations (subsets) of fixed effect terms in
+the global model, with optional rules for model inclusion.
 }
 
 \usage{

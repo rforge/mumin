@@ -531,7 +531,7 @@ function (x, digits = max(3L, getOption("digits") - 3L),
     cat("\nComponent models: \n")
 	msTable <- x$msTable
 	wi <- ncol(msTable)
-	if(names(msTable)[wi] != "weight")
+	if(!isTRUE(attr(x, "ARM")) && names(msTable)[wi] != "weight")
 		msTable <- msTable[, c(1L, wi), drop = FALSE]
 		
 	print(round(as.matrix(msTable), 2L), na.print = "")
@@ -546,7 +546,7 @@ function (x, digits = max(3L, getOption("digits") - 3L),
 			"component models)", sep = "")
 
 	hasPval <- TRUE
-	coefTitles <- if(attr(x, "ARM"))
+	coefTitles <- if(isTRUE(attr(x, "ARM")))
 		c(coefmat.full = "(ARM average)") else
 		c(coefmat.full = "(full average)",
 		  coefmat.subset = "(conditional average)")
