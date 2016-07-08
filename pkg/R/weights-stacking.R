@@ -110,7 +110,7 @@ function(object, ..., data, R = 1000, p = 0.5, seed = NULL) {
     wts <- rbind(colMeans(wmat), apply(wmat, 2L, median),
                  deparse.level = 0)
     dimnames(wts) <- list(c("mean", "median"), names(models))
-    wts / rowSums(wts)
+	structure(wts / rowSums(wts), name = "stacking", class = c("model.weights", class(wts)))
 }
 
 
@@ -142,8 +142,8 @@ function(predicted, observed) {
     }
 
     ops <- optim(par = runif(NCOL(predicted) - 1L), weightsopt, method = "BFGS")
-    if (ops$convergence != 0) stop("optimisation not converged")
-    round(c(1, exp(ops$par)) / sum(c(1, exp(ops$par))), 4)
+    if (ops$convergence != 0) stop("optimization not converged")
+    round(c(1, exp(ops$par)) / sum(c(1, exp(ops$par))), 4L)
 }
 
 

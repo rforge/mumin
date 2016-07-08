@@ -4,20 +4,36 @@
 #' @keywords models
 #' @encoding utf-8
 #' @description
-#' Computes empirical weights based on out of sample forecast variances, following Bates and Granger (1969).
+#' Computes empirical weights based on out of sample forecast variances,
+#'    following Bates and Granger (1969).
 #' @details
-#' [TODO] Take a series of (pseudo) out of sample forecasts and forecast errors
-#' Compute forecast variance (square of RMSE)
-#' Invert
-#' Normalize by sum across all models
+#' Bates-Granger model weights are calculated using prediction covariance. To
+#' get the estimate of prediction covariance, the models are fitted to
+#' randomly selected half of \code{data} and prediction is done on the
+#' remaining half.
+#' These predictions are then used to compute the variance-covariance between
+#' models, \eqn{\Sigma}. Model weights \var{w} are then calculated as
+#' \eqn{w_{BG} = (1'\Sigma^{-1}1)^{-1} 1\Sigma^{-1} }.
+#' 
+#' Bates-Granger model weights may be outside of the \eqn{[0,1]} range, which
+#' may cause the averaged variances to be negative. Apparently this method
+#' works best when data is large.
+#' 
+#' @note For matrix inversion, \code{\link[MASS]{ginv}} from package
+#' \pkg{MASS} is more stable near singularities than \code{\link{solve}}. It
+#' will be used as a fallback if \code{solve} fails and \pkg{MASS} is
+#' available. 
+#' 
 #' @author Carsten Dormann, Kamil Barto\enc{ń}{n}
 #' 
 #' @param object,\dots two or more fitted \code{\link{glm}} objects, or a
 #' \code{list} of such, or an \code{\link[=model.avg]{"averaging"}} object.
-#' @param data a data frame in which to look for variables for use with \link[=predict]{prediction}.
+#' @param data a data frame in which to look for variables for use with
+#'     \link[=predict]{prediction}.
 #' @param seed optionally, the random seed, see \code{\link{set.seed}} .
-#' @param force.update if \code{TRUE}, the much less efficient method of updating \code{glm} function will be 
-#'    used rather than directly \emph{via} \code{\link{glm.fit}}. This only applies to \code{glm}s, in 
+#' @param force.update if \code{TRUE}, the much less efficient method of
+#'    updating \code{glm} function will be  used rather than directly \emph{via}
+#'    \code{\link{glm.fit}}. This only applies to \code{glm}s, in 
 #' case of other model types \code{update} is always used.
 #' @return The function returns a numeric vector of model weights.
 #' @seealso \code{\link{Weights}}
@@ -26,8 +42,19 @@
 #'    \emph{Journal of the Operational Research Society}, 20: 451-468. 
 #' @family model weights
 #' @examples
-#' #[TODO example]
- 
+#' fm <- glm(Prop ~ mortality + dose, family = binomial, Beetle, na.action = na.fail)
+#' models <- lapply(dredge(fm, evaluate = FALSE), eval)
+#' ma <- model.avg(models)
+#' 
+#' # this produces warnings because of negative variances:
+#' Weights(ma) <- BGWeights(ma, data = Beetle , seed = 10)
+#' coefTable(ma, full = TRUE)
+#' 
+#' # SE for prediction is not reliable if some or none of coefficient's SE
+#' # are available
+#' predict(ma, data = test.data, se.fit = TRUE)
+#' coefTable(ma, full = TRUE)
+#' 
 #' @export
 BGWeights <-
 function(object, ..., data, seed = NULL, force.update = FALSE) {
@@ -37,7 +64,6 @@ function(object, ..., data, seed = NULL, force.update = FALSE) {
 	if(m < 2) stop("need more than one model")
 	.checkModels(models)
 
-		
     set.seed(seed)
 
     n <- nrow(data)
@@ -51,8 +77,6 @@ function(object, ..., data, seed = NULL, force.update = FALSE) {
     weights_test <- weights[-k]
     offset_train <- offset[k]
     offset_test <-  offset[-k]
-    
-    # TODO: disallow offset argument...
     
     if(!force.update && all(vapply(models, inherits, FALSE, "glm"))) { # XXX: what about lm
         # XXX: here 'offset_train' DOES include offset specified in 'formula'
@@ -115,8 +139,7 @@ function(object, ..., data, seed = NULL, force.update = FALSE) {
 		if(length(find.package("MASS", quiet = TRUE)) == 1L)
 			fn1(ones, Sigma, getFrom("MASS", "ginv")) else
 			stop(e)
-	})
+		})[1L, ]
 	
-
-    rval[1L, ]    
+	structure(rval, name = "Bates-Granger", class = c("model.weights", class(rval)))
 }

@@ -209,6 +209,6 @@ function(object, ..., data, weight.by = c("aic", "loglik"), R = 1000, seed = NUL
 	wmat <- exp(-wmat / 2)
     wts <- colMeans(wmat)
     wts <- wts / sum(wts)
-	structure(wts, name = "ARM", class = "model.weights")
+	structure(wts, name = "ARM", class = c("model.weights", "numeric"))
 }
 

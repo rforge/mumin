@@ -197,7 +197,7 @@ function(global.model, cluster = NA,
 	allTerms <- allTerms[termsOrder]
 
 	di <- match(allTerms, rownames(deps))
-	deps <- deps[di, di]
+	deps <- deps[di, di, drop = FALSE]
 
 	gmFormulaEnv <- environment(as.formula(formula(global.model), env = gmEnv))
 	# TODO: gmEnv <- gmFormulaEnv ???
@@ -624,7 +624,7 @@ function(global.model, cluster = NA,
 	coefTables <- coefTables[o]
 
 	rval$delta <- rval[, ICName] - min(rval[, ICName])
-	rval$weight <- exp(-rval$delta / 2) / sum(exp(-rval$delta / 2))
+	rval$weight <- Weights(rval$delta)
     mode(rval$df) <- "integer"
 
 	rval <- 

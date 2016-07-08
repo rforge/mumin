@@ -7,13 +7,13 @@ function(x) {
 	i <- type2col(x, "weight")
 	structure(item(x, i) / sum(item(x, i)),	names = row.names(x),
 			  name = colnames(x)[type2col(x, "ic")],
-			  class = "model.weights")
+			  class = c("model.weights", "numeric"))
 }
 
 `Weights.averaging` <-
 function(x) {
 	rval <- x$msTable[, ncol(x$msTable)]
-	class(rval) <- "model.weights"
+	class(rval) <- c("model.weights", "numeric")
 	attr(rval, "name") <- 
 		if(!is.null(attr(x, "model.weights"))) 
 			attr(x, "model.weights") else
@@ -34,7 +34,7 @@ function(x) {
 function(x) {
 	x <- x - min(x)
 	d <- exp(-x / 2)
-	structure(d / sum(d), class = "model.weights")
+	structure(d / sum(d), class = c("model.weights", "numeric"))
 }
 
 `Weights.default` <-
@@ -90,6 +90,18 @@ function(x, value) {
 	x
 }
 
+
+
+`[.model.weights` <-
+function (x, ...) {
+	name <- attr(x, "name")
+	x <- NextMethod()
+	attr(x, "name") <- name
+	class(x) <- c("model.weights", class(x))
+	x
+}
+
+class(matrix(1:5))
 
 print.model.weights <-
 function (x, ...) {

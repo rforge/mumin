@@ -573,9 +573,9 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 	coefTables <- coefTables[o]
 
 	rval$delta <- rval[, ICName] - min(rval[, ICName])
-	rval$weight <- exp(-rval$delta / 2) / sum(exp(-rval$delta / 2))
+	rval$weight <- Weights(rval$delta)
     mode(rval$df) <- "integer"
-
+	
 	structure(rval,
 		model.calls = calls[o],
 		global = global.model,

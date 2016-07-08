@@ -146,7 +146,9 @@ function(object, ...,
 		optim.args)))
 	if (optres$convergence != 0) stop("not converged. 'optim' error code [", optres$convergence, "]")
 
-	c(1, optres$par) / (sum(optres$par) + 1)
+	wts <- c(1, optres$par) / (sum(optres$par) + 1)
+	
+	structure(wts, name = "jackknife", class = c("model.weights", class(wts)))
 }
 
 	

@@ -55,4 +55,6 @@ function(object, y, x, wt, offset = NULL) {
     ll <- p - aic/2
     # c(aic = aic, loglik = ll, nobs = nobs, df = p)
     c(aic, ll, p)
-} 
+}
+
+# list(coefficients =, family =, rank=)

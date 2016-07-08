@@ -98,5 +98,7 @@ function(object, ..., data, eps = 1E-6, maxit = 100, predict.args = list()) {
 		  break
 		}
 	}
-	diag(D2)^2 / sum(diag(D2)^2)
+	wts <- diag(D2)^2 / sum(diag(D2)^2)
+	
+	structure(wts, name = "cos-squared", class = c("model.weights", class(wts)))
 }

@@ -24,6 +24,8 @@ armWeights(object, ..., data, weight.by = c("aic", "loglik"), R = 1000, seed = N
     or log-likelihood. }
   \item{trace}{if \code{TRUE}, information is printed during the running of
     \code{arm.glm}. }
+  \item{data}{a data frame in which to look for variables for use with 
+    \link[=predict]{prediction}. If omitted, the fitted linear predictors are used.}
   \item{seed}{optionally, the random seed. See \code{\link{set.seed}}.}
 }
 
@@ -41,8 +43,9 @@ All-subsets respect marginality constraints.
 }
 
 \value{
-\code{arm.glm} returns an object of class \code{"averaging"} contaning only \dQuote{full} averaged 
-coefficients. See \code{\link{model.avg}} for object description.
+\code{arm.glm} returns an object of class \code{"averaging"} contaning only 
+\dQuote{full} averaged coefficients. See \code{\link{model.avg}} for object 
+description.
 
 \code{armWeights} returns a numeric vector of model weights.
 }
