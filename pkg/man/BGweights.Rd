@@ -11,8 +11,7 @@ BGWeights(object, ..., data, seed = NULL, force.update = FALSE)
 \item{object, \dots}{two or more fitted \code{\link{glm}} objects, or a
 \code{list} of such, or an \code{\link[=model.avg]{"averaging"}} object.}
 
-\item{data}{a data frame in which to look for variables for use with
-\link[=predict]{prediction}.}
+\item{data}{a data frame containing the variables in the model.}
 
 \item{seed}{optionally, the random seed, see \code{\link{set.seed}} .}
 
@@ -70,9 +69,10 @@ Bates, J. M. & Granger, C. W. J. (1969) The combination of forecasts.
    \emph{Journal of the Operational Research Society}, 20: 451-468.
 }
 \seealso{
-\code{\link{Weights}}
+\code{\link{Weights}}, \code{\link{model.avg}}
 
-Other model.weights: \code{\link{cos2Weights}},
+Other model.weights: \code{\link{bootWeights}},
+  \code{\link{cos2Weights}},
   \code{\link{jackknifeWeights}},
   \code{\link{stackingWeights}}
 }

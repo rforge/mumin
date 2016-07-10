@@ -71,6 +71,7 @@ Other implementation of ARM algorithm: \code{arms} in (archived) package
 \bold{MMIX}.
 
 Other kinds of model weights: \code{\link{BGWeights}}, 
+  \code{\link{bootWeights}}, 
   \code{\link{cos2Weights}}, \code{\link{jackknifeWeights}},
   \code{\link{stackingWeights}}.
 

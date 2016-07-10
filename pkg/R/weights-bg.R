@@ -28,15 +28,14 @@
 #' 
 #' @param object,\dots two or more fitted \code{\link{glm}} objects, or a
 #' \code{list} of such, or an \code{\link[=model.avg]{"averaging"}} object.
-#' @param data a data frame in which to look for variables for use with
-#'     \link[=predict]{prediction}.
+#' @param data a data frame containing the variables in the model.
 #' @param seed optionally, the random seed, see \code{\link{set.seed}} .
 #' @param force.update if \code{TRUE}, the much less efficient method of
 #'    updating \code{glm} function will be  used rather than directly \emph{via}
 #'    \code{\link{glm.fit}}. This only applies to \code{glm}s, in 
 #' case of other model types \code{update} is always used.
 #' @return The function returns a numeric vector of model weights.
-#' @seealso \code{\link{Weights}}
+#' @seealso \code{\link{Weights}}, \code{\link{model.avg}}
 #' @references
 #' Bates, J. M. & Granger, C. W. J. (1969) The combination of forecasts.
 #'    \emph{Journal of the Operational Research Society}, 20: 451-468. 

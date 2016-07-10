@@ -48,13 +48,22 @@ function(object, y, x, wt, offset = NULL) {
     #mu <- fam$linkinv((x %*% object$coefficients)[, 1L])
 	mu <- predict_glm_fit(object$coefficients, x, offset, fam)[, 1L]
     dev <- sum(fam$dev.resids(y, mu, wt))
-    aic <- fam$aic(y, n, mu, wt, dev) + 2 * object$rank
-    p <- object$rank
+	rank <- object$rank
+    aic <- fam$aic(y, n, mu, wt, dev) + 2 * rank
+    p <- rank
     if (fam$family %in% c("gaussian", "Gamma", "inverse.gaussian")) 
         p <- p + 1
     ll <- p - aic/2
     # c(aic = aic, loglik = ll, nobs = nobs, df = p)
     c(aic, ll, p)
+}
+
+loglik_glm_fit <-
+function(object, aic = object$aic) {
+    p <- object$rank
+    if (object$family$family %in% c("gaussian", "Gamma", "inverse.gaussian")) 
+        p <- p + 1
+	structure(p - aic / 2, nobs = length(object$residuals), df = p, class = "logLik")
 }
 
 # list(coefficients =, family =, rank=)

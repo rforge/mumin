@@ -44,8 +44,7 @@ function(object, method = c("loglik", "rmse"), ...)
 loo.default <-
 function(object, method = c("loglik", "rmse"), ...)
 	.NotYetImplemented()
-	# for other types of models use manipulated call - will be SLOW
-
+	# for other types of models use manipulated call - SLOW
 
 #  #' @rdname loo
 #  #' @method loo lm
@@ -68,50 +67,84 @@ function(object, method = c("loglik", "rmse"), start, etastart, mustart,
 
 	method <- match.arg(method)
 	tt <- terms(object)
-	intercept <- attr(tt, "intercept") # == 0 or 1
 	beta <- coef(object)
-
 	fam <- family(object)
-	x <- model.matrix(object)
-	if(inherits(object, "glm")) {
-		y <- object$y
-	} else {
-		y <- model.frame(object)[, asChar(attr(tt, "variables")[-1L][[attr(tt, "response")]])]
-		if(is.matrix(y)) y <- y[, 1L] / rowSums(y) # binomial
-	}
-	n <- length(y)
-
+	X <- model.matrix(object)
+	y0 <- model.frame(object)[, asChar(attr(tt, "variables")[-1L][[attr(tt, "response")]])]
+	nobs <- NROW(y0)
 	wt <- weights(object, "prior")
-	if(is.null(wt)) wt <- rep(1, n)
+	if(is.null(wt)) wt <- rep(1, nobs)
 	
+	if(NCOL(y0) == 2L) { # binomial
+		n <- rowSums(y0)
+		y <- y0[, 1L] / n
+		wt0 <- wt / n
+	} else  {
+		n <- rep(1, nobs)
+		y <- y0
+		y0 <- as.matrix(y0)
+		wt0 <- wt
+	}
+
+
 	offset <- object$offset
-	if(is.null(offset)) offset <- numeric(n)
+	if(is.null(offset)) offset <- numeric(nobs)
 	
-	dev <- deviance(object)
-	aicfun <- fam$aic
-	aic_n <- if(fam$family == "binomial") wt else rep(1, n)
-	yt <- fam$linkfun(y)
-
+	aic <- fam$aic
+	eta <- fam$linkfun(y)
+	
+	dev <- function(y, mu, wt, fam)  sum(fam$dev.resids(y, mu, wt))
+	llik <- function(y, X, beta, fam, n, wt = 1, off = NULL) {
+		# wt : fit$prior.weights
+		no <- NROW(y)
+		wt <- rep(wt, length.out = no)
+		mu <- predict_glm_fit(beta, X, off, fam)[, 1L]
+		z <- if (fam$family %in% c("gaussian", "Gamma", "inverse.gaussian")) 1 else 0
+		(fam$aic(y, n, mu, wt, dev(y, mu, wt, fam)) / 2) + z # should be negative?
+	}
+	
 	func <- switch(method,
-		loglik = function(fit, i) {
-			py1 <- predict_glm_fit(fit$coefficients, x[i, , drop = FALSE],
-				offset[i], fam)[, 1L]
-			aicfun(y[i], aic_n[i], py1, wt[i], deviance(fit)) / 2 # == logLik
-		},
-		rmse = function(fit, i) { # alternatively: MSE on transformed[?] data
-			py1 <- predict_glm_fit(fit$coefficients, x[i, , drop = FALSE],
-				offset[i])[, 1L]
-				# prediction on link scale
-			yt[i] - py1 # inefficient to '^2' here
-		})
+	loglik = function(fit, i) {
+		llik(y[i], X[i, , drop = FALSE], fit$coefficients, fit$family, n[i], wt[i], offset[i])
+	},
+	rmse = function(fit, i) { # alternatively: MSE on transformed[?] data
+		py <- predict_glm_fit(fit$coefficients, X[i, , drop = FALSE],
+			offset[i])[, 1L]
+			# prediction on link scale
+		eta[i] - py # inefficient to '^2' here
+	})
+	
+	
+	if (isTRUE(getOption("debug.MuMIn"))) {
+		message("running test 1...")
+		# XXX: DEBUG test
+		testLL1 <- llik(y, X, object$coefficients, object$family, n, wt, offset)
+		#print(testLL1)
+		#print(logLik(object))
+		#print(testLL1 - logLik(object))
+		#print(rbind(n, wt, offset))
+		stopifnot(all.equal(testLL1, c(logLik(object)), tolerance = 1e-5))
+		message("OK")
+		message("running test 2...")
+		testFm <- glm.fit(y = y0, x = X, family = fam, offset = offset, weights = wt0)
+		#print(rbind(testFm$coefficients, object$coefficients))
+		stopifnot(all.equal(testFm$coefficients, object$coefficients))
+		message("OK")
+		message("running test 3...")
+		testLL2 <- llik(y, X, testFm$coefficients, testFm$family, n, wt, offset)
+		#print(c(testLL2,  logLik(object)))
+		stopifnot(all.equal(testLL2, c(logLik(object)), tolerance = 1e-5))
+		message("OK")
+		#print(testLL2)
+		#print(logLik(object))
+	}
 
-	rval <- numeric(n)
-	for (i in seq.int(n)) {
-		fm1 <- glm.fit(y = y[-i], x = x[-i, , drop = FALSE],
+	rval <- numeric(nobs)
+	for (i in seq.int(nobs)) {
+		fm1 <- glm.fit(y = y0[-i, , drop = FALSE], x = X[-i, , drop = FALSE],
 				family = fam, offset = offset[-i], weights = wt[-i])
 		rval[i] <- func(fm1, i)
 	}
-
 	if(method == "rmse") {
 		sqrt(mean(rval^2))
 	} else mean(rval) # XXX: shoult it be a mean of logliks ?

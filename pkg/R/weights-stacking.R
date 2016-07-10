@@ -4,9 +4,8 @@
 #' @encoding utf-8
 #' @param object,\dots two or more fitted \code{\link{glm}} objects, or a
 #' \code{list} of such, or an \code{\link[=model.avg]{"averaging"}} object.
-#' @param data a data frame in which to look for variables for use with
-#'     \link[=predict]{prediction}. Only \code{glm} (or \code{lm}) models are
-#'     currently accepted.
+#' @param data a data frame containing the variables in the model, used for
+#'    fitting and prediction.
 #' @param R the number of replicates.
 #' @param p the proportion of the \code{data} to be used as training set.
 #'      Defaults to 0.5.
@@ -24,7 +23,7 @@
 #' model (which Smyth & Wolpert (1998) referred to as an \sQuote{empirical Bayesian
 #' estimate of posterior model probability}). A mean or median of model weights for
 #' each model is taken and re-scaled to sum to one.
-#' @seealso \code{\link{Weights}}
+#' @seealso \code{\link{Weights}}, \code{\link{model.avg}}
 #' @family model weights
 #' @note
 #' This approach requires a sample size of at least \eqn{2\times}{2x} the number of models. 
@@ -66,7 +65,7 @@
 ##~      fixed = "X1", m.lim = c(1, 3)), eval)
 #' @export
 stackingWeights <-
-function(object, ..., data, R = 1000, p = 0.5, seed = NULL) {
+function(object, ..., data, R, p = 0.5, seed = NULL) {
     
     models <- getModelArgs()
     m <- length(models)

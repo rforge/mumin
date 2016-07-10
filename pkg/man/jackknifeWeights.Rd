@@ -13,8 +13,7 @@ jackknifeWeights(object, ..., data, method = c("RMSE", "likelihood"),
 \item{object, \dots}{two or more fitted \code{\link{glm}} objects, or a
 \code{list} of such, or an \code{\link[=model.avg]{"averaging"}} object.}
 
-\item{data}{a data frame in which to look for variables for use with
-\link[=predict]{prediction}.}
+\item{data}{a data frame containing the variables in the model.}
 
 \item{method}{the function to minimize. Either \code{"RMSE"} or
 \code{"likelihood"} (yet only the former is currently implemented).}
@@ -66,10 +65,11 @@ Hansen, B. E. & Racine, J. S. (2012) Jackknife model averaging.
     \emph{Journal of Econometrics}, 979: 38–46
 }
 \seealso{
-\code{\link{Weights}}
+\code{\link{Weights}}, \code{\link{model.avg}}
 
 Other model.weights: \code{\link{BGWeights}},
-  \code{\link{cos2Weights}}, \code{\link{stackingWeights}}
+  \code{\link{bootWeights}}, \code{\link{cos2Weights}},
+  \code{\link{stackingWeights}}
 }
 \keyword{models}
 

@@ -29,7 +29,7 @@ The function returns a numeric vector of model weights.
 }
 \description{
 Calculates cos-squared model weights, following the algorithm
-    outlined in the appendix of Garthwaite & Mubwandarikwa (2010)
+    outlined in the appendix of Garthwaite & Mubwandarikwa (2010).
 }
 \examples{
 \dontshow{
@@ -59,9 +59,10 @@ Dormann, C. et al. (\emph{in prep.}) Model averaging in ecology:
     evidence, approach examples.
 }
 \seealso{
-\code{\link{Weights}}
+\code{\link{Weights}}, \code{\link{model.avg}}
 
 Other model.weights: \code{\link{BGWeights}},
+  \code{\link{bootWeights}},
   \code{\link{jackknifeWeights}},
   \code{\link{stackingWeights}}
 }

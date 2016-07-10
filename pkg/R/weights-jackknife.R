@@ -13,8 +13,7 @@
 #' @author Carsten Dormann, Kamil Barto\enc{ń}{n}
 #' @param object,\dots two or more fitted \code{\link{glm}} objects, or a
 #'    \code{list} of such, or an \code{\link[=model.avg]{"averaging"}} object.
-#' @param data a data frame in which to look for variables for use with
-#'    \link[=predict]{prediction}.
+#' @param data a data frame containing the variables in the model.
 #' @param method the function to minimize. Either \code{"RMSE"} or
 #'    \code{"likelihood"} (yet only the former is currently implemented).
 #' @param weights prior model weights.
@@ -27,7 +26,7 @@
 #'    fitting models to the train data, which is much more efficient. Set to
 #'    \code{TRUE} to use \code{update} instead.
 #' @return The function returns a numeric vector of model weights.
-#' @seealso \code{\link{Weights}}
+#' @seealso \code{\link{Weights}}, \code{\link{model.avg}}
 #' @references
 #' Hansen, B. E. & Racine, J. S. (2012) Jackknife model averaging.
 #'     \emph{Journal of Econometrics}, 979: 38–46

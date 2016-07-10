@@ -5,15 +5,14 @@
 \alias{stackingWeights}
 \title{Stacking model weights}
 \usage{
-stackingWeights(object, ..., data, R = 1000, p = 0.5, seed = NULL)
+stackingWeights(object, ..., data, R, p = 0.5, seed = NULL)
 }
 \arguments{
 \item{object, \dots}{two or more fitted \code{\link{glm}} objects, or a
 \code{list} of such, or an \code{\link[=model.avg]{"averaging"}} object.}
 
-\item{data}{a data frame in which to look for variables for use with
-\link[=predict]{prediction}. Only \code{glm} (or \code{lm}) models are
-currently accepted.}
+\item{data}{a data frame containing the variables in the model, used for
+fitting and prediction.}
 
 \item{R}{the number of replicates.}
 
@@ -68,10 +67,11 @@ Smyth, P. & Wolpert, D. (1998) \emph{An Evaluation of Linearly Combining
    and Computer Science Department, University of California, Irvine, CA.
 }
 \seealso{
-\code{\link{Weights}}
+\code{\link{Weights}}, \code{\link{model.avg}}
 
 Other model.weights: \code{\link{BGWeights}},
-  \code{\link{cos2Weights}}, \code{\link{jackknifeWeights}}
+  \code{\link{bootWeights}}, \code{\link{cos2Weights}},
+  \code{\link{jackknifeWeights}}
 }
 \keyword{models}
 

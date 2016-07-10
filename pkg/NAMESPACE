@@ -19,7 +19,9 @@ export(
 	"partial.sd",
 	"arm.glm", "armWeights",
 	
-	"BGWeights", "cos2Weights", "jackknifeWeights", "stackingWeights", "loo",
+	"BGWeights", "cos2Weights", "jackknifeWeights", "stackingWeights", 
+	"bootWeights",
+	"loo",
 	
     # defunct and deprecated:
 	"mod.sel",  "tTable", "updateable2"
@@ -32,7 +34,9 @@ importFrom("graphics", "axis", "box", "mtext", "par", "plot.new", "plot.window",
 #importFrom(grDevices, colorRamp, rgb)
 importFrom("methods", ".hasSlot", "isGeneric", "slot", "slotNames")
 importFrom("stats", ".checkMFClasses", ".getXlevels", ".MFclass", "AIC",
-	"as.formula", "delete.response", "deviance", "df.residual",
+	"as.formula",
+	"BIC",
+	"delete.response", "deviance", "df.residual",
 	"family", "fitted", "formula", "getCall", "glm.fit",  "make.link",
 	"median", 
 	"model.frame", "model.matrix", "model.response", "na.fail", "nobs", "pnorm",

@@ -3,6 +3,8 @@
 #' @aliases cos2Weights
 #' @keywords models
 #' @encoding utf-8
+#' @description Calculates cos-squared model weights, following the algorithm
+#'     outlined in the appendix of Garthwaite & Mubwandarikwa (2010).
 #' @param object,\dots two or more fitted \code{\link{glm}} objects, or a
 #' \code{list} of such, or an \code{\link[=model.avg]{"averaging"}} object.
 #'     Currently only \code{lm} and \code{glm} objects are accepted.
@@ -13,10 +15,8 @@
 #' @param maxit maximum number of iterations.
 #' @param predict.args optionally, a \code{list} of additional arguments to be
 #'     passed to \code{predict}.
-#' @description Calculates cos-squared model weights, following the algorithm
-#'     outlined in the appendix of Garthwaite & Mubwandarikwa (2010)
 #' @return The function returns a numeric vector of model weights.
-#' @seealso \code{\link{Weights}}
+#' @seealso \code{\link{Weights}}, \code{\link{model.avg}}
 #' @family model weights
 #' @references
 #' Garthwaite, P. H. and Mubwandarikwa, E. (2010) Selection of weights for
