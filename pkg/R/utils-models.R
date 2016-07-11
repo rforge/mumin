@@ -183,7 +183,9 @@ function(x, split = ":",
 
 getResponseFormula <-
 function(f) {
-	f <- formula(f)
+	f <- if(!is.null(tf <- attr(f, "terms"))) {
+		formula(tf)
+	} else formula(f)
 	if((length(f) == 2L) || (is.call(f[[2L]]) && f[[2L]][[1L]] == "~"))
 		0 else f[[2L]]
 }
@@ -218,6 +220,13 @@ function(x, data = NULL, ...) {
 
 get.response.default <-
 function(x, data = NULL, ...) {
+	if(is.null(data)) {
+		# model frame:
+		if(is.data.frame(x) && !is.null(tf <- attr(x, "terms"))) {
+			tf <- terms(x)
+			return(x[, asChar(attr(tf, "variables")[[attr(tf, "response") + 1L]])])
+		} else data <- model.frame(x)
+	}
 	#model.frame(x)[, asChar(getResponseFormula(x))]
 	if(is.null(data)) data <- model.frame(x)
 	get.response(terms(x), data = data, ...)
@@ -253,7 +262,7 @@ function(models, error = TRUE) {
 	nresid <- vapply(models, function(x) nobs(x), 1) # , nall=TRUE
 
 	if(!all(sapply(datas[-1L], identical, datas[[1L]])) ||
-		!all(nresid[-1L] == nresid[[1L]])) {
+		!all(nresid == nresid[[1L]])) { # better than 'nresid[-1L] == nresid[[1L]]'
 		# XXX: na.action checking here
 		err("models are not all fitted to the same data")
 		res <- FALSE

@@ -16,7 +16,7 @@ Weights(x) <- value
 \arguments{
 	\item{x}{a numeric vector of information criterion values such as AIC, or
 	objects returned by functions like \code{AIC}. There are also methods for
-	extracting \sQuote{Akaike weights} from a \code{"model.selection"} or 
+	extracting \sQuote{Akaike weights} from \code{"model.selection"} or 
 	\code{"averaging"} objects. }
 	
 	\item{value}{numeric, the new weights for the \code{"averaging"} object or
@@ -46,6 +46,11 @@ Weights(x) <- value
 
 \seealso{
 \code{\link{importance}}, \code{\link{weighted.mean}}
+
+\code{\link{armWeights}}, 
+\code{\link{bootWeights}}, \code{\link{BGWeights}}, \code{\link{cos2Weights}},
+\code{\link{jackknifeWeights}} and \code{\link{stackingWeights}} can be used to
+produce model weights.
 
 \code{\link{weights}}, which extracts fitting weights from model objects.
 }

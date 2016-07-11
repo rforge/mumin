@@ -76,67 +76,78 @@ function(object, method = c("loglik", "rmse"), start, etastart, mustart,
 	if(is.null(wt)) wt <- rep(1, nobs)
 	
 	if(NCOL(y0) == 2L) { # binomial
+		# NOTE: don't need to keep 2-column y, but if also weights are given
+		#       glm.fit warns about "non-integer # of successes "
+		# TODO: if weights are equal, use y as proportion, otherwise a matrix
 		n <- rowSums(y0)
 		y <- y0[, 1L] / n
 		wt0 <- wt / n
+		# FUNFACT:  'x[1L] == x' more efficient than x[1L] == x[-1L]
+		if(all(wt == n)) { #if(all(wt0[1L] == wt0)) {
+			y0 <- y
+			wt0 <- wt
+		}
 	} else  {
 		n <- rep(1, nobs)
 		y <- y0
-		y0 <- as.matrix(y0)
 		wt0 <- wt
 	}
-
+	y0 <- as.matrix(y0)
 
 	offset <- object$offset
 	if(is.null(offset)) offset <- numeric(nobs)
 	
-	aic <- fam$aic
 	eta <- fam$linkfun(y)
 	
-	dev <- function(y, mu, wt, fam)  sum(fam$dev.resids(y, mu, wt))
-	llik <- function(y, X, beta, fam, n, wt = 1, off = NULL) {
-		# wt : fit$prior.weights
-		no <- NROW(y)
-		wt <- rep(wt, length.out = no)
-		mu <- predict_glm_fit(beta, X, off, fam)[, 1L]
-		z <- if (fam$family %in% c("gaussian", "Gamma", "inverse.gaussian")) 1 else 0
-		(fam$aic(y, n, mu, wt, dev(y, mu, wt, fam)) / 2) + z # should be negative?
-	}
-	
 	func <- switch(method,
-	loglik = function(fit, i) {
-		llik(y[i], X[i, , drop = FALSE], fit$coefficients, fit$family, n[i], wt[i], offset[i])
-	},
+	loglik = {
+		dev <- function(y, mu, wt, fam)  sum(fam$dev.resids(y, mu, wt))
+		llik <- function(y, X, beta, fam, n, wt = 1, off = NULL) {
+			# wt : fit$prior.weights
+			no <- NROW(y)
+			wt <- rep(wt, length.out = no)
+			mu <- predict_glm_fit(beta, X, off, fam)[, 1L]
+			z <- if (fam$family %in% c("gaussian", "Gamma", "inverse.gaussian")) 1 else 0
+			(fam$aic(y, n, mu, wt, dev(y, mu, wt, fam)) / 2) + z # +LL
+		}	
+		function(fit, i) {
+			llik(y[i], X[i, , drop = FALSE], fit$coefficients, fit$family, n[i],
+				wt[i], offset[i])
+	}},
 	rmse = function(fit, i) { # alternatively: MSE on transformed[?] data
 		py <- predict_glm_fit(fit$coefficients, X[i, , drop = FALSE],
 			offset[i])[, 1L]
 			# prediction on link scale
-		eta[i] - py # inefficient to '^2' here
+		eta[i] - py # inefficient to '^2' here, do it later
+		# XXX: problem with RMSE with binomial and y = 0 or 1 (= Inf on link scale) 
 	})
 	
-	
-	if (isTRUE(getOption("debug.MuMIn"))) {
+	if (isTRUE(getOption("debug.MuMIn")) && method == "loglik") {
+		DebugPrint(y0)
+		
 		message("running test 1...")
 		# XXX: DEBUG test
 		testLL1 <- llik(y, X, object$coefficients, object$family, n, wt, offset)
-		#print(testLL1)
-		#print(logLik(object))
-		#print(testLL1 - logLik(object))
-		#print(rbind(n, wt, offset))
-		stopifnot(all.equal(testLL1, c(logLik(object)), tolerance = 1e-5))
+		
+		DebugPrint(testLL1)
+		DebugPrint(logLik(object))
+		DebugPrint(testLL1 - logLik(object))
+		DebugPrint(rbind(n, wt, offset))
+
+		stopifnot(all.equal(-testLL1, c(logLik(object)), tolerance = 1e-5))
 		message("OK")
 		message("running test 2...")
 		testFm <- glm.fit(y = y0, x = X, family = fam, offset = offset, weights = wt0)
-		#print(rbind(testFm$coefficients, object$coefficients))
+		DebugPrint(rbind(testFm$coefficients, object$coefficients))
 		stopifnot(all.equal(testFm$coefficients, object$coefficients))
 		message("OK")
 		message("running test 3...")
 		testLL2 <- llik(y, X, testFm$coefficients, testFm$family, n, wt, offset)
-		#print(c(testLL2,  logLik(object)))
-		stopifnot(all.equal(testLL2, c(logLik(object)), tolerance = 1e-5))
+		DebugPrint(c(testLL2, logLik(object)))
+		stopifnot(all.equal(-testLL2, c(logLik(object)), tolerance = 1e-5))
 		message("OK")
-		#print(testLL2)
-		#print(logLik(object))
+		DebugPrint(testLL2)
+		DebugPrint(logLik(object))
 	}
 
 	rval <- numeric(nobs)
@@ -147,5 +158,5 @@ function(object, method = c("loglik", "rmse"), start, etastart, mustart,
 	}
 	if(method == "rmse") {
 		sqrt(mean(rval^2))
-	} else mean(rval) # XXX: shoult it be a mean of logliks ?
+	} else mean(rval)
 }

@@ -6,19 +6,23 @@
 \title{Jackknifed model weights}
 \usage{
 jackknifeWeights(object, ..., data, method = c("RMSE", "likelihood"),
-  weights = rep(1, n), optim.method = "BFGS", maxit = 1000, seed = NULL,
+  weights = NULL, optim.method = "BFGS", maxit = 1000, seed = NULL,
   optim.args = list(), force.update = FALSE)
 }
 \arguments{
 \item{object, \dots}{two or more fitted \code{\link{glm}} objects, or a
 \code{list} of such, or an \code{\link[=model.avg]{"averaging"}} object.}
 
-\item{data}{a data frame containing the variables in the model.}
+\item{data}{a data frame containing the variables in the model. It is
+optional if all models are \code{glm}.}
 
-\item{method}{the function to minimize. Either \code{"RMSE"} or
-\code{"likelihood"} (yet only the former is currently implemented).}
+\item{method}{a character string specifying the function to minimize. Either
+\code{"RMSE"} or \code{"likelihood"} (yet only the former is currently
+implemented).}
 
-\item{weights}{prior model weights.}
+\item{weights}{an optional vector of \sQuote{\link[=weights.glm]{prior
+weights}} to be used in the fitting process. Should be \code{NULL} or
+a numeric vector.}
 
 \item{optim.method}{optional, optimisation method, passed to \code{\link{optim}}.}
 
@@ -58,7 +62,7 @@ coef(amAICc)
 
 }
 \author{
-Carsten Dormann, Kamil Barto\enc{ń}{n}
+Kamil Barto\enc{ń}{n}. Carsten Dormann
 }
 \references{
 Hansen, B. E. & Racine, J. S. (2012) Jackknife model averaging.

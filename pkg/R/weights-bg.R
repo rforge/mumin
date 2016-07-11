@@ -12,8 +12,9 @@
 #' randomly selected half of \code{data} and prediction is done on the
 #' remaining half.
 #' These predictions are then used to compute the variance-covariance between
-#' models, \eqn{\Sigma}. Model weights \var{w} are then calculated as
-#' \eqn{w_{BG} = (1'\Sigma^{-1}1)^{-1} 1\Sigma^{-1} }.
+#' models, \eqn{\Sigma}. Model weights are then calculated as
+#' \eqn{w_{BG} = (1'\Sigma^{-1}1)^{-1} 1\Sigma^{-1} },
+#' where \eqn{1} a vector of 1-s.
 #' 
 #' Bates-Granger model weights may be outside of the \eqn{[0,1]} range, which
 #' may cause the averaged variances to be negative. Apparently this method

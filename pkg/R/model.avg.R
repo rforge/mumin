@@ -325,7 +325,7 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 	if (!missing(interval)) .NotYetUsed("interval", error = FALSE)
 	
 	if(backtransform && !is.na(type) && type == "response")
-		warning("back-transforming predictions that are already on response scale")
+		warning("back-transforming predictions already on response scale")
 
 	models <- attr(object, "modelList")
 	if(is.null(models)) stop("can predict only from 'averaging' object containing model list")
