@@ -11,7 +11,7 @@ Calculate ARM weights for a set of models.
 \usage{
 arm.glm(object, R = 250, weight.by = c("aic", "loglik"), trace = FALSE)
 
-armWeights(object, ..., data, weight.by = c("aic", "loglik"), R = 1000, seed = NULL)
+armWeights(object, ..., data, weight.by = c("aic", "loglik"), R = 1000)
 }
 
 \arguments{
@@ -26,7 +26,7 @@ armWeights(object, ..., data, weight.by = c("aic", "loglik"), R = 1000, seed = N
     \code{arm.glm}. }
   \item{data}{a data frame in which to look for variables for use with 
     \link[=predict]{prediction}. If omitted, the fitted linear predictors are used.}
-  \item{seed}{optionally, the random seed. See \code{\link{set.seed}}.}
+%% \item{seed}{optionally, the random seed. See \code{\link{set.seed}}.}
 }
 
 \details{

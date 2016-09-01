@@ -41,6 +41,7 @@ importFrom("stats", ".checkMFClasses", ".getXlevels", ".MFclass", "AIC",
 	"median", 
 	"model.frame", "model.matrix", "model.response", "na.fail", "nobs", "pnorm",
 	"power", "predict", "printCoefmat", "qnorm", "qt", "reformulate", "resid",
+	"rbinom", "rgamma", "rpois", # for .simulateData
 	"sd", "summary.glm", "terms", "terms.formula", "update", "update.default",
 	"update.formula", "var", "weighted.mean", "weights",
     "gaussian", "binomial", "Gamma", "inverse.gaussian", "quasi", 

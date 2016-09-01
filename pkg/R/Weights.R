@@ -6,7 +6,7 @@ function(x)  UseMethod("Weights")
 function(x) {
 	i <- type2col(x, "weight")
 	structure(item(x, i) / sum(item(x, i)),	names = row.names(x),
-			  name = colnames(x)[type2col(x, "ic")],
+			  wt.type = colnames(x)[type2col(x, "ic")],
 			  class = c("model.weights", "numeric"))
 }
 
@@ -14,7 +14,7 @@ function(x) {
 function(x) {
 	rval <- x$msTable[, ncol(x$msTable)]
 	class(rval) <- c("model.weights", "numeric")
-	attr(rval, "name") <- 
+	attr(rval, "wt.type") <- 
 		if(!is.null(attr(x, "model.weights"))) 
 			attr(x, "model.weights") else
 			asChar(attr(attr(x, "rank"), "call")[[1L]])
@@ -67,14 +67,14 @@ function(x, value) {
 		x$msTable[, wi] <- wts
 		
 		colnames(x$msTable)[wi] <-
-			if(inherits(value, "model.weights") && is.character(attr(value, "name")[1L])) {
-				paste0(attr(value, "name")[1L], " weight")
+			if(inherits(value, "model.weights") && is.character(attr(value, "wt.type")[1L])) {
+				paste0(attr(value, "wt.type")[1L], " weight")
 			} else 	"[weight]"
 			
 		attr(x, "model.weights") <-
-			if(is.null(attr(value, "name")))
+			if(is.null(attr(value, "wt.type")))
 				"unknown" else
-				attr(value, "name")
+				attr(value, "wt.type")
 	}
 
 	rv <-  attr(x, "revised.var")
@@ -94,19 +94,17 @@ function(x, value) {
 
 `[.model.weights` <-
 function (x, ...) {
-	name <- attr(x, "name")
+	wt.type <- attr(x, "wt.type")
 	x <- NextMethod()
-	attr(x, "name") <- name
+	attr(x, "wt.type") <- wt.type
 	class(x) <- c("model.weights", class(x))
 	x
 }
 
-class(matrix(1:5))
-
 print.model.weights <-
 function (x, ...) {
-	cat(attr(x, "name"), "model weights", "\n")
-	print.default(as.numeric(round(x, 3L)))
+	cat(attr(x, "wt.type"), "model weights", "\n")
+	print(format(round(x, 3L), scientific = FALSE), quote = FALSE, right = TRUE)
 	invisible(x)
 }
 

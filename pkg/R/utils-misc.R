@@ -1,18 +1,3 @@
-`DebugPrint` <-
-function (x) {
-    if (isTRUE(getOption("debug.print"))) {
-		fun <- asChar(sys.call(sys.parent())[[1L]])
-		name <- substitute(x)
-		cat(sprintf("<%s> ~ ", fun))
-		if(is.language(name)) cat(asChar(name), "= \n")
-        print(x)
-    }
-}
-	
-`srcc` <- function() {
-	ret <- eval(expression(source("clipboard", local = TRUE)), .GlobalEnv)
-	return(if(ret$visible) ret$value else invisible(ret$value))
-}
 
 `cry` <-
 function(Call = NA, Message, ..., warn = FALSE, domain = paste0("R-", .packageName)) {
@@ -134,10 +119,11 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 		vars <- list(...)
 		vnames <- names(vars)
 		#if(!all(sapply(Call, is.name))) warning("at least some elements do not have syntactic name")
+		names(vars) <- 
 		if(is.null(vnames)) {
-			names(vars) <- vapply(Call, asChar, "")
+			vapply(Call, asChar, "")
 		} else if (any(vnames == "")) {
-			names(vars) <- ifelse(vnames == "", vapply(Call, asChar, ""), vnames)
+			ifelse(vnames == "", vapply(Call, asChar, ""), vnames)
 		}
 		get("clusterCall")(cluster, getv, vars)
 		# clusterCall(cluster, getv, vars)
@@ -291,5 +277,12 @@ function(x, y, ty = t(y)) {
 	if(ncol(x) != ncol(ty)) stop('non-conformable arguments')
 	if(nrow(x) != nrow(ty)) stop('result is not a square matrix')
 	return(rowSums(x * ty))
+}
+
+
+tmpvarname <- function(envir, n = 8L) {
+	while(exists(x <- paste0(c("*", sample(letters, n), "*"),
+		collapse = ""), envir)) {}
+	x
 }
 

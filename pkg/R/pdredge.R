@@ -329,7 +329,7 @@ function(global.model, cluster = NA,
 				# diag(gloFactorTable[offsetNames, offsetNames, drop = FALSE]) <- TRUE
 			}
 
-			DebugPrint(gloFactorTable)
+			.DebugPrint(gloFactorTable)
 
 			# fix interaction names in rownames:
 			rownames(gloFactorTable) <- allTerms0[!(allTerms0 %in% interceptLabel)]

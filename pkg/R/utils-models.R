@@ -190,7 +190,6 @@ function(f) {
 		0 else f[[2L]]
 }
 
-
 get.response <-
 function(x, data = NULL, ...)
 UseMethod("get.response")
@@ -198,8 +197,9 @@ UseMethod("get.response")
 get.response.formula <-
 function(x, data = NULL, ...) {
 	x <- terms(x)
-	model.frame(x, data = data, ...)[,
-		asChar(attr(x, "variables")[[attr(x, "response") + 1L]])]
+	if(!inherits(attr(data, "terms"), "terms")) 
+		data <- model.frame(x, data = data, ...)
+	data[, asChar(attr(x, "variables")[[attr(x, "response") + 1L]])]
 }
 
 get.response.lm <-
@@ -317,7 +317,7 @@ function(x, minlength = 4, minwordlen = 1,
 			gsub("([\\(,]) *\\w+ *= *", "\\1", x, perl = TRUE), perl = TRUE)
 		else dx <- x
 
-	#DebugPrint(x)
+	#.DebugPrint(x)
 	s <- strsplit(dx, "(?=[\\W_])", perl = TRUE)
 	# remove I(...):
 	s <- lapply(s, function(z) {

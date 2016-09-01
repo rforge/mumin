@@ -155,10 +155,7 @@ function(object, R = 250, weight.by = c("aic", "loglik"), trace = FALSE) {
 
 
 armWeights <-
-function(object, ..., data, weight.by = c("aic", "loglik"), R = 1000, seed = NULL) {
-	
-	
-	set.seed(seed)
+function(object, ..., data, weight.by = c("aic", "loglik"), R = 1000) {
 	weight.by <- switch(match.arg(weight.by), aic = 1L, loglik = 2L)
     
     models <- getModelArgs()
@@ -209,6 +206,6 @@ function(object, ..., data, weight.by = c("aic", "loglik"), R = 1000, seed = NUL
 	wmat <- exp(-wmat / 2)
     wts <- colMeans(wmat)
     wts <- wts / sum(wts)
-	structure(wts, name = "ARM", class = c("model.weights", "numeric"))
+	structure(wts, wt.type = "ARM", names = names(models), class = c("model.weights", "numeric"))
 }
 

@@ -1,4 +1,3 @@
-# 'makeArgs' internal generic to generate arguments from combination of
 # term names (a character vector), additional list of arbitrary options is accepted.
 # This is much a reverse action to getAllTerms
 makeArgs <- function(obj, termNames, opt, ...) UseMethod("makeArgs", obj)
@@ -33,7 +32,9 @@ function(obj, termNames, opt, ...) {
 	reportProblems <- character(0L)
 	termNames[termNames %in% opt$interceptLabel] <- "1"
 	## XXX: what if length(opt$intercept) > 1 ???
-	f <- reformulate(c(if(!opt$intercept) "0", termNames), response = opt$response)
+	f <- reformulate(c(if(!opt$intercept) "0" else if (!length(termNames)) "1", termNames), response = opt$response)
+	
+
 	environment(f) <- opt$gmFormulaEnv
 	ret <- list(formula = f)
 	if(!is.null(opt$gmCall$start)) {
@@ -86,6 +87,7 @@ function(termNames, opt, fnames) {
 	termNames[i] <- gsub("(Int)", "(1)", termNames[i], fixed = TRUE)
 	zexpr <- lapply(termNames, function(x) parse(text = x)[[1L]])
 	zsplt <- split(sapply(zexpr, "[[", 2L), as.character(sapply(zexpr, "[[", 1L)))
+	# TODO: zero-length terms in reformulate ?
 	zarg <- lapply(zsplt, function(x) reformulate(as.character(x)))
 	zarg <- zarg[fnames]
 	names(zarg) <- fnames
@@ -146,6 +148,7 @@ function(obj, termNames, opt, ...) {
 	i <- termNames %in% opt$interceptLabel
 	termNames[i] <- gsub("(Intercept)", "1", termNames[i], fixed = TRUE)
 	j <- grepl("^\\(phi\\)_", termNames)
+	# TODO: zero-length terms in reformulate
 	zarg <- list(	
 		beta = formula(terms.formula(reformulate(termNames[!j]), simplify = TRUE))
 		)
@@ -175,6 +178,7 @@ function(obj, termNames, opt, ...) {
 
 	fnames <- c("count", "zero")
 	
+	# TODO: zero-length terms in reformulate
 	zarg <- split(substring(termNames, pos + 1L, 256L),
 		substring(termNames, 1L, pos - 1L))
 	for(j in fnames) zarg[[j]] <-

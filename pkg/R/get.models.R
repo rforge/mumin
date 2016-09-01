@@ -29,13 +29,13 @@ function(object, subset, cluster = NA, ...) {
 	naNames <- names(newargs)
 
 	if(hasModelList) {
-		DebugPrint(hasModelList)
+		.DebugPrint(hasModelList)
 		if(length(newargs) == 0L) {
 			models <- attr(object, "modelList")[r]
 			attr(models, "rank") <- attr(object, "rank")
 			return(models)
 		}
-		DebugPrint("refitting...")
+		.DebugPrint("refitting...")
 		if(hasNoCalls) calls <- lapply(attr(object, "modelList")[r], get_call)
 	} else calls <- calls[r]
 

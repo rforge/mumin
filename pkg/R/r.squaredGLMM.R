@@ -36,7 +36,6 @@ function(x) {
 }
 
 ## extracts random effect formula. e.g:
-## ~ ... + (a | ...) + (b + c | ...) --> ~ a + b + c
 ranform <- function (form) {
 	ans <- update.formula(reformulate(vapply(lapply(.findbars(form),
 		"[[", 2L), deparse, "")), ~ . + 1)

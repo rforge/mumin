@@ -58,6 +58,10 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 			gmCall <- call("run.mark.model", model = gmCall, invisible = TRUE)
 		}
 	}
+	
+	if(is.call(gmCall[["data"]]))
+		stop("'global.model' uses \"data\" that is a function value: use a variable instead")
+	
 
 	lik <- .getLik(global.model)
 	logLik <- lik$logLik
@@ -319,7 +323,7 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 				# diag(gloFactorTable[offsetNames, offsetNames, drop = FALSE]) <- TRUE
 			}
 			
-			DebugPrint(gloFactorTable)
+			.DebugPrint(gloFactorTable)
 
 			# fix interaction names in rownames:
 			rownames(gloFactorTable) <- allTerms0[!(allTerms0 %in% interceptLabel)]

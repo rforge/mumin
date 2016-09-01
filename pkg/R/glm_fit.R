@@ -1,13 +1,14 @@
 
-
 # helper function: prediction from matrix, coefficients and inverse link
 predict_glm_fit <-
 function(beta, x, offset, family = NULL) {
 	if(is.null(offset)) offset <- 0
+	ok <- !is.na(beta)
+	beta <- beta[ok]
+	x <- x[, ok, drop = FALSE]
 	if(inherits(family, "family")) return(family$linkinv(offset + (x %*% beta)))
 	return(offset + (x %*% beta))
 }
-
 
 update_glm_fit <-
 function(fit, data, weights, offset, nobs = nrow(data), y = NULL) {
@@ -23,7 +24,6 @@ function(fit, data, weights, offset, nobs = nrow(data), y = NULL) {
     }
     glm.fit(x, y, weights, offset = offset, family = family(fit))
 }
-
 
 do_glm_fit <-
 function(tf, data, family, weights, offset, nobs = nrow(data), y = NULL) {
@@ -65,5 +65,15 @@ function(object, aic = object$aic) {
         p <- p + 1
 	structure(p - aic / 2, nobs = length(object$residuals), df = p, class = "logLik")
 }
+
+
+llik <- function(y, mu, fam, n, wt = 1, off = NULL) {
+	# wt == fit$prior.weights
+	no <- NROW(y)
+	ep <- if (fam$family %in% c("gaussian", "Gamma", "inverse.gaussian")) 1 else 0
+	dev <- sum(fam$dev.resids(y, mu, wt))
+	(fam$aic(y, n, mu, wt, dev) / 2) - ep # +LL
+}
+
 
 # list(coefficients =, family =, rank=)

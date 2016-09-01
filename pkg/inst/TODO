@@ -1,6 +1,7 @@
 TODO list for the MuMIn package:
 
 
+
 ** fit.args - additional arguments for updated models (underwrite)
 **  handling random effects in 'dredge' (with 'lme', 'lmer', etc). Currently
         'varying' may be used with lme's "random" argument for that purpose.
@@ -12,3 +13,5 @@ TODO list for the MuMIn package:
         row names and no columns for terms.
 *   pdredge: checking if 'nobs' for all generated models in are equal (already 
         done in 'dredge')
+		
+*   effects for "averaging" object?

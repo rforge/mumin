@@ -44,3 +44,8 @@ function() {
 	if(length(models) == 0L) stop("at least one model must be given")
 	invisible(models)
 }
+
+# TODO:
+#is.listOfCalls <-
+#function(x)  is.list(x) && all(vapply(x, is.call, FALSE))
+
