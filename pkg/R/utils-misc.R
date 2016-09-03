@@ -109,7 +109,6 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 }
 
 `clusterVExport` <- local({
-	
    `getv` <- function(obj, env = as.environment(1L))
 		for (i in names(obj)) assign(i, obj[[i]], envir = env)
 	function(cluster, ...) {
@@ -118,12 +117,10 @@ function(x) all(vapply(x[-1L], identical, logical(1L), x[[1L]]))
 		Call <- Call[-1L]
 		vars <- list(...)
 		vnames <- names(vars)
-		#if(!all(sapply(Call, is.name))) warning("at least some elements do not have syntactic name")
-		names(vars) <- 
-		if(is.null(vnames)) {
-			vapply(Call, asChar, "")
+		if (is.null(vnames)) {
+			names(vars) <- vapply(Call, asChar, "")
 		} else if (any(vnames == "")) {
-			ifelse(vnames == "", vapply(Call, asChar, ""), vnames)
+			names(vars) <- ifelse(vnames == "", vapply(Call, asChar, ""), vnames)
 		}
 		get("clusterCall")(cluster, getv, vars)
 		# clusterCall(cluster, getv, vars)

@@ -62,11 +62,13 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 
 	cfarr <- coefArray(ct)
 	weight <- Weights(object)
+	
 
-	cfmat <- cfarr[, 1L, , drop = FALSE]
+	cfmat <- as.matrix(cfarr[, 1L, ])
 	cfmat[is.na(cfmat)]<- 0
 	coefMat <- array(dim = c(2L, ncol(cfmat)),
-		dimnames = list(c("full", "subset"), colnames(cfmat)))
+		dimnames = list(c("full", "subset"), dimnames(cfarr)[[3L]]))
+	
 	coefMat[1L, ] <- drop(weight %*% cfmat)
 	coefMat[2L, ] <- coefMat[1L, ] / colSums(array(weight *
 		as.numeric(!is.na(cfarr[, 1L, ])), dim = dim(cfmat)))
