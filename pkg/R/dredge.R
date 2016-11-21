@@ -59,8 +59,12 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 		}
 	}
 	
-	if(is.call(gmCall[["data"]]))
-		stop("'global.model' uses \"data\" that is a function value: use a variable instead")
+	
+	thiscall <- sys.call()
+	exprApply(gmCall[["data"]], NA, function(expr) {
+		if(is.symbol(expr[[1L]]) && all(expr[[1L]] != c("@", "$")))
+			cry(thiscall, "'global.model' uses \"data\" that is a function value: use a variable instead")
+	})
 	
 
 	lik <- .getLik(global.model)
@@ -437,11 +441,9 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 				isok <- FALSE
 				next
 			}
-
+			
 			newArgs <- makeArgs(global.model, allTerms[comb], argsOptions) # comb
-			#formulaList <- if(is.null(attr(newArgs, "formulaList"))) newArgs else
-			#    attr(newArgs, "formulaList")
-
+				
 			if(!is.null(attr(newArgs, "problems"))) {
 				print.warnings(structure(vector(mode = "list",
 					length = length(attr(newArgs, "problems"))),

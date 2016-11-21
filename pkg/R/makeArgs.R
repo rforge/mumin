@@ -229,6 +229,7 @@ function(obj, termNames, opt, ...) {
 
 `makeArgs.mark` <- 
 function(obj, termNames, opt, ...) {
+	
 	interceptLabel <- "(Intercept)"
 	termNames <- sub(interceptLabel, "1", termNames, fixed = TRUE)
 	rxres <- regexpr("^([a-zA-Z]+)\\((.*)\\)$", termNames, perl = TRUE)
@@ -236,21 +237,21 @@ function(obj, termNames, opt, ...) {
 	cl <- attr(rxres, "capture.length")
 	parname <- substring(termNames, cs[, 1L], cs[, 1L] + cl[,1L] - 1L)
 	parval <- substring(termNames, cs[, 2L], cs[, 2L] + cl[,2L] - 1L)
-	
-	#formulaList <- lapply(split(parval, parname), function(x) {
-	#	int <- x == "1"
-	#	x <- x[!int]
-	#	res <- if(!length(x))
-	#			if(int) ~ 1 else ~ 0 else 
-	#		reformulate(x, intercept = any(int))
-	#	environment(res) <- opt$gmFormulaEnv
-	#	res
-	#})
+
+	formulaList <- lapply(split(parval, parname), function(x) {
+		int <- x == "1"
+		x <- x[!int]
+		res <- if(!length(x))
+				if(int) ~ 1 else ~ 0 else 
+			reformulate(x, intercept = any(int))
+		environment(res) <- opt$gmFormulaEnv
+		res
+	})
 	
 	mpar <- if(is.null(obj$model.parameters))
 		eval(opt$gmCall$model$parameters) else
 		obj$model.parameters
-	#for(i in names(mpar)) mpar[[i]]$formula <- formulaList[[i]]
+	for(i in names(mpar)) mpar[[i]]$formula <- formulaList[[i]]
 	#ret <- list(model.parameters = mpar)
 	
 	if(opt$gmCall[[1L]] == "run.mark.model") {
@@ -262,6 +263,7 @@ function(obj, termNames, opt, ...) {
 	}
 	
 	#attr(ret, "formulaList") <- formulaList
+
 	ret
 }
 

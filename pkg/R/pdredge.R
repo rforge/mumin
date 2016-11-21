@@ -66,6 +66,14 @@ function(global.model, cluster = NA,
 		}
 	}
 
+	
+	thiscall <- sys.call()
+	exprApply(gmCall[["data"]], NA, function(expr) {
+		if(is.symbol(expr[[1L]]) && all(expr[[1L]] != c("@", "$")))
+			cry(thiscall, "'global.model' uses \"data\" that is a function value: use a variable instead")
+	})
+	
+
 	lik <- .getLik(global.model)
 	logLik <- lik$logLik
 

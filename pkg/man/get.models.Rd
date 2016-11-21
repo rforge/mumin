@@ -62,7 +62,7 @@ models twice.
 \seealso{
 \code{\link{dredge}} and \code{\link{pdredge}}, \code{\link{model.avg}}
 
-\code{\link{makeCluster}} in packages \pkg{parrallel} and \pkg{snow}
+\code{\link{makeCluster}} in packages \pkg{parallel} and \pkg{snow}
 
 }
 

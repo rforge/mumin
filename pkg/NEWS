@@ -1,5 +1,12 @@
 MuMIn package news:
 
+Version: 1.16.4 (2016-11-21)
+(fixed) makeArgs.mark: reverted to a working version (this bug was introduced in 
+	1.15.2/rev. 373. Reported by Jay Rotella)
+
+Version: 1.16.3 (2016-09-14)
+(fixed) dredge: recognizes when global model's data is a function in a smarter way
+
 Version: 1.16.2 (2016-09-01)
 (fixed) plot.model.selection: problem in case with only one model in the 
     table (reported by Ryan Rothman on Stackoverflow)
@@ -15,7 +22,6 @@ New suite of functions to support model averaging. It is based on original
 (fixed) model.avg/model.sel: problems with intercept only models
     (spotted by a certain Teresa on Stackoverflow)
 
-
 Version: 1.15.8 (2016-07-05)
 (fixed) dredge: no longer produces an error in the rare case when dependency
     matrix was an empty matrix [0x0].
@@ -25,7 +31,6 @@ Version: 1.15.8 (2016-07-05)
     "averaging" object.
 get.models: now can extract models also from an "averaging" object (only when
     it was created with model objects).
-
 
 Version: 1.15.7 (2016-01-21)
 (fixed) dredge: number of variables is limited to 30 to avoid integer overflow
