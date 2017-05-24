@@ -1,15 +1,22 @@
 MuMIn package news:
 
+Version: 1.16.5 (2017-05-24)
+(fixed) predict.gls updated to match current version in nlme (reported by a 
+	certain Asteraceae on Stackoverflow)
+
 Version: 1.16.4 (2016-11-21)
 (fixed) makeArgs.mark: reverted to a working version (this bug was introduced in 
 	1.15.2/rev. 373. Reported by Jay Rotella)
 
 Version: 1.16.3 (2016-09-14)
-(fixed) dredge: recognizes when global model's data is a function in a smarter way
+(fixed) dredge: recognizes when global model's data is a function in a smarter 
+	way
 
 Version: 1.16.2 (2016-09-01)
 (fixed) plot.model.selection: problem in case with only one model in the 
     table (reported by Ryan Rothman on Stackoverflow)
+dredge: recognizes when global model's data is a function (which is not allowed 
+	as it may cause sub-models being fitted to different datasets)
 
 Version: 1.16.1 (2016-07-29)
 New suite of functions to support model averaging. It is based on original

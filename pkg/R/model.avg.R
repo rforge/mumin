@@ -527,6 +527,10 @@ function (x, digits = max(3L, getOption("digits") - 3L),
     cat("\nCall:\n", paste(asChar(x$call, nlines = -1L), sep = "\n", collapse = "\n"),
         "\n\n", sep = "")
 		
+# TODO Warning message:
+# In if (!is.na(comcallstr)) { :
+# the condition has length > 1 and only the first element will be used
+
 	comcallstr <- 
 	if(!is.null(attr(x, "model.calls"))) {
 		commonCallStr(calls = attr(x, "model.calls"))
