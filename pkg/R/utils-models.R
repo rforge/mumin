@@ -474,6 +474,8 @@ function(x, fam = x$family, link = x$link) {
 
 `commonCallStr` <-
 function(models, calls = lapply(models, get_call)) {
+	
+	koBrowseHere()
 
 	x <- lapply(calls, as.list)
 	alln <- unique(unlist(lapply(x, names)))
@@ -491,7 +493,10 @@ function(models, calls = lapply(models, get_call)) {
 	j <- nu > 1 & !j
 	rval[j] <- paste("<", nu[j], " unique values>", sep = "")
 	if(nu[1L] > 1) rval[[1L]] <- paste(sapply(uniq[[1L]], asChar), collapse = "|")
-	rval <- paste(rval[[1L]], "(", paste(names(rval[-1L]), "=", rval[-1L], collapse = ", "), ")", sep = "")
+		
+	rval <- paste(deparse(rval[[1L]], control = NULL),
+		"(", paste(names(rval[-1L]), "=", rval[-1L], collapse = ", "), ")", sep = "")
+	
 	rval <- sub("`__(\\d+)-rhsform__`", "<\\1 unique rhs>", rval, perl = TRUE)
 	rval
 

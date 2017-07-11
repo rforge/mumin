@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.16.6 (2017-07-11)
+(fixed) print.summary.averaging: warning when fitting function name was a call 
+	rather than a symbol, e.g. lme4::lme (reported by Chen Lei).
+
 Version: 1.16.5 (2017-05-24)
 (fixed) predict.gls updated to match current version in nlme (reported by a 
 	certain Asteraceae on Stackoverflow)
