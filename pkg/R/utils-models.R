@@ -475,8 +475,6 @@ function(x, fam = x$family, link = x$link) {
 `commonCallStr` <-
 function(models, calls = lapply(models, get_call)) {
 	
-	koBrowseHere()
-
 	x <- lapply(calls, as.list)
 	alln <- unique(unlist(lapply(x, names)))
 	uniq <- vector("list", length(alln))
