@@ -37,8 +37,10 @@ function(x) {
 
 ## extracts random effect formula. e.g:
 ranform <- function (form) {
+	### XXX: would give an error: values must be length 1 ...
+	###      for very long RE formulas
 	ans <- update.formula(reformulate(vapply(lapply(.findbars(form),
-		"[[", 2L), deparse, "")), ~ . + 1)
+		"[[", 2L), deparse, "",  width.cutoff = 500L)), ~ . + 1)
 	environment(ans) <- environment(form)
 	ans
 }

@@ -1,4 +1,5 @@
 
+
 umf_formlist <-
 function(x) {
 	if("formlist" %in% slotNames(x)) {
@@ -29,22 +30,19 @@ function(x) {
 	x
 }
 
-
 umf_get_specs <- function(x) {
 	spc <- umf_specs[[class(x)[1L]]]
 	if(is.null(spc)) stop(gettextf("this unmarkedFit subclass or structure is unknown to MuMIn", class(x)[1L]))
 
 	estsn <- sapply(x@estimates@estimates, "slot", "short.name")
 	estsn <- estsn[!duplicated(estsn)] #  for "unmarkedFitDS" state="lam",det="p",scale="p"
-	estlab <- names(estsn)
 	estsnpfx <- umf_shortname2estname(estsn)
 	
 	i <-
 		sapply(lapply(spc, "[", 2L, ), function(x) setequal(x[x != ""], estsnpfx)) &
-		sapply(lapply(spc, "[", 3L, ), function(x) setequal(x[x != ""], estlab))
+		sapply(lapply(spc, "[", 3L, ), function(x) setequal(x[x != ""], names(estsn)))
 		
 	if(!any(i)) stop(gettextf("unknown \"%s\" model structure", class(x)[1L]))
-	# TODO: use umfSpecs...
 	rval <- spc[[which(i)[1L]]]
 	attr(rval, "estsnpfx") <- estsnpfx
 	attr(rval, "estsn") <- estsn
@@ -52,21 +50,52 @@ umf_get_specs <- function(x) {
 }
 
 
+umf_terms2formulalist <- 
+function(termNames, opt) {
+	i <- termNames %in% opt$interceptLabel
+	termNames[i] <- gsub("(Int)", "(1)", termNames[i], fixed = TRUE)
+	fexpr <- lapply(termNames, function(x) parse(text = x)[[1L]])
+	
+	nm  <- as.character(lapply(fexpr, "[[", 1L))
+
+	fsplt <- split(sapply(fexpr, "[[", 2L), nm)[nm[!duplicated(nm)]]
+	farg <- lapply(fsplt, function(z) {
+		if(! 1 %in% z) z <- c(0, z)
+		rval <- z[[1L]]
+		n <- length(z)
+		if(n > 1) for(i in 2L:n) rval <- call("+", rval, z[[i]])
+		as.formula(call("~", rval),  opt$gmFormulaEnv)
+	})
+	farg[] <- lapply(farg, `environment<-`, opt$gmFormulaEnv)
+	farg
+}
+
+umf_ds_fix_names <-
+function(x, fm) {
+	if(is(fm, "unmarkedFitDS")) {
+		x <- sub(paste0("p(", switch(fm@keyfun, uniform = "", halfnorm = "sigma",
+				hazard = "shape", exp = "rate", "")), "p(", x, fixed = TRUE)
+		x <- sub("\\(\\(([^\\)]+)\\)\\)", "(\\1)", x, perl = TRUE)
+		x <- sub("(Intercept)", "(Int)", x, fixed = TRUE)
+	}
+	x
+}
+
+
+
+
 getAllTerms.unmarkedFit <-
 function(x, intercept = TRUE, ...) {
 
 	spc <- umf_get_specs(x)
-	estsn <- attr(spc, "estsn")
-	estsnpfx <- attr(spc, "estsnpfx")
-
 	formlist <- umf_formlist(x)
 	formnames <- spc[1L, ]
 
 	allterms <- lapply(formlist, getAllTerms.formula, intercept = FALSE)
 	
 	fnames <- spc[2L, ]
-	i <- match(fnames, estsnpfx, nomatch = 0)
-    fnames[i != 0] <- estsn[i]
+	i <- match(fnames, attr(spc, "estsnpfx"), nomatch = 0L)
+    fnames[i != 0] <- attr(spc, "estsn")[i]
 	
 	if(is(x, "unmarkedFitDS")) {
 		if(!is.na(fnames['p'])) {
@@ -109,47 +138,49 @@ function(x, intercept = TRUE, ...) {
 }
 
 
-umf_terms2formulalist <- 
-function(termNames, opt) {
-	i <- termNames %in% opt$interceptLabel
-	termNames[i] <- gsub("(Int)", "(1)", termNames[i], fixed = TRUE)
-	zexpr <- lapply(termNames, function(x) parse(text = x)[[1L]])
+`makeArgs.unmarkedFit` <- 
+function(obj, termNames, opt, ...) {
+	spc <- umf_get_specs(obj)
 	
-	nm  <- as.character(lapply(zexpr, "[[", 1L))
-
-	zsplt <- split(sapply(zexpr, "[[", 2L), nm)[nm[!duplicated(nm)]]
-	
-	zarg <- lapply(zsplt, function(z) {
-		if(! 1 %in% z) z <- c(0, z)
-		rval <- z[[1L]]
-		n <- length(z)
-		if(n > 1) for(i in 2L:n) rval <- call("+", rval, z[[i]])
-		as.formula(call("~", rval),  opt$gmFormulaEnv)
-	})
-	
-	zarg[] <- lapply(zarg, `environment<-`, opt$gmFormulaEnv)
-	
-	#if(!is.null(formulanames)) {
-	#	zarg <- zarg[formulanames]
-	#	names(zarg) <- formulanames
-	#	if(any(i <- sapply(zarg, is.null))) {
-	#		zarg[i] <- rep(list(~ 1), sum(i))
-	#		zarg[i] <- lapply(zarg[i], `environment<-`, opt$gmFormulaEnv)
-	#	}
-	#}
-	zarg
-}
-
-umf_ds_fix_names <-
-function(x, fm) {
-	if(is(fm, "unmarkedFitDS")) {
-		x <- sub(paste0("p(", switch(fm@keyfun, uniform = "", halfnorm = "sigma",
-				hazard = "shape", exp = "rate", "")), "p(", x, fixed = TRUE)
-		x <- sub("\\(\\(([^\\)]+)\\)\\)", "(\\1)", x, perl = TRUE)
-		x <- sub("(Intercept)", "(Int)", x, fixed = TRUE)
+	 # TODO: set attr(, "argsOrder") <- k
+	if(isTRUE(attr(spc, "revArgs"))) {
+		k <- which(spc[1L, ] != "")
+		spc[, k] <- spc[, rev(k), drop = FALSE]
+		colnames(spc)[k] <- colnames(spc)[rev(k)]
 	}
-	x
+		
+	formulanames <- spc[1L, spc[1L, ] != ""]
+	single_formula <- all(formulanames == "formula")
+	
+	# NOTE: elements are named after full short.name
+	zarg <- umf_terms2formulalist(termNames, opt)
+	names(zarg) <- umf_standardize_estnames(umf_shortname2estname(names(zarg)))
+
+	#stopifnot(all(names(zarg) %in% colnames(spc)[spc[1, ] != ""])) # DEBUG
+	
+    zarg <- zarg[match(colnames(spc)[spc[1, ] != ""], names(zarg))]
+	if(single_formula) {
+		n <- length(zarg)
+    	form <- zarg[[1L]]
+		if(n > 1L) for(i in 2L:n) form <- call("~", form, zarg[[i]][[2L]])
+	    form <- as.formula(form, env = environment(zarg[[1L]]))
+		#XXX ? environment(form) <- environment(zarg[[1L]])
+		list(formula = form)
+	} else  {
+		names(zarg) <- formulanames
+		zarg
+	}
 }
+
+`makeArgs.unmarkedFitDS` <-
+function(obj, termNames, opt, ...)  {
+	termNames[] <- umf_ds_fix_names(termNames, obj)
+	opt$interceptLabel <- umf_ds_fix_names(opt$interceptLabel, obj)
+	makeArgs.unmarkedFit(obj, termNames, opt)
+}
+
+
+###
 
 .umf_compute_specs <- 
 function(x) {
@@ -181,65 +212,4 @@ function(x) {
 	attr(m, "n_formulas") <- nform
 	return(m)
 }
-
-
-
-`makeArgs.unmarkedFit` <- 
-function(obj, termNames, opt, ...) {
-	spc <- umf_get_specs(obj)
-	
-	# DEBUG obj <- x # !
-	
-	 # TODO: set attr(, "argsOrder") <- k
-	if(isTRUE(attr(spc, "revArgs"))) {
-		k <- which(spc[1L, ] != "")
-		spc[, k] <- spc[, rev(k), drop = FALSE]
-		colnames(spc)[k] <- colnames(spc)[rev(k)]
-	}
-		
-	formulanames <- spc[1L, spc[1L, ] != ""]
-	single_formula <- all(formulanames == "formula")
-	
-	# NOTE: elements are named after full short.name
-	zarg <- umf_terms2formulalist(termNames, opt)
-	names(zarg) <- umf_standardize_estnames(umf_shortname2estname(names(zarg)))
-
-	stopifnot(all(names(zarg) %in% colnames(spc)[spc[1, ] != ""])) # DEBUG
-	
-    zarg <- zarg[match(colnames(spc)[spc[1, ] != ""], names(zarg))]
-	
-	#if(isTRUE(getOption("koBrowse"))) koBrowseHere()
-		
-	#formula(x)  #lam,p -rev-> p,lam  
-	# ~Date ~ VegetationAbun
-	#getAllTerms(x)
-
-
-	if(single_formula) {
-		n <- length(zarg)
-    	form <- zarg[[1L]]
-		if(n > 1L) for(i in 2L:n) form <- call("~", form, zarg[[i]][[2L]])
-	    form <- as.formula(form, env = environment(zarg[[1L]]))
-		#XXX ? environment(form) <- environment(zarg[[1L]])
-		list(formula = form)
-	} else  {
-		names(zarg) <- formulanames
-		zarg
-	}
-}
-
-
-`makeArgs.unmarkedFitDS` <-
-function(obj, termNames, opt, ...)  {
-	termNames[] <- umf_ds_fix_names(termNames, obj)
-	opt$interceptLabel <- umf_ds_fix_names(opt$interceptLabel, obj)
-	makeArgs.unmarkedFit(obj, termNames, opt)
-}
-
-
-
-
-
-
-
 
