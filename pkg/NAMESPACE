@@ -32,7 +32,7 @@ export(
 importFrom("graphics", "axis", "box", "mtext", "par", "plot.new", "plot.window",
 	"rect",	"strheight", "strwidth", "title")
 #importFrom(grDevices, colorRamp, rgb)
-importFrom("methods", ".hasSlot", "isGeneric", "slot", "slotNames")
+importFrom("methods", ".hasSlot", "isGeneric", "slot", "slotNames", "is")
 importFrom("stats", ".checkMFClasses", ".getXlevels", ".MFclass", "AIC",
 	"as.formula",
 	"BIC",
@@ -184,7 +184,7 @@ S3method(getAllTerms, unmarkedFit)
 S3method(coeffs, unmarkedFit)
 S3method(coefTable, unmarkedFit)
 S3method(nobs, unmarkedFit)
-S3method(getAllTerms, unmarkedFitDS)
+# S3method(getAllTerms, unmarkedFitDS)
 # this is done by setting S4 method with an .onLoad hook:
 # S3method(logLik, unmarkedFit)
 

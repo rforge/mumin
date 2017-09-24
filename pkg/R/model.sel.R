@@ -98,7 +98,7 @@ function(object, ..., rank = NULL, rank.args = NULL,
     
     lapply(models, function(fit) {
         if(any(dup <- duplicated(cfn <- names(coeffs(fit)))))
-        cry(sys.call(-2L), "models cannot have duplicated coefficient names: %s",
+        cry(-2L, "models cannot have duplicated coefficient names: %s",
              prettyEnumStr(cfn[dup]))
     })
 

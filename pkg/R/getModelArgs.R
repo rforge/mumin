@@ -27,10 +27,10 @@ function() {
 		names(models) <- unlist(.makeListNames(models))
 	} else if (inherits(object, "averaging")) {
 		modelList <- attr(object, "modelList")
-		if(length(models)) cry(1, "extra arguments ignored", warn = TRUE)
+		if(length(models)) cry(-1, "extra arguments ignored", warn = TRUE)
 		if(is.list(modelList) && length(modelList)) {
 			models <- modelList
-		} else  cry(1, "'object' is an \"averaging\" object but has no model list",
+		} else  cry(-1, "'object' is an \"averaging\" object but has no model list",
 			warn = FALSE)
 		
 	} else {

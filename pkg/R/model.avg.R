@@ -402,7 +402,7 @@ function(object, newdata = NULL, se.fit = FALSE, interval = NULL,
 			
 			if (!is.null(links)) {
 				if(any(links[1L] != links[-1L]))
-					cry(sys.call(-1L), "cannot inverse-transform averaged prediction of models using different link functions")
+					cry(-1L, "cannot inverse-transform averaged prediction of models using different link functions")
 				fam1 <- family(models[[1L]])
 				if(is.null(se.fit)) return(fam1$linkinv(fit))
 				else return(list(fit = fam1$linkinv(fit),
@@ -527,10 +527,6 @@ function (x, digits = max(3L, getOption("digits") - 3L),
     cat("\nCall:\n", paste(asChar(x$call, nlines = -1L), sep = "\n", collapse = "\n"),
         "\n\n", sep = "")
 		
-# TODO Warning message:
-# In if (!is.na(comcallstr)) { :
-# the condition has length > 1 and only the first element will be used
-
 	comcallstr <- 
 	if(!is.null(attr(x, "model.calls"))) {
 		commonCallStr(calls = attr(x, "model.calls"))

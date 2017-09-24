@@ -1,5 +1,13 @@
 MuMIn package news:
 
+Version: 1.17.0 (2017-09-22)
+(fixed) long broken support for unmarkedFit models has been restored 
+	(however, because of an utterly inconsistent structure of these objects it 
+	is not guaranteed to work in all cases).
+
+Version: 1.16.7 (2017-08-10)
+A few minor things fixed.
+
 Version: 1.16.6 (2017-07-11)
 (fixed) print.summary.averaging: warning when fitting function name was a call 
 	rather than a symbol, e.g. lme4::lme (reported by Chen Lei).

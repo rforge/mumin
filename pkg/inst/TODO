@@ -1,6 +1,6 @@
 TODO list for the MuMIn package:
 
-
+** WAIC
 
 ** fit.args - additional arguments for updated models (underwrite)
 **  handling random effects in 'dredge' (with 'lme', 'lmer', etc). Currently
