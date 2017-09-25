@@ -81,11 +81,8 @@ function(x, fm) {
 	x
 }
 
-
-
-
 getAllTerms.unmarkedFit <-
-function(x, intercept = TRUE, ...) {
+function(x, intercept = FALSE, ...) {
 
 	spc <- umf_get_specs(x)
 	formlist <- umf_formlist(x)

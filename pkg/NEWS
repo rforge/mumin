@@ -1,7 +1,6 @@
 MuMIn package news:
 
-Version: 1.17.0 (2017-09-23)
-Version: 1.17.1 (2017-09-24)
+Version: 1.17.2 (2017-09-25)
 (fixed) long broken support for unmarkedFit models has been restored 
 	(however, because of an utterly inconsistent structure of these objects it 
 	is not guaranteed to work in all cases).

@@ -11,7 +11,8 @@ function(x, intercept = FALSE, ...)
 	getAllTerms.terms(terms(x, ...), intercept = intercept)
 
 `getAllTerms.terms` <-
-function(x, offset = TRUE, intercept = FALSE, ...) {
+function(x, intercept = FALSE, offset = TRUE, ...) {
+#function(x, offset = TRUE, intercept = FALSE, ...) { # XXX!
 
 	interceptLabel <- "(Intercept)"
 	variables <- attr(x, "variables")[-1L]

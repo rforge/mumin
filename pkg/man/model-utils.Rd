@@ -38,7 +38,7 @@ These functions extract or calculate various values from provided fitted model
 coeffs(model)
 
 getAllTerms(x, ...)
-\method{getAllTerms}{terms}(x, offset = TRUE, intercept = FALSE, ...)
+\method{getAllTerms}{terms}(x, intercept = FALSE, offset = TRUE, ...)
 
 coefTable(model, ...)
 \method{coefTable}{averaging}(model, full = FALSE, adjust.se = TRUE, ...)

@@ -123,7 +123,7 @@ function(object, ...,
 			
 		Y <- as.matrix(get.response(models[[1L]], data))
 		no <- NROW(Y)
-		# TODO: check for prior weigths consistency between models
+		# TODO: check for prior weights consistency between models
 		fitting_wts <- numeric(no)
 		fitting_wts[] <- if(useWeightsArg) weights else 1
 		if(!useWeightsArg) {

@@ -116,7 +116,7 @@ function(global.model, cluster = NA,
 	}
 
 	allTerms <- allTerms0 <- getAllTerms(global.model, intercept = TRUE,
-		data = eval(gmCall$data, envir = gmEnv))
+		data = eval(gmCall$data, envir = gmEnv)) ### TODO: data needed?
 
 	# Intercept(s)
 	interceptLabel <- attr(allTerms, "interceptLabel")
