@@ -25,10 +25,10 @@ for log-likelihood.}
 Computes the \acronym{RMSE}/log-likelihood based on leave-one-out cross-validation.
 }
 \details{
-Leave-one-out cross validation is \var{K}-fold cross validation, with \var{K}
+Leave-one-out cross validation is a \var{K}-fold cross validation, with \var{K}
 equal to the number of data points in the set \var{N}. For all \var{i} from 1 
-to \var{N}, the model is fitted to all the data except for point \var{i} and a 
-prediction is made for that point. The average error is computed and used to 
+to \var{N}, the model is fitted to all the data except for \var{i}-th row and
+a prediction is made for that value. The average error is computed and used to 
 evaluate the model.
 }
 \examples{
@@ -47,8 +47,7 @@ legend("topleft", legend = c("AIC", "AICc"), pch = c(1, 19))
 Kamil Barto\enc{ń}{n}, based on code by Carsten Dormann
 }
 \references{
-Dormann, C. et al. (\emph{in prep.}) Model averaging in ecology: evidence,
-approach examples.
+Dormann, C. et al. (\emph{in prep.}) Model averaging in ecology.
 }
 \keyword{models}
 

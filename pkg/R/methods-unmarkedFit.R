@@ -1,5 +1,3 @@
-
-
 umf_formlist <-
 function(x) {
 	if("formlist" %in% slotNames(x)) {
@@ -30,9 +28,12 @@ function(x) {
 	x
 }
 
-umf_get_specs <- function(x) {
+umf_get_specs <- 
+function(x) {
 	spc <- umf_specs[[class(x)[1L]]]
-	if(is.null(spc)) stop(gettextf("this unmarkedFit subclass or structure is unknown to MuMIn", class(x)[1L]))
+	if(is.null(spc)) 
+	  stop(gettextf("this unmarkedFit subclass or structure is unknown to MuMIn",
+	  class(x)[1L]))
 
 	estsn <- sapply(x@estimates@estimates, "slot", "short.name")
 	estsn <- estsn[!duplicated(estsn)] #  for "unmarkedFitDS" state="lam",det="p",scale="p"
@@ -209,4 +210,3 @@ function(x) {
 	attr(m, "n_formulas") <- nform
 	return(m)
 }
-

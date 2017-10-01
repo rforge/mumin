@@ -53,8 +53,7 @@ Garthwaite, P. H. and Mubwandarikwa, E. (2010) Selection of weights for
     weighted model averaging. \emph{Australian & New Zealand Journal of
     Statistics}, 52: 363–382.
 
-Dormann, C. et al. (\emph{in prep.}) Model averaging in ecology:
-    evidence, approach examples.
+Dormann, C. et al. (\emph{in prep.}) Model averaging in ecology.
 }
 \seealso{
 \code{\link{Weights}}, \code{\link{model.avg}}

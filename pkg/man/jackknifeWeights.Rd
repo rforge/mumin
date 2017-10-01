@@ -62,7 +62,10 @@ Model weights are chosen (using \code{\link{optim}}) to minimise
     provided models and for all data points.
 }
 \note{
-This method can give variable results, depending on \code{\link[=optim]{optimisation method}} and starting values. It is therefore advisable to make several replicates using different \code{optim.method}. See \code{\link{optim}} for possible values for this argument.
+This procedure can give variable results depending on the 
+\link[=optim]{optimisation method} and starting values. It is therefore 
+advisable to make several replicates using different \code{optim.method}s. 
+See \code{\link{optim}} for possible values for this argument.
 }
 \examples{
 fm <- glm(Prop ~ mortality * dose, binomial(), Beetle, na.action = na.fail)

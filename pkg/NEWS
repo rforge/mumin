@@ -1,9 +1,9 @@
 MuMIn package news:
 
-Version: 1.17.2 (2017-09-25)
-(fixed) long broken support for unmarkedFit models has been restored 
-	(however, because of an utterly inconsistent structure of these objects it 
-	is not guaranteed to work in all cases).
+Version: 1.40.0 (2017-09-30)
+(fixed) long broken support for "unmarkedFit" models has been restored 
+	(because of the utterly inconsistent structure of these objects it is not 
+	guaranteed to work in all cases).
 (fixed) R.squaredGLMM: error with very long RE formulas (reported by Siti Binte 
     Faizal)
 
