@@ -298,7 +298,6 @@ getAllTerms.terms(terms(formula(x), ...), intercept = intercept)
 function (x, intercept = FALSE, ...) 
 getAllTerms(x@formula, intercept = intercept)
 
-
 `getAllTerms` <-
 function(x, ...)
 UseMethod("getAllTerms")

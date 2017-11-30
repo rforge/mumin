@@ -1,13 +1,16 @@
 Package: MuMIn
 Type: Package
 Title: Multi-Model Inference
-Version: 1.40.0
-Date: 2017-09-30
+Version: 1.40.1
+Date: 2017-11-30
 Encoding: UTF-8
 Author: Kamil Bartoń
 Maintainer: Kamil Bartoń <kamil.barton@go2.pl>
 Description: Model selection and model averaging based on information criteria 
              (AICc and alike).
+			 Next time, please elaborate in the Description field what methods 
+			 you provide. Is there some reference about the method you can add 
+			 in the Description field in the form Authors (year) <doi:.....>? 
 License: GPL-2
 Depends: R (>= 3.0.0)
 Imports: graphics, methods, Matrix, stats, stats4

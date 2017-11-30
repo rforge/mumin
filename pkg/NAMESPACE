@@ -368,9 +368,13 @@ S3method(get.response, formula)
 
 S3method(coefTable, bic.glm)
 
+S3method(coefTable, glmmTMB)
+S3method(coeffs, glmmTMB)
+S3method(getAllTerms, glmmTMB)
+S3method(makeArgs, glmmTMB)
+
 S3method(loo, default)
 S3method(loo, lm)
 
 S3method(print, model.weights)
 S3method("[", model.weights)
-
