@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.40.2 (2018-01-19)
+(fixed) getAllTerms.glmmTMB: error with models including offset term 
+    (spotted by Kate Plummer)
+
 Version: 1.40.1 (2017-11-30)
 (added) Support for "glmmTMB" models (incentive from Kaitlyn Zerr)
 

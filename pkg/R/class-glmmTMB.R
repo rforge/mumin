@@ -1,14 +1,30 @@
 `getAllTerms.glmmTMB` <-
-function(x, intercept = FALSE, ...) {
+function(x, intercept = FALSE, offset = TRUE, ...) {
+	
     at <- x$modelInfo$allForm[c("formula", "ziformula", "dispformula")]
-    at <- lapply(at, getAllTerms.formula, intercept = FALSE)
+    at <- lapply(at, getAllTerms.formula, intercept = FALSE, offset = TRUE)
     names(at) <- c("cond", "zi", "disp")
     deps <- termdepmat_combine(lapply(at, attr, "deps"))
     attrInt <- sapply(at, attr, "intercept")
-    rval <- unlist(lapply(names(at), function(i)
-			if (length(at[[i]])) paste0(i, "(", at[[i]], ")")
-			else character(0L)))
-    dimnames(deps) <- list(rval, rval)
+	
+	rval <- unlist(lapply(names(at), function(i)
+		if (length(at[[i]])) paste0(i, "(", at[[i]], ")")
+		else character(0L)))
+
+	off <- lapply(at, function(tt) if(is.null(off <- attr(tt,"offset"))) integer(0L) else match(off, tt))
+	loff <- sapply(off, length)
+	off <- if(any(loff > 0L)) {
+		unlist(off) + rep(c(0L, cumsum(sapply(at[-length(at)], length))), sapply(off, length))
+	} else NULL
+	
+	if(hasOffset <- !is.null(off)) {
+		offsetTerm <- rval[off]
+		if(!isTRUE(offset)) {
+			depnames <- rval <- rval[-off]
+		} else depnames <- rval[-off]
+	} else depnames <- rval
+	
+	dimnames(deps) <- list(depnames, depnames)
     intLabel <- paste0(names(attrInt[attrInt != 0L]), "((Int))")
 		
 	ord <- lapply(at, attr, "order")
@@ -20,7 +36,8 @@ function(x, intercept = FALSE, ...) {
 		ord <- c(seq.int(along.with = intLabel), ord + length(intLabel))
 	}
 	
-	attr(rval, "random.terms") <- attr(at$cond, "random.terms") 
+	if(hasOffset) attr(rval, "offset") <- offsetTerm
+	attr(rval, "random.terms") <- attr(at$cond, "random.terms")
 	attr(rval, "random") <- attr(at$cond, "random") 
 	attr(rval, "response") <- attr(at$cond, "response") 
 	attr(rval, "order") <- ord
