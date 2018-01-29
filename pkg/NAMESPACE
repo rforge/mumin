@@ -152,19 +152,18 @@ S3method(summary, glmmML)
 
 S3method(getAllTerms, coxph)
 S3method(coefTable, coxph)
-S3method(logLik, coxph)
 S3method(nobs, coxph)
+
 
 S3method(coeffs, survreg)
 S3method(coefTable, survreg)
-S3method(logLik, survreg)
 S3method(nobs, survreg)
 
 S3method(getAllTerms, lme)
 S3method(coeffs, lme)
 S3method(coefTable, lme)
-S3method(predict, lme)
-S3method(predict, gls)
+#S3method(predict, lme)
+#S3method(predict, gls)
 
 S3method(model.frame, lme)
 S3method(model.matrix, lme)
