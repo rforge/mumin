@@ -1,9 +1,12 @@
 MuMIn package news:
 
+Version: 1.40.4 (2018-01-30)
+Elaborated the Description field.
+
 Version: 1.40.3 (2018-01-29)
-Removed superfluous method replacements for models from package "survival". 
-    `predict` replacements for "gls" and "lme" (adding "se.fit" argument) are
-    no longer registered as S3 methods in NAMESPACE.
+Removed superfluous method replacements for models from package "survival".
+    `predict` functions for "gls" and "lme" are no longer registered as S3 
+	methods in NAMESPACE.
 
 Version: 1.40.2 (2018-01-19)
 (fixed) getAllTerms.glmmTMB: error with models including offset term 

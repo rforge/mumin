@@ -1,13 +1,16 @@
 Package: MuMIn
 Type: Package
 Title: Multi-Model Inference
-Version: 1.40.3
-Date: 2018-01-29
+Version: 1.40.4
+Date: 2018-01-30
 Encoding: UTF-8
 Author: Kamil Bartoń
 Maintainer: Kamil Bartoń <kamil.barton@go2.pl>
-Description: automated model selection, model averaging based on information 
-             criteria (AICc and alike) and various model weighting schemes.
+Description: Tools for performing model selection and model averaging. Automated
+			 model selection through subsetting the maximum model, with optional
+			 constraints for model inclusion. Model parameter and prediction
+			 averaging based on model weights derived from information criteria
+			 (AICc and alike) or custom model weighting schemes.
 License: GPL-2
 Depends: R (>= 3.0.0)
 Imports: graphics, methods, Matrix, stats, stats4
