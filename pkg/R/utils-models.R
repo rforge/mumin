@@ -270,13 +270,34 @@ function(models, error = TRUE) {
 	invisible(res)
 }
 
+
 .checkNaAction <-
 function(x, cl = get_call(x),
 		 naomi = c("na.omit", "na.exclude"), what = "model") {
 	naact <- NA_character_
 	msg <- NA_character_
+
+	# handles strings, symbols and calls (let's naively assume no one tries to pass
+	# anything else here)
+	.getNAActionString <- function(x) {
+		if(is.symbol(x)) {
+			x <- as.character(x)
+		} else if(is.call(x)) {
+			x <- eval.parent(x, 2L)
+			if(is.symbol(x)) x <- as.character(x)
+		}
+		print(x)
+		return(x)
+	}
+	# TEST:
+	#.checkNaAction(list(call = as.call(alist(fun, na.action = getOption("na.action", default = na.fail)))))
+	#.checkNaAction(list(call = as.call(alist(fun, na.action = na.fail))))
+	#.checkNaAction(list(call = as.call(alist(fun, na.action = na.omit))))
+
+
+	
 	if (!is.null(cl$na.action)) {
-		naact <- as.character(cl$na.action)
+		naact <- .getNAActionString(cl$na.action)
 		if (naact %in% naomi)
 			msg <- sprintf("%s uses 'na.action' = \"%s\"", what, naact)
 	} else {
@@ -292,11 +313,12 @@ function(x, cl = get_call(x),
 					}
 			}
 
+			naact <- .getNAActionString(naact)
 			if (is.character(naact) && (naact %in% naomi))
 				msg <- sprintf("%s's 'na.action' argument is not set and options('na.action') is \"%s\"",
 					what, naact)
 		} else if (!is.null(naact)) {
-			naact <- as.character(naact)
+			naact <- .getNAActionString(naact)
 			if (naact %in% naomi)
 				msg <- sprintf("%s uses the default 'na.action' = \"%s\"", what, naact)
 		}
