@@ -7,7 +7,7 @@ export(
 	"importance", "Weights", "Weights<-",
 	"AICc", "QAIC", "QAICc", "Cp", "ICOMP", "CAICF", "DIC", 
 	"r.squaredLR", "null.fit", "r.squaredGLMM",
-	"QIC", "quasiLik",
+	"QIC", "QICu", "quasiLik",
 	"model.names",
 	"simplify.formula", "expand.formula",
 	"updateable",

@@ -1,5 +1,9 @@
 MuMIn package news:
 
+Version: 1.40.5 (2018-05-14)
+`.checkNAAction` now handles a case of na.action formal argument being a call 
+    (e.g. `getOption("na.action", <...>)` in glmmTMB) (spotted by Ben Bolker)
+
 Version: 1.40.4 (2018-01-30)
 Elaborated the Description field.
 

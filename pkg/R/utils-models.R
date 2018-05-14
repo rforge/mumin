@@ -270,7 +270,6 @@ function(models, error = TRUE) {
 	invisible(res)
 }
 
-
 .checkNaAction <-
 function(x, cl = get_call(x),
 		 naomi = c("na.omit", "na.exclude"), what = "model") {
