@@ -8,7 +8,7 @@ function(object, ..., data, force.update = FALSE) {
     models <- getModelArgs()
     M <- length(models)
     if(M < 2) stop("need more than one model")
-    .checkModels(models)
+    checkIsModelDataIdentical(models)
 
     no <- nrow(data)
     k <- sample.int(no, floor(no / 2))

@@ -1,7 +1,10 @@
 MuMIn package news:
 
+Version: 1.40.8 (2018-06-18)
+model description - family string simplified
+
 Version: 1.40.7 (2018-06-14)
-Added a workaround to accommodate glmmTMB specific families (which do not have 
+Addad a workaround to accommodate glmmTMB specific families (which do not have 
 	a matching function) (reported by a certain Gitu on Stackoverflow)
 
 Version: 1.40.6 (2018-05-16)

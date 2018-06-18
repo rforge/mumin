@@ -162,7 +162,7 @@ function(f) {
 
 
 #Tries to find out whether the models are fitted to the same data
-.checkModels <-
+checkIsModelDataIdentical <-
 function(models, error = TRUE) {
 
 	cl <- sys.call(sys.parent())
@@ -318,26 +318,29 @@ function(models, withModel = FALSE, withFamily = TRUE,
 
 	if(withFamily) {
 		fam <- sapply(models, function(x) tryCatch(unlist(family(x)[c("family",
-			"link")]), error = function(e) character(2L)) )
+			"link")]), error = function(e) character(2L)))
 
 		f <- fam[1L, ]
 		f[is.na(f)] <- ""
-		f <- vapply(strsplit(f, "(", fixed = TRUE), "[", "", 1L)
-		f[f == "Negative Binomial"] <- "negative.binomial"
-
-		fam[2L, fam[2L, ] ==
-			vapply(unique(f),
-				function(x) {
-					rval <- if(is.na(x)) NA_character_ else formals(get(x))$link[1L]
-					if(!is.character(rval)) NA_character_ else rval
-					}, FUN.VALUE = "")[f]] <- NA_character_
-
-		j <- !is.na(fam[2L,])
-		fnm <- fam[1L, j]
-		fnm <- ifelse(substring(fnm, nchar(fnm)) != ")",
-			paste0(fnm, "("), paste0(substring(fnm, 1, nchar(fnm) - 1),
-				", "))
-		fam[1L, j] <- paste0(fnm, fam[2L, j], ")")
+		#f <- vapply(strsplit(f, "(", fixed = TRUE), "[", "", 1L)
+		#f[f == "Negative Binomial"] <- "negative.binomial"
+		#fam <- cbind(fam, unlist(MASS::negative.binomial(1.345)[c("family", "link")]))
+	    f <- sub("(?:\\((.*)\\))?$", "(\\1", f)
+		f <- paste0(f, ifelse(substring(f, nchar(f)) == "(", "", ","), fam[2, ], ")")
+		fam <- f		
+		
+		#fam[2L, fam[2L, ] ==
+			#vapply(unique(f),
+				#function(x) {
+					#rval <- if(is.na(x)) NA_character_ else formals(get(x))$link[1L]
+					#if(!is.character(rval)) NA_character_ else rval
+					#}, FUN.VALUE = "")[f]] <- NA_character_
+		#j <- !is.na(fam[2L,])
+		#fnm <- fam[1L, j]
+		#fnm <- ifelse(substring(fnm, nchar(fnm)) != ")",
+		#paste0(fnm, "("), paste0(substring(fnm, 1, nchar(fnm) - 1),
+				#", "))
+		#fam[1L, j] <- paste0(fnm, fam[2L, j], ")")
 	}
 
 	if(withArguments) {
@@ -364,7 +367,7 @@ function(models, withModel = FALSE, withFamily = TRUE,
 		arg <- arg[, apply(arg, 2L, function(x) length(unique(x))) != 1L, drop = FALSE]
 		if(ncol(arg)) arg <- gsub("([\"'\\s]+|\\w+ *=)","", arg, perl = TRUE)
 	}
-	ret <- as.data.frame(cbind(model = abvtt, family = if(withFamily) fam[1L, ] else NULL,
+	ret <- as.data.frame(cbind(model = abvtt, family = if(withFamily) fam else NULL,
 		arg, deparse.level = 0L))
 	attr(ret, "variables") <- variables
 	ret

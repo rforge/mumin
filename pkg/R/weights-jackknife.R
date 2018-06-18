@@ -18,7 +18,7 @@ function(object, ...,
 	models <- getModelArgs()
 	M <- length(models)
 	if(M < 2L) stop("need more than one model")
-	.checkModels(models)
+	checkIsModelDataIdentical(models)
 	
 	type <- match.arg(type)[1L]
 	useWeightsArg <- !missing(weights) && !is.null(weights)
