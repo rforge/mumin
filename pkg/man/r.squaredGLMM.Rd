@@ -71,15 +71,15 @@ trigamma function.
 The delta method can be used with for all distributions and link functions,
 while lognormal approximation and trigamma function are limited to distributions
 with logarithmic link.
-Additionally, for binomial distributions, theoretical variances exists
+Additionally, for binomial distributions, theoretical variances exist
 specific for each link function distribution.
 
-In many cases, calculation of the observation-level variance involves fitting a
+Calculation of the observation-level variance often involves fitting a
 model containing no fixed effects other than intercept, otherwise identical to
 the original model. In comparison of several models differing only in fixed
 effects, to avoid redundand calculations, such random effect-only model object
-can be provided \emph{via} the \code{null} argument (this is not precisely a \dQuote{null}
-model, since it contains random effect terms).
+can be provided \emph{via} the \code{null} argument (\emph{N.B.} this is not
+precisely a \dQuote{null} model, since it includes random effects).
 
 }
 
@@ -105,14 +105,14 @@ Nakagawa et al (2014), and (the extension for random-slopes) Johnson (2014).
 }
 
 \references{
-Nakagawa, S., Schielzeth, H. (2013). A general and simple method for obtaining
+Nakagawa, S., Schielzeth, H. (2013) A general and simple method for obtaining
 \Rsq from Generalized Linear Mixed-effects Models. \emph{Methods in
 Ecology and Evolution} 4: 133–142
 
 Johnson, P.C.D. (2014) Extension of Nakagawa & Schielzeth’s \Rsqx{GLMM} to random 
 slopes models. \emph{Methods in Ecology and Evolution} 5: 44-946
 
-Nakagawa, S., Johnson, P.C.D., Schielzeth, H. (2017). The coefficient of
+Nakagawa, S., Johnson, P.C.D., Schielzeth, H. (2017) The coefficient of
 determination \Rsq and intra-class correlation coefficient from generalized
 linear mixed-effects models revisited and expanded.
 \emph{J. R. Soc. Interface} 14: 20170213.

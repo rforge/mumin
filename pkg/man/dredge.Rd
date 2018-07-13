@@ -185,7 +185,7 @@ precedence when identical to names of \code{varying}, so to avoid ambiguity
 \code{varying} is something like \code{list(family = c(..., "Gamma"))}).
 
 If item names in \code{varying} are missing, the items themselves are coerced to
-names. Call and symbol elements are represented as character values (via
+names. Call and symbol elements are represented as character values (\emph{via}
 \code{deparse}), and everything except numeric, logical, character and
 \code{NULL} values is replaced by item numbers (e.g. \code{varying =}
 \code{list(family =} \code{list(..., Gamma)} should be referred to as
