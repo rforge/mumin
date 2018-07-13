@@ -149,6 +149,7 @@ term(s) to all models with \code{fixed}, and more complex rules can be applied
 using argument \code{subset}. To be included in the selection table, the model
 formulation must satisfy all these conditions.
 
+
 %%Terms in \code{fixed} argument are applied before the combinations are
 %%generated, therefore more efficient than \code{subset}.
 
@@ -160,6 +161,10 @@ columns and rows correspond to \code{global.model} terms. Value
 \code{demo(dredge.subset)} has examples of using the \code{subset} matrix in
 conjunction with correlation matrices to exclude models containing collinear
 predictors.
+
+The term names in \code{fixed} and \code{subset} must come in a
+form returned by \code{getAllTerms(global.model)}, which can differ from
+the original names.
 
 In the form of \code{expression}, the argument \code{subset} acts in a similar
 fashion to that in the function \code{subset} for \code{data.frames}: model

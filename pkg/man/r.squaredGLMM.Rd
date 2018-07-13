@@ -9,61 +9,79 @@
 \newcommand{\mydequation}{\ifelse{latex}{\deqn{#1}{#3}}{\ifelse{html}{\enc{\deqn{#2}}{#3}}{#3}}}
 \newcommand{\myequation}{\ifelse{latex}{\eqn{#1}{#3}}{\ifelse{html}{\enc{\eqn{#2}}{#3}}{#3}}}
 
-
-
 \title{Pseudo-R-squared for Generalized Mixed-Effect models}
 \description{
 Calculate conditional and marginal coefficient of determination for 
 Generalized mixed-effect models (\Rsqx{GLMM}).
-
 }
 
 \usage{
-r.squaredGLMM(x)
+r.squaredGLMM(object, null, ...)
+\method{r.squaredGLMM}{merMod}(object, null, pj2014 = FALSE, ...)
 }
 
 \arguments{
   \item{x}{a fitted linear model object. }
+  \item{null}{a random effect only model. See \sQuote{Details}. }
+  \item{pj2014}{logical, if \code{TRUE}, the result will include \Rsqx{GLMM}
+  using original formulation of Johnson (2014) (i.e. \Rsqx{GLMM} extended for
+  random slopes). This requires fitting \code{object} with an observation-level
+  random effect term added. }
 }
 
 \value{
-	\code{r.squaredGLMM} returns a numeric vector with two values for marginal
-	and conditional \Rsqx{GLMM}.
+	\code{r.squaredGLMM} returns a two-column numeric matrix, each (possibly
+	named) row holding values for marginal and conditional \Rsqx{GLMM}
+	calculated with different methods, such as \dQuote{delta},
+	\dQuote{log-normal}, \dQuote{trigamma}, or \dQuote{theoretical} for models
+	of \code{binomial} family. 
 }
 
 \details{
-For mixed-effects models, \Rsq can be categorized into two types. 
-\bold{Marginal \Rsqx{GLMM}} represents the variance explained by fixed 
-factors, and is defined as:
+For mixed-effects models, \Rsqx{GLMM} comes in two types: marginal and conditional.
 
-\mydequation{
-R_{GLMM(m)}^{2}= \frac{\sigma_f^2}{\sigma_f^2 + \sum_{l=1}^{u}\sigma_{l}^{2} + \sigma_e^2 + \sigma_d^2}
-}{R_GLMM(m)² = (\sigma_f²) / (\sigma_f² + \sum(\sigma_l²) + \sigma_e² + \sigma_d²
-}{R_GLMM(m)^2 = (sigma_f^2) / (sigma_f^2 + sum(sigma_l^2) + sigma_e^2 + sigma_d^2
+\bold{Marginal \Rsqx{GLMM}} represents the variance explained by the fixed 
+effects, and is defined as:
+
+\mydequation{R_{GLMM(m)}^{2}= \frac{\sigma_f^2}{\sigma_f^2 + \sigma_{\alpha}^2 + \sigma_{\varepsilon }^2}
+}{R_GLMM(m)² = (\sigma_f²) / (\sigma_f² + \sigma_\alpha² + \sigma_\epsilon²)
+}{R_GLMM(m)^2 = (sigma_f^2) / (sigma_f^2 + sigma_alpha^2 + sigma_epsilon^2)
 }
 
-\bold{Conditional \Rsqx{GLMM}} is interpreted as variance explained by both
-fixed and random factors (i.e. the entire model), and is calculated according
-to the equation:
+\bold{Conditional \Rsqx{GLMM}} is interpreted as a variance explained by the
+entire model, including both fixed and random effects, and is calculated
+according to the equation:
 
-\mydequation{R_{GLMM(c)}^{2}= \frac{\sigma_f^2 + \sum_{l=1}^{u}\sigma_{l}^{2}}{\sigma_f^2 + \sum_{l=1}^{u}\sigma_{l}^{2} + \sigma_e^2 + \sigma_d^2}
-}{R_GLMM(c)²= (\sigma_f² + \sum(\sigma_l²)) / (\sigma_f² + \sum(\sigma_l²) + \sigma_e² + \sigma_d²
-}{R_GLMM(c)^2= (sigma_f^2 + sum(sigma_l^2)) / (sigma_f^2 + sum(sigma_l^2) + sigma_e^2 + sigma_d^2 }
-
-where
- \myequation{\sigma_f^2}{\sigma_f²}{sigma_f^2}
- is the variance of the fixed effect components, and
- \myequation{\sum \sigma_{l}^{2}}{\sum \sigma_l²}{sum(sigma_l^2)} 
-is the sum of all
-\eqn{u}
-variance components (group, individual, etc.), 
-\myequation{\sigma_e^2}{\sigma_e²}{sigma_e^2}
- is the variance due to additive dispersion and 
-\myequation{\sigma_d^2}{\sigma_d²}{sigma_d^2}
-is the distribution-specific variance. 
-
+\mydequation{R_{GLMM(c)}^{2}= \frac{\sigma_f^2 + \sigma_{\alpha}^2}{\sigma_f^2 + \sigma_{\alpha}^2 + \sigma_{\varepsilon }^2}
+}{R_GLMM(c)² = (\sigma_f² + \sigma_\alpha²) / (\sigma_f² + \sigma_\alpha² + \sigma_\epsilon²)
+}{R_GLMM(c)^2 = (sigma_f^2 + sigma_alpha^2) / (sigma_f^2 + sigma_alpha^2 + sigma_epsilon^2)
 }
 
+where \myequation{\sigma_f^2}{\sigma_f²}{sigma_f^2}
+is the variance of the fixed effect components,
+\myequation{\sigma_{\alpha}}{\sigma_\alpha²}{sigma_alpha^2} 
+is the variance of the random effects, and  
+\myequation{\sigma_\epsilon^2}{\sigma_\epsilon²}{sigma_epsilon^2}
+is the \dQuote{observation-level} variance.
+
+Three different methods are available for deriving the observation-level variance
+\eqn{\sigma_\varepsilon}: the delta method, lognormal approximation and using the
+trigamma function.
+%% \eqn{\Psi}.
+The delta method can be used with for all distributions and link functions,
+while lognormal approximation and trigamma function are limited to distributions
+with logarithmic link.
+Additionally, for binomial distributions, theoretical variances exists
+specific for each link function distribution.
+
+In many cases, calculation of the observation-level variance involves fitting a
+model containing no fixed effects other than intercept, otherwise identical to
+the original model. In comparison of several models differing only in fixed
+effects, to avoid redundand calculations, such random effect-only model object
+can be provided \emph{via} the \code{null} argument (this is not precisely a \dQuote{null}
+model, since it contains random effect terms).
+
+}
 
 \note{
 \Rsqx{GLMM} can be calculated also for fixed-effect models. In
@@ -72,8 +90,9 @@ the simpliest case of \acronym{OLS} it reduces to \code{var(fitted) /
 \acronym{OLS}, value of this statistic differs from that of
 the classical \Rsq.
 
-Currently methods exist for classes: \code{mer}(\code{Mod}), \code{lme},
-\code{glmmML} and (\code{g})\code{lm}.
+Currently methods exist for classes: \code{merMod}, \code{lme},
+\code{glmmTMB}, \code{glmmADMB}, \code{glmmPQL}, \code{cpglm}(\code{m}) and
+(\code{g})\code{lm}.
 
 See note in \code{\link{r.squaredLR}} help page for comment on using \Rsq in 
 model selection. 
@@ -82,16 +101,22 @@ model selection.
 
 \author{
 This implementation is based on \R code from \sQuote{Supporting Information} for
-Nakagawa & Schielzeth (2012), and its extension by Paul Johnson.
+Nakagawa et al (2014), and (the extension for random-slopes) Johnson (2014).
 }
 
 \references{
-Nakagawa, S, Schielzeth, H. (2013). A general and simple method for obtaining
+Nakagawa, S., Schielzeth, H. (2013). A general and simple method for obtaining
 \Rsq from Generalized Linear Mixed-effects Models. \emph{Methods in
 Ecology and Evolution} 4: 133–142
 
-Johnson, P.C.D. (2014) Extension Nakagawa & Schielzeth’s \Rsqx{GLMM} to random 
-slopes models. \emph{Methods in Ecology and Evolution} 5: 44-946.
+Johnson, P.C.D. (2014) Extension of Nakagawa & Schielzeth’s \Rsqx{GLMM} to random 
+slopes models. \emph{Methods in Ecology and Evolution} 5: 44-946
+
+Nakagawa, S., Johnson, P.C.D., Schielzeth, H. (2017). The coefficient of
+determination \Rsq and intra-class correlation coefficient from generalized
+linear mixed-effects models revisited and expanded.
+\emph{J. R. Soc. Interface} 14: 20170213.
+
 }
 
 \seealso{
