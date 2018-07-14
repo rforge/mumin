@@ -1,6 +1,6 @@
 MuMIn package news:
 
-Version: FUTURE (???)
+Version: FUTURE ()
 add missing support for "unmarked::unmarkedFitOccuFP" class of models
 	(reported by Tara Hohoff)
 

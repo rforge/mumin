@@ -26,4 +26,11 @@ function(object, ...) {
 }
 
 # residual std. dev. or dispersion parameter
-sigma.glmmadmb <- function (object, ...) 1 / sqrt(object$alpha)
+sigma.glmmadmb <-
+function (object, ...) {
+    switch(family(object)$family,
+        Gamma = 1 / sqrt(object$alpha),
+        object$alpha
+       )
+    # XXX: not checked with other non-standard families
+}

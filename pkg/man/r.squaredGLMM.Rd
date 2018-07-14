@@ -21,8 +21,8 @@ r.squaredGLMM(object, null, ...)
 }
 
 \arguments{
-  \item{x}{a fitted linear model object. }
-  \item{null}{a random effect only model. See \sQuote{Details}. }
+  \item{object}{a fitted linear model object. }
+  \item{null}{optionally, a null model, including only random effects. See \sQuote{Details}. }
   \item{pj2014}{logical, if \code{TRUE}, the result will include \Rsqx{GLMM}
   using original formulation of Johnson (2014) (i.e. \Rsqx{GLMM} extended for
   random slopes). This requires fitting \code{object} with an observation-level
@@ -76,10 +76,9 @@ specific for each link function distribution.
 
 Calculation of the observation-level variance often involves fitting a
 model containing no fixed effects other than intercept, otherwise identical to
-the original model. In comparison of several models differing only in fixed
-effects, to avoid redundand calculations, such random effect-only model object
-can be provided \emph{via} the \code{null} argument (\emph{N.B.} this is not
-precisely a \dQuote{null} model, since it includes random effects).
+the original model (including all the random effects). When comparing several 
+models differing only in fixed effects, to avoid redundant calculations, such 
+null model object can be provided \emph{via} the \code{null} argument.
 
 }
 

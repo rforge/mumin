@@ -1,5 +1,28 @@
 ## Helper functions:
 
+
+sigma.glmmPQL <- function (object, ...) {
+    #switch(family(object)$family,
+    #    quasipoisson = sqrt(object$sigma),
+    #    sqrt(object$sigma)
+    #   )
+}
+
+# Consistent sigma
+sigma2 <- function(object) UseMethod("sigma2")
+sigma2.default <- function(object) sigma(object)
+sigma2.glmmPQL <- function(object) {
+    switch(family(object)$family,
+        gaussian = , Gamma = object$sigma,
+        object$sigma^2
+    )
+}
+sigma2.glmmTMB <- function(object) {
+    if(family(object)$family == "nbinom1") sigma(object) + 1 else sigma(object)
+}
+        
+#sigma2 <- sigma
+
 # VarCorr wrapper returning consistent format (list of named RE variances) 
 .varcorr <- function(object, ...) UseMethod(".varcorr")
 .varcorr.default <- function(object, ...) {
@@ -183,8 +206,8 @@ r2glmm <- function(family, vfe, vre, vol, link, pmean, lambda, omega) {
             stop("not implemented yet for ", family, " and ", link),
         cry(sys.call(-1L), "do not know how to calculate variance for %s(%s)", family, dQuote(link))
     )
-
-    #print(c(vol, varRE = vre, varFE = vfe))
+	
+    #print(c(varFE = vfe, varRE = vre, varOL = vol))
     
 	vtot <- sum(vfe, vre)
 	matrix(c(vfe, vtot) / (vtot + rep(vol, each = 2L)),
@@ -223,7 +246,7 @@ function(object, null, pj2014 = FALSE, ...) {
     
     switch(familyName,
     gaussian =
-        r2glmm(fam, varFE, varRE, vol = sigma(object)^2),
+        r2glmm(fam, varFE, varRE, vol = sigma2(object)^2),
     binomial =, quasibinomial = {
         vt <- .varRESum(.varcorr(null), mmRE)
 		# XXX: inverse-link seems to give more reasonable value for non-logit
@@ -232,18 +255,18 @@ function(object, null, pj2014 = FALSE, ...) {
         r2glmm(fam, varFE, varRE, pmean = pmean)
     }, nbinom2 = {
         lambda <- unname(exp(fixefnull + 0.5 * varRE))
-        theta <- if(!inherits(object, "glmerMod"))
-            sigma(object)^-2 else
-            lme4::getME(object, "glmer.nb.theta")
+        theta <- if(inherits(object, "glmerMod"))
+            lme4::getME(object, "glmer.nb.theta") else
+            sigma2(object)^-2 
         r2glmm(familyName, varFE, varRE, lambda = lambda, omega = theta, link = fam$link)
     }, Gamma = {
-        nu <- sigma(object)^-2
+        nu <- sigma2(object)^-2
         omega <- 1
         r2glmm(fam, varFE, varRE, lambda = nu, omega = omega)
     }, quasipoisson = , nbinom1 = {
         vt <- .varRESum(.varcorr(null), mmRE)
         lambda <- unname(exp(fixefnull + 0.5 * vt))
-		omega <- sigma(object)^2
+		omega <- sigma2(object)^-2
         r2glmm(fam, varFE, varRE, lambda = lambda, omega = omega)
     }, poisson = {
         vt <- .varRESum(.varcorr(null), mmRE)
@@ -272,12 +295,6 @@ function(object, null, pj2014 = FALSE, ...) {
 `r.squaredGLMM.lme` <-
 function(object, null, ...) r.squaredGLMM.merMod(object, null, ...)
 
-#test <- function(x, y, ...) UseMethod("test")
-#test.default <- function(x, y = null, ...) missing(y)
-#test.numeric <- function(x, y, ...) test.default(x, y, ...)
-#test(1)
-
-
 `r.squaredGLMM.glmmTMB` <-
 function(object, null, ...) {
 	fx <- fixef(object) # fixed effect estimates
@@ -297,8 +314,9 @@ function(object, null, ...) {
 function(object, null, ...) {
 	fam <- family(object)
     fitted <- (model.matrix(object) %*% coef(object))[, 1L]
-	if(missing(null) || !is.object(null)) null <- .reOnlyModel(object)
-    fixefnull <- coef(null)
+	delayedAssign("fixefnull",
+		coef(if(missing(null) || !is.object(null))
+			 .reOnlyModel(object) else null))
     varFE <- var(fitted)
     familyName <- fam$family
     if(substr(familyName, 1L, 17L) == "Negative Binomial")
@@ -306,17 +324,17 @@ function(object, null, ...) {
     
     switch(familyName,
     gaussian =
-        r2glmm(fam, varFE, 0, vol = sigma(object)^2),
+        r2glmm(fam, varFE, 0, vol = sigma2(object)^2),
     binomial =, quasibinomial = {
-        r2glmm(fam, varFE, 0, pmean = fam$linkinv(fixefnull))
+        r2glmm(fam, varFE, 0, pmean = fam$linkinv(unname(fixefnull)))
     }, Gamma = {
-        nu <- sigma(object)^-2
+        nu <- sigma2(object)^-2
         omega <- 1
         r2glmm(fam, varFE, 0, lambda = nu, omega = omega)
     }, nbinom2 = {
-        r2glmm(familyName, varFE, 0, lambda = unname(exp(fixefnull)), omega = sigma(object)^-2, link = fam$link)
+        r2glmm(familyName, varFE, 0, lambda = unname(exp(fixefnull)), omega = sigma2(object)^-2, link = fam$link)
     }, quasipoisson = , nbinom1 = {
-        r2glmm(fam, varFE, 0, lambda = unname(exp(fixefnull)), omega = sigma(object)^2)
+        r2glmm(fam, varFE, 0, lambda = unname(exp(fixefnull)), omega = sigma2(object)^2)
     }, poisson = {
         r2glmm(fam, varFE, 0, lambda = unname(exp(fixefnull)), omega = 1)
     }, r2glmm(fam, varFE, 0))

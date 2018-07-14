@@ -398,6 +398,11 @@ S3method(.varcorr, glmmadmb)
 S3method(.varcorr, glmmTMB)
 S3method(.varcorr, lme)
 
+S3method(sigma, glmmPQL)
+S3method(sigma2, default)
+S3method(sigma2, glmmPQL)
+S3method(sigma2, glmmTMB)
+   
 S3method(family, cplm)
 S3method(family, glmmadmb)
 S3method(sigma, glmmadmb)
