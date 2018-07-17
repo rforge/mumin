@@ -19,8 +19,8 @@ varying <- list(correlation = alist(AR1_0.771 = corAR1(0.771, form = ~1 | Subjec
     NULL)) 
 
 
-dd <- dredge(fm1Dial.gls, m.lim = c(1, 2), fixed = ~pressure, varying = varying, 
-    extra = "R^2") 
+dd <- dredge(fm1Dial.gls, m.lim = c(1, 2), fixed = ~pressure, varying = varying)
+    #extra = "R^2") 
 
 models <- get.models(dd, subset = 1:4)
 
