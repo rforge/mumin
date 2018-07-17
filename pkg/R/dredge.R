@@ -225,6 +225,10 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 	## @param:	extra, global.model, gmFormulaEnv,
 	## @value:	extra, nExtra, extraNames, nullfit_
 	if(!missing(extra) && length(extra) != 0L) {
+		
+		if (any(c("adjR^2", "R^2") %in% extra) && nVariants > 1L)
+			stop("\"R^2\" in 'extra' can be used only with no 'varying'")
+		
 		# a cumbersome way of evaluating a non-exported function in a parent frame:
 		extra <- eval(as.call(list(call("get", ".get.extras",
 			envir = call("asNamespace", .packageName), inherits = FALSE),

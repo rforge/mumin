@@ -4,10 +4,6 @@ Version: 1.42.0 (2018-07-17)
 (updated) methods for "unmarkedFit" models have been rewritten and should work
 	properly with all subclasses. Added missing support for 
 	"unmarked::unmarkedFitOccuFP" (reported by Tara Hohoff)
-	Note: implementing methods for the 13 classes of objects with badly 
-	inconsistent structure, some having several variants was an utter pain in 
-	the arse, therefore I would appreciate users of MuMIn+unmarked sending me 
-	a beer for that. Thank you kindly.
 
 Version: 1.41.1 (2018-07-13)
 (fixed) workaround for clmm's (package "ordinal") annoyance: it needs explicit 

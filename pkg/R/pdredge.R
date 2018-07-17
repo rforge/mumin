@@ -67,10 +67,10 @@ function(global.model, cluster = NA,
 	}
 
 	
-	thiscall <- sys.call()
+	thisCall <- sys.call()
 	exprApply(gmCall[["data"]], NA, function(expr) {
 		if(is.symbol(expr[[1L]]) && all(expr[[1L]] != c("@", "$")))
-			cry(thiscall, "'global.model' uses \"data\" that is a function value: use a variable instead")
+			cry(thisCall, "'global.model' uses \"data\" that is a function value: use a variable instead")
 	})
 	
 
@@ -236,6 +236,10 @@ function(global.model, cluster = NA,
 	## @param:	extra, global.model, gmFormulaEnv,
 	## @value:	extra, nextra, extraNames, nullfit_
 	if(!missing(extra) && length(extra) != 0L) {
+		
+		if (any(c("adjR^2", "R^2") %in% extra) && nVariants > 1L)
+			stop("\"R^2\" in 'extra' can be used only with no 'varying'")
+		
 		# a cumbersome way of evaluating a non-exported function in a parent frame:
 		extra <- eval(as.call(list(call("get", ".get.extras",
 			envir = call("asNamespace", .packageName), inherits = FALSE),

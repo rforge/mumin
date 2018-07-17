@@ -92,6 +92,7 @@ function(object, envir = parent.frame()) {
     message("The RE-only model is correct only if all objects used by the original model \nhave not changed since it was fitted.")
     eval(cl, envir)
 }
+
 .reOnlyModel.lm <-
 .reOnlyModel.cpglm <-
 function(object, envir = parent.frame()) {
