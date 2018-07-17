@@ -27,7 +27,6 @@ export(
 	"mod.sel",  "tTable", "updateable2"
 )
 
-
 # Imports:
 importFrom("graphics", "axis", "box", "mtext", "par", "plot.new", "plot.window",
 	"rect",	"strheight", "strwidth", "title")
@@ -39,14 +38,16 @@ importFrom("stats", ".checkMFClasses", ".getXlevels", ".MFclass", "AIC",
 	"delete.response", "deviance", "df.residual",
 	"family", "fitted", "formula", "getCall", "glm.fit",  "make.link",
 	"median", 
-	"model.frame", "model.matrix", "model.response", "na.fail", "nobs", "pnorm",
-	"power", "predict", "printCoefmat", "qnorm", "qt", "reformulate", "resid",
-	"rbinom", "rgamma", "rpois", # for .simulateData
-	"sd", "summary.glm", "terms", "terms.formula", "update", "update.default",
-	"update.formula", "var", "weighted.mean", "weights",
+	"model.frame", "model.matrix", "model.response", "na.fail", "nobs", 
+	"power", "predict", "printCoefmat", "reformulate", "resid",
+	"sigma",
+	"sd", "var", "summary.glm", "terms", "terms.formula", 
+	"update", "update.default", "update.formula", 
+	"weighted.mean", "weights",
     "gaussian", "binomial", "Gamma", "inverse.gaussian", "quasi", 
     "quasibinomial", "quasipoisson",
-	"dnorm", "dt", "pt"
+	"dnorm", "pnorm", "qnorm", "dt", "pt", "qt",
+	"rbinom", "rgamma", "rpois" # for .simulateData
     )
 importFrom("stats4", "logLik", "coef", "vcov")
 #importFrom("utils", "capture.output", "setTxtProgressBar", "txtProgressBar")
@@ -57,6 +58,9 @@ importFrom("graphics", "abline", "lines", "matplot")
 
 # model-averaging related functions:
 importFrom("stats", "cor", "cov", "rnorm", "runif", "optim")
+
+importFrom("nlme", fixef, VarCorr)
+
 
 
 # Methods:

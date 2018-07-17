@@ -67,7 +67,7 @@ function(object, ..., data, force.update = FALSE) {
             cl <- get_call(models[[i]])
             cl$data <- nz_data
             cl$weights <- nz_weights
-            print(cl)
+            #print(cl)
             py_test[, i] <- predict(eval(cl, pf), newdata = dat_test,
                  type = "response")
                 # XXX: weird behaviour of predict when offset= is given.

@@ -1,5 +1,6 @@
 \name{r.squaredGLMM}
 \alias{r.squaredGLMM}
+\alias{r.squaredGLMM.merMod}
 
 \encoding{utf-8}
 
@@ -27,6 +28,7 @@ r.squaredGLMM(object, null, ...)
   using original formulation of Johnson (2014) (i.e. \Rsqx{GLMM} extended for
   random slopes). This requires fitting \code{object} with an observation-level
   random effect term added. }
+  \item{\dots}{additional arguments, ignored.}
 }
 
 \value{

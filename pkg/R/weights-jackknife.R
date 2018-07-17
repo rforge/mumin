@@ -51,7 +51,6 @@ function(object, ...,
 			if (is.function(family)) 
 				family <- family()
 			if (is.null(family$family)) {
-				print(family)
 				stop("'family' not recognized")
 			}
 		}

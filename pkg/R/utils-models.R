@@ -211,7 +211,6 @@ function(x, cl = get_call(x),
 			x <- eval.parent(x, 2L)
 			if(is.symbol(x)) x <- as.character(x)
 		}
-		print(x)
 		return(x)
 	}
 	# TEST:
@@ -486,7 +485,6 @@ function(models) {
 				nmv[i] <- paste0(sub("\\(.*", "", y$label), "(", nmv[i], ")")
 			}
 			names(rval) <- nmv
-			print(rval)
 			rval
 		}
 

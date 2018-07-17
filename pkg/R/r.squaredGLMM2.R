@@ -366,8 +366,6 @@ function(object, null, ...) {
     phi <- object@phi # the dispersion parameter
     p <- object@p # the index parameter
     varO <- c(delta = phi * mu^(p - 2), lognormal = log1p(phi * mu^(p - 2)))
-    
-	print(c(varFE, varRE, varO))
 	r2glmm(NA, varFE, varRE, varO)
 }
 
