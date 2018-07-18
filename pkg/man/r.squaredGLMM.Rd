@@ -32,7 +32,7 @@ r.squaredGLMM(object, null, ...)
 }
 
 \value{
-	\code{r.squaredGLMM} returns a two-column numeric matrix, each (possibly
+	\code{r.squaredGLMM} returns a two-column numeric \code{matrix}, each (possibly
 	named) row holding values for marginal and conditional \Rsqx{GLMM}
 	calculated with different methods, such as \dQuote{delta},
 	\dQuote{log-normal}, \dQuote{trigamma}, or \dQuote{theoretical} for models
@@ -96,13 +96,18 @@ Currently methods exist for classes: \code{merMod}, \code{lme},
 (\code{g})\code{lm}.
 
 See note in \code{\link{r.squaredLR}} help page for comment on using \Rsq in 
-model selection. 
+model selection.
+
+As of \pkg{MuMIn} version 1.41.0, \code{\link{r.squaredGLMM}} returns
+a revised statistics based on Nakagawa et al. (2014) paper. Format of the 
+returned value also has changed (it is a \code{matrix} rather than a numeric 
+vector as before).
 
 }
 
 \author{
 This implementation is based on \R code from \sQuote{Supporting Information} for
-Nakagawa et al (2014), and (the extension for random-slopes) Johnson (2014).
+Nakagawa et al. (2014), and (the extension for random-slopes) Johnson (2014).
 }
 
 \references{

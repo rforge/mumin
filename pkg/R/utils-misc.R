@@ -1,4 +1,17 @@
 
+.MuMInEnv <- new.env(parent = baseenv())
+
+warnonce <- function(id, ...) {
+	if(!isTRUE(get0(flag <- paste0("warned.", as.character(id)[1L]), .MuMInEnv,
+					ifnotfound = FALSE))) {
+		assign(flag, TRUE, envir = .MuMInEnv)
+		cl <- match.call()
+		cl$id <- NULL
+		cl[[1L]] <- as.name("warning")
+		eval.parent(cl)
+	}
+}
+
 `cry` <-
 function(Call = NA, Message, ..., warn = FALSE, domain = paste0("R-", .packageName)) {
 	if (is.character(Call)) {
@@ -9,7 +22,6 @@ function(Call = NA, Message, ..., warn = FALSE, domain = paste0("R-", .packageNa
 	if(warn) warning(simpleWarning(gettextf(Message, ..., domain = domain), Call)) else
 		stop(simpleError(gettextf(Message, ..., domain = domain), Call))
 }
-
 
 `getElement` <- function (object, name) {
     if (isS4(object))

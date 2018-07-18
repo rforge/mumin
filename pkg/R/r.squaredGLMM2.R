@@ -70,6 +70,8 @@ sigma2.glmmTMB <- function(object) {
 # .reOnlyModel: update `object` to intercept only model, keeping original RE terms.
 # TODO: reOnlyModelCall or reOnlyFormula
 .reOnlyModel <- function(object, envir) UseMethod(".reOnlyModel")
+.reOnlyModel.default <-  function(object, envir) .NotYetImplemented()
+
 .reOnlyModel.glmmTMB <-
 function(object, envir = parent.frame()) {
     ran <- attr(getAllTerms(object), "random.terms")
@@ -216,7 +218,14 @@ r2glmm <- function(family, vfe, vre, vol, link, pmean, lambda, omega) {
 }
 
 
-`r.squaredGLMM` <- function(object, null, ...) UseMethod("r.squaredGLMM")
+`r.squaredGLMM` <- function(object, null, ...) {
+    warnonce("rsquaredGLMM",
+	simpleWarning(paste("Note that 'r.squaredGLMM' calculates now a revised statistic. See",
+		sQuote("Note"), "in ?r.squaredGLMM.")))
+  
+    
+    UseMethod("r.squaredGLMM")
+}
 
 `r.squaredGLMM.merMod` <-
 function(object, null, pj2014 = FALSE, ...) {
