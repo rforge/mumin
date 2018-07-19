@@ -15,7 +15,7 @@ License: GPL-2
 Depends: R (>= 3.0.0)
 Imports: graphics, methods, Matrix, stats, stats4, nlme 
 Suggests: lme4 (>= 1.1.0), mgcv (>= 1.7.5), gamm4, MASS, nnet, 
-          survival (>= 2.37.5), survival (<= 2.41.3), geepack
+          survival (>= 2.37.5), geepack
 Enhances: aod, aods3, betareg, caper, coxme, cplm, gee, glmmML, logistf, 
           MCMCglmm, ordinal, pscl, spdep, splm, unmarked (>= 0.12.2), 
           geeM (>= 0.7.5)

@@ -457,10 +457,7 @@ function(models) {
 		})), recursive = FALSE)
 		names(res) <- sapply(lapply(expr.split(names(res), ","), sort),
 			paste0, collapse = ",")
-
-
 	} else {
-
 		# use information stored in gam objects:
 		.getSmoothK <-
 		function(x) {
@@ -471,7 +468,7 @@ function(models) {
 			n <- length(x$smooth)
 			rval <- vector("list", n)
 			nmv <- character(n)
-			for(i in 1L:n) {
+			for(i in seq_len(n)) {
 				y <- x$smooth[[i]]
 				if(is.null(y$margin)) {
 					nmv[i] <- y$term
@@ -487,7 +484,6 @@ function(models) {
 			names(rval) <- nmv
 			rval
 		}
-
 		res <- unlist(unname(lapply(models, .getSmoothK)), recursive = FALSE)
 	}
 

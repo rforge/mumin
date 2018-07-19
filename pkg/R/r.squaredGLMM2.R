@@ -67,6 +67,14 @@ sigma2.glmmTMB <- function(object) {
     model.matrix(object$modelStruct$reStruct, data = object$data[rownames(object$fitted), 
 			, drop = FALSE])
 
+
+.nullUpdateWarning <- 
+function(message = 
+"The null model is correct only if all variables used by the original model remain unchanged.") {
+	if(!isTRUE(getOption("MuMIn.noUpdateWarning")))
+		cry(NA, message, warn = TRUE)
+}			
+
 # .reOnlyModel: update `object` to intercept only model, keeping original RE terms.
 # TODO: reOnlyModelCall or reOnlyFormula
 .reOnlyModel <- function(object, envir) UseMethod(".reOnlyModel")
@@ -79,7 +87,7 @@ function(object, envir = parent.frame()) {
     f <- update.formula(formula(object), reformulate(paste0("(", ran, ")"), response = "."))
     cl <- getCall(object)
     cl$formula <- f
-    message("The RE-only model is correct only if all objects used by the original model \nhave not changed since it was fitted.")
+	.nullUpdateWarning()
     eval(cl, envir)
 }
 
@@ -91,7 +99,7 @@ function(object, envir = parent.frame()) {
     f <- update.formula(formula(object), reformulate(paste0("(", ran, ")"), response = "."))
     cl <- getCall(object)
     cl$formula <- f
-    message("The RE-only model is correct only if all objects used by the original model \nhave not changed since it was fitted.")
+	.nullUpdateWarning()
     eval(cl, envir)
 }
 
@@ -100,7 +108,7 @@ function(object, envir = parent.frame()) {
 function(object, envir = parent.frame()) {
     cl <- getCall(object)
     cl$formula <- update.formula(formula(object), . ~ 1)
-    message("The null model is correct only if all objects used by the original model \nhave not changed since it was fitted.")
+	.nullUpdateWarning()
     eval(cl, envir)
 }
 
@@ -109,7 +117,7 @@ function(object, envir = parent.frame()) {
 	cl <- getCall(object)
 	cl$fixed <- update.formula(cl$fixed, . ~ 1)
     if(inherits(object, "glmmPQL")) cl$verbose <- FALSE
-    message("The RE-only model is correct only if all objects used by the original model \nhave not changed since it was fitted.")
+	.nullUpdateWarning()
 	eval(cl, envir)
 }
 
@@ -154,8 +162,7 @@ function (form) {
 				cry(conditionCall(e), conditionMessage(e), warn = TRUE)
 				cry(cl, "fitting model with the observation-level random effect term failed. Add the term manually")
 		})
-		message("The result is correct only if all objects used by the model ",
-				"have not changed since it was fitted.", domain = "R-MuMIn")
+		.nullUpdateWarning("The result is correct only if all variables used by the model remain unchanged.")
     }
     object
 }
@@ -220,10 +227,7 @@ r2glmm <- function(family, vfe, vre, vol, link, pmean, lambda, omega) {
 
 `r.squaredGLMM` <- function(object, null, ...) {
     warnonce("rsquaredGLMM",
-	simpleWarning(paste("Note that 'r.squaredGLMM' calculates now a revised statistic. See",
-		sQuote("Note"), "in ?r.squaredGLMM.")))
-  
-    
+	simpleWarning(paste("Note that 'r.squaredGLMM' calculates now a revised statistic. See ?r.squaredGLMM.")))
     UseMethod("r.squaredGLMM")
 }
 
@@ -309,14 +313,14 @@ function(object, null, ...) r.squaredGLMM.merMod(object, null, ...)
 function(object, null, ...) {
 	fx <- fixef(object) # fixed effect estimates
 	if(length(fx$zi) != 0L) # || length(fx$disp) != 0L)
-		stop("r.squaredGLMM cannot (yet) handle glmmTMB object with zero-inflation")
+		stop("r.squaredGLMM cannot (yet) handle 'glmmTMB' object with zero-inflation")
 	r.squaredGLMM.merMod(object, null, ...)
 }
 
 `r.squaredGLMM.glmmadmb` <-
 function(object, null, ...) {
 	if(object$zeroInflation)
-		stop("r.squaredGLMM cannot (yet) handle glmmADMB object with zero-inflation")
+		stop("r.squaredGLMM cannot (yet) handle 'glmmADMB' object with zero-inflation")
 	r.squaredGLMM.merMod(object, null, ...)
 }
 

@@ -10,7 +10,7 @@ function(object, ...) {
                     " has changed since model fitting")
                 s <- eval(s, environment(formula(object)))
                 if(!is.character(s) || length(s) != 1L || !tolower(s) %in% c("nbinom", "nbinom2", "nbinom1"))
-                    stop("cannot determine nbinom family type. Use a character string literal in the model call.")
+                    stop("cannot determine \"nbinom\" family type. Use a character string literal in the model call.")
                 if(s == "nbinom") s <- "nbinom2"
             }
             s

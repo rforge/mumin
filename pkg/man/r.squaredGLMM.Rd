@@ -24,9 +24,9 @@ r.squaredGLMM(object, null, ...)
 \arguments{
   \item{object}{a fitted linear model object. }
   \item{null}{optionally, a null model, including only random effects. See \sQuote{Details}. }
-  \item{pj2014}{logical, if \code{TRUE}, the result will include \Rsqx{GLMM}
-  using original formulation of Johnson (2014) (i.e. \Rsqx{GLMM} extended for
-  random slopes). This requires fitting \code{object} with an observation-level
+  \item{pj2014}{logical, if \code{TRUE} and \code{object} is of \code{poisson} 
+  family, the result will include \Rsqx{GLMM} using original formulation of 
+  Johnson (2014). This requires fitting \code{object} with an observation-level
   random effect term added. }
   \item{\dots}{additional arguments, ignored.}
 }
@@ -37,12 +37,19 @@ r.squaredGLMM(object, null, ...)
 	calculated with different methods, such as \dQuote{delta},
 	\dQuote{log-normal}, \dQuote{trigamma}, or \dQuote{theoretical} for models
 	of \code{binomial} family. 
+	
+\strong{Important}: as of \pkg{MuMIn} version 1.41.0, 
+\code{r.squaredGLMM} returns a revised statistics based on Nakagawa et 
+al. (2014) paper. The returned value's format also has changed (it is a 
+\code{matrix} rather than a numeric vector as before). Pre-1.41.0 version of the
+function calculated \dQuote{theoretical} \Rsqx{GLMM} for \code{binomial} models.
+	
 }
 
 \details{
 For mixed-effects models, \Rsqx{GLMM} comes in two types: marginal and conditional.
 
-\bold{Marginal \Rsqx{GLMM}} represents the variance explained by the fixed 
+\emph{Marginal \Rsqx{GLMM}} represents the variance explained by the fixed 
 effects, and is defined as:
 
 \mydequation{R_{GLMM(m)}^{2}= \frac{\sigma_f^2}{\sigma_f^2 + \sigma_{\alpha}^2 + \sigma_{\varepsilon }^2}
@@ -50,7 +57,7 @@ effects, and is defined as:
 }{R_GLMM(m)^2 = (sigma_f^2) / (sigma_f^2 + sigma_alpha^2 + sigma_epsilon^2)
 }
 
-\bold{Conditional \Rsqx{GLMM}} is interpreted as a variance explained by the
+\emph{Conditional \Rsqx{GLMM}} is interpreted as a variance explained by the
 entire model, including both fixed and random effects, and is calculated
 according to the equation:
 
@@ -72,15 +79,21 @@ trigamma function.
 %% \eqn{\Psi}.
 The delta method can be used with for all distributions and link functions,
 while lognormal approximation and trigamma function are limited to distributions
-with logarithmic link.
+with logarithmic link. Trigamma-estimate is recommended whenever available.
 Additionally, for binomial distributions, theoretical variances exist
 specific for each link function distribution.
 
-Calculation of the observation-level variance often involves fitting a
-model containing no fixed effects other than intercept, otherwise identical to
-the original model (including all the random effects). When comparing several 
-models differing only in fixed effects, to avoid redundant calculations, such 
-null model object can be provided \emph{via} the \code{null} argument.
+\emph{Null model}. Calculation of the observation-level variance involves in 
+some cases fitting a \emph{null} model containing no fixed effects other than 
+intercept, otherwise identical to the original model (including all the random 
+effects). When using \code{r.squaredGLMM} for several models differing only in 
+their fixed effects, in order to avoid redundant calculations, a null model 
+object can be provided with the argument \code{null}.
+Otherwise, the null model will be fitted \emph{via} updating the original model.
+This assumes that all the variables used in the original model's call have the 
+same values as when the model was fitted. A warning is issued before fitting the
+null model to point it out, which can be disabled by setting the 
+\link[=options]]{option} \code{"MuMIn.noUpdateWarning"} to \code{"TRUE"}. 
 
 }
 
@@ -97,11 +110,6 @@ Currently methods exist for classes: \code{merMod}, \code{lme},
 
 See note in \code{\link{r.squaredLR}} help page for comment on using \Rsq in 
 model selection.
-
-As of \pkg{MuMIn} version 1.41.0, \code{\link{r.squaredGLMM}} returns
-a revised statistics based on Nakagawa et al. (2014) paper. Format of the 
-returned value also has changed (it is a \code{matrix} rather than a numeric 
-vector as before).
 
 }
 
@@ -136,9 +144,28 @@ data(Orthodont, package = "nlme")
 
 fm1 <- lme(distance ~ Sex * age, ~ 1 | Subject, data = Orthodont)
 
+fmnull <- lme(distance ~ 1, ~ 1 | Subject, data = Orthodont)
+
 r.squaredGLMM(fm1)
+r.squaredGLMM(fm1, fmnull)
+r.squaredGLMM(update(fm1, . ~ Sex), fmnull)
+
 r.squaredLR(fm1)
 r.squaredLR(fm1, null.RE = TRUE)
+r.squaredLR(fm1, fmnull) # same result
+
+\dontrun{
+if(require(MASS)) {
+    fm <- glmmPQL(y ~ trt + I(week > 2), random = ~ 1 | ID, family = binomial, data = bacteria, verbose = FALSE)
+    fmnull <- update(fm, . ~ 1)
+    r.squaredGLMM(fm)
+
+    # Include R2GLMM (delta method estimates) in a model selection table:
+    # Note the use of a common null model
+    dredge(fm, extra = list(R2 = function(x) r.squaredGLMM(x, fmnull)["delta", ]))
+    
+}
+}
 \dontshow{  \}  }
 }
 
