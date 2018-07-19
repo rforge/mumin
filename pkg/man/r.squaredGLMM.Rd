@@ -93,7 +93,7 @@ Otherwise, the null model will be fitted \emph{via} updating the original model.
 This assumes that all the variables used in the original model's call have the 
 same values as when the model was fitted. A warning is issued before fitting the
 null model to point it out, which can be disabled by setting the 
-\link[=options]]{option} \code{"MuMIn.noUpdateWarning"} to \code{"TRUE"}. 
+\link[=options]{option} \code{"MuMIn.noUpdateWarning"} to \code{"TRUE"}. 
 
 }
 
