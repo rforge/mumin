@@ -4,6 +4,11 @@ Version: 1.42.0 (2018-07-17)
 (updated) methods for "unmarkedFit" models have been rewritten and should work
 	properly with all subclasses. Added missing support for 
 	"unmarked::unmarkedFitOccuFP" (reported by Tara Hohoff)
+	R2GLMM added an option to disable "null fit warning"
+(fixed) getAllTerms.lme: now gives a correct value for response in "binomial" 
+    glmmPQL ("zz" previously)
+(fixed) testSmoothKConsistency: (used by `model.avg` with 'gam' models) works 
+    now with 'gam's including no smooth terms.
 
 Version: 1.41.1 (2018-07-13)
 (fixed) workaround for clmm's (package "ordinal") annoyance: it needs explicit 
