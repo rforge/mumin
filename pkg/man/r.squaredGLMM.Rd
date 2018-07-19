@@ -156,7 +156,8 @@ r.squaredLR(fm1, fmnull) # same result
 
 \dontrun{
 if(require(MASS)) {
-    fm <- glmmPQL(y ~ trt + I(week > 2), random = ~ 1 | ID, family = binomial, data = bacteria, verbose = FALSE)
+    fm <- glmmPQL(y ~ trt + I(week > 2), random = ~ 1 | ID, 
+        family = binomial, data = bacteria, verbose = FALSE)
     fmnull <- update(fm, . ~ 1)
     r.squaredGLMM(fm)
 
