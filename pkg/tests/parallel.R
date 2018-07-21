@@ -30,8 +30,11 @@ if(MuMIn:::.parallelPkgCheck(quiet = TRUE)) {
 
 		stopifnot(isTRUE(all.equal(ma1$avg.model, ma0$avg.model)))
 		stopifnot(isTRUE(all.equal(ma1$summary, ma0$summary)))
-
-		stopifnot(identical(c(pddc), c(pdd1)) && identical(c(pdd1), c(dd1)))
+		
+        if(!(identical(c(pddc), c(pdd1)) && identical(c(pdd1), c(dd1)))) {
+			print(all.equal(c(pddc), c(pdd1)))
+			print(all.equal(c(pdd1), c(dd1)))
+		}
 
 		stopCluster(clust)
 

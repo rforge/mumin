@@ -1,13 +1,5 @@
 ## Helper functions:
 
-
-sigma.glmmPQL <- function (object, ...) {
-    #switch(family(object)$family,
-    #    quasipoisson = sqrt(object$sigma),
-    #    sqrt(object$sigma)
-    #   )
-}
-
 # Consistent sigma
 sigma2 <- function(object) UseMethod("sigma2")
 sigma2.default <- function(object) sigma(object)
@@ -21,8 +13,6 @@ sigma2.glmmTMB <- function(object) {
     if(family(object)$family == "nbinom1") sigma(object) + 1 else sigma(object)
 }
         
-#sigma2 <- sigma
-
 # VarCorr wrapper returning consistent format (list of named RE variances) 
 .varcorr <- function(object, ...) UseMethod(".varcorr")
 .varcorr.default <- function(object, ...) {
@@ -70,17 +60,18 @@ sigma2.glmmTMB <- function(object) {
 
 .nullUpdateWarning <- 
 function(message = 
-"The null model is correct only if all variables used by the original model remain unchanged.") {
+"The null model is correct only if all variables used by the original model remain unchanged.",
+Call = -1) {
 	if(!isTRUE(getOption("MuMIn.noUpdateWarning")))
-		cry(NA, message, warn = TRUE)
-}			
+		cry(Call, message, warn = TRUE)
+}
 
-# .reOnlyModel: update `object` to intercept only model, keeping original RE terms.
+# .nullFitRE: update `object` to intercept only model, keeping original RE terms.
 # TODO: reOnlyModelCall or reOnlyFormula
-.reOnlyModel <- function(object, envir) UseMethod(".reOnlyModel")
-.reOnlyModel.default <-  function(object, envir) .NotYetImplemented()
+.nullFitRE <- function(object, envir) UseMethod(".nullFitRE")
+.nullFitRE.default <-  function(object, envir) .NotYetImplemented()
 
-.reOnlyModel.glmmTMB <-
+.nullFitRE.glmmTMB <-
 function(object, envir = parent.frame()) {
     ran <- attr(getAllTerms(object), "random.terms")
 	ran <- sub("^cond\\((.*)\\)$", "\\1", ran)
@@ -91,9 +82,9 @@ function(object, envir = parent.frame()) {
     eval(cl, envir)
 }
 
-.reOnlyModel.glmmadmb <-
-.reOnlyModel.merMod <-
-.reOnlyModel.cpglmm <-
+.nullFitRE.glmmadmb <-
+.nullFitRE.merMod <-
+.nullFitRE.cpglmm <-
 function(object, envir = parent.frame()) {
     ran <- attr(getAllTerms(object), "random.terms")
     f <- update.formula(formula(object), reformulate(paste0("(", ran, ")"), response = "."))
@@ -103,8 +94,8 @@ function(object, envir = parent.frame()) {
     eval(cl, envir)
 }
 
-.reOnlyModel.lm <-
-.reOnlyModel.cpglm <-
+.nullFitRE.lm <-
+.nullFitRE.cpglm <-
 function(object, envir = parent.frame()) {
     cl <- getCall(object)
     cl$formula <- update.formula(formula(object), . ~ 1)
@@ -112,7 +103,7 @@ function(object, envir = parent.frame()) {
     eval(cl, envir)
 }
 
-.reOnlyModel.lme <-
+.nullFitRE.lme <-
 function(object, envir = parent.frame()) {
 	cl <- getCall(object)
 	cl$fixed <- update.formula(cl$fixed, . ~ 1)
@@ -144,9 +135,9 @@ function (form) {
 }
 
 # update model adding an observation level RE term
-.OLREModel <- function(object) UseMethod(".OLREModel")
-.OLREModel.default <- function(object) .NotYetImplemented()
-.OLREModel.merMod <- function(object) {
+.OLREFit <- function(object) UseMethod(".OLREFit")
+.OLREFit.default <- function(object) .NotYetImplemented()
+.OLREFit.merMod <- function(object) {
     if (!any(sapply(object@flist, nlevels) == nobs(object))) {
 		cl <- get_call(object)
         frm <- formula(object)
@@ -169,7 +160,8 @@ function (form) {
 
 
 # general function
-r2glmm <- function(family, vfe, vre, vol, link, pmean, lambda, omega) {
+r2glmm <-
+function(family, vfe, vre, vol, link, pmean, lambda, omega) {
     if(inherits(family, "family")) {
         link <- family$link
         family <- family$family
@@ -227,7 +219,7 @@ r2glmm <- function(family, vfe, vre, vol, link, pmean, lambda, omega) {
 
 `r.squaredGLMM` <- function(object, null, ...) {
     warnonce("rsquaredGLMM",
-	simpleWarning(paste("Note that 'r.squaredGLMM' calculates now a revised statistic. See ?r.squaredGLMM.")))
+	simpleWarning(paste0("'r.squaredGLMM' now calculates a revised statistic. See the help page.")))
     UseMethod("r.squaredGLMM")
 }
 
@@ -254,7 +246,7 @@ function(object, null, pj2014 = FALSE, ...) {
     
     if(familyName %in% c("quasipoisson", "poisson", "nbinom1", "nbinom2",
         "binomial", "quasibinomial")) {
-		if(missing(null) || !is.object(null)) null <- .reOnlyModel(object)
+		if(missing(null) || !is.object(null)) null <- .nullFitRE(object)
         fixefnull <- unname(.numfixef(null))
     }
     
@@ -289,7 +281,7 @@ function(object, null, pj2014 = FALSE, ...) {
         rval <- r2glmm(fam, varFE, varRE, lambda = lambda, omega = omega)
         if(inherits(object, "merMod") &&
            familyName == "poisson" && pj2014) {
-            xo <- .OLREModel(object)
+            xo <- .OLREFit(object)
             vc <- .varcorr(xo)
             fitted <- (model.matrix(xo) %*% .numfixef(xo))[, 1L]
             n <- nrow(mmRE)
@@ -330,7 +322,7 @@ function(object, null, ...) {
     fitted <- (model.matrix(object) %*% coef(object))[, 1L]
 	delayedAssign("fixefnull",
 		coef(if(missing(null) || !is.object(null))
-			 .reOnlyModel(object) else null))
+			 .nullFitRE(object) else null))
     varFE <- var(fitted)
     familyName <- fam$family
     if(substr(familyName, 1L, 17L) == "Negative Binomial")
@@ -356,7 +348,8 @@ function(object, null, ...) {
 
 
 # TODO 
-`r.squaredGLMM.glmmML` <- function(object, null, ...) {
+`r.squaredGLMM.glmmML` <-
+function(object, null, ...) {
     .NotYetImplemented()
 }
 
@@ -367,7 +360,7 @@ function(object, null, ...) {
          stop("not implemented yet for ", fam$family, " and ", fam$link)  
     fitted <- (model.matrix(object) %*% .numfixef(object))[, 1L]
     varFE <- var(fitted)
-	if(missing(null) || !is.object(null)) null <- .reOnlyModel(object)
+	if(missing(null) || !is.object(null)) null <- .nullFitRE(object)
 
 	if(inherits(object, "cpglm")) {
 		varRE <- vt <- 0

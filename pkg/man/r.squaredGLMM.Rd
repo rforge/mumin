@@ -36,14 +36,7 @@ r.squaredGLMM(object, null, ...)
 	named) row holding values for marginal and conditional \Rsqx{GLMM}
 	calculated with different methods, such as \dQuote{delta},
 	\dQuote{log-normal}, \dQuote{trigamma}, or \dQuote{theoretical} for models
-	of \code{binomial} family. 
-	
-\strong{Important}: as of \pkg{MuMIn} version 1.41.0, 
-\code{r.squaredGLMM} returns a revised statistics based on Nakagawa et 
-al. (2014) paper. The returned value's format also has changed (it is a 
-\code{matrix} rather than a numeric vector as before). Pre-1.41.0 version of the
-function calculated \dQuote{theoretical} \Rsqx{GLMM} for \code{binomial} models.
-	
+	of \code{binomial} family. 	
 }
 
 \details{
@@ -87,10 +80,10 @@ specific for each link function distribution.
 some cases fitting a \emph{null} model containing no fixed effects other than 
 intercept, otherwise identical to the original model (including all the random 
 effects). When using \code{r.squaredGLMM} for several models differing only in 
-their fixed effects, in order to avoid redundant calculations, a null model 
-object can be provided with the argument \code{null}.
-Otherwise, the null model will be fitted \emph{via} updating the original model.
-This assumes that all the variables used in the original model's call have the 
+their fixed effects, in order to avoid redundant calculations, the null model 
+object can be passed as the argument \code{null}.
+Otherwise, a null model will be fitted \emph{via} updating the original model.
+This assumes that all the variables used in the original model call have the 
 same values as when the model was fitted. A warning is issued before fitting the
 null model to point it out, which can be disabled by setting the 
 \link[=options]{option} \code{"MuMIn.noUpdateWarning"} to \code{"TRUE"}. 
@@ -98,6 +91,14 @@ null model to point it out, which can be disabled by setting the
 }
 
 \note{
+
+\strong{Important}: as of \pkg{MuMIn} version 1.41.0, 
+\code{r.squaredGLMM} returns a revised statistics based on Nakagawa et 
+al. (2014) paper. The returned value's format also has changed (it is a 
+\code{matrix} rather than a numeric vector as before). Pre-1.41.0 version of the
+function calculated the \dQuote{theoretical} \Rsqx{GLMM} for \code{binomial} models.
+
+
 \Rsqx{GLMM} can be calculated also for fixed-effect models. In
 the simpliest case of \acronym{OLS} it reduces to \code{var(fitted) /
 (var(fitted) + deviance / 2)}. Unlike likelihood-ratio based \Rsq for 

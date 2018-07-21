@@ -1,5 +1,10 @@
 MuMIn package news:
 
+Version: 1.42.1 (2018-07-21)
+tests have been modified to prevent CRAN check errors on some systems. 
+(fixed) arm.glm, armWeights: now use a random sample to select a training set.
+    armWeights: no longer give a warning about "longer object length"
+
 Version: 1.42.0 (2018-07-17)
 (updated) methods for "unmarkedFit" models have been rewritten and should work
 	properly with all subclasses. Added missing support for 

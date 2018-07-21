@@ -95,14 +95,14 @@ function(object, ...,
 			}
 			if(is.null(off)) off <- rep(0, NROW(Y))
 				
-			if(isTRUE(getOption("debug.MuMIn"))) {# DEBUG
+			.Debug({# DEBUG
 				message("testing glm.fit #",  j)
 				cf1 <- glm.fit(X[, xil[[j]], drop = FALSE], Y, family = family(fit),
 					weights = fitting_wts, offset = off)$coefficients
 				cf2 <- models[[j]]$coefficients
 				names(cf2) <- fixCoefNames(names(cf2))
 				stopifnot(all.equal(cf1[names(cf2)], cf2))
-			} # DEBUG
+			})
 		
 			for(i in xseq) {
 				coef1 <- glm.fit(X[-i, xil[[j]], drop = FALSE], Y[-i, , drop = FALSE],
