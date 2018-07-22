@@ -84,9 +84,9 @@ their fixed effects, in order to avoid redundant calculations, the null model
 object can be passed as the argument \code{null}.
 Otherwise, a null model will be fitted \emph{via} updating the original model.
 This assumes that all the variables used in the original model call have the 
-same values as when the model was fitted. A warning is issued before fitting the
-null model to point it out, which can be disabled by setting the 
-\link[=options]{option} \code{"MuMIn.noUpdateWarning"} to \code{"TRUE"}. 
+same values as when the model was fitted. The function warns about this when 
+fitting the null model is required. This warnings can be disabled by setting  
+ \code{options(MuMIn.noUpdateWarning = TRUE)}. 
 
 }
 

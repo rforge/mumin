@@ -162,9 +162,10 @@ columns and rows correspond to \code{global.model} terms. Value
 conjunction with correlation matrices to exclude models containing collinear
 predictors.
 
-The term names in \code{fixed} and \code{subset} must come in a
+The term names in \code{fixed} and \code{subset} must be given in the
 form returned by \code{getAllTerms(global.model)}, which can differ from
-the original names.
+the original term names (e.g. the interaction term components are ordered 
+alphabetically).
 
 In the form of \code{expression}, the argument \code{subset} acts in a similar
 fashion to that in the function \code{subset} for \code{data.frames}: model
@@ -216,7 +217,7 @@ Compound model terms (such as interactions, \sQuote{as-is} expressions within
  \code{`s(x, k = 2)`}
  }).
  Backticks-quoted names must match exactly (including whitespace) the term names
- as given by \code{getAllTerms}.
+ as returned by \code{getAllTerms}.
 
 \subsection{\code{subset} expression syntax summary}{
 
