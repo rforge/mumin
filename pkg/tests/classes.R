@@ -345,7 +345,6 @@ options(na.action = na.fail)
 
 bladder1 <- bladder[bladder$enum < 5, ]
 
-
 fmcph <- coxph(Surv(stop, event) ~ (rx + size + number) * strata(enum) + cluster(id), bladder1)
 
 r.squared.coxph <- function(object, ...) {

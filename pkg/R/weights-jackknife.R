@@ -102,7 +102,7 @@ function(object, ...,
 				cf2 <- models[[j]]$coefficients
 				names(cf2) <- fixCoefNames(names(cf2))
 				stopifnot(all.equal(cf1[names(cf2)], cf2))
-			})
+			}) # DEBUG
 		
 			for(i in xseq) {
 				coef1 <- glm.fit(X[-i, xil[[j]], drop = FALSE], Y[-i, , drop = FALSE],
