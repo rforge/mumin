@@ -69,36 +69,12 @@ Call = -1) {
 # .nullFitRE: update `object` to intercept only model, keeping original RE terms.
 # TODO: reOnlyModelCall or reOnlyFormula
 .nullFitRE <- function(object, envir) UseMethod(".nullFitRE")
-.nullFitRE.default <-  function(object, envir) .NotYetImplemented()
-
-.nullFitRE.glmmTMB <-
-function(object, envir = parent.frame()) {
-    ran <- attr(getAllTerms(object), "random.terms")
-	ran <- sub("^cond\\((.*)\\)$", "\\1", ran)
-    f <- update.formula(formula(object), reformulate(paste0("(", ran, ")"), response = "."))
-    cl <- getCall(object)
-    cl$formula <- f
-	.nullUpdateWarning()
-    eval(cl, envir)
-}
-
-.nullFitRE.glmmadmb <-
-.nullFitRE.merMod <-
-.nullFitRE.cpglmm <-
-function(object, envir = parent.frame()) {
-    ran <- attr(getAllTerms(object), "random.terms")
-    f <- update.formula(formula(object), reformulate(paste0("(", ran, ")"), response = "."))
-    cl <- getCall(object)
-    cl$formula <- f
-	.nullUpdateWarning()
-    eval(cl, envir)
-}
-
-.nullFitRE.lm <-
-.nullFitRE.cpglm <-
+.nullFitRE.default <- 
 function(object, envir = parent.frame()) {
     cl <- getCall(object)
-    cl$formula <- update.formula(formula(object), . ~ 1)
+	if(! "formula" %in% names(cl)) 
+		stop("cannot create a null model for object without named \"formula\" argument in its call")
+    cl$formula <- .nullREForm(formula(object))
 	.nullUpdateWarning()
     eval(cl, envir)
 }
