@@ -18,10 +18,12 @@ function(Call = NA, Message, ..., warn = FALSE, domain = paste0("R-", .packageNa
 		Call <- call(Call[1L], sys.call(-1L)[[1L]])
 	} else if(is.numeric(Call)) {
 		Call <- sys.call(Call - 1L)
-	} else if(!is.call(Call)) Call <- sys.call(-1L)
+	} else if (!is.call(Call) && !is.null(Call))
+		Call <- sys.call(-1L)
 	if(warn) warning(simpleWarning(gettextf(Message, ..., domain = domain), Call)) else
 		stop(simpleError(gettextf(Message, ..., domain = domain), Call))
 }
+
 
 `getElement` <- function (object, name) {
     if (isS4(object))

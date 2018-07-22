@@ -61,7 +61,7 @@ sigma2.glmmTMB <- function(object) {
 .nullUpdateWarning <- 
 function(message = 
 "The null model is correct only if all variables used by the original model remain unchanged.",
-Call = -1) {
+Call = NULL) {
 	if(!isTRUE(getOption("MuMIn.noUpdateWarning")))
 		cry(Call, message, warn = TRUE)
 }
