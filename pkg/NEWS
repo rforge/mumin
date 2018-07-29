@@ -1,5 +1,8 @@
 MuMIn package news:
 
+Version: 1.42.2 (2018-07-27)
+(fixed) r.squaredGLMM: case when some coefficients are NA
+
 Version: 1.42.1 (2018-07-21)
 tests have been modified to prevent CRAN check errors on some systems. 
 (fixed) arm.glm, armWeights: now use a random sample to select a training set.

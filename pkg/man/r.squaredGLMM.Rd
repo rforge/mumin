@@ -115,8 +115,9 @@ model selection.
 }
 
 \author{
-This implementation is based on \R code from \sQuote{Supporting Information} for
-Nakagawa et al. (2014), and (the extension for random-slopes) Johnson (2014).
+Kamil Barto\enc{ń}{n}. This implementation is based on \R code from 
+\sQuote{Supporting Information} for Nakagawa et al. (2014), and 
+(the extension for random-slopes) Johnson (2014).
 }
 
 \references{

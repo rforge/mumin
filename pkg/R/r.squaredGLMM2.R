@@ -203,7 +203,9 @@ function(family, vfe, vre, vol, link, pmean, lambda, omega) {
 function(object, null, pj2014 = FALSE, ...) {
 	fam <- family(object)
     #varOL <- lambda <- omega <- NA
-    fitted <- (model.matrix(object) %*% .numfixef(object))[, 1L]
+    fe <- .numfixef(object)
+    ok <- !is.na(fe)
+    fitted <- (model.matrix(object)[, ok, drop = FALSE] %*% fe[ok])[, 1L]
     varFE <- var(fitted)
     mmRE <- .remodmat(object)
     
@@ -259,7 +261,11 @@ function(object, null, pj2014 = FALSE, ...) {
            familyName == "poisson" && pj2014) {
             xo <- .OLREFit(object)
             vc <- .varcorr(xo)
-            fitted <- (model.matrix(xo) %*% .numfixef(xo))[, 1L]
+            
+            fe <- .numfixef(xo)
+            ok <- !is.na(fe)
+            fitted <- (model.matrix(xo)[, ok, drop = FALSE] %*% fe[ok])[, 1L]
+            
             n <- nrow(mmRE)
             vname <- names(xo@flist)[sapply(xo@flist, nlevels) == n][1L]
             if(! vname %in% names(vc)) vname <- make.names(vname)
@@ -295,7 +301,8 @@ function(object, null, ...) {
 `r.squaredGLMM.lm` <-
 function(object, null, ...) {
 	fam <- family(object)
-    fitted <- (model.matrix(object) %*% coef(object))[, 1L]
+    ok <- !is.na(coef(object))
+    fitted <- (model.matrix(object)[, ok, drop = FALSE] %*% coef(object)[ok])[, 1L]
 	delayedAssign("fixefnull",
 		coef(if(missing(null) || !is.object(null))
 			 .nullFitRE(object) else null))
@@ -333,8 +340,11 @@ function(object, null, ...) {
 function(object, null, ...) {
 	fam <- family(object)
     if(!fam$link %in% c("mu^0", "log"))
-         stop("not implemented yet for ", fam$family, " and ", fam$link)  
-    fitted <- (model.matrix(object) %*% .numfixef(object))[, 1L]
+         stop("not implemented yet for ", fam$family, " and ", fam$link)
+         
+    fe <- .numfixef(object)
+    ok <- !is.na(fe)
+    fitted <- (model.matrix(object)[, ok, drop = FALSE] %*% fe[ok])[, 1L]
     varFE <- var(fitted)
 	if(missing(null) || !is.object(null)) null <- .nullFitRE(object)
 

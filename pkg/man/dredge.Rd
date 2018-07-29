@@ -99,8 +99,8 @@ dredge(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE,
 		\code{\link[=model.avg]{model averaging}}).}
 
   \item{\dots}{ optional arguments for the \code{rank} function. Any can be
-    an unevaluatec expression, in which case any \code{x} within it will be substituted
-	with a current model. }
+    an unevaluated expression, in which case any \code{x} within it will be 
+	substituted with the current model. }
 }
 
 
