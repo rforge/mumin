@@ -1,7 +1,12 @@
 MuMIn package news:
 
+Version: 1.42.3 (2018-07-31)
+(added) dredge: the subset expression `.(x)` now accepts an additional argument
+    for the allowed term orders. For example `.(X, 2:10)` means 
+	"at least one 2nd or 3rd order interaction of 'X'"
+
 Version: 1.42.2 (2018-07-27)
-(fixed) r.squaredGLMM: case when some coefficients are NA
+(fixed) r.squaredGLMM: handle the case when some coefficients are not estimated and NA
 
 Version: 1.42.1 (2018-07-21)
 tests have been modified to prevent CRAN check errors on some systems. 

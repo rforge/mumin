@@ -149,7 +149,6 @@ term(s) to all models with \code{fixed}, and more complex rules can be applied
 using argument \code{subset}. To be included in the selection table, the model
 formulation must satisfy all these conditions.
 
-
 %%Terms in \code{fixed} argument are applied before the combinations are
 %%generated, therefore more efficient than \code{subset}.
 
@@ -173,17 +172,12 @@ terms can be referred to by name as variables in the expression, with the
 difference being that are interpreted as logical values (i.e. equal to
 \code{TRUE} if the term exists in the model).
 
-There is also \code{.(x)} and \code{.(+x)} notation indicating, respectively,
-any and all interactions including a \emph{term} \code{x}. It is only useful
-with marginality exceptions.
-
-The expression can contain any of the \code{global.model} terms
-(\code{getAllTerms(global.model)} lists them), as well as names of the
-\code{varying} argument items. Names of \code{global.model} terms take
+The expression can contain any of the \code{global.model} term names, as well as
+ names of the \code{varying} list items. \code{global.model} term names take
 precedence when identical to names of \code{varying}, so to avoid ambiguity
 \code{varying} variables in \code{subset} expression should be enclosed in
-\code{V()} (e.g. \code{subset = V(family) == "Gamma"} assuming that
-\code{varying} is something like \code{list(family = c(..., "Gamma"))}).
+\code{V()} (e.g. \code{V(family) == "Gamma"} assuming that
+\code{varying} is something like \code{list(family = c("Gamma", ...))}).
 
 If item names in \code{varying} are missing, the items themselves are coerced to
 names. Call and symbol elements are represented as character values (\emph{via}
@@ -193,11 +187,22 @@ names. Call and symbol elements are represented as character values (\emph{via}
 \code{subset = V(family) == 2}. This can quickly become confusing, therefore it
 is recommended to use named lists. \code{demo(dredge.varying)} provides examples.
 
-The \code{subset} expression can also contain variable
-\ifelse{latex}{\bq{*nvar*}}{\code{`*nvar*`}} (backtick-quoted), equal to
-number of terms in the model (\bold{not} the number of estimated parameters).
 
-To make inclusion of a model term conditional on presence of another model term,
+%% .(+x)
+The \code{.(x)} and \code{.(+x)} notation indicates, respectively,
+any and all interactions including the main effect term \code{x}. 
+This is only effective with marginality exceptions. The extended form 
+\code{.(x, order)} allows 
+for specyfying the order of interaction of terms which \code{x} is part of. For instance, 
+\code{.(X, 2:3)} selects models with at least one second- or third-order
+interaction of the variable \code{X}. The second (positional) argument is 
+coerced to integer vector.
+
+The special variable \ifelse{latex}{\bq{*nvar*}}{\code{`*nvar*`}} 
+(backtick-quoted), in the \code{subset} expression is equal to the number of 
+terms in the model (\bold{not} the number of estimated parameters).
+
+To make inclusion of a model term conditional on presence of another one,
 the function \code{dc} (\dQuote{\bold{d}ependency \bold{c}hain}) can be used in
 the \code{subset} expression. \code{dc} takes any number of term names as
 arguments, and allows a term to be included only if all preceding ones
@@ -215,7 +220,7 @@ Compound model terms (such as interactions, \sQuote{as-is} expressions within
  \bq{s(x, k = 2)}
  }{
  \code{`s(x, k = 2)`}
- }).
+ }), unless they are arguments to \code{.} or \code{dc}.
  Backticks-quoted names must match exactly (including whitespace) the term names
  as returned by \code{getAllTerms}.
 
@@ -227,10 +232,12 @@ Compound model terms (such as interactions, \sQuote{as-is} expressions within
     \item{\code{{log(x,2)}} or \bq{log(x, 2)}}{ represent a complex
 		model term \code{log(x, 2)}}
 	\item{\code{V(x)}}{ represents a \code{varying} variable \var{x} }
-	\item{\code{.(x)}}{ indicates that at least one term containing the term
-		\var{x} must be present }
-	\item{\code{.(+x)}}{ indicates that all the terms containing the term \var{x}
-		must be present }
+	\item{\code{.(x)}}{ indicates that at least one term containing the main 
+	    effect term \var{x} must be present }
+	\item{\code{.(+x)}}{ indicates that all the terms containing the main 
+	    effect term \var{x} must be present }
+	\item{\code{.(x, 2:4)}}{ indicates that at least one term containing a 
+	    second- to fourth-order interaction term of \var{x} must be present }
 	\item{\code{dc(a, b, c,...)}}{ \sQuote{dependency chain}: \var{b} is allowed only
 		if \var{a} is present, and \var{c} only if both \var{a} and \var{b} are
 		present, etc. }

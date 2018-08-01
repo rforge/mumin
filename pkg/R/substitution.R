@@ -35,19 +35,23 @@ asChar <- function(x, control = NULL, nlines = 1L, ...)
 	as.name(asChar(x[[2L]]))
 }
 
-.sub_dot <- function(x, fac, at, vName) {
-	if(length(x) != 2L) cry(x, "exactly one argument needed, %d given.", length(x) - 1L)
-	if(length(x[[2L]]) == 2L && x[[2L]][[1L]] == "+") {
-		fun <- "all"
-		sx <- as.character(x[[2L]][[2L]])
-	} else {
-		fun <- "any"
-		sx <- as.character(x[[2L]])
-	}
-	dn <- dimnames(fac)
-	if(!(sx %in% dn[[2L]])) cry(x, "unknown variable name '%s'", sx)
-	as.call(c(as.name(fun), call("[", vName, as.call(c(as.name("c"),
-		match(dn[[1L]][fac[, sx]], at))))))
+.sub_dot <- function (x, fac, allTerms, vName, envir = parent.frame()) {
+    if (length(x) > 4L) cry(x, "too many arguments [%d]", length(x) - 1L)
+    if (length(x[[2L]]) == 2L && x[[2L]][[1L]] == "+") {
+        fun <- "all"
+        sx <- asChar(x[[2L]][[2L]], backtick = FALSE)
+    } else {
+        fun <- "any"
+        sx <- asChar(x[[2L]], backtick = FALSE)
+    }
+    dn <- dimnames(fac)
+    if (!(sx %in% dn[[2L]])) cry(x, "unknown variable name '%s'", sx)
+    xorder <- if(length(x) >= 3L) as.integer(eval(x[[3L]], envir))
+		else unique(rowSums(fac))
+    i <- which(fac[, sx])
+    j <- which(is.element(rowSums(fac[i, , drop = FALSE]), xorder))
+    if(length(j) == 0L) cry(x, "no terms match the criteria")    
+    as.call(c(as.name(fun), call("[", vName, as.call(c(as.name("c"), match(dn[[1L]][i[j]], allTerms))))))
 }
 
 .sub_args_as_vars <- function(e) {

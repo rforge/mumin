@@ -338,7 +338,7 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 
 			subsetExpr <- subset[[1L]]
 			subsetExpr <- exprapply0(subsetExpr, ".", .sub_dot, gloFactorTable,
-				allTerms, as.name("comb"))
+				allTerms, as.name("comb"), gmEnv)
 
 			subsetExpr <- exprapply0(subsetExpr, c("{", "Term"), .sub_Term)
 

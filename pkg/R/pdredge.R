@@ -348,7 +348,7 @@ function(global.model, cluster = NA,
 
 			subsetExpr <- subset[[1L]]
 			subsetExpr <- exprapply0(subsetExpr, ".", .sub_dot, gloFactorTable,
-				allTerms, as.name("comb"))
+				allTerms, as.name("comb"), gmEnv)
 			subsetExpr <- exprapply0(subsetExpr, c("{", "Term"), .sub_Term)
 
 			tmp <- updateDeps(subsetExpr, deps)
