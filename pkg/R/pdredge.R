@@ -347,23 +347,23 @@ function(global.model, cluster = NA,
 			rownames(gloFactorTable) <- allTerms0[!(allTerms0 %in% interceptLabel)]
 
 			subsetExpr <- subset[[1L]]
-			subsetExpr <- exprapply0(subsetExpr, ".", .sub_dot, gloFactorTable,
+			subsetExpr <- exprapply0(subsetExpr, c("with", "."), .subst.with, gloFactorTable,
 				allTerms, as.name("comb"), gmEnv)
-			subsetExpr <- exprapply0(subsetExpr, c("{", "Term"), .sub_Term)
+			subsetExpr <- exprapply0(subsetExpr, c("{", "Term"), .subst.term)
 
 			tmp <- updateDeps(subsetExpr, deps)
 			subsetExpr <- tmp$expr
 			deps <- tmp$deps
 
-			subsetExpr <- exprapply0(subsetExpr, "dc", .sub_args_as_vars)
-			subsetExpr <- .subst4Vec(subsetExpr, allTerms, "comb")
+			subsetExpr <- exprapply0(subsetExpr, "dc", .subst.vars.for.args)
+			subsetExpr <- .subst.names.for.items(subsetExpr, allTerms, "comb")
 
 			if(nVarying) {
 				ssValidNames <- c("cVar", "comb", "*nvar*")
-					subsetExpr <- exprapply0(subsetExpr, "V", .sub_V,
+					subsetExpr <- exprapply0(subsetExpr, "V", .subst.v,
 						as.name("cVar"), varyingNames)
 				if(!all(all.vars(subsetExpr) %in% ssValidNames))
-					subsetExpr <- .subst4Vec(subsetExpr, varyingNames,
+					subsetExpr <- .subst.names.for.items(subsetExpr, varyingNames,
 						"cVar", fun = "[[")
 			}
 			ssVars <- all.vars(subsetExpr)

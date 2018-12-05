@@ -1,12 +1,19 @@
 MuMIn package news:
 
+Version: 1.42.4 (2018-12-05)
+(fixed) r.squaredGLMM.merMod: error when the function was called in an 
+    environment different than .GlobalEnv (spotted by a certain Martin on 
+    Stackoverflow)
+
 Version: 1.42.3 (2018-07-31)
 (added) dredge: the subset expression `.(x)` now accepts an additional argument
     for the allowed term orders. For example `.(X, 2:10)` means 
-	"at least one 2nd or 3rd order interaction of 'X'"
+	"at least one 2nd or 3rd order interaction of 'X'". The `.` pseudo-function
+	has also a new alias: "with", e.g. `with(X, 2:10)`.
 
 Version: 1.42.2 (2018-07-27)
-(fixed) r.squaredGLMM: handle the case when some coefficients are not estimated and NA
+(fixed) r.squaredGLMM: handle the case when some coefficients are not estimated 
+	and NA
 
 Version: 1.42.1 (2018-07-21)
 tests have been modified to prevent CRAN check errors on some systems. 

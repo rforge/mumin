@@ -7,7 +7,7 @@ evalExprInEnv <- function(expr, env, enclos, ...) {
 # change `names[]` for varName[1], varName[2], ... in expression
 # Not using `substitute` anymore to omit function calls.
 # Ignore also expressions within I(), elements extracted with $ or @
-`.subst4Vec` <-
+`.subst.names.for.items` <-
 function(expr, names, varName, n = length(names), fun = "[") {
 	exprApply(expr, names, symbols = TRUE,
 		function(x, v, fun, varName, parent) {
@@ -30,12 +30,12 @@ asChar <- function(x, control = NULL, nlines = 1L, ...)
 	deparse(x, control = control, nlines = nlines, ...)
 
 ## .sub_* functions used with '.exprapply' as 'func'
-.sub_Term <- function(x) {
+.subst.term <- function(x) {
 	if(length(x) < 2L) cry(x, "'Term' needs one argument")
 	as.name(asChar(x[[2L]]))
 }
 
-.sub_dot <- function (x, fac, allTerms, vName, envir = parent.frame()) {
+.subst.with <- function (x, fac, allTerms, vName, envir = parent.frame()) {
     if (length(x) > 4L) cry(x, "too many arguments [%d]", length(x) - 1L)
     if (length(x[[2L]]) == 2L && x[[2L]][[1L]] == "+") {
         fun <- "all"
@@ -54,14 +54,14 @@ asChar <- function(x, control = NULL, nlines = 1L, ...)
     as.call(c(as.name(fun), call("[", vName, as.call(c(as.name("c"), match(dn[[1L]][i[j]], allTerms))))))
 }
 
-.sub_args_as_vars <- function(e) {
+.subst.vars.for.args <- function(e) {
 	for(i in 2L:length(e))
 		if(!is.name(e[[i]]))
 			e[[i]] <- as.name(asChar(e[[i]]))
 	e
 }
 
-.sub_has <- function(e) {
+.subst.has <- function(e) {
 	n <- length(e)
 	for(i in seq.int(2L, n)) {
 		ex <- if(length(e[[i]]) == 2L && e[[i]][[1L]] == "!")
@@ -73,13 +73,12 @@ asChar <- function(x, control = NULL, nlines = 1L, ...)
 	call("(", res)
 }
 
-
-.sub_dc_has <- function(e) {
+.subst.has.dc <- function(e) {
 		for(i in 2L:length(e)) e[[i]] <- call("has", e[[i]])
 		e
 }
 
-.sub_V <- function(x, cVar, fn) {
+.subst.v <- function(x, cVar, fn) {
 	if(length(x) > 2L) cry(x, "discarding extra arguments", warn = TRUE)
 	i <- which(fn == x[[2L]])[1L]
 	if(is.na(i)) cry(x, "'%s' is not a valid name of 'varying' element",

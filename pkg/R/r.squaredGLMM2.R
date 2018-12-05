@@ -224,7 +224,7 @@ function(object, null, pj2014 = FALSE, ...) {
     
     if(familyName %in% c("quasipoisson", "poisson", "nbinom1", "nbinom2",
         "binomial", "quasibinomial")) {
-		if(missing(null) || !is.object(null)) null <- .nullFitRE(object)
+		if(missing(null) || !is.object(null)) null <- .nullFitRE(object, parent.frame())
         fixefnull <- unname(.numfixef(null))
     }
     

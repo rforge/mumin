@@ -27,7 +27,7 @@ The collection of functions includes:
 	\item{\code{\link{model.avg}}}{ calculates model averaged parameters,
 		with standard errors and confidence intervals. }
 	\item{\code{\link{AICc}}}{calculates second-order Akaike information
-		criterion. Some other criterions are provided, see below. }
+		criterion. Some other criteria are provided, see below. }
 		
 	\item{\code{\link{stdize}}, \code{\link{stdizeFit}}, \code{\link{std.coef}},
 		\code{\link{partial.sd}}}{can be used for standardization of data and

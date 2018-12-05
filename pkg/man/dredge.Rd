@@ -76,7 +76,7 @@ dredge(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE,
 	or quoted). Similarly as in \code{rank} argument, each function must accept
 	fitted model object as an argument and return (a value coercible to) a
 	numeric vector.
-	These can be e.g. additional information criterions or goodness-of-fit
+	These can be e.g. additional information criteria or goodness-of-fit
 	statistics. The character strings \code{"R^2"} and \code{"adjR^2"} are
 	treated in a special way, and will add a likelihood-ratio based \Rsq and
 	modified-\Rsq respectively to the result (this is more efficient than using
@@ -107,8 +107,8 @@ dredge(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE,
 \details{
 Models are fitted through repeated evaluation of modified call extracted from
 the \code{global.model} (in a similar fashion as with \code{update}). This
-approach, while robust in that it can be applied to most model types, 
-is inefficient because of its considerable computational overhead.
+approach, while robust in that it can be applied to most model types through the
+usual formula interface, may have a considerable computational overhead.
 
 Note that the number of combinations grows exponentially with number of
 predictors (\ifelse{latex}{\eqn{2^{N}}}{\ifelse{html}{2ⁿ}{2^N}}, less when
@@ -121,9 +121,9 @@ Another way of getting all the models is to run
 which avoids fitting the models twice.
 
 For a list of model types that can be used as a \code{global.model} see
-\link[=MuMIn-models]{list of supported models}.
-Modelling functions not storing \code{call} in their result should be evaluated
-\emph{via} the wrapper function created by \code{\link{updateable}}.
+\link[=MuMIn-models]{list of supported models}. Modelling functions not storing
+\code{call} in their result should be evaluated \emph{via} the wrapper function
+created by \code{\link{updateable}}.
 
 \subsection{Information criterion}{
 \code{rank} is found by a call to \code{match.fun} and may be specified as a
@@ -156,14 +156,13 @@ formulation must satisfy all these conditions.
 The latter should be a lower triangular matrix with logical values, where
 columns and rows correspond to \code{global.model} terms. Value
 \code{subset["a", "b"] == FALSE} will exclude any model containing both terms
-\var{a} and \var{b}.
-\code{demo(dredge.subset)} has examples of using the \code{subset} matrix in
-conjunction with correlation matrices to exclude models containing collinear
-predictors.
+\var{a} and \var{b}. \code{demo(dredge.subset)} has examples of using the
+\code{subset} matrix in conjunction with correlation matrices to exclude models
+containing collinear predictors.
 
-The term names in \code{fixed} and \code{subset} must be given in the
-form returned by \code{getAllTerms(global.model)}, which can differ from
-the original term names (e.g. the interaction term components are ordered 
+Term names appearing in \code{fixed} and \code{subset} must be given in the
+exact form as returned by \code{getAllTerms(global.model)}, which can differ
+from the original term names (e.g. the interaction term components are ordered
 alphabetically).
 
 In the form of \code{expression}, the argument \code{subset} acts in a similar
@@ -177,7 +176,7 @@ The expression can contain any of the \code{global.model} term names, as well as
 precedence when identical to names of \code{varying}, so to avoid ambiguity
 \code{varying} variables in \code{subset} expression should be enclosed in
 \code{V()} (e.g. \code{V(family) == "Gamma"} assuming that
-\code{varying} is something like \code{list(family = c("Gamma", ...))}).
+\code{varying} is something like \code{list(family =} \code{c("Gamma", ...))}).
 
 If item names in \code{varying} are missing, the items themselves are coerced to
 names. Call and symbol elements are represented as character values (\emph{via}
@@ -189,14 +188,14 @@ is recommended to use named lists. \code{demo(dredge.varying)} provides examples
 
 
 %% .(+x)
-The \code{.(x)} and \code{.(+x)} notation indicates, respectively,
-any and all interactions including the main effect term \code{x}. 
-This is only effective with marginality exceptions. The extended form 
-\code{.(x, order)} allows 
-for specyfying the order of interaction of terms which \code{x} is part of. For instance, 
-\code{.(X, 2:3)} selects models with at least one second- or third-order
-interaction of the variable \code{X}. The second (positional) argument is 
-coerced to integer vector.
+The \code{with(x)} and \code{with(+x)} notation indicates, respectively, any and
+all interactions including the main effect term \code{x}. This is only effective
+with marginality exceptions. The extended form \code{with(x, order)} allows for
+specifying the order of interaction of terms which \code{x} is part of. For
+instance, \code{with(b, 2:3)} selects models with at least one second- or
+third-order interaction of the variable \code{b}. The second (positional)
+argument is coerced to integer vector. The \dQuote{dot} notation \code{.(x)} is
+an alias for \code{with}.
 
 The special variable \ifelse{latex}{\bq{*nvar*}}{\code{`*nvar*`}} 
 (backtick-quoted), in the \code{subset} expression is equal to the number of 
@@ -228,16 +227,16 @@ Compound model terms (such as interactions, \sQuote{as-is} expressions within
 
 	\describe{
 	\item{\code{a & b}}{ indicates that model terms \var{a} and \var{b} must be
-	present (see \link[=Logic]{Logical Operators}) }
+        present (see \link[=Logic]{Logical Operators}) }
     \item{\code{{log(x,2)}} or \bq{log(x, 2)}}{ represent a complex
 		model term \code{log(x, 2)}}
-	\item{\code{V(x)}}{ represents a \code{varying} variable \var{x} }
-	\item{\code{.(x)}}{ indicates that at least one term containing the main 
+	\item{\code{V(x)}}{ represents a \code{varying} item \var{x} }
+	\item{\code{with(x)}}{ indicates that at least one term containing the main 
 	    effect term \var{x} must be present }
-	\item{\code{.(+x)}}{ indicates that all the terms containing the main 
+	\item{\code{with(+x)}}{ indicates that all the terms containing the main 
 	    effect term \var{x} must be present }
-	\item{\code{.(x, 2:4)}}{ indicates that at least one term containing a 
-	    second- to fourth-order interaction term of \var{x} must be present }
+	\item{\code{with(x, n:m)}}{ indicates that at least one term containing an 
+	    \var{n}-th to \var{m}-th order interaction term of \var{x} must be present }
 	\item{\code{dc(a, b, c,...)}}{ \sQuote{dependency chain}: \var{b} is allowed only
 		if \var{a} is present, and \var{c} only if both \var{a} and \var{b} are
 		present, etc. }
@@ -371,7 +370,7 @@ dredge(fm1, m.lim = c(NA, 1), extra = list(
     })
 )
 
-# Add other information criterions (but rank with AICc):
+# Add other information criteria (but rank with AICc):
 dredge(fm1, m.lim = c(NA, 1), extra = alist(AIC, BIC, ICOMP, Cp))
 \dontshow{options(oop)}
 }
