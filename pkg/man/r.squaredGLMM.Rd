@@ -18,12 +18,14 @@ Generalized mixed-effect models (\Rsqx{GLMM}).
 
 \usage{
 r.squaredGLMM(object, null, ...)
-\method{r.squaredGLMM}{merMod}(object, null, pj2014 = FALSE, ...)
+\method{r.squaredGLMM}{merMod}(object, null, envir = parent.frame(), pj2014 = FALSE, ...)
 }
 
 \arguments{
   \item{object}{a fitted linear model object. }
   \item{null}{optionally, a null model, including only random effects. See \sQuote{Details}. }
+  \item{envir}{optionally, the \code{environment} in which the null model is to be evaluated.
+      Defaults to the current frame. See \code{\link{eval}}. }
   \item{pj2014}{logical, if \code{TRUE} and \code{object} is of \code{poisson} 
   family, the result will include \Rsqx{GLMM} using original formulation of 
   Johnson (2014). This requires fitting \code{object} with an observation-level
