@@ -12,5 +12,4 @@ function(x) {
 
 isGEE <- 
 function(object) 
-inherits(object, c("geeglm", "geese", "gee", "geem",
-	"yagsResult"))
+inherits(object, c("geeglm", "geese", "gee", "geem", "wgee", "yagsResult"))

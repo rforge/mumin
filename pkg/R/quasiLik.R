@@ -59,6 +59,18 @@ function(object, ...) {
 	ret
 }
 
+
+quasiLik.wgee <-
+function(object, ...) {
+	dat <- match.fun(getOption('na.action'))(model.frame(object$model, data = object$data))
+	bad <- attr(dat, "na.action")
+	ret <- .qlik(if(!is.null(bad)) object$y[-bad] else object$y, object$mu_fit, family(object)$family)
+	attr(ret, "df") <- NA
+	attr(ret, "nobs") <- length(object$mu_fit)
+	class(ret) <- "quasiLik"
+	ret
+}
+
 ##=============================================================================
 ## QIC 
 ##=============================================================================
@@ -72,7 +84,8 @@ function(object, ...) {
 	AIinv <- solve(vbeta.naiv.i)
 	tr <- sum(matmult(AIinv, vbeta, diag.only = TRUE)) 
 	## tr <- sum(diag(AIinv %*% vbeta))
-	px <- length(mu)
+	#px <- length(mu)
+	px <- dim(vbeta)[1L]
 	## When all modelling specifications in GEE are correct tr = px.
 	c(2 * (c(QIC = tr, QICu = px) - ql), n = n)
 }
@@ -84,13 +97,13 @@ function(x, typeR = FALSE) UseMethod("getQIC")
 function(x, typeR = FALSE) .NotYetImplemented()
 
 `getQIC.coxph` <- function(x, ...) {
-	warning("QIC for 'coxph' is experimental")
+	warnonce("getQIC.coxph", "QIC for 'coxph' is experimental")
 	naive.var <- x[[ if (is.null(x$naive.var)) "var" else "naive.var" ]]
 	# tr <- sum(diag(solve(naive.var) %*% x$var))
 	tr <- sum(matmultdiag(solve(naive.var), x$var))
 	ll <- x$loglik[2L]
-	px <- x$n
-	c(2 * (c(QIC = tr, QICu = px) - ll), n = px)
+	px <- dim(x$var)[1L]
+	c(2 * (c(QIC = tr, QICu = px) - ll), n = length(x$y))
 }
 
 `getQIC.gee` <- 
@@ -112,6 +125,13 @@ function(x, typeR = FALSE) {
 	.qic2(x$y, x$fitted.values, x$geese$vbeta, 
 		  xi$fitted.values, xi$geese$vbeta.naiv, family(x)$family,
 		  typeR = typeR)
+}
+
+`getQIC.wgee` <- 
+function(x, typeR = FALSE) {
+	if(isTRUE(typeR)) warning("argument 'typeR' ignored.")
+	qic <- getFrom("wgeesel", "QIC.gee")(x)
+	c(QIC = qic[[1L]], QICu = qic[[2L]], n = length(x$mu_fit))
 }
 
 `getQIC.yagsResult` <- 

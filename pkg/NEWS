@@ -1,9 +1,14 @@
 MuMIn package news:
 
+Version: 1.43.0 (2019-02-28)
+(fixed) in QICu, the number of parameters was mistaken for number of 
+    observations (reported by Richard Fredrickson)
+(added) some methods for wgeesel::wgee objects.
+
 Version: 1.42.5 (2019-01-02)
 r.squaredGLMM: added the argument "envir" which is passed to `.nullFitRE`. This 
-    can be used in case of issues with model data not being found (problem 
-    reported by Eliot McIntire)
+    can be used in case of issues with model data not being found (reported by
+    Eliot McIntire)
 
 Version: 1.42.4 (2018-12-05)
 (fixed) r.squaredGLMM.merMod: error when the function was called in an 
