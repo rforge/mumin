@@ -1,11 +1,12 @@
 \name{importance}
 \alias{importance}
+\alias{sum.of.weights}
+\alias{sow}
 \encoding{utf-8}
 
 \title{Relative variable importance}
 \description{
-Sum of \sQuote{Akaike weights} over all models including the explanatory
-variable.
+Sum of model weights over all models including each explanatory variable.
 }
 
 \usage{

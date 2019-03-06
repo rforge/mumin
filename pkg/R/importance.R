@@ -28,7 +28,7 @@ function(x, ...) {
 	print.default(format(matrix(c(
 		format(ifelse(x < 0.01, "<0.01", zapsmall(x, 2L)), scientific = FALSE,
 		justify = "r"), format(attr(x, "n.models"))), nrow = 2L, byrow = TRUE,
-		dimnames = list(c("Importance:", "N containing models:"), names(x))),
+		dimnames = list(c("Sum of weights:", "N containing models:"), names(x))),
 		justify = "r"), quote = FALSE)
 	invisible(x)
 }

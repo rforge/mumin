@@ -576,7 +576,7 @@ function (x, digits = max(3L, getOption("digits") - 3L),
 		#dimnames = list("", x$term.names)), P.values = FALSE,
 		#has.Pvalue = FALSE, cs.ind = seq_along(x$term.names), tst.ind = NULL)
 
-	cat("\nRelative variable importance: \n")
+	cat("\nSum of weights: \n")
 	print(round(x$importance, 2L))
 }
 
@@ -595,7 +595,8 @@ function(x, ...) {
     x
 }
 
-`vcov.averaging` <- function (object, full = FALSE, ...) {
+`vcov.averaging` <- 
+function (object, full = FALSE, ...) {
 	## XXX: backward compatibility:
 	object <- upgrade_averaging_object(object)
 	full <- .checkFull(object, full) 
