@@ -575,6 +575,9 @@ function (x, digits = max(3L, getOption("digits") - 3L),
 	#printCoefmat(matrix(x$coef  .shrinkage, nrow = 1L,
 		#dimnames = list("", x$term.names)), P.values = FALSE,
 		#has.Pvalue = FALSE, cs.ind = seq_along(x$term.names), tst.ind = NULL)
+
+	# cat("\nSum of weights: \n")
+	# print(round(x$sw, 2L))
 }
 
 `print.averaging` <-

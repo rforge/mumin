@@ -1,8 +1,9 @@
 MuMIn package news:
 
 Version: 1.43.3 (2019-03-19)
-(added) methods for 'gamlss' (suggestion by Anne Loosen)
-(fixed) quasiLik for gaussian family
+(added) methods for 'gamlss' (suggested by Anne Loosen)
+(fixed) QIC,quasiLik: now gives results compatible with those 
+    of wgeesel::QIC.gee.
 
 Version: 1.43.2 (2019-03-16)
 'sw' (for "Sum of Weights") is now preferred to 'importance' (which is 
@@ -11,7 +12,6 @@ Version: 1.43.2 (2019-03-16)
     importance.
 [p]dredge: max. number of predictors is now correctly calculated (depending on 
     the number of variants)
-(fixed) QIC: now gives results compatible with those of wgeesel::QIC.gee.
 
 Version: 1.43.1 (2019-03-06)
 (added) new model structure for unmarkedFitGDS (gdistsamp) with alpha parameter

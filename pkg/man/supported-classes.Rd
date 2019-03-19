@@ -25,6 +25,7 @@ functions include those produced by:
 \item \lxcode{cpglm}{cplm}, \lxcode{cpglmm}{cplm} (\CRANpkg{cplm});
 \item \lxcode{gam}{mgcv}, \lxcode{gamm}{mgcv}* (\CRANpkg{mgcv});
 \item \lxcode{gamm4}{gamm4}* (\CRANpkg{gamm4});
+\item \lxcode{gamlss}{gamlss} (\CRANpkg{gamlss});
 \item \lxcode{glmmML}{glmmML} (\CRANpkg{glmmML});
 \item \code{glmmadmb} (\href{http://glmmadmb.r-forge.r-project.org/}{\pkg{glmmADMB}}
 	from R-Forge);
