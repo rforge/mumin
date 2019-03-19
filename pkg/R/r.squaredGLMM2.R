@@ -217,6 +217,11 @@ function(object, null, envir = parent.frame(), pj2014 = FALSE, ...) {
     varFE <- var(fitted)
     mmRE <- .remodmat(object)
     
+    # XXX: alternatively:
+    #mmRE <- do.call("cbind", model.matrix(object, type = "randomListRaw"))
+    #varRE <- .varRESum(vc, mmRE[, unique(colnames(mmRE)), drop = FALSE])
+  
+    
     ##Note: Argument 'contrasts' can only be specified for fixed effects
 	##contrasts.arg = eval(cl$contrasts, envir = environment(formula(object))))	
 	vc <- .varcorr(object)

@@ -130,10 +130,10 @@ function(object, R = 250, weight.by = c("aic", "loglik"), trace = FALSE) {
 			term.codes = attr(allmodelnames, "variables")),
 		coefficients = coefMat,
 		coefArray = coefArray[ordmod, , ],
-		importance = {
+		sw = {
 			structure(wtsmean %*% bp,
 				n.models = structure(colSums(bp), names = tenm),
-				names = tenm, class = "importance")
+				names = tenm, class = "sw")
 		 },
 		formula = object$formula,
 		call = match.call() 

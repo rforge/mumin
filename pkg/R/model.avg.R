@@ -94,7 +94,7 @@ function(object, subset, fit = FALSE, ..., revised.var = TRUE) {
 			term.codes = attr(allmodelnames, "variables")),
 		coefficients = coefMat,
 		coefArray = cfarr,
-		importance = importance(object),
+		sw = sw(object),
 		x = NULL,
 		residuals = NULL,
 		formula = if(!is.null(attr(object, "global")))
@@ -234,14 +234,14 @@ function(object, ..., beta = c("none", "sd", "partial.sd"),
 		all.terms %in% getAllTerms(x)))
 	
 	if(all(dim(vpresent) > 0L)) {
-		importance <- apply(weight * vpresent, 2L, sum)
-		names(importance) <- all.terms
-		o <- order(importance, decreasing = TRUE)
-		importance <- importance[o]
-		attr(importance, "n.models") <- structure(colSums(vpresent)[o], names = all.terms)
-		class(importance) <- c("importance", "numeric")
+		sw <- apply(weight * vpresent, 2L, sum)
+		names(sw) <- all.terms
+		o <- order(sw, decreasing = TRUE)
+		sw <- sw[o]
+		attr(sw, "n.models") <- structure(colSums(vpresent)[o], names = all.terms)
+		class(sw) <- c("sw", "numeric")
 	} else {
-		importance <- structure(integer(0L), n.models = integer(0L), class = c("importance", "numeric"))
+		sw <- structure(integer(0L), n.models = integer(0L), class = c("sw", "numeric"))
 	}
 	
 	mmxs <- tryCatch(cbindDataFrameList(lapply(models, model.matrix)),
@@ -287,7 +287,7 @@ function(object, ..., beta = c("none", "sd", "partial.sd"),
 			term.codes = attr(allmodelnames, "variables")),
 		coefficients = coefMat,
 		coefArray = cfarr,
-		importance = importance,
+		sw = sw,
 		x = mmxs,
 		residuals = NULL, # no residuals
 		formula = frm,
@@ -575,9 +575,6 @@ function (x, digits = max(3L, getOption("digits") - 3L),
 	#printCoefmat(matrix(x$coef  .shrinkage, nrow = 1L,
 		#dimnames = list("", x$term.names)), P.values = FALSE,
 		#has.Pvalue = FALSE, cs.ind = seq_along(x$term.names), tst.ind = NULL)
-
-	cat("\nSum of weights: \n")
-	print(round(x$importance, 2L))
 }
 
 `print.averaging` <-

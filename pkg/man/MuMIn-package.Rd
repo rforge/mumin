@@ -13,11 +13,11 @@ model selection and carry out model averaging based on the information criteria.
 
 The collection of functions includes:
 \describe{
-	\item{\code{\link{dredge}}}{performs automated model selection with
+	\item{\code{\link{dredge}}}{performs an automated model selection with
 		subsets of the supplied \sQuote{global} model, and optional
 		choices of other model properties (such as different link functions).
 		The set of models may be generated either with \sQuote{all possible}
-		combinations, or tailored according to the conditions specified.
+		combinations or tailored according to the conditions specified.
 
 		\code{\link{pdredge}} does the same, but can parallelize model fitting
 		process using a cluster.
@@ -47,7 +47,7 @@ following ones are currently implemented in \R:
 \acronym{GEE}.
 
 Most of \R's common modelling functions are supported, for a full inventory
-see \link[=MuMIn-models]{list of supported models}.
+see \link[=MuMIn-models]{the list of supported models}.
 
 Apart from the \dQuote{regular} information criteria, model averaging can be performed
   using various types of model weighting algorithms:

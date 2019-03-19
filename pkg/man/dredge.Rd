@@ -108,9 +108,9 @@ dredge(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE,
 Models are fitted through repeated evaluation of modified call extracted from
 the \code{global.model} (in a similar fashion as with \code{update}). This
 approach, while robust in that it can be applied to most model types through the
-usual formula interface, may have a considerable computational overhead.
+usual formula interface, may have considerable computational overhead.
 
-Note that the number of combinations grows exponentially with number of
+Note that the number of combinations grows exponentially with the number of
 predictors (\ifelse{latex}{\eqn{2^{N}}}{\ifelse{html}{2ⁿ}{2^N}}, less when
 interactions are present, see below).
 
@@ -121,7 +121,7 @@ Another way of getting all the models is to run
 which avoids fitting the models twice.
 
 For a list of model types that can be used as a \code{global.model} see
-\link[=MuMIn-models]{list of supported models}. Modelling functions not storing
+\link[=MuMIn-models]{the list of supported models}. Modelling functions not storing
 \code{call} in their result should be evaluated \emph{via} the wrapper function
 created by \code{\link{updateable}}.
 
@@ -144,7 +144,7 @@ subset models.
 
 \subsection{Subsetting}{
 There are three ways to constrain the resulting set of models: setting limits to
-the number of terms in a model with \code{m.lim}, binding
+the number of terms in a model with \code{m.lim}, binding the
 term(s) to all models with \code{fixed}, and more complex rules can be applied
 using argument \code{subset}. To be included in the selection table, the model
 formulation must satisfy all these conditions.
@@ -201,7 +201,7 @@ The special variable \ifelse{latex}{\bq{*nvar*}}{\code{`*nvar*`}}
 (backtick-quoted), in the \code{subset} expression is equal to the number of 
 terms in the model (\bold{not} the number of estimated parameters).
 
-To make inclusion of a model term conditional on presence of another one,
+To make the inclusion of a model term conditional on the presence of another one,
 the function \code{dc} (\dQuote{\bold{d}ependency \bold{c}hain}) can be used in
 the \code{subset} expression. \code{dc} takes any number of term names as
 arguments, and allows a term to be included only if all preceding ones
@@ -210,7 +210,7 @@ are also present (e.g. \code{subset = dc(a, b, c)} allows for models \code{a},
 \code{a+c}).
 
 \code{subset} expression can have a form of an unevaluated \code{call},
-\code{expression} object, or a one sided \code{formula}. See \sQuote{Examples}.
+\code{expression} object, or a one-sided \code{formula}. See \sQuote{Examples}.
 
 Compound model terms (such as interactions, \sQuote{as-is} expressions within
 \code{I()} or smooths in \code{gam}) should be enclosed within curly brackets
@@ -240,24 +240,25 @@ Compound model terms (such as interactions, \sQuote{as-is} expressions within
 	\item{\code{dc(a, b, c,...)}}{ \sQuote{dependency chain}: \var{b} is allowed only
 		if \var{a} is present, and \var{c} only if both \var{a} and \var{b} are
 		present, etc. }
-	\item{\code{`*nvar*`}}{ number of terms. }
+	\item{\code{`*nvar*`}}{ the number of terms in the model. }
 	}
 }
 
 To simply keep certain terms in all models, use of argument \code{fixed} is much
 more efficient. The \code{fixed} formula is interpreted in the same manner
-as model formula and so the terms need not to be quoted.
+as model formula and so the terms must not be quoted.
 }
 
 \subsection{Missing values}{
 Use of \code{na.action = "na.omit"} (\R's default) or \code{"na.exclude"}  in
 \code{global.model} must be avoided, as it results with sub-models fitted to
-different data sets, if there are missing values. Error is thrown if it is
+different data sets if there are missing values. An error is thrown if it is
 detected.
 
 It is a common mistake to give \code{na.action} as an argument in the call
   to \code{dredge} (typically resulting in an error from the \code{rank}
-  function to which the argument is passed through \sQuote{\dots}), while the correct way
+  function to which the argument is passed through \sQuote{\dots}), while the 
+  correct way
   is either to pass \code{na.action} in the call to the global model or to set
   it as a \link[=options]{global option}.
 
@@ -266,7 +267,7 @@ It is a common mistake to give \code{na.action} as an argument in the call
 \subsection{Methods}{
 There are \code{\link[=subset.model.selection]{subset}} and
 \code{\link[=plot.model.selection]{plot}} methods, the latter creates a
-graphical representation of model weights and variable relative importance.
+graphical representation of model weights and per-model term sum of weights.
 Coefficients can be extracted with \code{coef} or \code{\link{coefTable}}.
 }
 

@@ -46,7 +46,6 @@ function(x) {
 	rval
 }
 
-
 umf_terms2formulalist <- 
 function(termNames, opt, replaceInt = "(1)") {
 	i <- termNames %in% opt$interceptLabel
@@ -98,10 +97,6 @@ function(x, intercept = FALSE, ...) {
 	sn1[j] <- shortnames[j != 0L]
 	shortnames <- sn1
 	term.prefix <- specs["estimate:short.name", ]
-	
-	#print(rbind(names(shortnames), shortnames, specs["estimate:itemName", ]))
-	#cat("--\n")
-	#return(invisible())
 	term.prefix[] <- shortnames
 	term.prefix[i] <- names(term.prefix)[i <- is.na(term.prefix)]
 	

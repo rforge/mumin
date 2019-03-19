@@ -4,7 +4,7 @@ export(
 	"model.avg", "par.avg", 
 	"model.sel",
 	"getAllTerms", "coeffs", "coefTable", 
-	"importance", "Weights", "Weights<-",
+	"sw", "importance", "Weights", "Weights<-",
 	"AICc", "QAIC", "QAICc", "Cp", "ICOMP", "CAICF", "DIC", 
 	"r.squaredLR", "null.fit", "r.squaredGLMM",
 	"QIC", "QICu", "quasiLik",
@@ -104,11 +104,11 @@ S3method(model.avg, default)
 
 S3method(plot, model.selection)
 
-S3method(importance, averaging)
-S3method(importance, model.selection)
-S3method(importance, default)
+S3method(sw, averaging)
+S3method(sw, model.selection)
+S3method(sw, default)
 
-S3method(print, importance)
+S3method(print, sw)
 
 S3method(Weights, model.selection)
 S3method(Weights, averaging)
@@ -415,3 +415,11 @@ S3method(sigma2, glmmTMB)
 S3method(family, cplm)
 S3method(family, glmmadmb)
 S3method(sigma, glmmadmb)
+
+S3method(coeffs, gamlss)
+S3method(coefTable, gamlss)
+S3method(getAllTerms, gamlss)
+S3method(makeArgs, gamlss)
+
+
+
