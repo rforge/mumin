@@ -27,15 +27,14 @@ dredge(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE,
 	\item{global.model}{a fitted \sQuote{global} model object. See
 	\sQuote{Details} for a list of supported types. }
 
-	\item{beta}{indicates whether and how the coefficients estimates should be
-	standardized, and must be one of \code{"none"}, \code{"sd"} or
-	\code{"partial.sd"}. You can specify just the initial letter. \code{"none"}
-	corresponds to unstandardized coefficients, \code{"sd"} and
-	\code{"partial.sd"} to coefficients standardized by \acronym{SD} and Partial
-	\acronym{SD}, respectively. For backwards compatibility, logical value is
-	also accepted, \code{TRUE} is equivalent to \code{"sd"} and \code{FALSE} to
-	\code{"none"}. See \code{\link{std.coef}}.
-	 }
+	\item{beta}{indicates whether and how the coefficient are standardized, and 
+    must be one of \code{"none"}, \code{"sd"} or \code{"partial.sd"}. You can 
+    specify just the initial letter. \code{"none"} corresponds to unstandardized
+    coefficients, \code{"sd"} and \code{"partial.sd"} to coefficients 
+    standardized by \acronym{SD} and Partial \acronym{SD}, respectively. For 
+    backwards compatibility, logical value is also accepted, \code{TRUE} is 
+    equivalent to \code{"sd"} and \code{FALSE} to \code{"none"}. 
+    See \code{\link{std.coef}}.	}
 
 	\item{evaluate}{whether to evaluate and rank the models. If \code{FALSE}, a
 	list of unevaluated \code{call}s is returned. }
@@ -59,8 +58,7 @@ dredge(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE,
 
 	\item{trace}{if \code{TRUE} or \code{1}, all calls to the fitting function
 	are printed before actual fitting takes place. If \code{trace > 1}, a progress bar
-	is displayed.
-	}
+	is displayed. }
 
 	\item{varying}{ optionally, a named list describing the additional arguments
 	to vary between the generated models. Item names correspond to the
@@ -80,8 +78,7 @@ dredge(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE,
 	statistics. The character strings \code{"R^2"} and \code{"adjR^2"} are
 	treated in a special way, and will add a likelihood-ratio based \Rsq and
 	modified-\Rsq respectively to the result (this is more efficient than using
-	\code{\link{r.squaredLR}} directly).
-	}
+	\code{\link{r.squaredLR}} directly). }
 
   \item{x}{ a \code{model.selection} object, returned by \code{dredge}. }
 
@@ -261,7 +258,11 @@ It is a common mistake to give \code{na.action} as an argument in the call
   correct way
   is either to pass \code{na.action} in the call to the global model or to set
   it as a \link[=options]{global option}.
+}
 
+\subsection{Intercept}{ 
+If present in the \code{global.model}, the intercept will be included in all 
+sub-models.
 }
 
 \subsection{Methods}{

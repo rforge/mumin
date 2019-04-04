@@ -1,9 +1,12 @@
 MuMIn package news:
 
+Version: 1.43.4 (2019-04-04)
+(fixed) minor changes to the quasi-likelihood function
+
 Version: 1.43.3 (2019-03-19)
 (added) methods for 'gamlss' (suggested by Anne Loosen)
-(fixed) QIC,quasiLik: now gives results compatible with those 
-    of wgeesel::QIC.gee.
+(fixed) QIC,quasiLik: now gives results compatible with those of 
+    wgeesel::QIC.gee.
 
 Version: 1.43.2 (2019-03-16)
 'sw' (for "Sum of Weights") is now preferred to 'importance' (which is 

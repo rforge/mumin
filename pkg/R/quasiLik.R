@@ -10,14 +10,16 @@
 
 `quasiLik` <- function (object, ...) UseMethod("quasiLik")
 
-.qlik <- function(y, mu, fam, scale) {
+.qlik <- function(y, mu, fam, scale = 1) {
 	switch(fam,
-		gaussian = -sum((y - mu)^2) / 2 / scale,
+		gaussian = -0.5 * sum((y - mu)^2) / scale,
 		binomial = sum(y * log(mu / (1 - mu)) + log(1 - mu)),
 		#binomial.sqvar = sum(((2 * y - 1) * log(mu /(1 - mu))) - (y / mu) - ((1 - y)/(1 - mu))),
-		poisson = sum(y * log(mu) - mu),
-		Gamma = -sum(y / mu + log(mu)),
-		inverse.gaussian = sum(-y / (2 * mu^2) + 1 / mu),
+		poisson = sum((y * log(mu)) - mu),
+		Gamma = -sum(y / mu + log(mu)) / scale,
+		inverse.gaussian = sum(-(y / (2 * mu^2)) + (1 / mu)) / scale,
+        negbin = , 
+        negative.binomial = sum((y * log(mu)) - (2 * log(mu + 1))) / scale,
 		cry(, "do not know how to calculate quasi-likelihood for family '%s'",
 			 fam))
 }
@@ -82,11 +84,10 @@ function(object, ...) {
 ##=============================================================================
 
 .qic2 <- function(y, mu, vbeta, mui, vbeta.naiv.i, fam, scale, typeR = FALSE) {
-	ql <- if(typeR) .qlik(y, mu, fam, scale) else .qlik(y, mui, fam, scale)
+	#ql <- if(typeR) .qlik(y, mu, fam, scale) else .qlik(y, mui, fam, scale)
+    ql <- .qlik(y, if(typeR) mu else mui, fam, scale)
 	# XXX: should be typeR = TRUE for QICu???
 	n <- length(y)
-	# yags/yags.cc: p140 of Hardin and Hilbe
-	#if(fam == "gaussian") ql <- (n * log(-2 * ql / n)) / -2
 	AIinv <- solve(vbeta.naiv.i)
 	tr <- sum(matmult(AIinv, vbeta, diag.only = TRUE)) 
 	## tr <- sum(diag(AIinv %*% vbeta))
