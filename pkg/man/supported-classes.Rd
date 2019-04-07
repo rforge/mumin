@@ -39,7 +39,7 @@ functions include those produced by:
 \item \lxcode{aodml}{aods3}, \lxcode{aodql}{aods3} (\CRANpkg{aods3});
 \item \lxcode{betareg}{betareg} (\CRANpkg{betareg});
 \item \lxcode{brglm}{brglm} (\CRANpkg{brglm});
-\item \code{*sarlm} models, \lxcode{spautolm}{spdep} (\CRANpkg{spdep});
+\item \code{*sarlm} models, \lxcode{spautolm}{spatialreg} (\CRANpkg{spatialreg});
 \item \lxcode{spml}{splm}* (if fitted by \acronym{ML}, \CRANpkg{splm});
 \item \lxcode{coxph}{survival}, \lxcode{survreg}{survival} (\CRANpkg{survival});
 \item \lxcode{coxme}{coxme}, \lxcode{lmekin}{coxme} (\CRANpkg{coxme});

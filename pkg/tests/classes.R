@@ -1,9 +1,8 @@
 ## MuMIn tests: support for various model classes
-
 require(MuMIn)
+
 .checkPkg <- function(package) 
 length(find.package(package, quiet = TRUE)) == length(package)
-
 
 options(na.action = "na.fail")
 
@@ -206,8 +205,8 @@ rm(list=ls()); detach(package:mgcv)
 # TEST spautolm ---------------------------------------------------------------------------
 
 # if (require("foreign") && require("spdep"))
-if (.checkPkg(c("foreign", "spdep")))
-if(!is.null(tryCatch(suppressPackageStartupMessages(library(spdep)), error = function(e) NULL))) {
+if (.checkPkg(c("foreign", "spatialreg", "spdep")))
+if(!is.null(tryCatch(library(spatialreg), error = function(e) NULL))) {
 
 suppressMessages(example(NY_data, echo = FALSE))
 
@@ -237,10 +236,10 @@ rm(list=ls())
 
 # TEST spautolm ---------------------------------------------------------------------------
 #suppressPackageStartupMessages(library(spdep))
-data(oldcol)
+data(oldcol, package="spdep")
 
 fm1.sarlm <- errorsarlm(CRIME ~ INC * HOVAL * OPEN, data = COL.OLD,
- listw = nb2listw(COL.nb, style = "W"), method = "eigen", quiet = TRUE)
+ listw = spdep::nb2listw(COL.nb, style = "W"), method = "eigen", quiet = TRUE)
 
 dd <- dredge(fm1.sarlm)
 
@@ -253,7 +252,9 @@ summary(ma)
 
 predict(ma)[1:10]
 
-rm(list=ls()); detach(package:spdep)
+rm(list=ls());
+#detach("package:spdep")
+detach("package:spatialreg")
 
 } # library(spdep)
 
@@ -321,8 +322,7 @@ mod
 # ma <- model.avg(mod)
 # so, need to supply them
 ma <- model.avg(mod[1:5], rank = "QAICc", rank.args = list(chat = 0.403111))
-print(ma)
-
+ma
 rm(list=ls())
 
 # TEST polr {MASS} -------------------------------------------------------------
