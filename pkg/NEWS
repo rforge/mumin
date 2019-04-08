@@ -1,5 +1,11 @@
 MuMIn package news:
 
+Version: 1.43.6 (2019-04-08)
+(fixed) if conditions with "length > 1 in coercion to logical" error produced by
+    the new Rcheck.
+(fixed) updated 'tests' to make up for 'spautolm' moved from 'spdep' to 
+    'spatialreg'.
+
 Version: 1.43.4 (2019-04-04)
 (fixed) minor changes to the quasi-likelihood function
 
