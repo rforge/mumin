@@ -101,7 +101,7 @@ function(x, intercept = FALSE, ...) {
 	term.prefix[i] <- names(term.prefix)[i <- is.na(term.prefix)]
 	
 	if(is(x, "unmarkedFitDS")) {
-		if(!is.na(term.prefix['p'])) {
+		if(!anyNA(term.prefix['p'])) {
 			z <- allterms[[ i <- which(names(term.prefix) == "p") ]]
 			detprefix <- switch(x@keyfun, uniform = "", halfnorm = "sigma",
 				hazard = "shape", exp = "rate", "")

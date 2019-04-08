@@ -206,7 +206,7 @@ rm(list=ls()); detach(package:mgcv)
 
 # if (require("foreign") && require("spdep"))
 if (.checkPkg(c("foreign", "spatialreg", "spdep")))
-if(!is.null(tryCatch(library(spatialreg), error = function(e) NULL))) {
+if(!is.null(tryCatch(suppressPackageStartupMessages(library(spatialreg)), error = function(e) NULL))) {
 
 suppressMessages(example(NY_data, echo = FALSE))
 

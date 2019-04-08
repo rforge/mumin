@@ -112,7 +112,7 @@ function (expr, what, FUN, ..., symbols = FALSE, parent = NULL) {
 		return(expr) else
 	if (n == 1L) {
 		if (!is.call(expr)) {
-            if (symbols && (is.na(what) || any(expr == what)))
+            if (symbols && (anyNA(what) || any(expr == what)))
                 expr <- FUN(expr, ..., parent = parent)
             return(expr)
         }
@@ -128,7 +128,7 @@ function (expr, what, FUN, ..., symbols = FALSE, parent = NULL) {
 			if(!missing(y)) expr[i] <- list(y)
 		}
     }
-    if (is.na(what) || (length(expr[[1L]]) == 1L && any(expr[[1L]] == what)))
+    if (anyNA(what) || (length(expr[[1L]]) == 1L && any(expr[[1L]] == what)))
 		expr <- FUN(expr, ..., parent = parent)
     return(expr)
 }

@@ -50,18 +50,14 @@ importFrom("stats", ".checkMFClasses", ".getXlevels", ".MFclass", "AIC",
 	"rbinom", "rgamma", "rpois" # for .simulateData
     )
 importFrom("stats4", "logLik", "coef", "vcov")
-#importFrom("utils", "capture.output", "setTxtProgressBar", "txtProgressBar")
-
+importFrom("utils", "capture.output")
 importFrom("Matrix", "t", "rowSums", "det", "diag", "solve")
 importFrom("grDevices", "n2mfrow")
 importFrom("graphics", "abline", "lines", "matplot")
 
 # model-averaging related functions:
 importFrom("stats", "cor", "cov", "rnorm", "runif", "optim")
-
 importFrom("nlme", fixef, VarCorr)
-
-
 
 # Methods:
 S3method(getCall, yagsResult)
@@ -420,6 +416,3 @@ S3method(coeffs, gamlss)
 S3method(coefTable, gamlss)
 S3method(getAllTerms, gamlss)
 S3method(makeArgs, gamlss)
-
-
-
