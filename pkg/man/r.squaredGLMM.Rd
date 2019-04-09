@@ -96,9 +96,10 @@ fitting the null model is required. This warnings can be disabled by setting
 
 \strong{Important}: as of \pkg{MuMIn} version 1.41.0, 
 \code{r.squaredGLMM} returns a revised statistics based on Nakagawa et 
-al. (2014) paper. The returned value's format also has changed (it is a 
+al. (2017) paper. The returned value's format also has changed (it is a 
 \code{matrix} rather than a numeric vector as before). Pre-1.41.0 version of the
-function calculated the \dQuote{theoretical} \Rsqx{GLMM} for \code{binomial} models.
+function calculated the \dQuote{theoretical} \Rsqx{GLMM} for \code{binomial}
+models.
 
 
 \Rsqx{GLMM} can be calculated also for fixed-effect models. In
@@ -118,8 +119,9 @@ model selection.
 
 \author{
 Kamil Barto\enc{ń}{n}. This implementation is based on \R code from 
-\sQuote{Supporting Information} for Nakagawa et al. (2014), and 
-(the extension for random-slopes) Johnson (2014).
+\sQuote{Supporting Information} for Nakagawa et al. (2014), 
+(the extension for random-slopes) Johnson (2014), and includes developments from
+Nakagawa et al. (2017).
 }
 
 \references{

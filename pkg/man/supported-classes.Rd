@@ -61,7 +61,7 @@ Generalized Estimation Equation model implementations:
 \lxcode{gee}{gee} from \CRANpkg{gee}, 
 \lxcode{geem}{geeM} from \CRANpkg{geeM}, 
 \lxcode{wgee}{wgeesel} from \CRANpkg{wgeesel}, 
-and \code{yags} from  \href{http://yags.r-forge.r-project.org/}{\pkg{yags}} (from 
+and \code{yags} from  \href{http://yags.r-forge.r-project.org/}{\pkg{yags}} (on 
 R-Forge) can be used with \code{\link{QIC}} as the selection criterion.
 
 
