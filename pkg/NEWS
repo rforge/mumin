@@ -1,5 +1,8 @@
 MuMIn package news:
 
+Version: 1.43.8 (2019-04-15)
+(fixed) methods for 'gamlss' (reported by Andras Farkas)
+
 Version: 1.43.6 (2019-04-08)
 (fixed) if conditions with "length > 1 in coercion to logical" error produced by
     the new Rcheck.

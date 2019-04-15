@@ -1,8 +1,8 @@
 Package: MuMIn
 Type: Package
 Title: Multi-Model Inference
-Version: 1.43.6
-Date: 2019-04-08
+Version: 1.43.8
+Date: 2019-04-15
 Encoding: UTF-8
 Author: Kamil Bartoń
 Maintainer: Kamil Bartoń <kamil.barton@go2.pl>
@@ -18,6 +18,6 @@ Suggests: lme4 (>= 1.1.0), mgcv (>= 1.7.5), gamm4, MASS, nnet,
           survival (>= 2.37.5), geepack
 Enhances: aod, aods3, betareg, caper, coxme, cplm, gee, glmmML, logistf, 
           MCMCglmm, ordinal, pscl, spdep, spatialreg, splm, unmarked (>= 0.12.2), 
-          geeM (>= 0.7.5)
+          geeM (>= 0.7.5), gamlss
 LazyData: yes
 ByteCompile: yes
