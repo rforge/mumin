@@ -215,16 +215,18 @@ function(object, null, envir = parent.frame(), pj2014 = FALSE, ...) {
     ok <- !is.na(fe)
     fitted <- (model.matrix(object)[, ok, drop = FALSE] %*% fe[ok])[, 1L]
     varFE <- var(fitted)
-    mmRE <- .remodmat(object)
     
     # XXX: alternatively:
-    #mmRE <- do.call("cbind", model.matrix(object, type = "randomListRaw"))
-    #varRE <- .varRESum(vc, mmRE[, unique(colnames(mmRE)), drop = FALSE])
-  
+	#mmRE <- .remodmat(object) # this does not keep original ordering of
+	                           # interaction element names
+    mmRE <- do.call("cbind", model.matrix(object, type = "randomListRaw"))
+	mmRE <- mmRE[, !duplicated(colnames(mmRE)), drop = FALSE]
     
     ##Note: Argument 'contrasts' can only be specified for fixed effects
 	##contrasts.arg = eval(cl$contrasts, envir = environment(formula(object))))	
+
 	vc <- .varcorr(object)
+
 	if(!all(unlist(sapply(vc, rownames), use.names = FALSE) %in% colnames(mmRE)))
 		stop("RE term names do not match those in model matrix. \n",
 			 "Have 'options(contrasts)' changed since the model was fitted?")
