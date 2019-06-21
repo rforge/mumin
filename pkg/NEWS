@@ -1,8 +1,11 @@
 MuMIn package news:
 
 Version: 1.43.9 (2019-06-21)
-(fixed) r.squaredGLMM failed when the interaction components in RE part of the 
-    model formula were not in order of appearance (found by Gabriel Baud-Bovy)
+(fixed) 'r.squaredGLMM' failed when order of interaction components in RE part
+    of model formula were not in order of appearance (found by
+    Gabriel Baud-Bovy)
+(removed) 'predict.merMod' replacement, since the original method (in 'lme4')
+    now accepts "se.fit" argument.
 
 Version: 1.43.8 (2019-04-15)
 (fixed) methods for 'gamlss' (reported by Andras Farkas)
