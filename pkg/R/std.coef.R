@@ -32,6 +32,7 @@ function(x, sd, vif, n, p = length(x) - 1) {
 
 partial.sd <- function(x) {
 	mm <- model.matrix(x)
+	m <- ncol(mm)
 	.partialsd(coef(x), apply(mm, 2L, sd), .vif(x), nobs(x),
 			   sum(attr(mm, "assign") != 0))
 }

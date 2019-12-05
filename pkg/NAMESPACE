@@ -150,12 +150,9 @@ S3method(summary, glmmML)
 
 S3method(getAllTerms, coxph)
 S3method(coefTable, coxph)
-S3method(nobs, coxph)
-
 
 S3method(coeffs, survreg)
 S3method(coefTable, survreg)
-S3method(nobs, survreg)
 
 S3method(getAllTerms, lme)
 S3method(coeffs, lme)
@@ -285,7 +282,6 @@ S3method(coefTable, wgee)
 S3method(nobs, wgee)
 S3method(formula, wgee)
 S3method(makeArgs, wgee)
-
 
 S3method(coeffs, mark)
 S3method(coefTable, mark)

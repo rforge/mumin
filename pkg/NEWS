@@ -1,5 +1,8 @@
 MuMIn package news:
 
+Version: 1.43.10 (2019-12-05)
+removed conflicting methods
+
 Version: 1.43.9 (2019-06-21)
 (fixed) 'r.squaredGLMM' failed when order of interaction components in RE part
     of model formula were not in order of appearance (found by
