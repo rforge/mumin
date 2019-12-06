@@ -5,7 +5,7 @@
 \encoding{utf-8}
 \title{Multi-model inference}
 \description{
-The package \pkg{MuMIn} contains functions to streamline information-theoretic
+The package \pkg{MuMIn} contains functions to streamline the information-theoretic
 model selection and carry out model averaging based on the information criteria.
 }
 
@@ -19,12 +19,12 @@ The collection of functions includes:
 		The set of models may be generated either with \sQuote{all possible}
 		combinations or tailored according to the conditions specified.
 
-		\code{\link{pdredge}} does the same, but can parallelize model fitting
+		\code{\link{pdredge}} does the same but can parallelize model fitting
 		process using a cluster.
 		}
 	\item{\code{\link{model.sel}}}{creates a model selection table from
 		hand-picked models. }
-	\item{\code{\link{model.avg}}}{ calculates model averaged parameters,
+	\item{\code{\link{model.avg}}}{ calculates model-averaged parameters,
 		with standard errors and confidence intervals. }
 	\item{\code{\link{AICc}}}{calculates second-order Akaike information
 		criterion. Some other criteria are provided, see below. }
