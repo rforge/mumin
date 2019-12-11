@@ -1,8 +1,8 @@
 Package: MuMIn
 Type: Package
 Title: Multi-Model Inference
-Version: 1.43.10
-Date: 2019-12-05
+Version: 1.43.12
+Date: 2019-12-11
 Encoding: UTF-8
 Author: Kamil Bartoń
 Maintainer: Kamil Bartoń <kamil.barton@go2.pl>

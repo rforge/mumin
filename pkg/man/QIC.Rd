@@ -56,9 +56,9 @@ Methods exist for
 \code{\link[wgeesel]{wgee}} (\pkg{wgeesel}, the package's \code{QIC.gee} function is used), 
 and
 \code{yags} (\pkg{yags} on R-Forge).
-\code{yags} and
+There is also a \code{QIC} function in the package \pkg{MESS}, returning some 
+extra information (such as CIC and QICc). \code{yags} and 
 \code{\link[ape]{compar.gee}} from package \pkg{ape} both provide QIC values.
-
 }
 
 \keyword{models}
