@@ -56,8 +56,8 @@ Methods exist for
 \code{\link[wgeesel]{wgee}} (\pkg{wgeesel}, the package's \code{QIC.gee} function is used), 
 and
 \code{yags} (\pkg{yags} on R-Forge).
-There is also a \code{QIC} function in the package \pkg{MESS}, returning some 
-extra information (such as CIC and QICc). \code{yags} and 
+There are also \code{QIC} in packages \pkg{MESS} and \pkg{geepack}, 
+both returning some extra information (such as CIC and QICc). \code{yags} and 
 \code{\link[ape]{compar.gee}} from package \pkg{ape} both provide QIC values.
 }
 
@@ -73,7 +73,9 @@ fm1 <- geeglm(resp ~ age * smoke, id = id, data = ohio,
 fm2 <- update(fm1, corstr = "ar1")
 fm3 <- update(fm1, corstr = "unstructured")
 
-model.sel(fm1, fm2, fm3, rank = QIC)
+# QIC function is also defined in 'geepack' but its return value is 
+# a vector. Use `MuMIn::QIC` or make a wrapper around `geepack::QIC`.
+model.sel(fm1, fm2, fm3, rank = MuMIn::QIC)
 
 \dontrun{
 # same result:

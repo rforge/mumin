@@ -1,5 +1,10 @@
 MuMIn package news:
 
+Version: 1.43.14 (2019-12-18)
+(fixed) example(QIC) causing an error after recent update of 'geepack'.
+Added quasiLik/QIC for the negative binomial family (reportedly supported only 
+    by 'geeM::geem').
+
 Version: 1.43.13 (2019-12-14)
 (fixed) get.models: in the absence of a 'global model', the argument 'subset' 
     was ignored and a list of all models was returned. 
