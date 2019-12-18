@@ -110,7 +110,10 @@ function(object, ...) {
     ql <- .qlik(y, if(typeR) mu else mui, fam, wts, scale)
 	# XXX: should be typeR = TRUE for QICu???
 	n <- length(y)
-	AIinv <- solve(vbeta.naiv.i)
+    
+    invert <- if ("MASS" %in% loadedNamespaces()) MASS::ginv else solve
+    
+	AIinv <- invert(vbeta.naiv.i)
 	tr <- sum(matmult(AIinv, vbeta, diag.only = TRUE)) 
 	## tr <- sum(diag(AIinv %*% vbeta))
 	#px <- length(mu)
