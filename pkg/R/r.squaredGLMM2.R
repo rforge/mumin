@@ -54,7 +54,6 @@ sigma2.glmmTMB <- function(object) {
 # RE model matrix
 .remodmat <- function(object) UseMethod(".remodmat")
 
-#.remodmat.default <- function(object) model.matrix(.ranform(formula(object)), data = model.frame(object))
 .remodmat.default <-
 function(object) {
     env <- environment(formula(object))
@@ -116,18 +115,6 @@ function(object, envir = parent.frame()) {
 		mm1 <-  X[, rownames(sig), drop = FALSE]
 		sum(matmultdiag(mm1 %*% sig, ty = mm1)) / n
 	}))
-}
-
-## extracts random effect formula. e.g:
-.ranform <-
-function (form) {
-	### XXX: would give an error: values must be length 1 ...
-	###      for very long RE formulas
-	ans <- reformulate(vapply(lapply(.findbars(form),
-		"[[", 2L), deparse, "", width.cutoff = 500L))
-    #update.formula( , ~ . + 1)
-	environment(ans) <- environment(form)
-	ans
 }
 
 # update model adding an observation level RE term

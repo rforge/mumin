@@ -96,11 +96,11 @@ NA, NA, "Bformula", "FPformula", "fp", "fp", "FPformula", "detformula",
     "estimate:short.name", "estimate:itemName", "formulaItemName"
     ), c("lam", "gam", "p", "omega", "iota")))), unmarkedFitPCount = 
     list(structure(c("formula", "p", "det", "formula", "lam", "state", 
-    NA, "alpha", "alpha"), .Dim = c(3L, 3L), .Dimnames = list(c("formula.arg", 
-    "estimate:short.name", "estimate:itemName"), c("p", "lam", "alpha"
-    ))), structure(c("formula", "p", "det", "formula", "lam", "state"
-    ), .Dim = 3:2, .Dimnames = list(c("formula.arg", "estimate:short.name", 
-    "estimate:itemName"), c("p", "lam"))), structure(c("formula", 
-    "lam", "state", "formula", "p", "det", NA, "psi", "psi"), .Dim = c(3L, 
-    3L), .Dimnames = list(c("formula.arg", "estimate:short.name", 
-    "estimate:itemName"), c("lam", "p", "psi")))))
+NA, "alpha", "alpha"), .Dim = c(3L, 3L), .Dimnames = list(c("formula.arg", 
+"estimate:short.name", "estimate:itemName"), c("p", "lam", "alpha"
+))), structure(c("formula", "p", "det", "formula", "lam", "state"
+), .Dim = 3:2, .Dimnames = list(c("formula.arg", "estimate:short.name", 
+"estimate:itemName"), c("p", "lam"))), structure(c("formula", 
+"p", "det", "formula", "lam", "state", NA, "psi", "psi"), .Dim = c(3L, 
+3L), .Dimnames = list(c("formula.arg", "estimate:short.name", 
+"estimate:itemName"), c("p", "lam", "psi")))))
