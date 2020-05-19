@@ -130,7 +130,7 @@ function(global.model, cluster = NA,
 ###PAR
 
 	# Check for na.omit
-	if(!(gmNaAction <- .checkNaAction(cl = gmCall, what = "'global.model'")))
+	if(!(gmNaAction <- .checkNaAction(cl = gmCall, what = "'global.model'", envir = gmEnv)))
 		cry(, attr(gmNaAction, "message"))
 
 

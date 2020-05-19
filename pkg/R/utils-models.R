@@ -198,7 +198,8 @@ function(models, error = TRUE) {
 
 .checkNaAction <-
 function(x, cl = get_call(x),
-		 naomi = c("na.omit", "na.exclude"), what = "model") {
+		 naomi = c("na.omit", "na.exclude"), what = "model",
+		 envir = parent.frame()) {
 	naact <- NA_character_
 	msg <- NA_character_
 
@@ -208,7 +209,7 @@ function(x, cl = get_call(x),
 		if(is.symbol(x)) {
 			x <- as.character(x)
 		} else if(is.call(x)) {
-			x <- eval.parent(x, 2L)
+			x <- eval(x, envir)
 			if(is.symbol(x)) x <- as.character(x)
 		}
 		return(x)
@@ -217,20 +218,18 @@ function(x, cl = get_call(x),
 	#.checkNaAction(list(call = as.call(alist(fun, na.action = getOption("na.action", default = na.fail)))))
 	#.checkNaAction(list(call = as.call(alist(fun, na.action = na.fail))))
 	#.checkNaAction(list(call = as.call(alist(fun, na.action = na.omit))))
-
-
 	
 	if (!is.null(cl$na.action)) {
 		naact <- .getNAActionString(cl$na.action)
 		if (naact %in% naomi)
 			msg <- sprintf("%s uses 'na.action' = \"%s\"", what, naact)
 	} else {
-		naact <- formals(eval(cl[[1L]]))$na.action
+		naact <- formals(eval(cl[[1L]], envir))$na.action
 		if (missing(naact)) {
 			naact <- getOption("na.action")
 			if(is.function(naact)) {
 				statsNs <- getNamespace("stats")
-				for(i in naomi) if(identical(get(i, envir = statsNs), naact,
+				for(i in naomi) if(identical(get(i, envir = statsNs, inherits = FALSE), naact,
 					ignore.environment = TRUE)) {
 					naact <- i
 					break

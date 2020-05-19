@@ -78,7 +78,7 @@ function(object)
 
 .nullUpdateWarning <- 
 function(message = 
-"The null model is correct only if all variables used by the original model remain unchanged.",
+"the null model is correct only if all variables used by the original model remain unchanged.",
 Call = NULL) {
 	if(!isTRUE(getOption("MuMIn.noUpdateWarning")))
 		cry(Call, message, warn = TRUE)
@@ -89,9 +89,14 @@ Call = NULL) {
 .nullFitRE <- function(object, envir) UseMethod(".nullFitRE")
 .nullFitRE.default <- 
 function(object, envir = parent.frame()) {
-    cl <- getCall(object)
+    cl <- get_call(object)
 	if(! "formula" %in% names(cl)) 
-		stop("cannot create a null model for object without named \"formula\" argument in its call")
+		stop("cannot create a null model for an object without named \"formula\" argument in its call. ")
+        
+    if(any(grepl("^..\\d$", all.names(cl))))
+        stop("object's call contains dotted names: ", sQuote(deparse(cl, control = NULL)),
+             "and cannot be evaluated. See '?updateable' for a workaround.")
+ 
     cl$formula <- .nullREForm(formula(object))
 	.nullUpdateWarning()
     eval(cl, envir)
@@ -117,6 +122,19 @@ function(object, envir = parent.frame()) {
 	}))
 }
 
+## extracts random effect formula. e.g:
+.ranform <-
+function (form) {
+	### XXX: would give an error: values must be length 1 ...
+	###      for very long RE formulas
+	ans <- reformulate(vapply(lapply(.findbars(form),
+		"[[", 2L), deparse, "", width.cutoff = 500L))
+    # XXX: Why?
+    #update.formula( , ~ . + 1)
+	environment(ans) <- environment(form)
+	ans
+}
+
 # update model adding an observation level RE term
 .OLREFit <- function(object) UseMethod(".OLREFit")
 .OLREFit.default <- function(object) .NotYetImplemented()
@@ -136,7 +154,7 @@ function(object, envir = parent.frame()) {
 				cry(conditionCall(e), conditionMessage(e), warn = TRUE)
 				cry(cl, "fitting model with the observation-level random effect term failed. Add the term manually")
 		})
-		.nullUpdateWarning("The result is correct only if all variables used by the model remain unchanged.")
+		.nullUpdateWarning("the result is correct only if all variables used by the model remain unchanged.")
     }
     object
 }
@@ -192,8 +210,6 @@ function(family, vfe, vre, vol, link, pmean, lambda, omega, n) {
         cry(sys.call(-1L), "do not know how to calculate variance for %s(%s)", family, dQuote(link))
     )
 	
-    #print(c(varFE = vfe, varRE = vre, varOL = vol))
-    
 	vtot <- sum(vfe, vre)
 	matrix(c(vfe, vtot) / (vtot + rep(vol, each = 2L)),
         ncol = 2L, byrow = TRUE, dimnames = list(names(vol), c("R2m", "R2c")))
@@ -315,16 +331,18 @@ function(object, null, ...) r.squaredGLMM.merMod(object, null, ...)
 
 `r.squaredGLMM.glmmTMB` <-
 function(object, null, envir = parent.frame(), ...) {
-	fx <- fixef(object) # fixed effect estimates
-	if(length(fx$zi) != 0L) # || length(fx$disp) != 0L)
-		stop("r.squaredGLMM cannot (yet) handle 'glmmTMB' object with zero-inflation")
-	r.squaredGLMM.merMod(object, null, envir, ...)
+    w <- c(fixef(object)$zi != 0L,
+        !identical(object$modelInfo$allForm$dispformula, ~0, ignore.environment = TRUE))
+    if(any(w)) warning("the effects of ",
+            prettyEnumStr(c("zero-inflation", "dispersion model"), quote = FALSE), " are ignored")
+    r.squaredGLMM.merMod(object, null, envir, ...)
 }
 
 `r.squaredGLMM.glmmadmb` <-
 function(object, null, envir = parent.frame(), ...) {
 	if(object$zeroInflation)
-		stop("r.squaredGLMM cannot (yet) handle 'glmmADMB' object with zero-inflation")
+        warning("effects of zero-inflation are ignored")
+		#stop("r.squaredGLMM cannot (yet) handle 'glmmADMB' object with zero-inflation")
 	r.squaredGLMM.merMod(object, null, envir, ...)
 }
 

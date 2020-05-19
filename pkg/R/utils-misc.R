@@ -276,6 +276,7 @@ function(extra, r2nullfit = FALSE) {
 }
 
 ## matrix multiplication with option of calculating the diagonal only
+## It is more memory efficient and faster than `crossprod` for large matrices
 matmult <-
 function(x, y, diag.only = FALSE) {
 	if(ncol(x) != nrow(y)) stop('non-conformable arguments')

@@ -1,14 +1,20 @@
 MuMIn package news:
 
+Version: 1.43.18 (2020-05-18)
+r.squaredGLMM: issues a warning about zero-inflation and dispersion model being
+    ignored in the calculation of R2 rather than error as before (request from
+    Alexander Bruckner, inspired by the code by Ben Bolker:
+    https://github.com/glmmTMB/glmmTMB/blob/master/glmmTMB/inst/misc/rsqglmm.R) 
+(fixed) some issues with evaluating in non-global environment (updateable and 
+    .checkNAAction)
+
+
 Version: 1.43.17 (2020-04-14)
 Merely refreshing date stamp to please CRAN policies.
 
 Version: 1.43.16 (2020-03-12)
-(added) new model structure for unmarkedFitPCount (pcount) with ZIP mixture
-   (found by Hannah Clyde)
-(fixed) r.squaredGLMM for binomial family models with N > 1 trials. The 
-    fixed effects variance now accounts for the number of trials (thanks to 
-    Daniel Schlaepfer)
+(added) specs for 'unmarkedFitPCount' with mixture = "ZIP" (spotted by Hannah 
+    Clyde)
 
 Version: 1.43.15 (2019-12-19)
 (fixed) fatal error with QIC.geem introduced in the previous version

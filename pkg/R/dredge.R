@@ -39,7 +39,7 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 		#"For objects without a 'call' component the call to the fitting function \n",
 		#" must be used directly as an argument to 'dredge'.")
 		# NB: this is unlikely to happen
-		if(!is.function(eval.parent(gmCall[[1L]])))
+		if(!is.function(eval(gmCall[[1L]], gmEnv)))
 			cry(, "could not find function '%s'", asChar(gmCall[[1L]]))
 	} else {
 		# if 'update' method does not expand dots, we have a problem with
@@ -118,11 +118,11 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 	nIntercepts <- sum(attr(allTerms, "intercept"))
 
 	# Check for na.omit
-	if(!(gmNaAction <- .checkNaAction(cl = gmCall, what = "'global.model'")))
+	if(!(gmNaAction <- .checkNaAction(cl = gmCall, what = "'global.model'", envir = gmEnv)))
 		cry(, attr(gmNaAction, "message"))
 
 	if(names(gmCall)[2L] == "") gmCall <-
-		match.call(gmCall, definition = eval.parent(gmCall[[1L]]),
+		match.call(gmCall, definition = eval(gmCall[[1L]], envir = gmEnv),
 				   expand.dots = TRUE)
 
 
@@ -232,7 +232,7 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 		# a cumbersome way of evaluating a non-exported function in a parent frame:
 		extra <- eval(as.call(list(call("get", ".get.extras",
 			envir = call("asNamespace", .packageName), inherits = FALSE),
-				substitute(extra), r2nullfit = TRUE)), parent.frame())
+				substitute(extra), r2nullfit = TRUE)), gmEnv)
 
 		#extra <- eval(call(".get.extras", substitute(extra), r2nullfit = TRUE), parent.frame())
 		if(any(c("adjR^2", "R^2") %in% names(extra))) {
@@ -496,6 +496,7 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 
 			if(nExtra != 0L) {
 				extraResult1 <- applyExtras(fit1)
+				
 				if(length(extraResult1) < nExtra) {
 					tmp <- rep(NA_real_, nExtra)
 					tmp[match(names(extraResult1), names(extraResult))] <- extraResult1
@@ -609,7 +610,7 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 		},
         class = c("model.selection", "data.frame")
 	)
-} ######
+} #
 
 
 
