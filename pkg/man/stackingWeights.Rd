@@ -40,12 +40,19 @@ This approach requires a sample size of at least \eqn{2\times}{2x} the number
    of models.
 }
 \examples{
+
+# simulated Cement dataset to increase sample size for the training data 
+fm0 <- glm(y ~ X1 + X2 + X3 + X4, data = Cement, na.action = na.fail)
+dat <- as.data.frame(apply(Cement[, -1], 2, sample, 50, replace = TRUE))
+dat$y <- rnorm(nrow(dat), predict(fm0), sigma(fm0))
+
 # global model fitted to training data:
-fm <- glm(y ~ X1 + X2 + X3 + X4, data = Cement, na.action = na.fail)
+fm <- glm(y ~ X1 + X2 + X3 + X4, data = dat, na.action = na.fail)
+
 # generate a list of *some* subsets of the global model
 models <- lapply(dredge(fm, evaluate = FALSE, fixed = "X1", m.lim = c(1, 3)), eval)
 
-wts <- stackingWeights(models, data = Cement, R = 10)
+wts <- stackingWeights(models, data = dat, R = 10)
 
 ma <- model.avg(models)
 Weights(ma) <- wts["mean", ]
