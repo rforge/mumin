@@ -54,6 +54,7 @@ sigma2.glmmTMB <- function(object) {
 # RE model matrix
 .remodmat <- function(object) UseMethod(".remodmat")
 
+#.remodmat.default <- function(object) model.matrix(.ranform(formula(object)), data = model.frame(object))
 .remodmat.default <-
 function(object) {
     env <- environment(formula(object))

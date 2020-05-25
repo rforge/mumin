@@ -67,6 +67,15 @@ function(object, ..., data, R, p = 0.5
 .stacking <-
 function(predicted, observed) {
    
+
+    #if(nrow(predicted) != length(observed))
+    #    stop("number of rows in \"predicted\" is not equal to length of \"observed\"")
+
+    #if (NCOL(predicted) >= length(observed))
+    #    stop("more models than test points. ",
+    #         "Increase the test set or reduce the number of models")
+        # TODO: make the error message more specific.
+
     # now do an internal splitting into "folds" data sets:
     weightsopt <-
     function(ww) {

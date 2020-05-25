@@ -1,7 +1,7 @@
 `plot.model.selection` <-
 function(x,
 	ylab = NULL, xlab = NULL,
-	labels = attr(x, "terms"), labAsExpr = FALSE,
+	labels = attr(x, "terms"), labAsExpr = TRUE, mar.adj = TRUE,
 	col = c("SlateGray", "SlateGray2"), col2 = "white",
 	border = par("col"),
 	par.lab = NULL, par.vlab = NULL,
@@ -38,11 +38,7 @@ function(x,
 	if(ann) {
 		labCommonArg <- list(col = par("col.axis"), font = par("font.axis"),
 							 cex = par("cex.axis"))
-		if(labAsExpr) {
-			labels <- gsub(":", "%*%", labels, perl = TRUE)
-				labels <- gsub("\\B_?(\\d+)(?![\\w\\._])", "[\\1]", labels, perl = TRUE)
-			labels <- parse(text = labels)
-		}	
+		if(labAsExpr) labels <- .lab2expr(labels)
 		arg <- c(list(side = 3L, padj = 0.5, line = 1L, las = 2L), labCommonArg)
 		for(i in names(par.lab)) arg[i] <- par.lab[i]
 		

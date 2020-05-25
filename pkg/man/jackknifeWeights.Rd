@@ -3,10 +3,20 @@
 \alias{jackknifeWeights}
 \title{Jackknifed model weights}
 \usage{
-jackknifeWeights(object, ..., data, type = c("loglik", "rmse"),
-  family = NULL, weights = NULL, optim.method = "BFGS", maxit = 1000,
-  optim.args = list(), start = NULL, force.update = FALSE,
-  py.matrix = FALSE)
+jackknifeWeights(
+  object,
+  ...,
+  data,
+  type = c("loglik", "rmse"),
+  family = NULL,
+  weights = NULL,
+  optim.method = "BFGS",
+  maxit = 1000,
+  optim.args = list(),
+  start = NULL,
+  force.update = FALSE,
+  py.matrix = FALSE
+)
 }
 \arguments{
 \item{object, \dots}{two or more fitted \code{\link{glm}} objects, or a
@@ -80,24 +90,25 @@ coef(amJk)
 coef(amAICc)
 
 }
-\author{
-Kamil Barto\enc{ń}{n}. Carsten Dormann
-}
 \references{
 Hansen, B. E. & Racine, J. S. (2012) Jackknife model averaging.
     \emph{Journal of Econometrics}, 979: 38–46
 
 Dormann, C. et al. (2018) Model averaging in ecology: a review of Bayesian, 
    information-theoretic, and tactical approaches for predictive inference.
-   \emph{Ecological Monographs}, 88, 485–504. 
-
+   \emph{Ecological Monographs}, 88, 485–504.
 }
 \seealso{
 \code{\link{Weights}}, \code{\link{model.avg}}
 
-Other model.weights: \code{\link{BGWeights}},
-  \code{\link{bootWeights}}, \code{\link{cos2Weights}},
-  \code{\link{stackingWeights}}
+Other model weights: 
+\code{\link{BGWeights}()},
+\code{\link{bootWeights}()},
+\code{\link{cos2Weights}()},
+\code{\link{stackingWeights}()}
 }
+\author{
+Kamil Barto\enc{ń}{n}. Carsten Dormann
+}
+\concept{model weights}
 \keyword{models}
-

@@ -59,7 +59,6 @@ function (object, parm, level = 0.95, full = FALSE, ...) {
 	object <- upgrade_averaging_object(object)
 	full <- .checkFull(object, full) 
 
-
     a2 <- 1 - level
     a <- a2 / 2
     cf <- object$coefArray[, 1L, ]
@@ -73,12 +72,10 @@ function (object, parm, level = 0.95, full = FALSE, ...) {
 		se[missing.par] <- cf[missing.par] <- 0
 		if(!all(is.na(dfs))) dfs[missing.par] <- Inf
 	}
-    wts <- Weights(object) ## XXX: !
+	wts <- Weights(object) ## XXX: !
     ci <- t(sapply(parm, function(i)
-		par.avg(cf[,i], se[,i], wts, dfs[, i], alpha = a2)))[, 4L:5L]
-    
-	
-	ci[is.na(object$coefficients[1L, ]), ] <- NA_real_
+		par.avg(cf[,i], se[,i], wts, dfs[, i], alpha = a2)))[, 4L:5L, drop = FALSE]
+	ci[is.na(object$coefficients[1L, parm]), ] <- NA_real_
     colnames(ci) <- getFrom("stats", "format.perc")(c(a, 1L - a), 3L)
     return(ci)
 }

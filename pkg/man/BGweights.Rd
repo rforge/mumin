@@ -2,7 +2,7 @@
 \newcommand{\myequation}{\ifelse{latex}{\eqn{#1}{#3}}{\ifelse{html}{\enc{\eqn{#2}}{#3}}{#3}}}
 \name{BGWeights}
 \alias{BGWeights}
-\title{Bates-Granger model weights}
+\title{Bates-Granger minimal variance model weights}
 \usage{
 BGWeights(object, ..., data, force.update = FALSE)
 }
@@ -32,7 +32,7 @@ remaining half.
 These predictions are then used to compute the variance-covariance between
 models, \eqn{\Sigma}. Model weights are then calculated as
 \myequation{w_{BG} = (1' \Sigma^{-1} 1)^{-1} 1 \Sigma^{-1}
-}{w_BG = (1' \Sigma⁻¹ 1)⁻¹ 1 \Sigma⁻¹
+}{w_BG = (1' \Sigma{^-1} 1){^-1} 1 \Sigma{^-1}
 }{w_BG = (1' Sigma^-1 1)^-1 1 \ Sigma^-1},
 where \eqn{1} a vector of 1-s.
 
@@ -62,20 +62,25 @@ predict(ma, data = test.data, se.fit = TRUE)
 coefTable(ma, full = TRUE)
 
 }
-\author{
-Carsten Dormann, Kamil Barto\enc{ń}{n}
-}
 \references{
 Bates, J. M. & Granger, C. W. J. (1969) The combination of forecasts.
-   \emph{Journal of the Operational Research Society}, 20: 451-468.
+   \emph{Journal of the Operational Research Society}, 20: 451-468. 
+
+Dormann, C. et al. (2018) Model averaging in ecology: a review of Bayesian, 
+   information-theoretic, and tactical approaches for predictive inference.
+   \emph{Ecological Monographs}, 88, 485–504.
 }
 \seealso{
 \code{\link{Weights}}, \code{\link{model.avg}}
 
-Other model.weights: \code{\link{bootWeights}},
-  \code{\link{cos2Weights}},
-  \code{\link{jackknifeWeights}},
-  \code{\link{stackingWeights}}
+Other model weights: 
+\code{\link{bootWeights}()},
+\code{\link{cos2Weights}()},
+\code{\link{jackknifeWeights}()},
+\code{\link{stackingWeights}()}
 }
+\author{
+Carsten Dormann, Kamil Barto\enc{ń}{n}
+}
+\concept{model weights}
 \keyword{models}
-

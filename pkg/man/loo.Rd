@@ -25,11 +25,11 @@ for log-likelihood.}
 Computes the \acronym{RMSE}/log-likelihood based on leave-one-out cross-validation.
 }
 \details{
-Leave-one-out cross validation is a \var{K}-fold cross validation, with \var{K}
-equal to the number of data points in the set \var{N}. For all \var{i} from 1 
-to \var{N}, the model is fitted to all the data except for \var{i}-th row and
-a prediction is made for that value. The average error is computed and used to 
-evaluate the model.
+Leave-one-out cross validation is a \var{K}-fold cross validation, with
+\var{K} equal to the number of data points in the set \var{N}. For all
+\var{i} from 1 to \var{N}, the model is fitted to all the data except for
+\var{i}-th row and a prediction is made for that value. The average error is
+computed and used to evaluate the model.
 }
 \examples{
 fm <- lm(y ~ X1 + X2 + X3 + X4, Cement)
@@ -43,14 +43,12 @@ plot(loo ~ AIC, dd, ylab = expression(LOO[RMSE]), xlab = "AIC/c")
 points(loo ~ AICc, data = dd, pch = 19)
 legend("topleft", legend = c("AIC", "AICc"), pch = c(1, 19))
 }
-\author{
-Kamil Barto\enc{ń}{n}, based on code by Carsten Dormann
-}
 \references{
 Dormann, C. et al. (2018) Model averaging in ecology: a review of Bayesian, 
    information-theoretic, and tactical approaches for predictive inference.
-   \emph{Ecological Monographs}, 88, 485–504. 
-
+   \emph{Ecological Monographs}, 88, 485–504.
+}
+\author{
+Kamil Barto\enc{ń}{n}, based on code by Carsten Dormann
 }
 \keyword{models}
-

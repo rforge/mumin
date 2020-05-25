@@ -23,6 +23,8 @@ export(
 	"bootWeights",
 	"loo",
 	
+    "coefplot",
+    
     # defunct and deprecated:
 	"mod.sel",  "tTable", "updateable2"
 )
@@ -99,6 +101,7 @@ S3method(model.avg, model.selection)
 S3method(model.avg, default)
 
 S3method(plot, model.selection)
+S3method(plot, averaging)
 
 S3method(sw, averaging)
 S3method(sw, model.selection)

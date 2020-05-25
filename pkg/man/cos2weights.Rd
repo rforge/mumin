@@ -3,8 +3,7 @@
 \alias{cos2Weights}
 \title{Cos-squared model weights}
 \usage{
-cos2Weights(object, ..., data, eps = 1e-06, maxit = 100,
-  predict.args = list())
+cos2Weights(object, ..., data, eps = 1e-06, maxit = 100, predict.args = list())
 }
 \arguments{
 \item{object, \dots}{two or more fitted \code{\link{glm}} objects, or a
@@ -45,9 +44,6 @@ predict(ma, data = test.data)
 \} else message("Need CRAN package 'expm' to run this example")
 }
 }
-\author{
-Carsten Dormann, adapted by Kamil Barto\enc{ń}{n}
-}
 \references{
 Garthwaite, P. H. and Mubwandarikwa, E. (2010) Selection of weights for
     weighted model averaging. \emph{Australian & New Zealand Journal of
@@ -55,16 +51,19 @@ Garthwaite, P. H. and Mubwandarikwa, E. (2010) Selection of weights for
 
 Dormann, C. et al. (2018) Model averaging in ecology: a review of Bayesian, 
    information-theoretic, and tactical approaches for predictive inference.
-   \emph{Ecological Monographs}, 88, 485–504. 
-
+   \emph{Ecological Monographs}, 88, 485–504.
 }
 \seealso{
 \code{\link{Weights}}, \code{\link{model.avg}}
 
-Other model.weights: \code{\link{BGWeights}},
-  \code{\link{bootWeights}},
-  \code{\link{jackknifeWeights}},
-  \code{\link{stackingWeights}}
+Other model weights: 
+\code{\link{BGWeights}()},
+\code{\link{bootWeights}()},
+\code{\link{jackknifeWeights}()},
+\code{\link{stackingWeights}()}
 }
+\author{
+Carsten Dormann, adapted by Kamil Barto\enc{ń}{n}
+}
+\concept{model weights}
 \keyword{models}
-
