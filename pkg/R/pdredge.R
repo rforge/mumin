@@ -437,16 +437,17 @@ function(global.model, cluster = NA,
 
 	retColIdx <- if(nVarying) -nVars - seq_len(nVarying) else TRUE
 
-	if(trace > 1L) {
-		progressBar <- if(.Platform$GUI == "Rgui") {
-			 utils::winProgressBar(max = ncomb, title = "'dredge' in progress")
-		} else utils::txtProgressBar(max = ncomb, style = 3L)
-		setProgressBar <- switch(class(progressBar),
-			   txtProgressBar = utils::setTxtProgressBar,
-			   winProgressBar = utils::setWinProgressBar,
-			function(...) {})
-		on.exit(close(progressBar))
-	}
+	dotrace <- if(trace == 1L) {
+		dotrace <- function()  {
+			cat(iComb, ": "); print(clVariant)
+			utils::flush.console()
+		}
+	} else if(trace > 1L) {
+		progressBar <- .progbar(max = ncomb, title = "'pdredge' in progress")
+		on.exit(.closeprogbar(progressBar))
+		function() progressBar(value = iComb,
+			title = sprintf("pdredge: %d of %.0f subsets", k, (k / iComb) * ncomb))
+	} else function() {}
 
 
 	warningList <- list()
@@ -503,13 +504,8 @@ function(global.model, cluster = NA,
 
 			if(isok2) {
 				if(evaluate) {
-					if(trace == 1L) {
-						cat(iComb, ": "); print(clVariant)
-						utils::flush.console()
-					} else if(trace == 2L) {
-						setProgressBar(progressBar, value = iComb,
-							title = sprintf("pdredge: %d of %.0f subsets", k, (k / iComb) * ncomb))
-					}
+					dotrace()
+
 					qi <- qi + 1L
 					queued[[(qi)]] <- list(call = clVariant, id = iComb)
 				} else { # if !evaluate

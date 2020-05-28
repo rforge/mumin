@@ -13,16 +13,16 @@ BGWeights(object, ..., data, force.update = FALSE)
 \item{data}{a data frame containing the variables in the model.}
 
 \item{force.update}{if \code{TRUE}, the much less efficient method of
-   updating \code{glm} function will be  used rather than directly \emph{via}
-   \code{\link{glm.fit}}. This only applies to \code{glm}s, in 
+updating \code{glm} function will be  used rather than directly \emph{via}
+\code{\link{glm.fit}}. This only applies to \code{glm}s, in
 case of other model types \code{update} is always used.}
 }
 \value{
-The function returns a numeric vector of model weights.
+A numeric vector of model weights.
 }
 \description{
 Computes empirical weights based on out of sample forecast variances,
-   following Bates and Granger (1969).
+following Bates and Granger (1969).
 }
 \details{
 Bates-Granger model weights are calculated using prediction covariance. To
@@ -41,10 +41,9 @@ may cause the averaged variances to be negative. Apparently this method
 works best when data is large.
 }
 \note{
-For matrix inversion, \code{\link[MASS]{ginv}} from package
-\pkg{MASS} is more stable near singularities than \code{\link{solve}}. It
-will be used as a fallback if \code{solve} fails and \pkg{MASS} is
-available.
+For matrix inversion, \code{\link[MASS:ginv]{MASS::ginv()}} is more stable near singularities
+than \code{\link{solve}}. It will be used as a fallback if \code{solve} fails and
+\pkg{MASS} is available.
 }
 \examples{
 fm <- glm(Prop ~ mortality + dose, family = binomial, Beetle, na.action = na.fail)
@@ -64,11 +63,11 @@ coefTable(ma, full = TRUE)
 }
 \references{
 Bates, J. M. & Granger, C. W. J. (1969) The combination of forecasts.
-   \emph{Journal of the Operational Research Society}, 20: 451-468. 
+\emph{Journal of the Operational Research Society}, 20: 451-468.
 
-Dormann, C. et al. (2018) Model averaging in ecology: a review of Bayesian, 
-   information-theoretic, and tactical approaches for predictive inference.
-   \emph{Ecological Monographs}, 88, 485–504.
+Dormann, C. et al. (2018) Model averaging in ecology: a review of Bayesian,
+information-theoretic, and tactical approaches for predictive inference.
+\emph{Ecological Monographs}, 88, 485–504.
 }
 \seealso{
 \code{\link{Weights}}, \code{\link{model.avg}}

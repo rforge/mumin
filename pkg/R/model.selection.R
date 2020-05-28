@@ -55,7 +55,7 @@ function(x) {
 function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 	origx <- x
 	class(x) <- "data.frame"
-	xterms <- attr(origx, "terms")
+	xterms <- attr(origx, "terms")  # TERMS
 	if(is.null(xterms) || !all(xterms %in% colnames(x)[seq_along(xterms)])) {
 		print.data.frame(x, ...)
 	} else {

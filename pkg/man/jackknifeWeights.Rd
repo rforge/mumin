@@ -3,24 +3,14 @@
 \alias{jackknifeWeights}
 \title{Jackknifed model weights}
 \usage{
-jackknifeWeights(
-  object,
-  ...,
-  data,
-  type = c("loglik", "rmse"),
-  family = NULL,
-  weights = NULL,
-  optim.method = "BFGS",
-  maxit = 1000,
-  optim.args = list(),
-  start = NULL,
-  force.update = FALSE,
-  py.matrix = FALSE
-)
+jackknifeWeights(object, ..., data,
+  type = c("loglik", "rmse"), family = NULL, weights = NULL,
+  optim.method = "BFGS", maxit = 1000, optim.args = list(), start = NULL,
+  force.update = FALSE, py.matrix = FALSE)
 }
 \arguments{
 \item{object, \dots}{two or more fitted \code{\link{glm}} objects, or a
-\code{list} of such, or an \code{\link[=model.avg]{"averaging"}} object.}
+\code{list} of such, or an \link[=model.avg]{"averaging"} object.}
 
 \item{data}{a data frame containing the variables in the model. It is
 optional if all models are \code{glm}.}
@@ -32,8 +22,8 @@ optional if all models are \code{glm}.}
 used for likelihood calculation. Not needed if all models share the same
 \code{family} and link function.}
 
-\item{weights}{an optional vector of \sQuote{\link[=weights.glm]{prior
-weights}} to be used in the model fitting process. Should be \code{NULL} or
+\item{weights}{an optional vector of \sQuote{\link[=weights.glm]{prior weights}}
+to be used in the model fitting process. Should be \code{NULL} or
 a numeric vector.}
 
 \item{optim.method}{optional, optimisation method, passed to
@@ -66,15 +56,15 @@ Computes model weights optimized for jackknifed model fits.
 }
 \details{
 Model weights are chosen (using \code{\link{optim}}) to minimise
-    \acronym{RMSE} or log-likelihood of
-    the prediction for data point \var{i}, of a model fitted omitting that
-    data point \var{i}. The jackknife procedure is therefore run for all
-    provided models and for all data points.
+\acronym{RMSE} or log-likelihood of
+the prediction for data point \var{i}, of a model fitted omitting that
+data point \var{i}. The jackknife procedure is therefore run for all
+provided models and for all data points.
 }
 \note{
-This procedure can give variable results depending on the 
-\link[=optim]{optimisation method} and starting values. It is therefore 
-advisable to make several replicates using different \code{optim.method}s. 
+This procedure can give variable results depending on the
+\link[=optim]{optimisation method} and starting values. It is therefore
+advisable to make several replicates using different \code{optim.method}s.
 See \code{\link{optim}} for possible values for this argument.
 }
 \examples{
@@ -92,11 +82,11 @@ coef(amAICc)
 }
 \references{
 Hansen, B. E. & Racine, J. S. (2012) Jackknife model averaging.
-    \emph{Journal of Econometrics}, 979: 38–46
+\emph{Journal of Econometrics}, 979: 38–46
 
-Dormann, C. et al. (2018) Model averaging in ecology: a review of Bayesian, 
-   information-theoretic, and tactical approaches for predictive inference.
-   \emph{Ecological Monographs}, 88, 485–504.
+Dormann, C. et al. (2018) Model averaging in ecology: a review of Bayesian,
+information-theoretic, and tactical approaches for predictive inference.
+\emph{Ecological Monographs}, 88, 485–504.
 }
 \seealso{
 \code{\link{Weights}}, \code{\link{model.avg}}

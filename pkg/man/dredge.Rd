@@ -16,8 +16,8 @@ effect terms in the global model, with optional rules for model inclusion.
 
 \usage{
 dredge(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE,
-    rank = "AICc", fixed = NULL, m.lim = NULL, m.min, m.max, subset,
-    trace = FALSE, varying, extra, ct.args = NULL, ...)
+  rank = "AICc", fixed = NULL, m.lim = NULL, m.min, m.max, subset,
+  trace = FALSE, varying, extra, ct.args = NULL, ...)
 
 \method{print}{model.selection}(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...)
 
@@ -139,6 +139,7 @@ to a nested design such as \code{a / (b + d)}), this will be reflected in the
 subset models.
 }
 
+
 \subsection{Subsetting}{
 There are three ways to constrain the resulting set of models: setting limits to
 the number of terms in a model with \code{m.lim}, binding the
@@ -153,7 +154,8 @@ formulation must satisfy all these conditions.
 The latter should be a lower triangular matrix with logical values, where
 columns and rows correspond to \code{global.model} terms. Value
 \code{subset["a", "b"] == FALSE} will exclude any model containing both terms
-\var{a} and \var{b}. \code{demo(dredge.subset)} has examples of using the
+\var{a} and \var{b}. \cr
+\code{demo(dredge.subset)} has examples of using the
 \code{subset} matrix in conjunction with correlation matrices to exclude models
 containing collinear predictors.
 

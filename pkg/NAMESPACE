@@ -57,10 +57,11 @@ importFrom("utils", "capture.output")
 
 importFrom("Matrix", "t", "rowSums", "det", "diag", "solve")
 importFrom("grDevices", "n2mfrow")
-importFrom("graphics", "abline", "lines", "matplot")
+importFrom("graphics", "abline", "lines", "matplot", 
+    "grconvertX", "grconvertY", "points", "segments")
 
 # model-averaging related functions:
-importFrom("stats", "cor", "cov", "rnorm", "runif", "optim")
+importFrom("stats", "cor", "cov", "rnorm", "runif", "optim", "confint")
 
 importFrom("nlme", fixef, VarCorr)
 

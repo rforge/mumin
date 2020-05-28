@@ -20,20 +20,20 @@ variables.
 \method{stdize}{default}(x, center = TRUE, scale = TRUE, ...)
 
 \method{stdize}{logical}(x, binary = c("center", "scale", "binary", "half", "omit"),
-    center = TRUE, scale = FALSE, ...)
+  center = TRUE, scale = FALSE, ...)
 ## also for two-level factors
 
 \method{stdize}{data.frame}(x, binary = c("center", "scale", "binary", "half", "omit"),
-    center = TRUE, scale = TRUE, omit.cols = NULL, source = NULL,
-    prefix = TRUE, append = FALSE, ...)
+  center = TRUE, scale = TRUE, omit.cols = NULL, source = NULL,
+  prefix = TRUE, append = FALSE, ...)
 
 \method{stdize}{formula}(x, data = NULL, response = FALSE,
-    binary = c("center", "scale", "binary", "half", "omit"),
-    center = TRUE, scale = TRUE, omit.cols = NULL, prefix = TRUE,
-    append = FALSE, ...)
+  binary = c("center", "scale", "binary", "half", "omit"),
+  center = TRUE, scale = TRUE, omit.cols = NULL, prefix = TRUE,
+  append = FALSE, ...)
 
 stdizeFit(object, data, which = c("formula", "subset", "offset", "weights"),
-    evaluate = TRUE, quote = NA)
+  evaluate = TRUE, quote = NA)
 }
 
 \arguments{

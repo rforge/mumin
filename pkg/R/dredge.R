@@ -406,19 +406,18 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 
 	retColIdx <- if(nVarying) -nVars - seq_len(nVarying) else TRUE
 
-	if(trace > 1L) {
-		progressBar <- if(.Platform$GUI == "Rgui") {
-			 utils::winProgressBar(max = ncomb, title = "'dredge' in progress")
-		#} else if(capabilities("tcltk") && ("package:tcltk" %in% search())) {
-			 #tkProgressBar(max = ncomb, title = "'dredge' in progress")
-		} else utils::txtProgressBar(max = ncomb, style = 3L)
-		setProgressBar <- switch(class(progressBar),
-			    txtProgressBar = utils::setTxtProgressBar,
-			   #tkProgressBar = setTkProgressBar,
-			   winProgressBar = utils::setWinProgressBar,
-			   function(...) {})
-		on.exit(close(progressBar))
-	}
+	dotrace <- if(trace == 1L) {
+		dotrace <- function()  {
+			cat(iComb, ": "); print(clVariant)
+			utils::flush.console()
+		}
+	} else if(trace > 1L) {
+		progressBar <- .progbar(max = ncomb, title = "'dredge' in progress")
+		on.exit(.closeprogbar(progressBar))
+		function() progressBar(value = iComb,
+			title = sprintf("dredge: %d of %.0f subsets (%d total)", k, (k / iComb) * ncomb, iComb))
+	} else function() {}
+	
 
 	iComb <- -1L
 	while((iComb <- iComb + 1L) < ncomb) {
@@ -472,13 +471,7 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 			clVariant[varyingNames] <- fvarying[cvi]
 		}
 
-		if(trace == 1L) {
-			cat(iComb, ": "); print(clVariant)
-			utils::flush.console()
-		} else if(trace == 2L) {
-			setProgressBar(progressBar, value = iComb,
-				title = sprintf("dredge: %d of %.0f subsets (%d total)", k, (k / iComb) * ncomb, iComb))
-		}
+		dotrace()
 
 		if(evaluate) {
 			# begin row1: (clVariant, gmEnv, modelId, IC(), applyExtras(),
@@ -496,7 +489,6 @@ function(global.model, beta = c("none", "sd", "partial.sd"), evaluate = TRUE, ra
 
 			if(nExtra != 0L) {
 				extraResult1 <- applyExtras(fit1)
-				
 				if(length(extraResult1) < nExtra) {
 					tmp <- rep(NA_real_, nExtra)
 					tmp[match(names(extraResult1), names(extraResult))] <- extraResult1

@@ -1,4 +1,3 @@
-#?boxplot
 
 coefplot <-
 function (x, lci, uci, labels = NULL,	
@@ -143,9 +142,16 @@ function(x, full = TRUE, level = 0.95,
 	beta <- x$coefficients
 	if(is.null(parm)) {
 		parm <- if(isFALSE(intercept)) {
-			which(! colnames(beta) %in% attr(getAllTerms(x), "interceptLabel"))
+			interceptLabel <- if(!is.null(attr(x, "modelList"))) {
+				unique(unlist(lapply(attr(x, "modelList"),
+					function(m) attr(getAllTerms(m), "interceptLabel"))))
+			} else if(!is.null(attr(x, "interceptLabel")))
+				attr(x, "interceptLabel")
+			which(! colnames(beta) %in% interceptLabel)
 		} else seq.int(ncol(beta))
-	}
+	} else if(isFALSE(intercept))
+		warning("argument 'intercept' ignored, since 'parm' is given")
+
 	beta <- beta[, parm, drop = FALSE]
 
 	lim <- numeric(0L)

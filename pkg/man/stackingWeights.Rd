@@ -18,8 +18,8 @@ fitting and prediction.}
 Defaults to 0.5.}
 }
 \value{
-\code{stackingWeights} returns a matrix with two rows, holding model weights
-   calculated using \code{mean} and \code{median}.
+A matrix with two rows, containing model weights
+calculated using \code{mean} and \code{median}.
 }
 \description{
 Computes model weights based on a cross-validation-like procedure.
@@ -37,7 +37,7 @@ each model is taken and re-scaled to sum to one.
 }
 \note{
 This approach requires a sample size of at least \eqn{2\times}{2x} the number
-   of models.
+of models.
 }
 \examples{
 #simulated Cement dataset to increase sample size for the training data 
@@ -63,12 +63,12 @@ predict(ma)
 Wolpert, D. H. (1992) Stacked generalization. \emph{Neural Networks}, 5: 241-259.
 
 Smyth, P. & Wolpert, D. (1998) \emph{An Evaluation of Linearly Combining
-   Density Estimators via Stacking. Technical Report No. 98-25.} Information
-   and Computer Science Department, University of California, Irvine, CA.
+Density Estimators via Stacking. Technical Report No. 98-25.} Information
+and Computer Science Department, University of California, Irvine, CA.
 
-Dormann, C. et al. (2018) Model averaging in ecology: a review of Bayesian, 
-   information-theoretic, and tactical approaches for predictive inference.
-   \emph{Ecological Monographs}, 88, 485–504.
+Dormann, C. et al. (2018) Model averaging in ecology: a review of Bayesian,
+information-theoretic, and tactical approaches for predictive inference.
+\emph{Ecological Monographs}, 88, 485–504.
 }
 \seealso{
 \code{\link{Weights}}, \code{\link{model.avg}}

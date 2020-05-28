@@ -1,7 +1,7 @@
 MuMIn package news:
 
-Version: 1.43.20 (2020-05-25)
-(added) plot method for class "averaging" produces dot-and-whisker plot of 
+Version: 1.44.0 (2020-05-28)
+(added) plot method for the class "averaging" produces a dot-and-whisker plot of 
     coefficients. This uses a new general function `coefplot` that can be used 
     to make plots for arbitrary model types.
 

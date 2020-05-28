@@ -4,65 +4,28 @@
 \alias{plot.averaging}
 \title{Plot model coefficients}
 \usage{
-coefplot(
-  x,
-  lci,
-  uci,
-  labels = NULL,
-  width = 0.15,
-  shift = 0,
-  horizontal = TRUE,
-  main = NULL,
-  xlab = NULL,
-  ylab = NULL,
-  xlim = NULL,
-  ylim = NULL,
-  labAsExpr = TRUE,
-  mar.adj = TRUE,
-  lab.line = 0.5,
-  lty = par("lty"),
-  lwd = par("lwd"),
-  pch = 21,
-  col = par("col"),
-  bg = par("bg"),
-  dotcex = par("cex"),
-  dotcol = col,
-  staplelty = lty,
-  staplelwd = lwd,
-  staplecol = col,
-  zerolty = "dotted",
-  zerolwd = lwd,
-  zerocol = "gray",
-  las = 2,
-  ann = TRUE,
-  axes = TRUE,
-  add = FALSE,
-  type = "p",
-  ...
+coefplot(x, lci, uci, labels = NULL, width = 0.15,
+  shift = 0, horizontal = TRUE,
+  main = NULL, xlab = NULL, ylab = NULL, xlim = NULL, ylim = NULL,
+  labAsExpr = TRUE, mar.adj = TRUE, lab.line = 0.5,
+  lty = par("lty"), lwd = par("lwd"), pch = 21, col = par("col"),
+  bg = par("bg"), dotcex = par("cex"), dotcol = col,
+  staplelty = lty, staplelwd = lwd, staplecol = col,
+  zerolty = "dotted", zerolwd = lwd, zerocol = "gray",
+  las = 2, ann = TRUE, axes = TRUE, add = FALSE,
+  type = "p", ...
 )
 
-\method{plot}{averaging}(
-  x,
-  full = TRUE,
-  level = 0.95,
-  intercept = TRUE,
-  parm = NULL,
-  labels = NULL,
-  width = 0.1,
-  shift = max(0.2, width * 2.1 + 0.05),
-  horizontal = TRUE,
-  xlim = NULL,
-  ylim = NULL,
-  main = "Model-averaged coefficients",
-  xlab = NULL,
-  ylab = NULL,
-  add = FALSE,
-  ...
+\method{plot}{averaging}(x, full = TRUE, level = 0.95, intercept = TRUE, parm = NULL,
+  labels = NULL, width = 0.1, shift = max(0.2, width * 2.1 + 0.05),
+  horizontal = TRUE, xlim = NULL, ylim = NULL,
+  main = "Model-averaged coefficients", xlab = NULL, ylab = NULL,
+  add = FALSE, ...
 )
 }
 \arguments{
 \item{x}{either a (possibly named) vector of coefficients (for \code{coefplot}),
-or an \code{"averaging"} object.}
+or an \code{\link[=model.avg]{"averaging"}} object.}
 
 \item{lci, uci}{vectors of lower and upper confidence intervals. Alternatively
 a two-column matrix with columns containing confidence intervals, in
@@ -87,7 +50,7 @@ defaults to \code{TRUE}.}
 
 \item{labAsExpr}{logical indicating whether the coefficient names should
 be transformed to expressions to create prettier labels (see
-\code{plotmath})}
+\code{\link{plotmath}})}
 
 \item{mar.adj}{logical indicating whether the (left or lower) margin should be
 expanded to fit the labels}
@@ -121,8 +84,8 @@ the plot being drawn.}
 
 \item{full}{a logical value specifying whether the \dQuote{full}
 model-averaged coefficients are plotted. If \code{FALSE}, the
-\sQuote{subset}-averaged coefficients are plotted, and both types if
-\code{NA}. See \verb{\link{\code{model.avg}}}.}
+\dQuote{subset}-averaged coefficients are plotted, and both types if
+\code{NA}. See \code{\link{model.avg}}.}
 
 \item{level}{the confidence level required.}
 
@@ -134,8 +97,8 @@ vector of numbers or a vector of names. If missing, all parameters are
 considered.}
 }
 \value{
-An invisible matrix giving the coordinates of the points and whiskers, or,
-a 2-element list of such matrices, one for each coefficient type in
+An invisible \code{matrix} containing coordinates of points and whiskers, or,
+a two-element list of such, one for each coefficient type in
 \code{plot.averaging} when \code{full} is \code{NA}.
 }
 \description{
@@ -146,7 +109,6 @@ with confidence intervals
 Plot model(-averaged) coefficients with confidence intervals.
 }
 \examples{
-#Averaged models:
 fm <- glm(Prop ~ dose + I(dose^2) + log(dose) + I(log(dose)^2),
   data = Beetle, family = binomial, na.action = na.fail)
 ma <- model.avg(dredge(fm))

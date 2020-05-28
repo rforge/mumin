@@ -1,5 +1,4 @@
 
-
 loo <-
 function(object, type = c("loglik", "rmse"), ...)
 	UseMethod("loo")

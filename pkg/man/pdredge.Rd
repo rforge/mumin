@@ -9,9 +9,9 @@ Parallelized version of \code{dredge}.
 
 \usage{
 pdredge(global.model, cluster = NA, 
-    beta = c("none", "sd", "partial.sd"), evaluate = TRUE, rank = "AICc", 
-    fixed = NULL, m.lim = NULL, m.min, m.max, subset, trace = FALSE, 
-    varying, extra, ct.args = NULL, check = FALSE, ...)
+  beta = c("none", "sd", "partial.sd"), evaluate = TRUE, rank = "AICc", 
+  fixed = NULL, m.lim = NULL, m.min, m.max, subset, trace = FALSE, 
+  varying, extra, ct.args = NULL, check = FALSE, ...)
 
 }
 

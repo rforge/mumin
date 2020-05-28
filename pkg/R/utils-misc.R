@@ -323,3 +323,10 @@ function(x) {
 	x
 }
 
+
+coefmatch <-
+function(x, y) {
+    match(fixCoefNames(names(coeffs(x))),
+    fixCoefNames(names(coeffs(y))))
+}
+

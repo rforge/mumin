@@ -1,6 +1,5 @@
 
 
-
 jackknifeWeights <- 
 function(object, ...,
 		 data,

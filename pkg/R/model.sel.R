@@ -177,6 +177,7 @@ function(object, ..., rank = NULL, rank.args = NULL,
 	
 	rval <- structure(
 		rval[o, , drop = FALSE],
+		 # TERMS
 		terms = structure(all.terms, interceptLabel =
 			unique(unlist(lapply(allTermsList, attr, "interceptLabel")))),
 		model.calls = lapply(models, get_call)[o],
