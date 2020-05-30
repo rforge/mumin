@@ -51,58 +51,76 @@ function(rank = NULL, rank.args = NULL, object = NULL, ...) {
 }
 
 
+# Like `regmatches`, but for captured groups, and simplistic.
+# Only does results of `regexpr`.
+.matches <-
+function (x, m) { 
+	cs <- attr(m, "capture.start")
+	cl <- attr(m, "capture.length")
+	rval <- array(NA_character_, dim = dim(cs))
+	for(i in seq_along(x))
+		rval[i, ] <- substring(x[i], cs[i, ], cs[i, ] + cl[i, ] - 1L)
+	rval
+}
+
+
 # sorts alphabetically interaction components in model term names
 # if 'peel', tries to remove coefficients wrapped into function-like syntax
 # (this is meant mainly for 'unmarkedFit' models with names such as "psi(a:b:c)")
-# FIXME: this function is ugly
+# This unwrapping is done only if ALL names are suitable for it.
 `fixCoefNames` <-
 function(x, peel = TRUE) {
 	if(!length(x)) return(x)
-	ox <- x
 	ia <- grep(":", x, fixed = TRUE)
 	if(!length(ia)) return(structure(x, order = rep.int(1L, length(x))))
-	x <- ret <- x[ia]
+	
+	ixi <- x[ia]
 	if(peel) {
-		# case of pscl::hurdle, cf are prefixed with count_|zero_
-		if(all(substr(x, 1L, pos <- regexpr("_", x, fixed = TRUE)) %in%
-			c("count_", "zero_"))) {
-				ret <- substr(ret, pos + 1L, 256L)
-				k <- TRUE
-				suffix <- ""
-		} else { # unmarkedFit with its phi(...), lambda(...) etc...
-			k <- grepl("^\\w+\\(.+\\)$", x, perl = TRUE)
-			fname <- substring(x[k], 1L, attr(regexpr("^\\w+(?=\\()", x[k],
-				perl = TRUE),"match.length"))
-
-			# do not peel off if a function
-			k[k] <- !vapply(fname, exists, FALSE, mode = "function", envir = .GlobalEnv)
-			if(any(k)) {
-				pos <- vapply(x[k], function(z) {
-					parens <- lapply(lapply(c("(", ")"),
-						function(s) gregexpr(s, z, fixed = TRUE)[[1L]]),
-							function(y) y[y > 0L])
-					parseq <- unlist(parens, use.names = FALSE)
-					p <- cumsum(rep(c(1L, -1L), sapply(parens, length))[order(parseq)])
-					if(any(p[-length(p)] == 0L)) -1L else parseq[1L]
-				}, 1L, USE.NAMES = FALSE)
-				k[k] <- pos != -1L
-				pos <- pos[pos != -1]
-				if(any(k)) ret[k] <- substring(x[k], pos + 1L, nchar(x[k]) - 1L)
+		# peel only when ALL items are prefixed/wrapped
+		# for pscl::hurdle. Cf are prefixed with count_|zero_
+		if(peel <- all(startsWith(ixi, c("count_", "zero_")))) {
+			pos <- regexpr("_", ixi, fixed = TRUE)
+			peelpfx <- substring(ixi, 1L, pos)
+			peelsfx <- ""
+			ixi <- substring(ixi, pos + 1L)
+		} else {
+			# unmarkedFit with its phi(...), lambda(...) etc...
+			if(peel <- all(endsWith(ixi, ")"))) {
+				# only if 'XXX(...)', i.e. exclude 'XXX():YYY()' or such
+				m <- regexpr("^(([^()]*)\\(((?:[^()]*|(?1))*)\\))$", ixi, perl = TRUE, useBytes = TRUE)
+				cptgrps <- .matches(ixi, m)
+				if(peel <- all(cptgrps[, 2L] != "")) {
+					peelpfx <- paste0(cptgrps[, 2L], "(")
+					peelsfx <- ")"
+					ixi <- cptgrps[, 3L]
+				}
 			}
-			suffix <- ")"
 		}
-	} else	k <- FALSE
+	}
+	# replace {...}, [...], (...), ::, and ::: with placeholders
+	m <- gregexpr("(?:\\{(?:[^\\{\\}]*|(?0))*\\}|\\[(?:[^\\[\\]]*|(?0))*\\]|\\((?:[^()]*|(?0))*\\)|(?>:::?))", ixi, perl = TRUE)
+	xtpl <- ixi
+	regmatches(xtpl, m) <- lapply(m, function(x) {
+		if((ml <- attr(x, "match.length"))[1L] == -1L) return(character(0L))
+		sapply(ml, function(n) paste0(rep("_", n), collapse = ""))
+	})
+	
+	# split by ':' and sort
+	splits <- gregexpr(":", xtpl, fixed = TRUE)
+	ixi <- mapply(function(x, p) {
+		if(p[1L] == -1) return(x)
+		paste0(base::sort(substring(x, c(1L, p + 1L), c(p - 1L, nchar(x)))), collapse = ":")
+	}, ixi, splits, USE.NAMES = FALSE, SIMPLIFY = TRUE)
+	
+	if(peel) ixi <- paste0(peelpfx, ixi, peelsfx)
 
-	## prepare = replace multiple ':' to avoid splitting by '::' and ':::'
-	spl <- expr.split(ret, ":", prepare = function(x) gsub("((?<=:):|:(?=:))", "_", x, perl = TRUE))
-	ret <- vapply(lapply(spl, base::sort), paste0, "", collapse = ":")
-	if(peel && any(k))
-		ret[k] <- paste0(substring(x[k], 1L, pos), ret[k], suffix)
-	ox[ia] <- ret
-	ord <- rep.int(1, length(ox))
-	ord[ia] <- sapply(spl, length)
-	structure(ox, order = ord)
+	x[ia] <- ixi
+	ord <- rep.int(1L, length(x))
+	ord[ia] <- vapply(splits, length, 0L) + 1L
+	attr(x, "order") <- ord
+	x
 }
+
 
 ## like 'strsplit', but ignores split characters within quotes and matched
 ## parentheses
@@ -298,16 +316,19 @@ function(x, minlength = 4, minwordlen = 1,
 `modelDescr` <-
 function(models, withModel = FALSE, withFamily = TRUE,
 	withArguments = TRUE, remove.cols = c("formula", "random", "fixed", "model",
-	"data", "family", "cluster", "model.parameters")) {
+	"data", "family", "cluster", "model.parameters"),
+	remove.pattern = "formula$", ...) {
 
 	if(withModel) {
 		allTermsList <- lapply(models, function(x) {
 			tt <- getAllTerms(x)
 			rtt <- attr(tt, "random.terms")
-			c(tt, if(!is.null(rtt)) paste0("(", rtt, ")") else NULL)
+			if(!is.null(rtt))
+				rtt[i] <- paste0("(", rtt[i <- !grepl("^[a-z]*\\(.+\\)$", rtt)], ")")
+			c(tt, rtt)
 		})
 		allTerms <- unique(unlist(allTermsList))
-		abvtt <- abbreviateTerms(allTerms)
+		abvtt <- abbreviateTerms(allTerms, ...)
 		variables <- attr(abvtt, "variables")
 		abvtt <- gsub("\\(1 \\| (\\S+)(?: %in%.*)?\\)", "(\\1)", abvtt, perl = TRUE)
 		abvtt <- sapply(allTermsList, function(x) paste(abvtt[match(x, allTerms)],
@@ -342,6 +363,7 @@ function(models, withModel = FALSE, withFamily = TRUE,
 	}
 
 	if(withArguments) {
+		
 		cl <- lapply(models, get_call)
 		haveNoCall <-  vapply(cl, is.null, FALSE)
 		cl[haveNoCall] <- lapply(cl[haveNoCall], function(x) call("none", formula = NA))
@@ -349,8 +371,12 @@ function(models, withModel = FALSE, withFamily = TRUE,
 			switch(mode(argval), character = , logical = argval,
 			numeric = signif(argval, 3L), asChar(argval))))
 		arg <- rbindDataFrameList(lapply(lapply(arg, t), as.data.frame))
+		
+		i <- !(colnames(arg) %in% remove.cols)
+		i[i][grep(remove.pattern[1L], colnames(arg)[i])] <- FALSE
+
 		arg <- cbind(class = as.factor(sapply(lapply(models, class), "[", 1L)),
-			arg[, !(colnames(arg) %in% remove.cols), drop = FALSE])
+			arg[, i, drop = FALSE])
 		reml <-	rep(NA, length(models))
 		if(!is.null(arg$method)) {
 			reml <- ((arg$class == "lme" &
