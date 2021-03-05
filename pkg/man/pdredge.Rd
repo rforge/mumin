@@ -16,10 +16,13 @@ pdredge(global.model, cluster = NA,
 }
 
 \arguments{
-    \item{global.model, beta, evaluate, rank}{
+    \item{global.model, beta, rank, fixed, m.lim, m.max, m.min, 
+        subset, varying, extra, ct.args, ...}{
         see \code{\link{dredge}}. }
-    \item{fixed, m.lim, m.max, m.min, subset, varying, extra, ct.args, ...}{
-        see \code{\link{dredge}}. }
+	\item{evaluate}{whether to evaluate and rank the models. If \code{FALSE}, a
+        list of unevaluated \code{call}s is returned and \code{cluster} is 
+        not used. 
+        }
     \item{trace}{ displays the generated calls, but may not work as expected
         since the models are evaluated in batches rather than one by one. }
     \item{cluster}{ either a valid \code{"cluster"} object, or \code{NA} for a
@@ -49,7 +52,6 @@ If \code{check} is \code{TRUE} or positive, \code{pdredge} tries to check whethe
 	given as argument.
 
 }
-
 
 \value{
  See \code{\link{dredge}}.

@@ -1,5 +1,20 @@
 MuMIn package news:
 
+Version: 1.44.3 (2021-03-05)
+(fixed) getAllTerms.zeroinfl: error when the function was called from non-global
+    environment (spotted by Richard Shefferson)
+
+Version: 1.44.2 (2020-07-14)
+(fixed) error with makeArgs (and hence dredge) with glmmTMB with non-symbol 
+    response.
+
+Version: 1.44.1 (2020-06-25)
+plot.model.selection: has been modified. Most notable change is the way the 
+    colour argument is interpreted. Also the default colours use now 
+    `hcl.palette` and differ from the previous version. There is no backward 
+    compatibility.
+importance: is now formally deprecated with a warning. Use `sw` instead.
+
 Version: 1.44.0 (2020-05-28)
 (added) plot method for the class "averaging" produces a dot-and-whisker plot of 
     coefficients. This uses a new general function `coefplot` that can be used 
@@ -54,8 +69,10 @@ Version: 1.43.9 (2019-06-21)
 (fixed) 'r.squaredGLMM' failed when order of interaction components in RE part
     of model formula were not in order of appearance (found by
     Gabriel Baud-Bovy)
-(removed) 'predict.merMod' replacement, since the original method (in 'lme4')
-    now accepts "se.fit" argument.
+(removed) 'predict.merMod' replacement to avoid the conflict of registered 
+    methods. Note that the original method does not calculate 'se.fit', so 
+    currently there is no out-of-box way to produce averaged predictions
+    with standard errors.
 
 Version: 1.43.8 (2019-04-15)
 (fixed) methods for 'gamlss' (reported by Andras Farkas)

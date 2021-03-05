@@ -113,7 +113,9 @@ function(obj, termNames, opt, ...) {
 		rval[[i]] <- ~ 0
 		environment(rval[[i]]) <- opt$gmFormulaEnv
 	}
-	rval$formula <- as.formula(call("~", as.symbol(opt$response), rval$formula[[2L]]), opt$gmFormulaEnv)
+	
+	# XXX: Why it was `as.symbol(opt$response)` ?
+	rval$formula <- as.formula(call("~", opt$response, rval$formula[[2L]]), opt$gmFormulaEnv)
 		
 	rval
 }

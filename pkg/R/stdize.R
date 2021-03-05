@@ -62,7 +62,6 @@ function(x, center = TRUE, scale = TRUE, ...) {
 	x
 }
 
-
 stdize.factor <-
 function(x, binary = c("center", "scale", "binary", "half", "omit"),
 center = TRUE, scale = FALSE, 
@@ -227,7 +226,8 @@ append = FALSE, ...) {
 }
 
 stdizeFit <-
-function(object, data, which = c("formula", "subset", "offset", "weights"),
+function(object, data, which = c("formula", "subset", "offset", "weights",
+	"fixed", "random", "model"),
 		 evaluate = TRUE, quote = NA) {
 	thiscall <- match.call()
 	if(is.na(quote)) quote <- is.call(thiscall$object) && !is.primitive(match.fun(thiscall$object[[1L]]))

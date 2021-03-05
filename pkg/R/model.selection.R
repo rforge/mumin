@@ -69,7 +69,6 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 			random.terms <- attr(getAllTerms(attr(origx, "global")), "random.terms")
 			if(!is.null(random.terms)) random.terms <- list(random.terms)
 		} else random.terms <- attr(origx, "random.terms")
-		cat("Model selection table \n")
 		
 		dig <- c(terms = NA, varying = NA, extra = NA, df = 0L, loglik = 3L, ic = 1L, delta = 2L,
 				 weight = 3L)
@@ -115,6 +114,7 @@ function(x, abbrev.names = TRUE, warnings = getOption("warn") != -1L, ...) {
 			x <- cbind(x[, 1L:(k - 1L), drop = FALSE], random = colran, x[, k:ncol(x), drop = FALSE], deparse.level = 0L)
 		}
 
+		cat("Model selection table \n")
 		if(nrow(x) == 0L) {
 			print.default(colnames(x), quote = FALSE)
 			cat("<0 rows>", "\n")
