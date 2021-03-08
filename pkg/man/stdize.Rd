@@ -33,7 +33,7 @@ variables.
   append = FALSE, ...)
 
 stdizeFit(object, newdata, which = c("formula", "subset", "offset", "weights",
-	"fixed", "random", "model"), evaluate = TRUE, quote = NA, ...)
+	"fixed", "random", "model"), evaluate = TRUE, quote = NA)
 }
 
 \arguments{
@@ -194,7 +194,7 @@ z.CO2 <- stdize(uptake ~ conc + Plant, data = CO2, omit = "Plant", scale = twosd
 summary(z.CO2)
 
 
-fmz <- stdizeFit(lmer(uptake ~ conc + I(conc^2) + (1 | Plant)), data = z.CO2)
+fmz <- stdizeFit(lmer(uptake ~ conc + I(conc^2) + (1 | Plant)), newdata = z.CO2)
 # produces:
 # lmer(uptake ~ z.conc + I(z.conc^2) + (1 | Plant), data = z.CO2)
 
@@ -203,10 +203,10 @@ fmz <- stdizeFit(lmer(uptake ~ conc + I(conc^2) + (1 | Plant)), data = z.CO2)
 z.CO2a <- stdize(CO2, source = z.CO2, append = TRUE)
 # Here, the "subset" expression uses untransformed variable, so we modify only
 # "formula" argument, keeping "subset" as-is. For that reason we needed the
-# untransformed variables in "data".
+# untransformed variables in "newdata".
 stdizeFit(lmer(uptake ~ conc + I(conc^2) + (1 | Plant),
     subset = conc > 100,
-    ), data = z.CO2a, which = "formula", evaluate = FALSE)
+    ), newdata = z.CO2a, which = "formula", evaluate = FALSE)
 
 
 # create new data as a sequence along "conc"
