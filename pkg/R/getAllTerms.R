@@ -148,7 +148,8 @@ function(x, ...) {
 #	else getAllTerms.formula(f, intercept = intercept)
 #}
 
-split_formula_by_bar <- function(f) {
+split_formula_by_bar <-
+function(f) {
 	n <- length(f)
 	ans <- if(length(f[[n]]) != 1L && f[[n]][[1L]] == "|") {
 		f1 <- vector("list", 2L)

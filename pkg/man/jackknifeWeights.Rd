@@ -3,10 +3,20 @@
 \alias{jackknifeWeights}
 \title{Jackknifed model weights}
 \usage{
-jackknifeWeights(object, ..., data,
-  type = c("loglik", "rmse"), family = NULL, weights = NULL,
-  optim.method = "BFGS", maxit = 1000, optim.args = list(), start = NULL,
-  force.update = FALSE, py.matrix = FALSE)
+jackknifeWeights(
+  object,
+  ...,
+  data,
+  type = c("loglik", "rmse"),
+  family = NULL,
+  weights = NULL,
+  optim.method = "BFGS",
+  maxit = 1000,
+  optim.args = list(),
+  start = NULL,
+  force.update = FALSE,
+  py.matrix = FALSE
+)
 }
 \arguments{
 \item{object, \dots}{two or more fitted \code{\link{glm}} objects, or a
